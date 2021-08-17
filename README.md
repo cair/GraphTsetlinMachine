@@ -1,3 +1,3 @@
-# Coalesced Multi-Output Tsetlin Machine CUDA
+# Coalesced Multi-Output Tsetlin Machine
 
 Demos coming soon.
