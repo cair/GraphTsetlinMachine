@@ -2,7 +2,7 @@ from setuptools import *
 
 setup(
    name='PyCoalescedTsetlinMachineCUDA',
-   version='0.1.8',
+   version='0.1.9',
    author='Ole-Christoffer Granmo',
    author_email='ole.granmo@uia.no',
    url='https://github.com/cair/pyCoalescedTsetlinMachineCUDA/',
