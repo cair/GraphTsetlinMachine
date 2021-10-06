@@ -310,7 +310,7 @@ class MultiOutputConvolutionalTsetlinMachine2D(CommonTsetlinMachine):
 
 	def fit(self, X, Y, epochs=100, incremental=False):
 		self.number_of_outputs = Y.shape[1]
-			
+
 		self.max_y = None
 		self.min_y = None
 		
@@ -322,7 +322,7 @@ class MultiOutputConvolutionalTsetlinMachine2D(CommonTsetlinMachine):
 		return self._score(X)
 
 	def predict(self, X):
-		return self.score(X) >= 0
+		return int(self.score(X) >= 0)
 
 class MultiOutputTsetlinMachine(CommonTsetlinMachine):
 	def __init__(self, number_of_clauses, T, s, q=1.0, boost_true_positive_feedback=1, number_of_state_bits=8, append_negated=True, grid=(16*13,1,1), block=(128,1,1)):
@@ -348,7 +348,7 @@ class MultiOutputTsetlinMachine(CommonTsetlinMachine):
 		return self._score(X)
 
 	def predict(self, X):
-		return self.score(X) >= 0
+		return int(self.score(X) >= 0)
 
 class MultiClassTsetlinMachine(CommonTsetlinMachine):
 	def __init__(self, number_of_clauses, T, s, q=1.0, boost_true_positive_feedback=1, number_of_state_bits=8, append_negated=True, grid=(16*13,1,1), block=(128,1,1)):
@@ -404,7 +404,7 @@ class TsetlinMachine(CommonTsetlinMachine):
 		return self._score(X)[0,:]
 
 	def predict(self, X):
-		return self.score(X) >= 0
+		return int(self.score(X) >= 0)
 
 class RegressionTsetlinMachine(CommonTsetlinMachine):
 	def __init__(self, number_of_clauses, T, s, boost_true_positive_feedback=1, number_of_state_bits=8, append_negated=True, grid=(16*13,1,1), block=(128,1,1)):
