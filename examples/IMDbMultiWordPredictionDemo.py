@@ -28,6 +28,8 @@ clause_drop_p = 0.0
 
 max_included_literals = 3
 
+number_of_words = 1000
+
 factor = 20
 clauses = factor*20
 T = factor*40
@@ -81,7 +83,7 @@ number_of_features = vectorizer_X.get_feature_names_out().shape[0]
 target_words = []
 for word in feature_names:
 	target_words.append(word)
-	if len(target_words) == 400:
+	if len(target_words) == number_of_words:
 		break
 
 target_ids_list = []
@@ -153,7 +155,7 @@ for e in range(40):
 	for i in range(len(target_words)):
 		print(target_words[i], end=': ')
 		sorted_index = np.argsort(-1*similarity[i,:])
-		for j in range(1, len(target_words)):
+		for j in range(1, 10):
 			print("%s(%.2f) " % (target_words[sorted_index[j]], similarity[i,sorted_index[j]]), end=' ')
 		print()
 
