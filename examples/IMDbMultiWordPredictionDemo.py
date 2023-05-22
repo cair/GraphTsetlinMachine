@@ -80,11 +80,13 @@ X_train_full = vectorizer_X.fit_transform(training_documents).toarray()
 feature_names = vectorizer_X.get_feature_names_out()
 number_of_features = vectorizer_X.get_feature_names_out().shape[0]
 
+X_test_full = vectorizer_X.transform(testing_documents).toarray()
+
 target_words = []
 for word in feature_names:
 	word_id = vectorizer_X.vocabulary_[word]
 
-	if (X_test[:,word_id].sum() == 0):
+	if (X_test_full[:,word_id].sum() == 0):
 		continue
 
 	target_words.append(word)
@@ -108,7 +110,6 @@ for i in range(examples):
 		X_train[i] = np.logical_or(X_train[i], X_train_full[np.random.choice(target_rows)])
 	Y_train[i] = target_class
 
-X_test_full = vectorizer_X.transform(testing_documents).toarray()
 Y_test_multi = np.copy(X_test_full[:,target_ids])
 X_test_full[:,target_ids] = 0
 
