@@ -7,7 +7,7 @@ from time import time
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
-from tmu.models.classification.coalesced_classifier import TMCoalescedClassifier
+from PyCoalescedTsetlinMachineCUDA.tm import MultiClassTsetlinMachine
 
 #target_words = ['masterpiece', 'brilliant', 'comedy', 'scary', 'funny', 'hate', 'love', 'awful', 'terrible']
 
@@ -117,10 +117,10 @@ for e in range(40):
 
 	print("\nEpoch #%d\n" % (e+1))
 
-	print("Clauses\n")
-
 	weights = tm.get_state()[1].reshape((len(target_words), -1))
 
+	print("Clauses\n")
+	
 	for j in range(clauses):
 		print("Clause #%d " % (j), end=' ')
 		for i in range(len(target_words)):
