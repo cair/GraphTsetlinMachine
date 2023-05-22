@@ -125,6 +125,7 @@ for e in range(40):
 		print("Clause #%d " % (j), end=' ')
 		for i in range(len(target_words)):
 			print("%s:W%d " % (target_words[i], weights[i,j]), end=' ')
+		print()
 
 		# l = []
 		# for k in range(tm.clause_bank.number_of_literals):
