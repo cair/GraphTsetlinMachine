@@ -117,22 +117,14 @@ for e in range(40):
 
 	print("\nEpoch #%d\n" % (e+1))
 
-	print("Calculating precision\n")
-	precision = []
-	for i in range(len(target_words)):
-		precision.append(tm.clause_precision(i, True, X_test, Y_test))
-
-	print("Calculating recall\n")
-	recall = []
-	for i in range(len(target_words)):
-		recall.append(tm.clause_recall(i, True, X_test, Y_test))
-
 	print("Clauses\n")
+
+	weights = tm.get_state()[1].reshape((len(target_words), -1))
 
 	for j in range(clauses):
 		print("Clause #%d " % (j), end=' ')
 		for i in range(len(target_words)):
-			print("%s:W%d:P%.2f:R%.2f " % (target_words[i], tm.get_weight(i, j), precision[i][j], recall[i][j]), end=' ')
+			print("%s:W%d " % (target_words[i], weights[i,j]), end=' ')
 
 		l = []
 		for k in range(tm.clause_bank.number_of_literals):
@@ -145,8 +137,7 @@ for e in range(40):
 
 	profile = np.empty((len(target_words), clauses))
 	for i in range(len(target_words)):
-		weights = tm.get_weights(i)
-		profile[i,:] = np.where(weights >= clause_weight_threshold, weights, 0)
+		profile[i,:] = np.where(weights[i,:] >= clause_weight_threshold, weights[i,:], 0)
 
 	similarity = cosine_similarity(profile)
 
