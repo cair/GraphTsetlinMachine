@@ -120,20 +120,20 @@ for e in range(40):
 	weights = tm.get_state()[1].reshape((len(target_words), -1))
 
 	print("Clauses\n")
-	
+
 	for j in range(clauses):
 		print("Clause #%d " % (j), end=' ')
 		for i in range(len(target_words)):
 			print("%s:W%d " % (target_words[i], weights[i,j]), end=' ')
 
-		l = []
-		for k in range(tm.clause_bank.number_of_literals):
-			if tm.get_ta_action(j, k) == 1:
-				if k < tm.clause_bank.number_of_features:
-					l.append("%s(%d)" % (feature_names[k], tm.clause_bank.get_ta_state(j, k)))
-				else:
-					l.append("¬%s(%d)" % (feature_names[k-tm.clause_bank.number_of_features], tm.clause_bank.get_ta_state(j, k)))
-		print(" ∧ ".join(l))
+		# l = []
+		# for k in range(tm.clause_bank.number_of_literals):
+		# 	if tm.get_ta_action(j, k) == 1:
+		# 		if k < tm.number_of_features//2:
+		# 			l.append("%s(%d)" % (feature_names[k], tm.clause_bank.get_ta_state(j, k)))
+		# 		else:
+		# 			l.append("¬%s(%d)" % (feature_names[k-tm.number_of_features//2], tm.clause_bank.get_ta_state(j, k)))
+		# print(" ∧ ".join(l))
 
 	profile = np.empty((len(target_words), clauses))
 	for i in range(len(target_words)):
