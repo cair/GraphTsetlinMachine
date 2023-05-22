@@ -28,7 +28,7 @@ clause_drop_p = 0.0
 
 max_included_literals = 3
 
-number_of_words = 1000
+number_of_words = 750
 
 factor = 20
 clauses = factor*20
@@ -82,6 +82,11 @@ number_of_features = vectorizer_X.get_feature_names_out().shape[0]
 
 target_words = []
 for word in feature_names:
+	word_id = vectorizer_X.vocabulary_[word]
+
+	if (X_test[:,word_id].sum() == 0):
+		continue
+
 	target_words.append(word)
 	if len(target_words) == number_of_words:
 		break
