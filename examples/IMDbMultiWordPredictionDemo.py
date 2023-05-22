@@ -28,7 +28,7 @@ clause_drop_p = 0.0
 
 max_included_literals = 3
 
-number_of_words = 750
+number_of_words = 1000
 
 factor = 20
 clauses = factor*20
