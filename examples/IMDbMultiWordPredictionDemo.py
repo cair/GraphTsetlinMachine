@@ -28,7 +28,7 @@ clause_drop_p = 0.0
 
 max_included_literals = 3
 
-factor = 4
+factor = 20
 clauses = factor*20
 T = factor*40
 s = 5.0
@@ -77,6 +77,12 @@ vectorizer_X = CountVectorizer(tokenizer=tokenizer, lowercase=False, max_feature
 X_train_full = vectorizer_X.fit_transform(training_documents).toarray()
 feature_names = vectorizer_X.get_feature_names_out()
 number_of_features = vectorizer_X.get_feature_names_out().shape[0]
+
+target_words = []
+for word in feature_names:
+	target_words.append(word)
+	if len(target_words) == 400:
+		break
 
 target_ids_list = []
 for target_word in target_words:
