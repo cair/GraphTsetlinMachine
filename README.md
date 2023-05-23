@@ -1,4 +1,4 @@
-# Coalesced Multi-Output Tsetlin Machine
+# Sparse Coalesced Multi-Output Tsetlin Machine
 ![License](https://img.shields.io/github/license/microsoft/interpret.svg?style=flat-square) ![Python Version](https://img.shields.io/pypi/pyversions/interpret.svg?style=flat-square)![Maintenance](https://img.shields.io/maintenance/yes/2023?style=flat-square)
 
 Implementation of the Coalesced Multi-Output Tsetlin Machine (https://arxiv.org/abs/2108.07594).
