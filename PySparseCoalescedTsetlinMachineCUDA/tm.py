@@ -156,7 +156,7 @@ class CommonTsetlinMachine():
 		
 		return X_transformed.reshape((number_of_examples, self.number_of_clauses))
 
-	def _init(self, number_of_examples):
+	def _init(self, X, encoded_Y):
 		if self.append_negated:
 			self.number_of_features = int(self.patch_dim[0]*self.patch_dim[1]*self.dim[2] + (self.dim[0] - self.patch_dim[0]) + (self.dim[1] - self.patch_dim[1]))*2
 		else:
@@ -180,7 +180,7 @@ class CommonTsetlinMachine():
 #define PATCHES %d
 
 #define NUMBER_OF_EXAMPLES %d
-""" % (self.number_of_outputs, self.number_of_clauses, self.number_of_features, self.number_of_state_bits, self.boost_true_positive_feedback, self.s, self.T, self.q, self.negative_clauses, self.number_of_patches, number_of_examples)
+""" % (self.number_of_outputs, self.number_of_clauses, self.number_of_features, self.number_of_state_bits, self.boost_true_positive_feedback, self.s, self.T, self.q, self.negative_clauses, self.number_of_patches, X.shape[0])
 
 		mod_prepare = SourceModule(parameters + kernels.code_header + kernels.code_prepare, no_extern_c=True)
 		self.prepare = mod_prepare.get_function("prepare")
@@ -197,7 +197,10 @@ class CommonTsetlinMachine():
 		self.evaluate_update = mod_update.get_function("evaluate")
 		self.evaluate_update.prepare("PPPPi")
 
-		self.encoded_X_training_gpu = cuda.mem_alloc(int(number_of_examples * self.number_of_patches * self.number_of_ta_chunks*4))
+		self.encoded_X_training_gpu = cuda.mem_alloc(int(self.number_of_patches * self.number_of_ta_chunks * 4))
+		self.X_indptr_training_gpu = cuda.mem_alloc(X.indptr.bytes)
+		self.X_indices_training_gpu = cuda.mem_alloc(X.indices.bytes)
+
 		self.Y_gpu = cuda.mem_alloc(encoded_Y.nbytes)
 
 	def _fit(self, X, encoded_Y, epochs=100, incremental=False):
@@ -208,7 +211,7 @@ class CommonTsetlinMachine():
             self.encoded_Y_train = encoded_Y
 
             if not self.initialized:
-            	self._init(number_of_examples)
+            	self._init(X, encoded_Y)
             	self.initialized = True
 		
 			self.encode_X(X, self.encoded_X_training_gpu)		
