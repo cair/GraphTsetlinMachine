@@ -29,6 +29,7 @@ import pycuda.curandom as curandom
 import pycuda.driver as cuda
 import pycuda.autoinit
 from pycuda.compiler import SourceModule
+from scipy.sparse import csr_matrix
 
 from time import time
 
@@ -57,6 +58,8 @@ class CommonTsetlinMachine():
 		self.prepare_encode = mod_encode.get_function("prepare_encode")
 		self.encode = mod_encode.get_function("encode")
 
+		self.initialized = False
+
 	def encode_X(self, X, encoded_X_gpu):
 		number_of_examples = X.shape[0]
 
@@ -74,7 +77,7 @@ class CommonTsetlinMachine():
 			self.encode(X_gpu, encoded_X_gpu, np.int32(number_of_examples), np.int32(self.dim[0]), np.int32(self.dim[1]), np.int32(self.dim[2]), np.int32(self.patch_dim[0]), np.int32(self.patch_dim[1]), np.int32(0), np.int32(0), grid=self.grid, block=self.block)
 			cuda.Context.synchronize()
 
-	def allocate_gpu_memory(self, number_of_examples):
+	def allocate_gpu_memory(self):
 		self.ta_state_gpu = cuda.mem_alloc(self.number_of_clauses*self.number_of_ta_chunks*self.number_of_state_bits*4)
 		self.clause_weights_gpu = cuda.mem_alloc(self.number_of_outputs*self.number_of_clauses*4)
 		self.class_sum_gpu = cuda.mem_alloc(self.number_of_outputs*4)
@@ -153,63 +156,64 @@ class CommonTsetlinMachine():
 		
 		return X_transformed.reshape((number_of_examples, self.number_of_clauses))
 
+	def _init(self, number_of_examples):
+		if self.append_negated:
+			self.number_of_features = int(self.patch_dim[0]*self.patch_dim[1]*self.dim[2] + (self.dim[0] - self.patch_dim[0]) + (self.dim[1] - self.patch_dim[1]))*2
+		else:
+			self.number_of_features = int(self.patch_dim[0]*self.patch_dim[1]*self.dim[2] + (self.dim[0] - self.patch_dim[0]) + (self.dim[1] - self.patch_dim[1]))
+
+		self.number_of_patches = int((self.dim[0] - self.patch_dim[0] + 1)*(self.dim[1] - self.patch_dim[1] + 1))
+		self.number_of_ta_chunks = int((self.number_of_features-1)/32 + 1)
+
+		parameters = """
+#define CLASSES %d
+#define CLAUSES %d
+#define FEATURES %d
+#define STATE_BITS %d
+#define BOOST_TRUE_POSITIVE_FEEDBACK %d
+#define S %f
+#define THRESHOLD %d
+#define Q %f
+
+#define NEGATIVE_CLAUSES %d
+
+#define PATCHES %d
+
+#define NUMBER_OF_EXAMPLES %d
+""" % (self.number_of_outputs, self.number_of_clauses, self.number_of_features, self.number_of_state_bits, self.boost_true_positive_feedback, self.s, self.T, self.q, self.negative_clauses, self.number_of_patches, number_of_examples)
+
+		mod_prepare = SourceModule(parameters + kernels.code_header + kernels.code_prepare, no_extern_c=True)
+		self.prepare = mod_prepare.get_function("prepare")
+
+		self.allocate_gpu_memory()
+
+		self.prepare(g.state, self.ta_state_gpu, self.clause_weights_gpu, self.class_sum_gpu, grid=self.grid, block=self.block)
+		cuda.Context.synchronize()
+
+		mod_update = SourceModule(parameters + kernels.code_header + kernels.code_update, no_extern_c=True)
+		self.update = mod_update.get_function("update")
+		self.update.prepare("PPPPPPi")
+
+		self.evaluate_update = mod_update.get_function("evaluate")
+		self.evaluate_update.prepare("PPPPi")
+
+		self.encoded_X_training_gpu = cuda.mem_alloc(int(number_of_examples * self.number_of_patches * self.number_of_ta_chunks*4))
+		self.Y_gpu = cuda.mem_alloc(encoded_Y.nbytes)
+
 	def _fit(self, X, encoded_Y, epochs=100, incremental=False):
 		number_of_examples = X.shape[0]
 
-		if (not np.array_equal(self.X_train, X)) or (not np.array_equal(self.encoded_Y_train, encoded_Y)):
-			self.X_train = X
-			self.encoded_Y_train = encoded_Y
-			
-			if len(X.shape) == 3:
-				self.dim = (X.shape[1], X.shape[2],  1)
-			elif len(X.shape) == 4:
-				self.dim = X.shape[1:]
+		if (not np.array_equal(self.X_train, np.concatenate((X.indptr, X.indices)))) or (not np.array_equal(self.encoded_Y_train, encoded_Y)):
+            self.X_train = np.concatenate((X.indptr, X.indices))
+            self.encoded_Y_train = encoded_Y
 
-			if self.append_negated:
-				self.number_of_features = int(self.patch_dim[0]*self.patch_dim[1]*self.dim[2] + (self.dim[0] - self.patch_dim[0]) + (self.dim[1] - self.patch_dim[1]))*2
-			else:
-				self.number_of_features = int(self.patch_dim[0]*self.patch_dim[1]*self.dim[2] + (self.dim[0] - self.patch_dim[0]) + (self.dim[1] - self.patch_dim[1]))
-
-			self.number_of_patches = int((self.dim[0] - self.patch_dim[0] + 1)*(self.dim[1] - self.patch_dim[1] + 1))
-			self.number_of_ta_chunks = int((self.number_of_features-1)/32 + 1)
+            if not self.initialized:
+            	self._init(number_of_examples)
+            	self.initialized = True
 		
-			parameters = """
-	#define CLASSES %d
-	#define CLAUSES %d
-	#define FEATURES %d
-	#define STATE_BITS %d
-	#define BOOST_TRUE_POSITIVE_FEEDBACK %d
-	#define S %f
-	#define THRESHOLD %d
-	#define Q %f
-
-	#define NEGATIVE_CLAUSES %d
-
-	#define PATCHES %d
-
-	#define NUMBER_OF_EXAMPLES %d
-""" % (self.number_of_outputs, self.number_of_clauses, self.number_of_features, self.number_of_state_bits, self.boost_true_positive_feedback, self.s, self.T, self.q, self.negative_clauses, self.number_of_patches, number_of_examples)
-
-			mod_prepare = SourceModule(parameters + kernels.code_header + kernels.code_prepare, no_extern_c=True)
-			self.prepare = mod_prepare.get_function("prepare")
-
-			self.allocate_gpu_memory(number_of_examples)
-
-			self.prepare(g.state, self.ta_state_gpu, self.clause_weights_gpu, self.class_sum_gpu, grid=self.grid, block=self.block)
-			cuda.Context.synchronize()
-
-			mod_update = SourceModule(parameters + kernels.code_header + kernels.code_update, no_extern_c=True)
-			self.update = mod_update.get_function("update")
-			self.update.prepare("PPPPPPi")
-
-			self.evaluate_update = mod_update.get_function("evaluate")
-			self.evaluate_update.prepare("PPPPi")
-
-			self.encoded_X_training_gpu = cuda.mem_alloc(int(number_of_examples * self.number_of_patches * self.number_of_ta_chunks*4))
-			self.encode_X(X, self.encoded_X_training_gpu)
-		
-			self.Y_gpu = cuda.mem_alloc(encoded_Y.nbytes)
+			self.encode_X(X, self.encoded_X_training_gpu)		
 			cuda.memcpy_htod(self.Y_gpu, encoded_Y)
+
 		elif incremental == False:
 			self.prepare(g.state, self.ta_state_gpu, self.clause_weights_gpu, self.class_sum_gpu, grid=self.grid, block=self.block)
 			cuda.Context.synchronize()
@@ -355,11 +359,12 @@ class MultiClassTsetlinMachine(CommonTsetlinMachine):
 		super().__init__(number_of_clauses, T, s, q=q, boost_true_positive_feedback=boost_true_positive_feedback, number_of_state_bits=number_of_state_bits, append_negated=append_negated, grid=grid, block=block)
 		self.negative_clauses = 1
 
-	def fit(self, X, Y, epochs=100, incremental=False):
-		X = X.reshape(X.shape[0], X.shape[1], 1)
+	def fit(self, X, Y, dim, epochs=100, incremental=False):
+		X = csr_matrix(X)
 
 		self.number_of_outputs = int(np.max(Y) + 1)
-		self.patch_dim = (X.shape[1], 1, 1)
+
+		self.dim = self.patch_dim = (X.shape[1], 1, 1)
 
 		self.max_y = None
 		self.min_y = None
