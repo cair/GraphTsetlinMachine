@@ -197,28 +197,20 @@ class CommonTsetlinMachine():
 		self.evaluate_update = mod_update.get_function("evaluate")
 		self.evaluate_update.prepare("PPPP")
 
-		encoded_X = np.empty((self.number_of_patches, self.number_of_ta_chunks), dtype=np.uint32)
+		encoded_X = np.zeros((self.number_of_patches, self.number_of_ta_chunks), dtype=np.uint32)
 		for patch_coordinate_y in range(self.dim[0] - self.patch_dim[0] + 1):
 			for patch_coordinate_x in range(self.dim[0] - self.patch_dim[0] + 1):
 				p = patch_coordinate_y * (self.dim[0] - self.patch_dim[0] + 1) + patch_coordinate_x
 
 				if self.append_negated:
-					for k in range(number_of_features//2):
-						chunk = k // 32
-						pos = k % 32
-						encoded_X[p, chunk] &= ~(1 << pos)
-
 					for k in range(number_of_features//2, number_of_features):
 						chunk = k // 32
 						pos = k % 32
 						encoded_X[p, chunk] |= (1 << pos)
-				else:
-					for k in range(self.number_of_ta_chunks):
-						encoded_X[p, k] = 0
 
 				for y_threshold in range(self.dim[1] - patch_dim[1]):
 					patch_pos = y_threshold
-					if y > y_threshold:
+					if patch_coordinate_y > y_threshold:
 						chunk = patch_pos / 32
 						pos = patch_pos % 32
 						encoded_X[p, chunk] |= (1 << pos)
@@ -230,7 +222,7 @@ class CommonTsetlinMachine():
 
 				for x_threshold in range(self.dim[0] - patch_dim[0]):
 					patch_pos = (self.dim[1] - patch_dim[1]) + x_threshold
-					if x > x_threshold:
+					if patch_coordinate_x > x_threshold:
 						chunk = patch_pos / 32
 						pos = patch_pos % 32
 						encoded_X[p, chunk] |= (1 << pos)
