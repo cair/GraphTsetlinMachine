@@ -198,22 +198,49 @@ class CommonTsetlinMachine():
 		self.evaluate_update.prepare("PPPP")
 
 		encoded_X = np.empty((self.number_of_patches, self.number_of_ta_chunks), dtype=np.uint32)
-		for p in range(self.number_of_patches):
-			if self.append_negated:
-				for k in range(number_of_features//2):
-					chunk = k // 32
-					pos = k % 32
-					encoded_X[p, chunk] &= ~(1 << pos)
+		for patch_coordinate_y in range(self.dim[0] - self.patch_dim[0] + 1):
+			for patch_coordinate_x in range(self.dim[0] - self.patch_dim[0] + 1):
+				p = patch_coordinate_y * (self.dim[0] - self.patch_dim[0] + 1) + patch_coordinate_x
 
-				for k in range(number_of_features//2, number_of_features):
-					chunk = k // 32
-					pos = k % 32
-					encoded_X[p, chunk] |= (1 << pos)
-			else:
-				for k in range(self.number_of_ta_chunks):
-					encoded_X[p, k] = 0
+				if self.append_negated:
+					for k in range(number_of_features//2):
+						chunk = k // 32
+						pos = k % 32
+						encoded_X[p, chunk] &= ~(1 << pos)
+
+					for k in range(number_of_features//2, number_of_features):
+						chunk = k // 32
+						pos = k % 32
+						encoded_X[p, chunk] |= (1 << pos)
+				else:
+					for k in range(self.number_of_ta_chunks):
+						encoded_X[p, k] = 0
+
+				for y_threshold in range(self.dim[1] - patch_dim[1]):
+					patch_pos = y_threshold
+					if y > y_threshold:
+						chunk = patch_pos / 32
+						pos = patch_pos % 32
+						encoded_X[p, chunk] |= (1 << pos)
+
+						if append_negated:
+							chunk = (patch_pos + number_of_features//2) / 32
+							pos = (patch_pos + number_of_features//2) % 32
+							encoded_X[p, chunk] &= ~(1 << pos)
+
+				for x_threshold in range(self.dim[0] - patch_dim[0]):
+					patch_pos = (self.dim[1] - patch_dim[1]) + x_threshold;
+					if x > x_threshold:
+						chunk = patch_pos / 32
+						pos = patch_pos % 32
+						encoded_X[p, chunk] |= (1 << pos)
+
+						if append_negated:
+							chunk = (patch_pos + number_of_features//2) / 32
+							pos = (patch_pos + number_of_features//2) % 32
+							encoded_X[p, chunk] &= ~(1 << pos)
+
 		encoded_X = encoded_X.reshape(-1)
-
 		self.encoded_X_training_gpu = cuda.mem_alloc(encoded_X.nbytes)
 		cuda.memcpy_htod(self.encoded_X_training_gpu, encoded_X)
 
