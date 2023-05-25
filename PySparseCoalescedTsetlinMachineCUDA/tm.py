@@ -193,7 +193,7 @@ class CommonTsetlinMachine():
 				p = patch_coordinate_y * (self.dim[0] - self.patch_dim[0] + 1) + patch_coordinate_x
 
 				if self.append_negated:
-					for k in range(number_of_features//2, number_of_features):
+					for k in range(self.number_of_features//2, self.number_of_features):
 						chunk = k // 32
 						pos = k % 32
 						encoded_X[p, chunk] |= (1 << pos)
@@ -206,8 +206,8 @@ class CommonTsetlinMachine():
 						encoded_X[p, chunk] |= (1 << pos)
 
 						if append_negated:
-							chunk = (patch_pos + number_of_features//2) / 32
-							pos = (patch_pos + number_of_features//2) % 32
+							chunk = (patch_pos + self.number_of_features//2) / 32
+							pos = (patch_pos + self.number_of_features//2) % 32
 							encoded_X[p, chunk] &= ~(1 << pos)
 
 				for x_threshold in range(self.dim[0] - patch_dim[0]):
@@ -218,8 +218,8 @@ class CommonTsetlinMachine():
 						encoded_X[p, chunk] |= (1 << pos)
 
 						if append_negated:
-							chunk = (patch_pos + number_of_features//2) / 32
-							pos = (patch_pos + number_of_features//2) % 32
+							chunk = (patch_pos + self.number_of_features//2) / 32
+							pos = (patch_pos + self.number_of_features//2) % 32
 							encoded_X[p, chunk] &= ~(1 << pos)
 
 		encoded_X = encoded_X.reshape(-1)
