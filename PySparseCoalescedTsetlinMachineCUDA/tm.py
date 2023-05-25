@@ -218,6 +218,7 @@ class CommonTsetlinMachine():
 					if patch_coordinate_x > x_threshold:
 						chunk = patch_pos / 32
 						pos = patch_pos % 32
+						print(p, chunk, pos)
 						encoded_X[p, chunk] |= (1 << pos)
 
 						if append_negated:
