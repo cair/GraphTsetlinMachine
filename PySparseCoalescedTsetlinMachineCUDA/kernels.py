@@ -356,8 +356,6 @@ code_encode = """
 				number_of_ta_chunks= (((number_of_features-1)/32 + 1));
 			}
 
-			unsigned int input_step_size = global_number_of_features;
-
 			unsigned int *indices = &X_indices[X_indptr[e]];
 			int number_of_indices = X_indptr[e + 1] - X_indptr[e]; 
 
@@ -408,8 +406,6 @@ code_encode = """
 				number_of_ta_chunks= (((number_of_features-1)/32 + 1));
 			}
 
-			unsigned int input_step_size = global_number_of_features;
-
 			unsigned int *indices = &X_indices[X_indptr[e]];
 			int number_of_indices = X_indptr[e + 1] - X_indptr[e]; 
 
@@ -419,8 +415,8 @@ code_encode = """
 				int z = (indices[k] % (dim_x*dim_z)) % dim_z;
 
 				for (int patch = index; patch < number_of_patches; patch += stride) {
-					patch_coordinate_y = patch / (dim_x - patch_dim_x + 1);
-					patch_coordinate_x = patch % (dim_x - patch_dim_x + 1);
+					int patch_coordinate_y = patch / (dim_x - patch_dim_x + 1);
+					int patch_coordinate_x = patch % (dim_x - patch_dim_x + 1);
 
 					if ((y < patch_coordinate_y) || (y >= patch_coordinate_y + patch_dim_y) || (x < patch_coordinate_x) || (x >= patch_coordinate_x + patch_dim_x)) {
 						continue;
