@@ -18,8 +18,8 @@ patch_size = 10
 
 (X_train, Y_train), (X_test, Y_test) = mnist.load_data()
 
-X_train = np.where(X_train >= 75, 1, 0) 
-X_test = np.where(X_test >= 75, 1, 0) 
+X_train = np.where(X_train.reshape((X_train.shape[0], 28*28)) > 75, 1, 0) 
+X_test = np.where(X_test.reshape((X_test.shape[0], 28*28)) > 75, 1, 0) 
 
 f = open("mnist_%.1f_%d_%d_%d.txt" % (s, int(factor*2000), T,  patch_size), "w+")
 
