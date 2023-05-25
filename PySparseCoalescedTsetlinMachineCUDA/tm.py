@@ -158,6 +158,7 @@ class CommonTsetlinMachine():
 		self.number_of_ta_chunks = int((self.number_of_features-1)/32 + 1)
 
 		print(self.number_of_outputs, self.number_of_clauses, self.number_of_features, self.number_of_state_bits, self.boost_true_positive_feedback, self.s, self.T, self.q, self.negative_clauses, self.number_of_patches, X.shape[0])
+
 		parameters = """
 #define CLASSES %d
 #define CLAUSES %d
