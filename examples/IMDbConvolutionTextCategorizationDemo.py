@@ -61,6 +61,7 @@ for e in range(train_y.shape[0]):
 		X_train[e, position*(NUM_WORDS+INDEX_FROM) + word_id] = 1
 		position += 1
 X_train = X_train.tocsr()
+Y_train = train_y.astype(np.uint32)
 
 print(test_y.shape[0])
 X_test = lil_matrix((test_y.shape[0], maxlen*(NUM_WORDS+INDEX_FROM)), dtype=np.uint32)
@@ -70,17 +71,18 @@ for e in range(test_y.shape[0]):
 		X_test[e, position*(NUM_WORDS+INDEX_FROM) + word_id] = 1
 		position += 1
 X_test = X_test.tocsr()
+Y_test = test_y.astype(np.uint32)
 
 tm = MultiClassConvolutionalTsetlinMachine2D(clauses, T, s, (1, maxlen, (NUM_WORDS+INDEX_FROM)), (1, 1))
 for i in range(epochs):
     start_training = time()
-    tm.fit(X_train, train_y, epochs=1, incremental=True)
+    tm.fit(X_train, Y_train, epochs=1, incremental=True)
     stop_training = time()
 
     start_testing = time()
-    result_test = 100*(tm.predict(X_test) == test_y).mean()
+    result_test = 100*(tm.predict(X_test) == Y_test).mean()
     stop_testing = time()
 
-    result_train = 100*(tm.predict(X_train) == train_y).mean()
+    result_train = 100*(tm.predict(X_train) == Y_train).mean()
 
     print("#%d Accuracy Test: %.2f%% Accuracy Train: %.2f%% Training: %.2fs Testing: %.2fs" % (i+1, result_test, result_train, stop_training-start_training, stop_testing-start_testing))
