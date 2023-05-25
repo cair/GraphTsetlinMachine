@@ -412,8 +412,6 @@ class MultiClassTsetlinMachine(CommonTsetlinMachine):
 		return self._score(X)
 
 	def predict(self, X):
-		print(X.shape)
-		print(np.argmax(self.score(X), axis=1).shape)
 		return np.argmax(self.score(X), axis=1)
 
 class TsetlinMachine(CommonTsetlinMachine):
