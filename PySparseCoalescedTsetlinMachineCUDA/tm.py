@@ -198,7 +198,7 @@ class CommonTsetlinMachine():
 						pos = k % 32
 						encoded_X[p, chunk] |= (1 << pos)
 
-				for y_threshold in range(self.dim[1] - patch_dim[1]):
+				for y_threshold in range(self.dim[1] - self.patch_dim[1]):
 					patch_pos = y_threshold
 					if patch_coordinate_y > y_threshold:
 						chunk = patch_pos / 32
@@ -210,7 +210,7 @@ class CommonTsetlinMachine():
 							pos = (patch_pos + self.number_of_features//2) % 32
 							encoded_X[p, chunk] &= ~(1 << pos)
 
-				for x_threshold in range(self.dim[0] - patch_dim[0]):
+				for x_threshold in range(self.dim[0] - self.patch_dim[0]):
 					patch_pos = (self.dim[1] - patch_dim[1]) + x_threshold
 					if patch_coordinate_x > x_threshold:
 						chunk = patch_pos / 32
