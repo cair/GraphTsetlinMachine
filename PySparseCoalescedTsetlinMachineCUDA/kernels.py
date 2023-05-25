@@ -294,7 +294,7 @@ code_evaluate = """
 				if (clause_output) {
 					for (int class_id = 0; class_id < CLASSES; ++class_id) {
 						int clause_weight = clause_weights[class_id*CLAUSES + clause];
-						atomicAdd(&class_sum[class_id*NUMBER_OF_EXAMPLES + e], clause_weight);					
+						atomicAdd(&class_sum[class_id], clause_weight);					
 					}
 				}
 			}
@@ -367,8 +367,8 @@ code_encode = """
 				int z = (indices[k] % (dim_x*dim_z)) % dim_z;
 
 				for (int patch = index; patch < number_of_patches; patch += stride) {
-					patch_coordinate_y = patch / (dim_x - patch_dim_x + 1);
-					patch_coordinate_x = patch % (dim_x - patch_dim_x + 1);
+					int patch_coordinate_y = patch / (dim_x - patch_dim_x + 1);
+					int patch_coordinate_x = patch % (dim_x - patch_dim_x + 1);
 
 					if ((y < patch_coordinate_y) || (y >= patch_coordinate_y + patch_dim_y) || (x < patch_coordinate_x) || (x >= patch_coordinate_x + patch_dim_x) {
 						continue;
