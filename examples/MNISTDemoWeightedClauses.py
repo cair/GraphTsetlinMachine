@@ -1,4 +1,4 @@
-from PyCoalescedTsetlinMachineCUDA.tm import MultiClassTsetlinMachine
+from PySparseCoalescedTsetlinMachineCUDA.tm import MultiClassTsetlinMachine
 import numpy as np
 from time import time
 
