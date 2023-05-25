@@ -20,7 +20,6 @@ target_words = ['awful', 'terrible', 'lousy', 'abysmal', 'crap', 'outstanding', 
 #target_words = ['awful', 'terrible', 'brilliant']
 
 examples = 50000
-testing_examples = 2000
 
 clause_weight_threshold = 0
 
@@ -32,7 +31,7 @@ max_included_literals = 3
 
 number_of_words = 2000
 
-factor = 2
+factor = 20
 clauses = factor*20
 T = factor*40
 s = 5.0
@@ -45,7 +44,6 @@ print("Downloading dataset...")
 train,test = keras.datasets.imdb.load_data(num_words=NUM_WORDS, index_from=INDEX_FROM)
 
 train_x,train_y = train
-test_x,test_y = test
 
 word_to_id = keras.datasets.imdb.get_word_index()
 word_to_id = {k:(v+INDEX_FROM) for k,v in word_to_id.items()}
@@ -65,14 +63,6 @@ for i in range(train_y.shape[0]):
 
 	training_documents.append(terms)
 
-testing_documents = []
-for i in range(test_y.shape[0]):
-	terms = []
-	for word_id in test_x[i]:
-		terms.append(id_to_word[word_id].lower())
-
-	testing_documents.append(terms)
-
 def tokenizer(s):
 	return s
 
@@ -84,15 +74,9 @@ X_train_csc = X_train_csr.tocsc()
 feature_names = vectorizer_X.get_feature_names_out()
 number_of_features = vectorizer_X.get_feature_names_out().shape[0]
 
-X_test_csr = vectorizer_X.transform(testing_documents)
-X_test_csc = X_test_csr.tocsc()
-
 # target_words = []
 # for word in feature_names:
 # 	word_id = vectorizer_X.vocabulary_[word]
-
-# 	if (X_test_full[:,word_id].sum() == 0):
-# 		continue
 
 # 	target_words.append(word)
 # 	if len(target_words) == number_of_words:
@@ -118,22 +102,6 @@ for i in range(examples):
 	X_train[i] = Xi
 	Y_train[i] = target_class
 X_train = X_train.tocsr()
-
-X_test_csc[:,target_ids] = 0
-X_test = lil_matrix((testing_examples, number_of_features), dtype=np.uint32)
-Xi = np.zeros(number_of_features, dtype=np.uint32)
-Y_test = np.zeros(testing_examples, dtype=np.uint32)
-for i in range(testing_examples):
-	if i % 1000 == 0:
-		print(i)
-	target_class = np.random.choice(np.arange(target_ids.shape[0]))
-	target_rows = X_test_csc.indices[X_test_csc.indptr[target_ids[target_class]]:X_test_csc.indptr[target_ids[target_class]+1]]
-	Xi[:] = 0
-	for c in range(context_size):
-		Xi = np.logical_or(Xi, X_test_csr[np.random.choice(target_rows)].toarray().reshape(-1))
-	X_test[i] = Xi
-	Y_test[i] = target_class
-X_test = X_test.tocsr()
 
 tm = MultiClassTsetlinMachine(clauses, T, s, append_negated=False)
 
