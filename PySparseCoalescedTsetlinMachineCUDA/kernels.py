@@ -393,6 +393,58 @@ code_encode = """
 				}
 		    }		
 		}
+
+		__global__ void restore(unsigned int *X_indptr, unsigned int *X_indices, unsigned int *encoded_X, int example, int dim_x, int dim_y, int dim_z, int patch_dim_x, int patch_dim_y, int append_negated, int class_features)
+		{
+			int index = blockIdx.x * blockDim.x + threadIdx.x;
+			int stride = blockDim.x * gridDim.x;
+
+			int global_number_of_features = dim_x * dim_y * dim_z;
+			int number_of_features = class_features + patch_dim_x * patch_dim_y * dim_z + (dim_x - patch_dim_x) + (dim_y - patch_dim_y);
+			int number_of_patches = (dim_x - patch_dim_x + 1) * (dim_y - patch_dim_y + 1);
+
+			int number_of_ta_chunks;
+			if (append_negated) {
+				number_of_ta_chunks= (((2*number_of_features-1)/32 + 1));
+			} else {
+				number_of_ta_chunks= (((number_of_features-1)/32 + 1));
+			}
+
+			unsigned int input_step_size = global_number_of_features;
+
+			unsigned int *indices = &X_indices[X_indptr[e]];
+			int number_of_indices = X_indptr[e + 1] - X_indptr[e]; 
+
+			for (int k = 0; k < number_of_indices; ++k) {
+				int y = indices[k] / (dim_x*dim_z);
+				int x = (indices[k] % (dim_x*dim_z)) / dim_z;
+				int z = (indices[k] % (dim_x*dim_z)) % dim_z;
+
+				for (int patch = index; patch < number_of_patches; patch += stride) {
+					patch_coordinate_y = patch / (dim_x - patch_dim_x + 1);
+					patch_coordinate_x = patch % (dim_x - patch_dim_x + 1);
+
+					if ((y < patch_coordinate_y) || (y >= patch_coordinate_y + patch_dim_y) || (x < patch_coordinate_x) || (x >= patch_coordinate_x + patch_dim_x) {
+						continue;
+					}
+
+					int p_y = y - patch_coordinate_y;
+					int p_x = x - patch_coordinate_x;
+
+					int patch_pos = class_features + (dim_y - patch_dim_y) + (dim_x - patch_dim_x) + p_y * patch_dim_x * dim_z + p_x * dim_z + z;
+
+					int chunk_nr = patch_pos / 32;
+					int chunk_pos = patch_pos % 32;
+					encoded_Xi[patch * number_of_ta_chunks + chunk_nr] &= ~(1U << chunk_pos);
+
+					if (append_negated) {
+						int chunk_nr = (patch_pos + number_of_features) / 32;
+						int chunk_pos = (patch_pos + number_of_features) % 32;
+						encoded_Xi[patch * number_of_ta_chunks + chunk_nr] |= (1U << chunk_pos);
+					}
+				}
+		    }		
+		}
 	}
 """
 

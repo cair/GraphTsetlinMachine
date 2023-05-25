@@ -55,8 +55,11 @@ class CommonTsetlinMachine():
 		self.clause_weights = np.array([])
 
 		mod_encode = SourceModule(kernels.code_encode, no_extern_c=True)
-		self.prepare_encode = mod_encode.get_function("prepare_encode")
 		self.encode = mod_encode.get_function("encode")
+		self.encode.prepare("PPPiiiiiiii")
+		
+		self.restore = mod_encode.get_function("restore")
+		self.restore.prepare("PPPiiiiiiii")
 
 		self.initialized = False
 
@@ -189,7 +192,7 @@ class CommonTsetlinMachine():
 
 		mod_update = SourceModule(parameters + kernels.code_header + kernels.code_update, no_extern_c=True)
 		self.update = mod_update.get_function("update")
-		self.update.prepare("PPPPPP")
+		self.update.prepare("PPPPPPi")
 
 		self.evaluate_update = mod_update.get_function("evaluate")
 		self.evaluate_update.prepare("PPPP")
@@ -263,13 +266,15 @@ class CommonTsetlinMachine():
 				class_sum = np.ascontiguousarray(np.zeros(self.number_of_outputs)).astype(np.int32)
 				cuda.memcpy_htod(self.class_sum_gpu, class_sum)
 
-				self.encode(self.X_indptr_training_gpu, self.X_indices_training_gpu, self.encoded_X_gpu, np.int32(e), np.int32(self.dim[0]), np.int32(self.dim[1]), np.int32(self.dim[2]), np.int32(self.patch_dim[0]), np.int32(self.patch_dim[1]), np.int32(self.append_negated), np.int32(0), grid=self.grid, block=self.block)
+				self.encode.prepared_call(self.grid, self.block, self.X_indptr_training_gpu, self.X_indices_training_gpu, self.encoded_X_gpu, np.int32(e), np.int32(self.dim[0]), np.int32(self.dim[1]), np.int32(self.dim[2]), np.int32(self.patch_dim[0]), np.int32(self.patch_dim[1]), np.int32(self.append_negated), np.int32(0))
 	
 				self.evaluate_update.prepared_call(self.grid, self.block, self.ta_state_gpu, self.clause_weights_gpu, self.class_sum_gpu, self.encoded_X_gpu)
 				cuda.Context.synchronize()
 
 				self.update.prepared_call(self.grid, self.block, g.state, self.ta_state_gpu, self.clause_weights_gpu, self.class_sum_gpu, self.encoded_X_gpu, self.encoded_Y_gpu, np.int32(e))
 				cuda.Context.synchronize()
+
+				self.restore.prepared_call(self.grid, self.block, self.X_indptr_training_gpu, self.X_indices_training_gpu, self.encoded_X_gpu, np.int32(e), np.int32(self.dim[0]), np.int32(self.dim[1]), np.int32(self.dim[2]), np.int32(self.patch_dim[0]), np.int32(self.patch_dim[1]), np.int32(self.append_negated), np.int32(0))
 
 		self.ta_state = np.array([])
 		self.clause_weights = np.array([])
