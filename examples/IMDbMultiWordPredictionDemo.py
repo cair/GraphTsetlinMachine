@@ -7,6 +7,8 @@ from time import time
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
+from scipy.sparse import csr_matrix, csc_matrix, coo_matrix
+
 from PySparseCoalescedTsetlinMachineCUDA.tm import MultiClassTsetlinMachine
 
 #target_words = ['masterpiece', 'brilliant', 'comedy', 'scary', 'funny', 'hate', 'love', 'awful', 'terrible']
@@ -76,38 +78,41 @@ def tokenizer(s):
 
 vectorizer_X = CountVectorizer(tokenizer=tokenizer, lowercase=False, max_features=NUM_WORDS, binary=True)
 
-X_train_full = vectorizer_X.fit_transform(training_documents).toarray()
+X_train_csr = vectorizer_X.fit_transform(training_documents)
+X_train_csc = X_train_csr.tocsc()
+
 feature_names = vectorizer_X.get_feature_names_out()
 number_of_features = vectorizer_X.get_feature_names_out().shape[0]
 
-X_test_full = vectorizer_X.transform(testing_documents).toarray()
+X_test_csr = vectorizer_X.transform(testing_documents)
+X_test_csc = X_test_csr.tocsc()
 
-target_words = []
-for word in feature_names:
-	word_id = vectorizer_X.vocabulary_[word]
+# target_words = []
+# for word in feature_names:
+# 	word_id = vectorizer_X.vocabulary_[word]
 
-	if (X_test_full[:,word_id].sum() == 0):
-		continue
+# 	if (X_test_full[:,word_id].sum() == 0):
+# 		continue
 
-	target_words.append(word)
-	if len(target_words) == number_of_words:
-		break
+# 	target_words.append(word)
+# 	if len(target_words) == number_of_words:
+# 		break
 
 target_ids_list = []
 for target_word in target_words:
 	target_ids_list.append(vectorizer_X.vocabulary_[target_word])
 target_ids = np.array(target_ids_list)
 
-Y_train_multi = np.copy(X_train_full[:,target_ids])
-X_train_full[:,target_ids] = 0
+Y_train_multi_csc = np.copy(X_train_csc[:,target_ids])
+X_train_csc[:,target_ids] = 0
 
-X_train = np.zeros((examples, number_of_features), dtype=np.uint32)
+X_train = coo_matrix((examples, number_of_features), dtype=np.uint32)
 Y_train = np.zeros(examples, dtype=np.uint32)
 for i in range(examples):
 	target_class = np.random.choice(np.arange(target_ids.shape[0]))
-	target_rows = np.where(Y_train_multi[:,target_class] == 1)[0]
+	target_rows = np.where(Y_train_multi_csc[:,target_class] == 1)[0]
 	for c in range(context_size):
-		X_train[i] = np.logical_or(X_train[i], X_train_full[np.random.choice(target_rows)])
+		X_train[i,:] =  X_train[i,:].maximum(X_train_csr[np.random.choice(target_rows),:])
 	Y_train[i] = target_class
 
 Y_test_multi = np.copy(X_test_full[:,target_ids])
