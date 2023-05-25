@@ -230,9 +230,9 @@ class CommonTsetlinMachine():
 
 	def _fit(self, X, encoded_Y, epochs=100, incremental=False):
 		if not self.initialized:
-            self._init(X)
-            self.prepare(g.state, self.ta_state_gpu, self.clause_weights_gpu, self.class_sum_gpu, grid=self.grid, block=self.block)
-            cuda.Context.synchronize()
+			self._init(X)
+			self.prepare(g.state, self.ta_state_gpu, self.clause_weights_gpu, self.class_sum_gpu, grid=self.grid, block=self.block)
+			cuda.Context.synchronize()
 
         elif incremental == False:
 			self.prepare(g.state, self.ta_state_gpu, self.clause_weights_gpu, self.class_sum_gpu, grid=self.grid, block=self.block)
