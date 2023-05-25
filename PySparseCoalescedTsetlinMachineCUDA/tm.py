@@ -23,7 +23,7 @@
 
 import numpy as np
 
-import PyCoalescedTsetlinMachineCUDA.kernels as kernels
+import PySparseCoalescedTsetlinMachineCUDA.kernels as kernels
 
 import pycuda.curandom as curandom
 import pycuda.driver as cuda
@@ -275,14 +275,14 @@ class CommonTsetlinMachine():
 
 	def _score(self, X):
 		if not self.initialized:
-            print("Error: Model not trained.")
-            sys.exit(-1)
+			print("Error: Model not trained.")
+			sys.exit(-1)
 
 		if not np.array_equal(self.X_test, np.concatenate((X.indptr, X.indices))):
- 			self.X_test = np.concatenate((X.indptr, X.indices))
-           
-            self.X_indptr_test_gpu = cuda.mem_alloc(X.indptr.bytes)
-            cuda.memcpy_htod(self.X_indptr_teset_gpu, X.indptr)
+			self.X_test = np.concatenate((X.indptr, X.indices))
+
+			self.X_indptr_test_gpu = cuda.mem_alloc(X.indptr.bytes)
+			cuda.memcpy_htod(self.X_indptr_teset_gpu, X.indptr)
 
 			self.X_indices_test_gpu = cuda.mem_alloc(X.indices.bytes)
 			cuda.memcpy_htod(self.X_indices_test_gpu, X.indices)
