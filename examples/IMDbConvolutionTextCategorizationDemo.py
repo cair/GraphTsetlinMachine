@@ -20,7 +20,7 @@ bits = 5
 
 clauses = 10000
 T = 8000
-s = 10.0
+s = 5.0
 
 NUM_WORDS=10000
 INDEX_FROM=2
