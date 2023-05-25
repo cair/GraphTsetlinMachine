@@ -381,12 +381,12 @@ code_encode = """
 
 					int chunk_nr = patch_pos / 32;
 					int chunk_pos = patch_pos % 32;
-					encoded_Xi[patch * number_of_ta_chunks + chunk_nr] |= (1U << chunk_pos);
+					encoded_X[patch * number_of_ta_chunks + chunk_nr] |= (1U << chunk_pos);
 
 					if (append_negated) {
 						int chunk_nr = (patch_pos + number_of_features) / 32;
 						int chunk_pos = (patch_pos + number_of_features) % 32;
-						encoded_Xi[patch * number_of_ta_chunks + chunk_nr] &= ~(1U << chunk_pos);
+						encoded_X[patch * number_of_ta_chunks + chunk_nr] &= ~(1U << chunk_pos);
 					}
 				}
 		    }		
@@ -422,7 +422,7 @@ code_encode = """
 					patch_coordinate_y = patch / (dim_x - patch_dim_x + 1);
 					patch_coordinate_x = patch % (dim_x - patch_dim_x + 1);
 
-					if ((y < patch_coordinate_y) || (y >= patch_coordinate_y + patch_dim_y) || (x < patch_coordinate_x) || (x >= patch_coordinate_x + patch_dim_x) {
+					if ((y < patch_coordinate_y) || (y >= patch_coordinate_y + patch_dim_y) || (x < patch_coordinate_x) || (x >= patch_coordinate_x + patch_dim_x)) {
 						continue;
 					}
 
@@ -433,12 +433,12 @@ code_encode = """
 
 					int chunk_nr = patch_pos / 32;
 					int chunk_pos = patch_pos % 32;
-					encoded_Xi[patch * number_of_ta_chunks + chunk_nr] &= ~(1U << chunk_pos);
+					encoded_X[patch * number_of_ta_chunks + chunk_nr] &= ~(1U << chunk_pos);
 
 					if (append_negated) {
 						int chunk_nr = (patch_pos + number_of_features) / 32;
 						int chunk_pos = (patch_pos + number_of_features) % 32;
-						encoded_Xi[patch * number_of_ta_chunks + chunk_nr] |= (1U << chunk_pos);
+						encoded_X[patch * number_of_ta_chunks + chunk_nr] |= (1U << chunk_pos);
 					}
 				}
 		    }		
