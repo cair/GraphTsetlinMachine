@@ -32,7 +32,7 @@ max_included_literals = 3
 
 number_of_words = 2000
 
-factor = 20
+factor = 2
 clauses = factor*20
 T = factor*40
 s = 5.0
