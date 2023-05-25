@@ -51,9 +51,9 @@ class CommonTsetlinMachine():
 		self.grid = grid
 		self.block = block
 
-		self.X_train = np.array([])
-		self.Y_train = np.array([])
-		self.X_test = np.array([])
+		self.X = np.array([])
+		self.encoded_Y = np.array([])
+		
 		self.ta_state = np.array([])
 		self.clause_weights = np.array([])
 
@@ -105,9 +105,9 @@ class CommonTsetlinMachine():
 		cuda.memcpy_htod(self.ta_state_gpu, state[0])
 		cuda.memcpy_htod(self.clause_weights_gpu, state[1])
 
-		self.X_train = np.array([])
-		self.Y_train = np.array([])
-		self.X_test = np.array([])
+		self.X = np.array([])
+		self.encoded_Y = np.array([])
+
 		self.ta_state = np.array([])
 		self.clause_weights = np.array([])
 
@@ -223,8 +223,8 @@ class CommonTsetlinMachine():
 							encoded_X[p, chunk] &= ~(1 << pos)
 
 		encoded_X = encoded_X.reshape(-1)
-		self.encoded_X_train_gpu = cuda.mem_alloc(encoded_X.nbytes)
-		cuda.memcpy_htod(self.encoded_X_train_gpu, encoded_X)
+		self.encoded_X_gpu = cuda.mem_alloc(encoded_X.nbytes)
+		cuda.memcpy_htod(self.encoded_X_gpu, encoded_X)
 
 		self.initialized = True
 
@@ -237,16 +237,16 @@ class CommonTsetlinMachine():
 			self.prepare(g.state, self.ta_state_gpu, self.clause_weights_gpu, self.class_sum_gpu, grid=self.grid, block=self.block)
 			cuda.Context.synchronize()
 
-		if not np.array_equal(self.X_train, np.concatenate((X.indptr, X.indices))):
-			self.X_train = np.concatenate((X.indptr, X.indices))
-			self.X_indptr_train_gpu = cuda.mem_alloc(X.indptr.nbytes)
-			cuda.memcpy_htod(self.X_indptr_train_gpu, X.indptr)
+		if not np.array_equal(self.X, np.concatenate((X.indptr, X.indices))):
+			self.X = np.concatenate((X.indptr, X.indices))
+			self.X_indptr_gpu = cuda.mem_alloc(X.indptr.nbytes)
+			cuda.memcpy_htod(self.X_indptr_gpu, X.indptr)
 
-			self.X_indices_train_gpu = cuda.mem_alloc(X.indices.nbytes)
-			cuda.memcpy_htod(self.X_indices_train_gpu, X.indices)
+			self.X_indices_gpu = cuda.mem_alloc(X.indices.nbytes)
+			cuda.memcpy_htod(self.X_indices_gpu, X.indices)
 
-		if not np.array_equal(self.encoded_Y_train, encoded_Y):
-			self.encoded_Y_train = encoded_Y
+		if not np.array_equal(self.encoded_Y, encoded_Y):
+			self.encoded_Y = encoded_Y
 
 			self.encoded_Y_gpu = cuda.mem_alloc(encoded_Y.nbytes)
 			cuda.memcpy_htod(self.encoded_Y_gpu, encoded_Y)
@@ -256,7 +256,7 @@ class CommonTsetlinMachine():
 				class_sum = np.zeros(self.number_of_outputs).astype(np.int32)
 				cuda.memcpy_htod(self.class_sum_gpu, class_sum)
 
-				self.encode.prepared_call(self.grid, self.block, self.X_indptr_train_gpu, self.X_indices_train_gpu, self.encoded_X_gpu, np.int32(e), np.int32(self.dim[0]), np.int32(self.dim[1]), np.int32(self.dim[2]), np.int32(self.patch_dim[0]), np.int32(self.patch_dim[1]), np.int32(self.append_negated), np.int32(0))
+				self.encode.prepared_call(self.grid, self.block, self.X_indptr_gpu, self.X_indices_gpu, self.encoded_X_gpu, np.int32(e), np.int32(self.dim[0]), np.int32(self.dim[1]), np.int32(self.dim[2]), np.int32(self.patch_dim[0]), np.int32(self.patch_dim[1]), np.int32(self.append_negated), np.int32(0))
 				cuda.Context.synchronize()
 
 				self.evaluate_update.prepared_call(self.grid, self.block, self.ta_state_gpu, self.clause_weights_gpu, self.class_sum_gpu, self.encoded_X_gpu)
@@ -265,7 +265,7 @@ class CommonTsetlinMachine():
 				self.update.prepared_call(self.grid, self.block, g.state, self.ta_state_gpu, self.clause_weights_gpu, self.class_sum_gpu, self.encoded_X_gpu, self.encoded_Y_gpu, np.int32(e))
 				cuda.Context.synchronize()
 
-				self.restore.prepared_call(self.grid, self.block, self.X_indptr_train_gpu, self.X_indices_train_gpu, self.encoded_X_gpu, np.int32(e), np.int32(self.dim[0]), np.int32(self.dim[1]), np.int32(self.dim[2]), np.int32(self.patch_dim[0]), np.int32(self.patch_dim[1]), np.int32(self.append_negated), np.int32(0))
+				self.restore.prepared_call(self.grid, self.block, self.X_indptr_gpu, self.X_indices_gpu, self.encoded_X_gpu, np.int32(e), np.int32(self.dim[0]), np.int32(self.dim[1]), np.int32(self.dim[2]), np.int32(self.patch_dim[0]), np.int32(self.patch_dim[1]), np.int32(self.append_negated), np.int32(0))
 				cuda.Context.synchronize()
 
 		self.ta_state = np.array([])
@@ -281,23 +281,23 @@ class CommonTsetlinMachine():
 		if not np.array_equal(self.X_test, np.concatenate((X.indptr, X.indices))):
 			self.X_test = np.concatenate((X.indptr, X.indices))
 
-			self.X_indptr_test_gpu = cuda.mem_alloc(X.indptr.nbytes)
+			self.X_indptr_gpu = cuda.mem_alloc(X.indptr.nbytes)
 			cuda.memcpy_htod(self.X_indptr_teset_gpu, X.indptr)
 
-			self.X_indices_test_gpu = cuda.mem_alloc(X.indices.nbytes)
-			cuda.memcpy_htod(self.X_indices_test_gpu, X.indices)
+			self.X_indices_gpu = cuda.mem_alloc(X.indices.nbytes)
+			cuda.memcpy_htod(self.X_indices_gpu, X.indices)
 
 		class_sum = np.zeros((X.shape[0], self.number_of_outputs), dtype=np.int32)
 		for e in range(X.shape[0]):
 			cuda.memcpy_htod(self.class_sum_gpu, class_sum[e,:])
 
-			self.encode.prepared_call(self.grid, self.block, self.X_indptr_test_gpu, self.X_indices_test_gpu, self.encoded_X_gpu, np.int32(e), np.int32(self.dim[0]), np.int32(self.dim[1]), np.int32(self.dim[2]), np.int32(self.patch_dim[0]), np.int32(self.patch_dim[1]), np.int32(self.append_negated), np.int32(0))
+			self.encode.prepared_call(self.grid, self.block, self.X_indptr_gpu, self.X_indices_gpu, self.encoded_X_gpu, np.int32(e), np.int32(self.dim[0]), np.int32(self.dim[1]), np.int32(self.dim[2]), np.int32(self.patch_dim[0]), np.int32(self.patch_dim[1]), np.int32(self.append_negated), np.int32(0))
 			cuda.Context.synchronize()
 
 			self.evaluate.prepared_call(self.grid, self.block, self.ta_state_gpu, self.clause_weights_gpu, self.class_sum_gpu, self.encoded_X_gpu)
 			cuda.Context.synchronize()
 
-			self.restore.prepared_call(self.grid, self.block, self.X_indptr_test_gpu, self.X_indices_test_gpu, self.encoded_X_gpu, np.int32(e), np.int32(self.dim[0]), np.int32(self.dim[1]), np.int32(self.dim[2]), np.int32(self.patch_dim[0]), np.int32(self.patch_dim[1]), np.int32(self.append_negated), np.int32(0))
+			self.restore.prepared_call(self.grid, self.block, self.X_indptr_gpu, self.X_indices_gpu, self.encoded_X_gpu, np.int32(e), np.int32(self.dim[0]), np.int32(self.dim[1]), np.int32(self.dim[2]), np.int32(self.patch_dim[0]), np.int32(self.patch_dim[1]), np.int32(self.append_negated), np.int32(0))
 			cuda.Context.synchronize()
 
 			cuda.memcpy_dtoh(class_sum[e,:], class_sum_gpu)
