@@ -7,7 +7,7 @@ from time import time
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
-from PyCoalescedTsetlinMachineCUDA.tm import MultiClassTsetlinMachine
+from PySparseCoalescedTsetlinMachineCUDA.tm import MultiClassTsetlinMachine
 
 #target_words = ['masterpiece', 'brilliant', 'comedy', 'scary', 'funny', 'hate', 'love', 'awful', 'terrible']
 
