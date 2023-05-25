@@ -11,21 +11,9 @@ from scipy.sparse import csr_matrix, csc_matrix, lil_matrix
 
 from PySparseCoalescedTsetlinMachineCUDA.tm import MultiClassConvolutionalTsetlinMachine2D, MultiClassTsetlinMachine
 
-#target_words = ['masterpiece', 'brilliant', 'comedy', 'scary', 'funny', 'hate', 'love', 'awful', 'terrible']
-
-#target_words = ['awful', 'scary', 'brilliant']
-
-target_words = ['awful', 'terrible', 'lousy', 'abysmal', 'crap', 'outstanding', 'brilliant', 'excellent', 'superb', 'magnificent', 'marvellous', 'truck', 'plane', 'car', 'cars', 'motorcycle',  'scary', 'frightening', 'terrifying', 'horrifying', 'funny', 'comic', 'hilarious', 'witty']
-
-#target_words = ['awful', 'terrible', 'brilliant']
-
-maxlen = 50
+maxlen = 100
 
 epochs = 100
-
-clause_weight_threshold = 0
-
-max_included_literals = 3
 
 clauses = 10000
 T = 8000
