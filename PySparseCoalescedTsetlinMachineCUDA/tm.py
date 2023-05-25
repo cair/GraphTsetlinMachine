@@ -319,6 +319,8 @@ class MultiClassConvolutionalTsetlinMachine2D(CommonTsetlinMachine):
 		self.negative_clauses = 1
 
 	def fit(self, X, Y, epochs=100, incremental=False):
+		X = csr_matrix(X)
+
 		self.number_of_outputs = int(np.max(Y) + 1)
 	
 		self.max_y = None
@@ -331,10 +333,11 @@ class MultiClassConvolutionalTsetlinMachine2D(CommonTsetlinMachine):
 		self._fit(X, encoded_Y, epochs=epochs, incremental=incremental)
 
 	def score(self, X):
+		X = csr_matrix(X)
 		return self._score(X)
 
 	def predict(self, X):
-		return np.argmax(self.score(X), axis=0)
+		return np.argmax(self.score(X), axis=1)
 
 class MultiOutputConvolutionalTsetlinMachine2D(CommonTsetlinMachine):
 	"""
