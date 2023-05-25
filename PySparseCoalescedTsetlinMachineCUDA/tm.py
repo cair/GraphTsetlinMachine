@@ -239,10 +239,10 @@ class CommonTsetlinMachine():
 
 		if not np.array_equal(self.X_train, np.concatenate((X.indptr, X.indices))):
 			self.X_train = np.concatenate((X.indptr, X.indices))
-			self.X_indptr_train_gpu = cuda.mem_alloc(X.indptr.bytes)
+			self.X_indptr_train_gpu = cuda.mem_alloc(X.indptr.nbytes)
 			cuda.memcpy_htod(self.X_indptr_train_gpu, X.indptr)
 
-			self.X_indices_train_gpu = cuda.mem_alloc(X.indices.bytes)
+			self.X_indices_train_gpu = cuda.mem_alloc(X.indices.nbytes)
 			cuda.memcpy_htod(self.X_indices_train_gpu, X.indices)
 
 		if not np.array_equal(self.encoded_Y_train, encoded_Y):
@@ -281,10 +281,10 @@ class CommonTsetlinMachine():
 		if not np.array_equal(self.X_test, np.concatenate((X.indptr, X.indices))):
 			self.X_test = np.concatenate((X.indptr, X.indices))
 
-			self.X_indptr_test_gpu = cuda.mem_alloc(X.indptr.bytes)
+			self.X_indptr_test_gpu = cuda.mem_alloc(X.indptr.nbytes)
 			cuda.memcpy_htod(self.X_indptr_teset_gpu, X.indptr)
 
-			self.X_indices_test_gpu = cuda.mem_alloc(X.indices.bytes)
+			self.X_indices_test_gpu = cuda.mem_alloc(X.indices.nbytes)
 			cuda.memcpy_htod(self.X_indices_test_gpu, X.indices)
 
 		class_sum = np.zeros((X.shape[0], self.number_of_outputs), dtype=np.int32)
