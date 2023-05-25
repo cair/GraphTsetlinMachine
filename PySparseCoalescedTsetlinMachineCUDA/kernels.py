@@ -370,7 +370,7 @@ code_encode = """
 					int patch_coordinate_y = patch / (dim_x - patch_dim_x + 1);
 					int patch_coordinate_x = patch % (dim_x - patch_dim_x + 1);
 
-					if ((y < patch_coordinate_y) || (y >= patch_coordinate_y + patch_dim_y) || (x < patch_coordinate_x) || (x >= patch_coordinate_x + patch_dim_x) {
+					if ((y < patch_coordinate_y) || (y >= patch_coordinate_y + patch_dim_y) || (x < patch_coordinate_x) || (x >= patch_coordinate_x + patch_dim_x)) {
 						continue;
 					}
 
