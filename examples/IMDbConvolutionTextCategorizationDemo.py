@@ -48,28 +48,28 @@ for i in range(NUM_WORDS+INDEX_FROM):
 print("Producing bit representation...")
 
 print(train_y.shape[0])
-X_train = lil_matrix((train_y.shape[0], maxlen*hypervector_length), dtype=np.uint32)
+X_train = lil_matrix((train_y.shape[0], maxlen*hypervector_size), dtype=np.uint32)
 for e in range(train_y.shape[0]):
 	position = 0
 	for word_id in train_x[e]:
 		for bit_index in encoding[word_id]:
-			X_train[e, position*hypervector_length + bit_index] = 1
+			X_train[e, position*hypervector_size + bit_index] = 1
 		position += 1
 X_train = X_train.tocsr()
 Y_train = train_y.astype(np.uint32)
 
 print(test_y.shape[0])
-X_test = lil_matrix((test_y.shape[0], maxlen*hypervector_length), dtype=np.uint32)
+X_test = lil_matrix((test_y.shape[0], maxlen*hypervector_size), dtype=np.uint32)
 for e in range(test_y.shape[0]):
 	position = 0
 	for word_id in test_x[e]:
 		for bit_index in encoding[word_id]:
-			X_test[e, position*hypervector_length + bit_index] = 1
+			X_test[e, position*hypervector_size + bit_index] = 1
 		position += 1
 X_test = X_test.tocsr()
 Y_test = test_y.astype(np.uint32)
 
-tm = MultiClassConvolutionalTsetlinMachine2D(clauses, T, s, (1, maxlen, hypervector_length), (1, 1))
+tm = MultiClassConvolutionalTsetlinMachine2D(clauses, T, s, (1, maxlen, hypervector_size), (1, 1))
 for i in range(epochs):
     start_training = time()
     tm.fit(X_train, Y_train, epochs=1, incremental=True)
