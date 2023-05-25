@@ -87,7 +87,6 @@ for target_word in target_words:
 	target_ids_list.append(vectorizer_X.vocabulary_[target_word])
 target_ids = np.array(target_ids_list)
 
-X_train_csc[:,target_ids] = 0
 X_train = lil_matrix((examples, number_of_features), dtype=np.uint32)
 Xi = np.zeros(number_of_features, dtype=np.uint32)
 Y_train = np.zeros(examples, dtype=np.uint32)
@@ -101,7 +100,8 @@ for i in range(examples):
 		Xi = np.logical_or(Xi, X_train_csr[np.random.choice(target_rows)].toarray().reshape(-1))
 	X_train[i] = Xi
 	Y_train[i] = target_class
-X_train = X_train.tocsr()
+X_train = X_train.tocsc()
+X_train[:,target_ids] = 0
 
 tm = MultiClassTsetlinMachine(clauses, T, s, append_negated=False)
 
