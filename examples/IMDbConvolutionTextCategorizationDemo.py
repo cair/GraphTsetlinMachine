@@ -19,7 +19,7 @@ target_words = ['awful', 'terrible', 'lousy', 'abysmal', 'crap', 'outstanding', 
 
 #target_words = ['awful', 'terrible', 'brilliant']
 
-maxlen = 100
+maxlen = 25
 
 epochs = 100
 
