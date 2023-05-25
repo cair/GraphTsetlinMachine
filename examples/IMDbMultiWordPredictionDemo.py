@@ -7,7 +7,7 @@ from time import time
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
-from scipy.sparse import csr_matrix, csc_matrix, coo_matrix
+from scipy.sparse import csr_matrix, csc_matrix, lil_matrix
 
 from PySparseCoalescedTsetlinMachineCUDA.tm import MultiClassTsetlinMachine
 
@@ -19,7 +19,7 @@ target_words = ['awful', 'terrible', 'lousy', 'abysmal', 'crap', 'outstanding', 
 
 #target_words = ['awful', 'terrible', 'brilliant']
 
-examples = 50000
+examples = 5000
 testing_examples = 2000
 
 clause_weight_threshold = 0
@@ -103,29 +103,37 @@ for target_word in target_words:
 	target_ids_list.append(vectorizer_X.vocabulary_[target_word])
 target_ids = np.array(target_ids_list)
 
-Y_train_multi_csc = np.copy(X_train_csc[:,target_ids])
 X_train_csc[:,target_ids] = 0
-
-X_train = coo_matrix((examples, number_of_features), dtype=np.uint32)
+X_train = lil_matrix((examples, number_of_features), dtype=np.uint32)
+Xi = np.zeros(number_of_features, dtype=np.uint32)
 Y_train = np.zeros(examples, dtype=np.uint32)
 for i in range(examples):
+	if i % 1000 == 0:
+		print(i)
 	target_class = np.random.choice(np.arange(target_ids.shape[0]))
-	target_rows = np.where(Y_train_multi_csc[:,target_class] == 1)[0]
+	target_rows = X_train_csc.indices[X_train_csc.indptr[target_ids[target_class]]:X_train_csc.indptr[target_ids[target_class]+1]]
+	Xi[:] = 0
 	for c in range(context_size):
-		X_train[i,:] =  X_train[i,:].maximum(X_train_csr[np.random.choice(target_rows),:])
+		Xi = np.logical_or(Xi, X_train_csr[np.random.choice(target_rows)].toarray().reshape(-1))
+	X_train[i] = Xi
 	Y_train[i] = target_class
+X_train = X_train.tocsr()
 
-Y_test_multi = np.copy(X_test_full[:,target_ids])
-X_test_full[:,target_ids] = 0
-
-X_test = np.zeros((testing_examples, number_of_features), dtype=np.uint32)
+X_test_csc[:,target_ids] = 0
+X_test = lil_matrix((testing_examples, number_of_features), dtype=np.uint32)
+Xi = np.zeros(number_of_features, dtype=np.uint32)
 Y_test = np.zeros(testing_examples, dtype=np.uint32)
 for i in range(testing_examples):
+	if i % 1000 == 0:
+		print(i)
 	target_class = np.random.choice(np.arange(target_ids.shape[0]))
-	target_rows = np.where(Y_test_multi[:,target_class] == 1)[0]
+	target_rows = X_test_csc.indices[X_test_csc.indptr[target_ids[target_class]]:X_test_csc.indptr[target_ids[target_class]+1]]
+	Xi[:] = 0
 	for c in range(context_size):
-		X_test[i] = np.logical_or(X_test[i], X_test_full[np.random.choice(target_rows)])
+		Xi = np.logical_or(Xi, X_test_csr[np.random.choice(target_rows)].toarray().reshape(-1))
+	X_test[i] = Xi
 	Y_test[i] = target_class
+X_test = X_test.tocsr()
 
 tm = MultiClassTsetlinMachine(clauses, T, s, append_negated=False)
 
