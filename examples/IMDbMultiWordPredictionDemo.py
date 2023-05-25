@@ -19,7 +19,7 @@ target_words = ['awful', 'terrible', 'lousy', 'abysmal', 'crap', 'outstanding', 
 
 #target_words = ['awful', 'terrible', 'brilliant']
 
-examples = 5000
+examples = 50000
 testing_examples = 2000
 
 clause_weight_threshold = 0
