@@ -21,6 +21,8 @@ target_words = ['awful', 'terrible', 'lousy', 'abysmal', 'crap', 'outstanding', 
 
 maxlen = 100
 
+epochs = 100
+
 clause_weight_threshold = 0
 
 max_included_literals = 3
