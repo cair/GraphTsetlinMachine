@@ -57,6 +57,7 @@ for e in range(train_y.shape[0]):
 	position = 0
 	for word_id in train_x[e]:
 		X_train[e, position*(NUM_WORDS+INDEX_FROM) + word_id] = 1
+		position += 1
 X_train = X_train.tocsr()
 
 print(test_y.shape[0])
@@ -65,6 +66,7 @@ for e in range(test_y.shape[0]):
 	position = 0
 	for word_id in test_x[e]:
 		X_test[e, position*(NUM_WORDS+INDEX_FROM) + word_id] = 1
+		position += 1
 X_test = X_test.tocsr()
 
 tm = MultiClassConvolutionalTsetlinMachine2D(clauses, T, s, (maxlen, 1, (NUM_WORDS+INDEX_FROM)), (1, 1))
