@@ -19,7 +19,7 @@ target_words = ['awful', 'terrible', 'lousy', 'abysmal', 'crap', 'outstanding', 
 
 #target_words = ['awful', 'terrible', 'brilliant']
 
-maxlen = 25
+maxlen = 50
 
 epochs = 100
 
@@ -40,6 +40,8 @@ train,test = keras.datasets.imdb.load_data(num_words=NUM_WORDS, maxlen=maxlen, i
 
 train_x, train_y = train
 test_x, test_y = test
+
+print(test_y.dtype)
 
 word_to_id = keras.datasets.imdb.get_word_index()
 word_to_id = {k:(v+INDEX_FROM) for k,v in word_to_id.items()}
@@ -69,8 +71,7 @@ for e in range(test_y.shape[0]):
 		position += 1
 X_test = X_test.tocsr()
 
-tm = MultiClassConvolutionalTsetlinMachine2D(clauses, T, s, (maxlen, 1, (NUM_WORDS+INDEX_FROM)), (1, 1))
-
+tm = MultiClassConvolutionalTsetlinMachine2D(clauses, T, s, (1, maxlen, (NUM_WORDS+INDEX_FROM)), (1, 1))
 for i in range(epochs):
     start_training = time()
     tm.fit(X_train, train_y, epochs=1, incremental=True)
