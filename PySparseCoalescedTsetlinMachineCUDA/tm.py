@@ -302,6 +302,7 @@ class CommonTsetlinMachine():
 
 			cuda.memcpy_dtoh(class_sum[e,:], self.class_sum_gpu)
 
+		print(class_sum.shape)
 		return class_sum
 	
 class MultiClassConvolutionalTsetlinMachine2D(CommonTsetlinMachine):
@@ -412,6 +413,8 @@ class MultiClassTsetlinMachine(CommonTsetlinMachine):
 		return self._score(X)
 
 	def predict(self, X):
+		print(X.shape)
+		print(np.argmax(self.score(X), axis=0).shape)
 		return np.argmax(self.score(X), axis=0)
 
 class TsetlinMachine(CommonTsetlinMachine):
