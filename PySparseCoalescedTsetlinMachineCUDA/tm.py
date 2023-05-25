@@ -300,7 +300,7 @@ class CommonTsetlinMachine():
 			self.restore.prepared_call(self.grid, self.block, self.X_indptr_gpu, self.X_indices_gpu, self.encoded_X_gpu, np.int32(e), np.int32(self.dim[0]), np.int32(self.dim[1]), np.int32(self.dim[2]), np.int32(self.patch_dim[0]), np.int32(self.patch_dim[1]), np.int32(self.append_negated), np.int32(0))
 			cuda.Context.synchronize()
 
-			cuda.memcpy_dtoh(class_sum[e,:], class_sum_gpu)
+			cuda.memcpy_dtoh(class_sum[e,:], self.class_sum_gpu)
 
 		return class_sum
 	
