@@ -408,7 +408,7 @@ class MultiClassTsetlinMachine(CommonTsetlinMachine):
 		return
 
 	def score(self, X):
-		X = X.reshape(X.shape[0], X.shape[1], 1)
+		X = csr_matrix(X)
 		return self._score(X)
 
 	def predict(self, X):
