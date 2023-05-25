@@ -208,7 +208,7 @@ class CommonTsetlinMachine():
 						pos = patch_pos % 32
 						encoded_X[p, chunk] |= (1 << pos)
 
-						if append_negated:
+						if self.append_negated:
 							chunk = (patch_pos + self.number_of_features//2) // 32
 							pos = (patch_pos + self.number_of_features//2) % 32
 							encoded_X[p, chunk] &= ~(1 << pos)
