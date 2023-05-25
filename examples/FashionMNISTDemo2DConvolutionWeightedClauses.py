@@ -1,4 +1,4 @@
-from PyCoalescedTsetlinMachineCUDA.tm import MultiClassConvolutionalTsetlinMachine2D
+from PySparseCoalescedTsetlinMachineCUDA.tm import MultiClassConvolutionalTsetlinMachine2D
 import numpy as np
 from time import time
 import cv2
@@ -28,7 +28,7 @@ for i in range(X_test.shape[0]):
 f = open("fashion_%.1f_%d_%d_%d.txt" % (s, int(factor*2000), T,  patch_size), "w+")
 
 for e in range(ensembles):
-	tm = MultiClassConvolutionalTsetlinMachine2D(int(factor*2000), T, s, (10, 10))
+	tm = MultiClassConvolutionalTsetlinMachine2D(int(factor*2000), T, s, (28, 28, 1), (10, 10))
 
 	for i in range(epochs):
 	    start_training = time()
