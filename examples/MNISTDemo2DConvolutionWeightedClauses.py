@@ -24,7 +24,7 @@ X_test = np.where(X_test.reshape((X_test.shape[0], 28*28)) > 75, 1, 0)
 f = open("mnist_%.1f_%d_%d_%d.txt" % (s, int(factor*2000), T,  patch_size), "w+")
 
 for e in range(ensembles):
-	tm = MultiClassConvolutionalTsetlinMachine2D(int(factor*2000), T, s, (28, 28, 1), (patch_size, patch_size, 1))
+	tm = MultiClassConvolutionalTsetlinMachine2D(int(factor*2000), T, s, (28, 28, 1), (patch_size, patch_size))
 
 	for i in range(epochs):
 	    start_training = time()
