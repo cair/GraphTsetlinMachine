@@ -278,8 +278,8 @@ class CommonTsetlinMachine():
 			print("Error: Model not trained.")
 			sys.exit(-1)
 
-		if not np.array_equal(self.X_test, np.concatenate((X.indptr, X.indices))):
-			self.X_test = np.concatenate((X.indptr, X.indices))
+		if not np.array_equal(self.X, np.concatenate((X.indptr, X.indices))):
+			self.X = np.concatenate((X.indptr, X.indices))
 
 			self.X_indptr_gpu = cuda.mem_alloc(X.indptr.nbytes)
 			cuda.memcpy_htod(self.X_indptr_teset_gpu, X.indptr)
