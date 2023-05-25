@@ -318,6 +318,8 @@ class MultiClassConvolutionalTsetlinMachine2D(CommonTsetlinMachine):
 		super().__init__(number_of_clauses, T, s, q=q, boost_true_positive_feedback=boost_true_positive_feedback, number_of_state_bits=number_of_state_bits, append_negated=append_negated, grid=grid, block=block)
 		self.dim = dim
 		self.patch_dim = patch_dim
+		print(dim)
+		print(patch_dim)
 		self.negative_clauses = 1
 
 	def fit(self, X, Y, epochs=100, incremental=False):
