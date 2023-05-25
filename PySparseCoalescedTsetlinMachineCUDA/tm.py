@@ -233,16 +233,14 @@ class CommonTsetlinMachine():
 			self._init(X)
 			self.prepare(g.state, self.ta_state_gpu, self.clause_weights_gpu, self.class_sum_gpu, grid=self.grid, block=self.block)
 			cuda.Context.synchronize()
-
-        elif incremental == False:
+		elif incremental == False:
 			self.prepare(g.state, self.ta_state_gpu, self.clause_weights_gpu, self.class_sum_gpu, grid=self.grid, block=self.block)
 			cuda.Context.synchronize()
 
 		if not np.array_equal(self.X_train, np.concatenate((X.indptr, X.indices))):
-            self.X_train = np.concatenate((X.indptr, X.indices))
-           
-            self.X_indptr_train_gpu = cuda.mem_alloc(X.indptr.bytes)
-            cuda.memcpy_htod(self.X_indptr_train_gpu, X.indptr)
+			self.X_train = np.concatenate((X.indptr, X.indices))
+			self.X_indptr_train_gpu = cuda.mem_alloc(X.indptr.bytes)
+			cuda.memcpy_htod(self.X_indptr_train_gpu, X.indptr)
 
 			self.X_indices_train_gpu = cuda.mem_alloc(X.indices.bytes)
 			cuda.memcpy_htod(self.X_indices_train_gpu, X.indices)
