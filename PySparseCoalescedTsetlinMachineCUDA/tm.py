@@ -389,7 +389,7 @@ class MultiClassTsetlinMachine(CommonTsetlinMachine):
 		super().__init__(number_of_clauses, T, s, q=q, boost_true_positive_feedback=boost_true_positive_feedback, number_of_state_bits=number_of_state_bits, append_negated=append_negated, grid=grid, block=block)
 		self.negative_clauses = 1
 
-	def fit(self, X, Y, dim, epochs=100, incremental=False):
+	def fit(self, X, Y, epochs=100, incremental=False):
 		X = csr_matrix(X)
 
 		self.number_of_outputs = int(np.max(Y) + 1)
