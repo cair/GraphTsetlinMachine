@@ -41,8 +41,6 @@ train,test = keras.datasets.imdb.load_data(num_words=NUM_WORDS, maxlen=maxlen, i
 train_x, train_y = train
 test_x, test_y = test
 
-print(test_y.dtype)
-
 word_to_id = keras.datasets.imdb.get_word_index()
 word_to_id = {k:(v+INDEX_FROM) for k,v in word_to_id.items()}
 word_to_id["<PAD>"] = 0
@@ -58,6 +56,7 @@ X_train = lil_matrix((train_y.shape[0], maxlen*(NUM_WORDS+INDEX_FROM)), dtype=np
 for e in range(train_y.shape[0]):
 	position = 0
 	for word_id in train_x[e]:
+		print(word_id)
 		X_train[e, position*(NUM_WORDS+INDEX_FROM) + word_id] = 1
 		position += 1
 X_train = X_train.tocsr()
