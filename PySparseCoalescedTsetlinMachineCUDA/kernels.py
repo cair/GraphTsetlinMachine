@@ -272,31 +272,29 @@ code_evaluate = """
 					continue;
 				}
 
-				for (int e = 0; e < NUMBER_OF_EXAMPLES; ++e) {
-					int clause_output;
-					for (int patch = 0; patch < PATCHES; ++patch) {
-						clause_output = 1;
-						for (int la_chunk = 0; la_chunk < LA_CHUNKS-1; ++la_chunk) {
-							if ((ta_state[la_chunk*STATE_BITS + STATE_BITS - 1] & X[e*(LA_CHUNKS*PATCHES) + patch*LA_CHUNKS + la_chunk]) != ta_state[la_chunk*STATE_BITS + STATE_BITS - 1]) {
-								clause_output = 0;
-								break;
-							}
-						}
-
-						if ((ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & X[e*(LA_CHUNKS*PATCHES) + patch*LA_CHUNKS + LA_CHUNKS-1] & FILTER) != (ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & FILTER)) {
+				int clause_output;
+				for (int patch = 0; patch < PATCHES; ++patch) {
+					clause_output = 1;
+					for (int la_chunk = 0; la_chunk < LA_CHUNKS-1; ++la_chunk) {
+						if ((ta_state[la_chunk*STATE_BITS + STATE_BITS - 1] & X[patch*LA_CHUNKS + la_chunk]) != ta_state[la_chunk*STATE_BITS + STATE_BITS - 1]) {
 							clause_output = 0;
-						}
-
-						if (clause_output) {
 							break;
 						}
 					}
 
+					if ((ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & X[patch*LA_CHUNKS + LA_CHUNKS-1] & FILTER) != (ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & FILTER)) {
+						clause_output = 0;
+					}
+
 					if (clause_output) {
-						for (int class_id = 0; class_id < CLASSES; ++class_id) {
-							int clause_weight = clause_weights[class_id*CLAUSES + clause];
-							atomicAdd(&class_sum[class_id*NUMBER_OF_EXAMPLES + e], clause_weight);					
-						}
+						break;
+					}
+				}
+
+				if (clause_output) {
+					for (int class_id = 0; class_id < CLASSES; ++class_id) {
+						int clause_weight = clause_weights[class_id*CLAUSES + clause];
+						atomicAdd(&class_sum[class_id*NUMBER_OF_EXAMPLES + e], clause_weight);					
 					}
 				}
 			}
