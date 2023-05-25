@@ -9,7 +9,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 from scipy.sparse import csr_matrix, csc_matrix, lil_matrix
 
-from PySparseCoalescedTsetlinMachineCUDA.tm import MultiClassTsetlinMachine
+from PySparseCoalescedTsetlinMachineCUDA.tm import MultiClassConvolutionalTsetlinMachine2D
 
 #target_words = ['masterpiece', 'brilliant', 'comedy', 'scary', 'funny', 'hate', 'love', 'awful', 'terrible']
 
