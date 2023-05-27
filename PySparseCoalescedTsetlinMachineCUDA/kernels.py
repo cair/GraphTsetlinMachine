@@ -38,7 +38,21 @@ code_header = """
 
 code_update = """
 	extern "C"
-    {
+	{
+		// Counts number of include actions for a given clause
+	    __device__ inline int number_of_include_actions(unsigned int *ta_state)
+	    {
+	        int number_of_include_actions = 0;
+	        for (int k = 0; k < LA_CHUNKS-1; ++k) {
+	            unsigned int ta_pos = k*STATE_BITS + STATE_BITS-1;
+	            number_of_include_actions += __popc(ta_state[ta_pos]);
+	        }
+	        unsigned int ta_pos = (LA_CHUNKS-1)*STATE_BITS + STATE_BITS-1;
+	        number_of_include_actions += __popc(ta_state[ta_pos] & FILTERS);
+
+	        return(number_of_include_actions);
+	    }
+
     	// Increment the states of each of those 32 Tsetlin Automata flagged in the active bit vector.
 		__device__ inline void inc(unsigned int *ta_state, int clause, int chunk, unsigned int active)
 		{
@@ -131,6 +145,8 @@ code_update = """
 			int absolute_prediction_error = abs(y - class_sum);
 			if (curand_uniform(localState) <= 1.0*absolute_prediction_error/(2*THRESHOLD)) {
 				if (target*sign > 0) {
+					int included_literals = number_of_include_actions(ta_state);
+
 					if (clause_output && abs(*clause_weight) < INT_MAX) {
 						(*clause_weight) += sign;
 					}
@@ -145,7 +161,7 @@ code_update = """
 							}
 						}
 
-						if (clause_output) {
+						if (clause_output && included_literals <= MAX_INCLUDED_LITERALS) {
 							#if BOOST_TRUE_POSITIVE_FEEDBACK == 1
 								inc(ta_state, 0, la_chunk, X[clause_patch*LA_CHUNKS + la_chunk]);
 							#else
