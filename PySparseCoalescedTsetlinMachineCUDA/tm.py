@@ -37,7 +37,19 @@ from time import time
 g = curandom.XORWOWRandomNumberGenerator() 
 
 class CommonTsetlinMachine():
-	def __init__(self, number_of_clauses, T, s, q=1.0, boost_true_positive_feedback=1, number_of_state_bits=8, append_negated=True, grid=(16*13,1,1), block=(128,1,1)):
+	def __init__(
+			self,
+			number_of_clauses,
+			T,
+			s,
+			q=1.0,
+			max_included_literals=None,
+			boost_true_positive_feedback=1,
+			number_of_state_bits=8,
+			append_negated=True,
+			grid=(16*13,1,1),
+			block=(128,1,1)
+	):
 		print("Initialization of sparse structure.")
 
 		self.number_of_clauses = number_of_clauses
@@ -46,6 +58,7 @@ class CommonTsetlinMachine():
 		self.T = int(T)
 		self.s = s
 		self.q = q
+		self.max_included_literals = max_included_literals
 		self.boost_true_positive_feedback = boost_true_positive_feedback
 		self.append_negated = append_negated
 		self.grid = grid
@@ -312,8 +325,22 @@ class MultiClassConvolutionalTsetlinMachine2D(CommonTsetlinMachine):
 	This class ...
 	"""
 	
-	def __init__(self, number_of_clauses, T, s, dim, patch_dim, q=1.0, boost_true_positive_feedback=1, number_of_state_bits=8, append_negated=True, grid=(16*13,1,1), block=(128,1,1)):
-		super().__init__(number_of_clauses, T, s, q=q, boost_true_positive_feedback=boost_true_positive_feedback, number_of_state_bits=number_of_state_bits, append_negated=append_negated, grid=grid, block=block)
+	def __init__(
+			self,
+			number_of_clauses,
+			T,
+			s,
+			dim,
+			patch_dim,
+			q=1.0,
+			max_included_literals=None,
+			boost_true_positive_feedback=1,
+			number_of_state_bits=8,
+			append_negated=True,
+			grid=(16*13,1,1),
+			block=(128,1,1)
+	):
+		super().__init__(number_of_clauses, T, s, q=q, max_included_literals=max_included_literals, boost_true_positive_feedback=boost_true_positive_feedback, number_of_state_bits=number_of_state_bits, append_negated=append_negated, grid=grid, block=block)
 		self.dim = dim
 		self.patch_dim = patch_dim
 		self.negative_clauses = 1
@@ -344,8 +371,21 @@ class MultiOutputConvolutionalTsetlinMachine2D(CommonTsetlinMachine):
 	This class ...
 	"""
 	
-	def __init__(self, number_of_clauses, T, s, patch_dim, q=1.0, boost_true_positive_feedback=1, number_of_state_bits=8, append_negated=True, grid=(16*13,1,1), block=(128,1,1)):
-		super().__init__(number_of_clauses, T, s, q=q, boost_true_positive_feedback=boost_true_positive_feedback, number_of_state_bits=number_of_state_bits, append_negated=append_negated, grid=grid, block=block)
+	def __init__(
+			self,
+			number_of_clauses,
+			T,
+			s,
+			patch_dim,
+			q=1.0,
+			max_included_literals=None,
+			boost_true_positive_feedback=1,
+			number_of_state_bits=8,
+			append_negated=True,
+			grid=(16*13,1,1),
+			block=(128,1,1)
+	):
+		super().__init__(number_of_clauses, T, s, q=q, max_included_literals=max_included_literals, boost_true_positive_feedback=boost_true_positive_feedback, number_of_state_bits=number_of_state_bits, append_negated=append_negated, grid=grid, block=block)
 		self.patch_dim = patch_dim
 		self.negative_clauses = 1
 
@@ -366,8 +406,20 @@ class MultiOutputConvolutionalTsetlinMachine2D(CommonTsetlinMachine):
 		return (self.score(X) >= 0).astype(np.uint32).transpose()
 
 class MultiOutputTsetlinMachine(CommonTsetlinMachine):
-	def __init__(self, number_of_clauses, T, s, q=1.0, boost_true_positive_feedback=1, number_of_state_bits=8, append_negated=True, grid=(16*13,1,1), block=(128,1,1)):
-		super().__init__(number_of_clauses, T, s, q=q, boost_true_positive_feedback=boost_true_positive_feedback, number_of_state_bits=number_of_state_bits, append_negated=append_negated, grid=grid, block=block)
+	def __init__(
+			self,
+			number_of_clauses,
+			T,
+			s,
+			q=1.0,
+			max_included_literals=None,
+			boost_true_positive_feedback=1,
+			number_of_state_bits=8,
+			append_negated=True,
+			grid=(16*13,1,1),
+			block=(128,1,1)
+	):
+		super().__init__(number_of_clauses, T, s, q=q, max_included_literals=max_included_literals, boost_true_positive_feedback=boost_true_positive_feedback, number_of_state_bits=number_of_state_bits, append_negated=append_negated, grid=grid, block=block)
 		self.negative_clauses = 1
 
 	def fit(self, X, Y, epochs=100, incremental=False):
@@ -392,8 +444,20 @@ class MultiOutputTsetlinMachine(CommonTsetlinMachine):
 		return (self.score(X) >= 0).astype(np.uint32).transpose()
 
 class MultiClassTsetlinMachine(CommonTsetlinMachine):
-	def __init__(self, number_of_clauses, T, s, q=1.0, boost_true_positive_feedback=1, number_of_state_bits=8, append_negated=True, grid=(16*13,1,1), block=(128,1,1)):
-		super().__init__(number_of_clauses, T, s, q=q, boost_true_positive_feedback=boost_true_positive_feedback, number_of_state_bits=number_of_state_bits, append_negated=append_negated, grid=grid, block=block)
+	def __init__(
+			self,
+			number_of_clauses,
+			T,
+			s,
+			q=1.0,
+			max_included_literals=None,
+			boost_true_positive_feedback=1,
+			number_of_state_bits=8,
+			append_negated=True,
+			grid=(16*13,1,1),
+			block=(128,1,1)
+	):
+		super().__init__(number_of_clauses, T, s, q=q, max_included_literals=max_included_literals, boost_true_positive_feedback=boost_true_positive_feedback, number_of_state_bits=number_of_state_bits, append_negated=append_negated, grid=grid, block=block)
 		self.negative_clauses = 1
 
 	def fit(self, X, Y, epochs=100, incremental=False):
@@ -423,8 +487,8 @@ class MultiClassTsetlinMachine(CommonTsetlinMachine):
 		return np.argmax(self.score(X), axis=1)
 
 class TsetlinMachine(CommonTsetlinMachine):
-	def __init__(self, number_of_clauses, T, s, q=1.0, boost_true_positive_feedback=1, number_of_state_bits=8, append_negated=True, grid=(16*13,1,1), block=(128,1,1)):
-		super().__init__(number_of_clauses, T, s, q=q, boost_true_positive_feedback=boost_true_positive_feedback, number_of_state_bits=number_of_state_bits, append_negated=append_negated, grid=grid, block=block)
+	def __init__(self, number_of_clauses, T, s, q=1.0, max_included_literals=None, boost_true_positive_feedback=1, number_of_state_bits=8, append_negated=True, grid=(16*13,1,1), block=(128,1,1)):
+		super().__init__(number_of_clauses, T, s, q=q, max_included_literals=max_included_literals, boost_true_positive_feedback=boost_true_positive_feedback, number_of_state_bits=number_of_state_bits, append_negated=append_negated, grid=grid, block=block)
 		self.negative_clauses = 1
 
 	def fit(self, X, Y, epochs=100, incremental=False):
@@ -450,8 +514,8 @@ class TsetlinMachine(CommonTsetlinMachine):
 		return int(self.score(X) >= 0)
 
 class RegressionTsetlinMachine(CommonTsetlinMachine):
-	def __init__(self, number_of_clauses, T, s, boost_true_positive_feedback=1, number_of_state_bits=8, append_negated=True, grid=(16*13,1,1), block=(128,1,1)):
-		super().__init__(number_of_clauses, T, s, boost_true_positive_feedback=boost_true_positive_feedback, number_of_state_bits=number_of_state_bits, append_negated=append_negated, grid=grid, block=block)
+	def __init__(self, number_of_clauses, T, s, max_included_literals=None, boost_true_positive_feedback=1, number_of_state_bits=8, append_negated=True, grid=(16*13,1,1), block=(128,1,1)):
+		super().__init__(number_of_clauses, T, s, max_included_literals=max_included_literals, boost_true_positive_feedback=boost_true_positive_feedback, number_of_state_bits=number_of_state_bits, append_negated=append_negated, grid=grid, block=block)
 		self.negative_clauses = 0
 
 	def fit(self, X, Y, epochs=100, incremental=False):
