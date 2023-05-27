@@ -167,6 +167,9 @@ class CommonTsetlinMachine():
 		else:
 			self.number_of_features = int(self.patch_dim[0]*self.patch_dim[1]*self.dim[2] + (self.dim[0] - self.patch_dim[0]) + (self.dim[1] - self.patch_dim[1]))
 
+		if self.max_included_literals == None:
+			self.max_included_literals = self.number_of_features
+
 		self.number_of_patches = int((self.dim[0] - self.patch_dim[0] + 1)*(self.dim[1] - self.patch_dim[1] + 1))
 		self.number_of_ta_chunks = int((self.number_of_features-1)/32 + 1)
 
