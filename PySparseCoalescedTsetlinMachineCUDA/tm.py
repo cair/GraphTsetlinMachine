@@ -487,7 +487,19 @@ class MultiClassTsetlinMachine(CommonTsetlinMachine):
 		return np.argmax(self.score(X), axis=1)
 
 class TsetlinMachine(CommonTsetlinMachine):
-	def __init__(self, number_of_clauses, T, s, q=1.0, max_included_literals=None, boost_true_positive_feedback=1, number_of_state_bits=8, append_negated=True, grid=(16*13,1,1), block=(128,1,1)):
+	def __init__(
+			self,
+			number_of_clauses,
+			T,
+			s,
+			q=1.0,
+			max_included_literals=None,
+			boost_true_positive_feedback=1,
+			number_of_state_bits=8,
+			append_negated=True,
+			grid=(16*13,1,1),
+			block=(128,1,1)
+	):
 		super().__init__(number_of_clauses, T, s, q=q, max_included_literals=max_included_literals, boost_true_positive_feedback=boost_true_positive_feedback, number_of_state_bits=number_of_state_bits, append_negated=append_negated, grid=grid, block=block)
 		self.negative_clauses = 1
 
@@ -514,7 +526,18 @@ class TsetlinMachine(CommonTsetlinMachine):
 		return int(self.score(X) >= 0)
 
 class RegressionTsetlinMachine(CommonTsetlinMachine):
-	def __init__(self, number_of_clauses, T, s, max_included_literals=None, boost_true_positive_feedback=1, number_of_state_bits=8, append_negated=True, grid=(16*13,1,1), block=(128,1,1)):
+	def __init__(
+			self,
+			number_of_clauses,
+			T,
+			s,
+			max_included_literals=None,
+			boost_true_positive_feedback=1,
+			number_of_state_bits=8,
+			append_negated=True,
+			grid=(16*13,1,1),
+			block=(128,1,1)
+	):
 		super().__init__(number_of_clauses, T, s, max_included_literals=max_included_literals, boost_true_positive_feedback=boost_true_positive_feedback, number_of_state_bits=number_of_state_bits, append_negated=append_negated, grid=grid, block=block)
 		self.negative_clauses = 0
 
