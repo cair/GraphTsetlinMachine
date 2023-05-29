@@ -620,11 +620,11 @@ class AutoEncoderTsetlinMachine(CommonTsetlinMachine):
 			self.active_output_gpu = cuda.mem_alloc(self.active_output.nbytes)
 			cuda.memcpy_htod(self.active_output_gpu, self.active_output)
 
-	def _fit(self, X_csr, X_csc, encoded_Y, epochs=100, incremental=False):
+	def _fit(self, X_csr, X_csc, encoded_Y, number_of_examples, epochs, incremental=False):
 		self._init_fit(X_csr, X_csc, encoded_Y, incremental=incremental)
 
 		for epoch in range(epochs):
-			for e in range(X_csr.shape[0]):
+			for e in range(number_of_examples):
 				class_sum = np.zeros(self.number_of_outputs).astype(np.int32)
 				cuda.memcpy_htod(self.class_sum_gpu, class_sum)
 
@@ -660,7 +660,7 @@ class AutoEncoderTsetlinMachine(CommonTsetlinMachine):
 		
 		return
 
-	def fit(self, X, epochs=100, incremental=False):
+	def fit(self, X, number_of_examples=2000, epochs=100, incremental=False):
 		X_csr = csr_matrix(X)
 		X_csc = X.tocsc()
 
@@ -674,7 +674,7 @@ class AutoEncoderTsetlinMachine(CommonTsetlinMachine):
 		
 		encoded_Y = np.zeros(self.number_of_outputs, dtype = np.int32)
 
-		self._fit(X_csr, X_csc, encoded_Y, epochs = epochs, incremental = incremental)
+		self._fit(X_csr, X_csc, encoded_Y, number_of_examples, epochs, incremental = incremental)
 
 		return
 
