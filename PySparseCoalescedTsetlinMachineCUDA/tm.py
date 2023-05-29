@@ -1,4 +1,4 @@
-# Copyright (c) 2021 Ole-Christoffer Granmo
+# Copyright (c) 2023 Ole-Christoffer Granmo
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -77,6 +77,9 @@ class CommonTsetlinMachine():
 		
 		self.restore = mod_encode.get_function("restore")
 		self.restore.prepare("PPPiiiiiiii")
+
+		self.produce_autoencoder_examples= mod_encode.get_function("produce_autoencoder_example")
+		self.produce_autoencoder_examples.prepare("PPiPPiPPiPPiiii")
 
 		self.initialized = False
 
@@ -245,7 +248,7 @@ class CommonTsetlinMachine():
 
 		self.initialized = True
 
-	def _fit(self, X, encoded_Y, epochs=100, incremental=False):
+	def _init_fit(self, X, encoded_Y, incremental):
 		if not self.initialized:
 			self._init(X)
 			self.prepare(g.state, self.ta_state_gpu, self.clause_weights_gpu, self.class_sum_gpu, grid=self.grid, block=self.block)
@@ -267,6 +270,9 @@ class CommonTsetlinMachine():
 
 			self.encoded_Y_gpu = cuda.mem_alloc(encoded_Y.nbytes)
 			cuda.memcpy_htod(self.encoded_Y_gpu, encoded_Y)
+
+	def _fit(self, X, encoded_Y, epochs=100, incremental=False):
+		self._init_fit(X, encoded_Y, incremental)
 
 		for epoch in range(epochs):
 			for e in range(X.shape[0]):
@@ -561,3 +567,120 @@ class RegressionTsetlinMachine(CommonTsetlinMachine):
 		X = X.reshape(X.shape[0], X.shape[1], 1)
 		
 		return 1.0*(self._score(X)[0,:])*(self.max_y - self.min_y)/(self.T) + self.min_y
+
+class AutoEncoderTsetlinMachine(CommonTsetlinMachine):
+	def __init__(
+			self,
+			number_of_clauses,
+			T,
+			s,
+			active_output,
+			q=1.0,
+			max_included_literals=None,
+			accumulation = 1,
+			boost_true_positive_feedback=1,
+			number_of_state_bits=8,
+			append_negated=True,
+			grid=(16*13,1,1),
+			block=(128,1,1)
+	):
+		super().__init__(number_of_clauses, T, s, q=q, max_included_literals=max_included_literals, boost_true_positive_feedback=boost_true_positive_feedback, number_of_state_bits=number_of_state_bits, append_negated=append_negated, grid=grid, block=block)
+		self.negative_clauses = 1
+
+		self.active_output = np.array(active_output).astype(np.uint32)
+		self.accumulation = accumulation
+
+	def _init_fit(self, X_csr, X_csc, encoded_Y, incremental):
+		if not self.initialized:
+			self._init(X_csr)
+			self.prepare(g.state, self.ta_state_gpu, self.clause_weights_gpu, self.class_sum_gpu, grid=self.grid, block=self.block)
+			cuda.Context.synchronize()
+		elif incremental == False:
+			self.prepare(g.state, self.ta_state_gpu, self.clause_weights_gpu, self.class_sum_gpu, grid=self.grid, block=self.block)
+			cuda.Context.synchronize()
+
+		if not np.array_equal(self.X_train, np.concatenate((X_csr.indptr, X_csr.indices))):
+			self.train_X = np.concatenate((X_csr.indptr, X_csr.indices))
+			
+			self.X_train_csr_indptr_gpu = cuda.mem_alloc(X_csr.indptr.nbytes)
+			cuda.memcpy_htod(self.X_train_csr_indptr_gpu, X_csr.indptr)
+
+			self.X_train_csr_indices_gpu = cuda.mem_alloc(X_csr.indices.nbytes)
+			cuda.memcpy_htod(self.X_train_csr_indices_gpu, X_csr.indices)
+
+			self.X_train_csc_indptr_gpu = cuda.mem_alloc(X_csc.indptr.nbytes)
+			cuda.memcpy_htod(self.X_train_csc_indptr_gpu, X_csc.indptr)
+
+			self.X_train_csc_indices_gpu = cuda.mem_alloc(X_csc.indices.nbytes)
+			cuda.memcpy_htod(self.X_train_csc_indices_gpu, X_csc.indices)
+
+			self.encoded_Y_gpu = cuda.mem_alloc(encoded_Y.nbytes)
+			cuda.memcpy_htod(self.encoded_Y_gpu, encoded_Y)
+
+			self.active_output_gpu = cuda.mem_alloc(self.active_output.nbytes)
+			cuda.memcpy_htod(self.active_output_gpu, self.active_output)
+
+	def _fit(self, X_csr, X_csc, encoded_Y, epochs=100, incremental=False):
+		self._init_fit(X_csr, X_csc, encoded_Y, incremental=incremental)
+
+		for epoch in range(epochs):
+			for e in range(X_csr.shape[0]):
+				class_sum = np.zeros(self.number_of_outputs).astype(np.int32)
+				cuda.memcpy_htod(self.class_sum_gpu, class_sum)
+
+				target = np.random.choice(self.number_of_outputs)
+				self.produce_autoencoder_examples.prepared_call(
+                                            self.grid,
+                                            self.block,
+											g.state,
+                                            self.active_output_gpu,
+                                            self.active_output.shape[0],
+                                            self.X_train_csr_indptr_gpu,
+                                            self.X_train_csr_indices_gpu,
+                                            X_csr.shape[0],
+                                            self.X_train_csc_indptr_gpu,
+                                            self.X_train_csc_indices_gpu,
+                                            X_csc.shape[1],
+                                            self.encoded_X_gpu,
+                                            self.encoded_Y_gpu,
+                                            target,
+                                            int(self.accumulation),
+                                            int(self.T),
+                                            int(self.append_negated))
+				cuda.Context.synchronize()
+
+				self.evaluate_update.prepared_call(self.grid, self.block, self.ta_state_gpu, self.clause_weights_gpu, self.class_sum_gpu, self.encoded_X_gpu)
+				cuda.Context.synchronize()
+
+				self.update.prepared_call(self.grid, self.block, g.state, self.ta_state_gpu, self.clause_weights_gpu, self.class_sum_gpu, self.encoded_X_gpu, self.encoded_Y_gpu, np.int32(0))
+				cuda.Context.synchronize()
+
+		self.ta_state = np.array([])
+		self.clause_weights = np.array([])
+		
+		return
+
+	def fit(self, X, epochs=100, incremental=False):
+		X_csr = csr_matrix(X)
+		X_csc = X.tocsc()
+
+		self.number_of_outputs = self.active_output.shape[0]
+
+		self.dim = (X_csr.shape[1], 1, 1)
+		self.patch_dim = (X_csr.shape[1], 1)
+
+		self.max_y = None
+		self.min_y = None
+		
+		encoded_Y = np.zeros(self.number_of_outputs, dtype = np.int32)
+
+		self._fit(X_csr, X_csc, encoded_Y, epochs = epochs, incremental = incremental)
+
+		return
+
+	def score(self, X):
+		X = csr_matrix(X)
+		return self._score(X)
+
+	def predict(self, X):
+		return np.argmax(self.score(X), axis=1)

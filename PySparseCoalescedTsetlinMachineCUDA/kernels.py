@@ -453,6 +453,108 @@ code_encode = """
 				}
 		    }		
 		}
+
+		__global__ void produce_autoencoder_example(
+			curandState *state,
+			unsigned int *active_output,
+			int number_of_active_outputs,
+			unsigned int *indptr_row,
+			unsigned int *indices_row,
+			int number_of_rows,
+			unsigned int *indptr_col,
+			unsigned int *indices_col,
+			int number_of_cols,
+			unsigned int *X,
+			unsigned int *encoded_Y,
+			int target,
+			int accumulation,
+			int T,
+			int append_negated
+		)
+		{
+			int index = blockIdx.x * blockDim.x + threadIdx.x;
+			int stride = blockDim.x * gridDim.x;
+
+			if (index != 0) {
+				return;
+			}
+
+			for (int i = 0; i < number_of_active_outputs; ++i) {
+				if (i == target) {
+					encoded_Y[i] = T;
+				} else {
+					encoded_Y[i] = -T;
+				}
+			}
+
+			/* Copy state to local memory for efficiency */
+	    	curandState localState = state[index];
+
+			int row;
+
+			int number_of_features = number_of_cols;
+			int number_of_literals = 2*number_of_features;
+
+			unsigned int number_of_literal_chunks = (number_of_literals-1)/32 + 1;
+
+			// Initialize example vector X
+			
+			for (int k = 0; k < number_of_features; ++k) {
+				int chunk_nr = k / 32;
+				int chunk_pos = k % 32;
+				X[chunk_nr] &= ~(1U << chunk_pos);
+			}
+
+			if (append_negated) {
+				for (int k = number_of_features; k < number_of_literals; ++k) {
+					int chunk_nr = k / 32;
+					int chunk_pos = k % 32;
+					X[chunk_nr] |= (1U << chunk_pos);
+				}
+			}
+
+			if ((indptr_col[active_output[target]+1] - indptr_col[active_output[target]] == 0) || (indptr_col[active_output[target]+1] - indptr_col[active_output[target]] == number_of_rows)) {
+				// If no positive/negative examples, produce a random example
+				for (int a = 0; a < accumulation; ++a) {
+					row = curand(&localState) % number_of_rows;
+					for (int k = indptr_row[row]; k < indptr_row[row+1]; ++k) {
+						int chunk_nr = indices_row[k] / 32;
+						int chunk_pos = indices_row[k] % 32;
+						X[chunk_nr] |= (1U << chunk_pos);
+
+						if (append_negated) {
+							chunk_nr = (indices_row[k] + number_of_features) / 32;
+							chunk_pos = (indices_row[k] + number_of_features) % 32;
+							X[chunk_nr] &= ~(1U << chunk_pos);
+						}
+					}
+				}
+
+				state[index] = localState;
+
+				return;
+			}
+		
+			for (int a = 0; a < accumulation; ++a) {
+				// Pick example randomly among positive examples
+				int random_index = indptr_col[active_output[target]] + (curand(&localState) % (indptr_col[active_output[target]+1] - indptr_col[active_output[target]]));
+				row = indices_col[random_index];
+				
+				for (int k = indptr_row[row]; k < indptr_row[row+1]; ++k) {
+					int chunk_nr = indices_row[k] / 32;
+					int chunk_pos = indices_row[k] % 32;
+					X[chunk_nr] |= (1U << chunk_pos);
+
+					if (append_negated) {
+						chunk_nr = (indices_row[k] + number_of_features) / 32;
+						chunk_pos = (indices_row[k] + number_of_features) % 32;
+						X[chunk_nr] &= ~(1U << chunk_pos);
+					}
+				}
+			}
+			
+			state[index] = localState;
+		}
 	}
 """
 
