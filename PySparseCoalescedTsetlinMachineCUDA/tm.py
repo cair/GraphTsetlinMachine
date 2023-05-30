@@ -90,7 +90,7 @@ class CommonTsetlinMachine():
 
 	def ta_action(self, mc_tm_class, clause, ta):
 		if np.array_equal(self.ta_state, np.array([])):
-			self.ta_state = np.empty(self.number_of_clauses*self.number_of_ta_chunks*self.number_of_state_bits).astype(np.uint32)
+			self.ta_state = np.empty(self.number_of_clauses*self.number_of_ta_chunks*self.number_of_state_bits, dtype=np.uint32)
 			cuda.memcpy_dtoh(self.ta_state, self.ta_state_gpu)
 		ta_state = self.ta_state.reshape((self.number_of_clauses, self.number_of_ta_chunks, self.number_of_state_bits))
 
@@ -98,9 +98,9 @@ class CommonTsetlinMachine():
 
 	def get_state(self):
 		if np.array_equal(self.clause_weights, np.array([])):
-			self.ta_state = np.empty(self.number_of_clauses*self.number_of_ta_chunks*self.number_of_state_bits).astype(np.uint32)
+			self.ta_state = np.empty(self.number_of_clauses*self.number_of_ta_chunks*self.number_of_state_bits, dtype=np.uint32)
 			cuda.memcpy_dtoh(self.ta_state, self.ta_state_gpu)
-			self.clause_weights = np.empty(self.number_of_outputs*self.number_of_clauses).astype(np.int32)
+			self.clause_weights = np.empty(self.number_of_outputs*self.number_of_clauses, dtype=np.int32)
 			cuda.memcpy_dtoh(self.clause_weights, self.clause_weights_gpu)
 		return((self.ta_state, self.clause_weights, self.number_of_outputs, self.number_of_clauses, self.number_of_features, self.dim, self.patch_dim, self.number_of_patches, self.number_of_state_bits, self.number_of_ta_chunks, self.append_negated, self.min_y, self.max_y))
 
