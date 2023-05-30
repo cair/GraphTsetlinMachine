@@ -1,11 +1,12 @@
 import numpy as np
 from time import time
-from tmu.models.classification.vanilla_classifier import TMClassifier
+from PySparseCoalescedTsetlinMachineCUDA.tm import MultiClassConvolutionalTsetlinMachine2D
 from scipy.sparse import lil_matrix
 from skimage.util import view_as_windows
 from sklearn.feature_extraction.text import CountVectorizer
 from skimage.transform import pyramid_gaussian, pyramid_laplacian, downscale_local_mean
 import matplotlib.pyplot as plt
+from scipy.sparse import csr_matrix, csc_matrix, lil_matrix
 
 import ssl
 
@@ -58,7 +59,7 @@ for z in range(resolution):
     X_test[:, :, :, :, z] = X_test_org[:, :, :, :] >= (z + 1) * 255 / (resolution + 1)
 
 if visual_tokens:
-        X_train_tokenized = np.zeros((X_train.shape[0], 30//step, 30//step, hypervector_size), dtype=np.uint32)
+        X_train_tokenized = lil_matrix((X_train.shape[0], (30//step) * (30//step) * hypervector_size), dtype=np.uint32)
 
         for i in range(X_train.shape[0]):
                 for c in range(3):
@@ -71,7 +72,7 @@ if visual_tokens:
                                                 X_train_tokenized[i, u, v, :] |= np.roll(encoding[patch_id], c + z*10)
         print("Training data produced")
 
-        X_test_tokenized = np.zeros((X_test.shape[0], 30//step, 30//step, hypervector_size), dtype=np.uint32)
+        X_test_tokenized = lil_matrix((X_test.shape[0], 30//step, 30//step, hypervector_size), dtype=np.uint32)
 
         for i in range(X_test.shape[0]):
                 for c in range(3):
@@ -85,8 +86,8 @@ if visual_tokens:
 
         print("Testing data produced")
 
-        X_train = X_train_tokenized
-        X_test = X_test_tokenized
+        X_train = X_train_tokenized.tocsr()
+        X_test = X_test_tokenized.tocsr()
 else:
         X_train = X_train.reshape((X_train.shape[0], X_train.shape[1], X_train.shape[2], -1))
         X_test = X_test.reshape((X_test.shape[0], X_test.shape[1], X_test.shape[2], -1))
@@ -98,9 +99,9 @@ for ensemble in range(ensembles):
         print("\nAccuracy over %d epochs:\n" % (epochs))
 
         if visual_tokens:
-                tm = TMClassifier(clauses, T, s, max_included_literals=max_included_literals, patch_dim=(1,1), platform='CPU', weighted_clauses=True)
+                tm = MultiClassConvolutionalTsetlinMachine2D(clauses, T, s, (30//step, 30//step, hypervector_size), (1, 1), max_included_literals=max_included_literals)
         else:
-                tm = TMClassifier(clauses, T, s, max_included_literals=max_included_literals, patch_dim=(3,3), platform='CPU', weighted_clauses=True)
+                tm = MultiClassConvolutionalTsetlinMachine2D(clauses, T, s, (32, 32, X_train_org.shape[3] * resolution), (3, 3), max_included_literals=max_included_literals)
 
         for epoch in range(epochs):
                 start_training = time()
