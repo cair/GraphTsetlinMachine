@@ -69,7 +69,9 @@ if visual_tokens:
                                         for v in range(windows.shape[1]):
                                                 patch = windows[u,v].reshape(-1).astype(np.uint32)
                                                 patch_id = patch.dot(1 << np.arange(patch.shape[-1] - 1, -1, -1))
-                                                X_train_tokenized[i, u, v, :] |= np.roll(encoding[patch_id], c + z*10)
+                                                hypervector_indexes = np.roll(encoding[patch_id], c + z*10).nonzero()
+                                                for hypervector_index in hypervector_indexes:
+                                                       X_train_tokenized[i, u*(30//step)*hypervector_size + v*hypervector_size + hypervector_index] = 1
         print("Training data produced")
 
         X_test_tokenized = lil_matrix((X_test.shape[0], 30//step, 30//step, hypervector_size), dtype=np.uint32)
@@ -82,8 +84,10 @@ if visual_tokens:
                                         for v in range(windows.shape[1]):
                                                 patch = windows[u,v].reshape(-1).astype(np.uint32)
                                                 patch_id = patch.dot(1 << np.arange(patch.shape[-1] - 1, -1, -1))
-                                                X_test_tokenized[i, u, v, :] |= np.roll(encoding[patch_id], c + z*10)
-
+                                                hypervector_indexes = np.roll(encoding[patch_id], c + z*10).nonzero()
+                                                for hypervector_index in hypervector_indexes:
+                                                        X_test_tokenized[i, u*(30//step)*hypervector_size + v*hypervector_size + hypervector_index] = 1
+                                                        
         print("Testing data produced")
 
         X_train = X_train_tokenized.tocsr()
