@@ -8,16 +8,16 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics import f1_score
 from sklearn.metrics.pairwise import cosine_similarity
 
-from tmu.models.autoencoder.autoencoder import TMAutoEncoder
-
 from PySparseCoalescedTsetlinMachineCUDA.tm import AutoEncoderTsetlinMachine
 
 
 target_words = ['awful', 'terrible', 'lousy', 'abysmal', 'crap', 'outstanding', 'brilliant', 'excellent', 'superb', 'magnificent', 'marvellous', 'truck', 'plane', 'car', 'cars', 'motorcycle',  'scary', 'frightening', 'terrifying', 'horrifying', 'funny', 'comic', 'hilarious', 'witty']
 
+number_of_output_words = 2000
+
 clause_weight_threshold = 0
 
-number_of_examples = 2000
+number_of_examples = 20000
 accumulation = 25
 
 factor = 4
@@ -72,6 +72,14 @@ X_train = vectorizer_X.fit_transform(training_documents)
 feature_names = vectorizer_X.get_feature_names_out()
 number_of_features = vectorizer_X.get_feature_names_out().shape[0]
 
+target_words = []
+for word in feature_names:
+	word_id = vectorizer_X.vocabulary_[word]
+
+	target_words.append(word)
+	if len(target_words) == number_of_output_words:
+		break
+
 X_test = vectorizer_X.transform(testing_documents)
 
 output_active = np.empty(len(target_words), dtype=np.uint32)
@@ -85,7 +93,7 @@ tm = AutoEncoderTsetlinMachine(clauses, T, s, output_active, max_included_litera
 print("\nAccuracy Over 250 Epochs:")
 for e in range(250):
 	start_training = time()
-	tm.fit(X_train, epochs=1, incremental=True)
+	tm.fit(X_train, epochs=1, number_of_examples=number_of_examples, incremental=True)
 	stop_training = time()
 	
 	print("\nEpoch #%d\n" % (e+1))
