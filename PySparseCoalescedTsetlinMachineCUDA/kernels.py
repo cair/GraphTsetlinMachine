@@ -479,14 +479,6 @@ code_encode = """
 				return;
 			}
 
-			for (int i = 0; i < number_of_active_outputs; ++i) {
-				if (i == target) {
-					encoded_Y[i] = T;
-				} else {
-					encoded_Y[i] = -T;
-				}
-			}
-
 			/* Copy state to local memory for efficiency */
 	    	curandState localState = state[index];
 
@@ -530,6 +522,18 @@ code_encode = """
 					}
 				}
 
+				for (int i = 0; i < number_of_active_outputs; ++i) {
+					if (i == target) {
+						int chunk_nr = active_output[i] / 32;
+						int chunk_pos = active_output[i] % 32;
+						X[chunk_nr] &= ~(1U << chunk_pos);
+
+						encoded_Y[i] = T;
+					} else {
+						encoded_Y[i] = -T;
+					}
+				}
+
 				state[index] = localState;
 
 				return;
@@ -550,6 +554,18 @@ code_encode = """
 						chunk_pos = (indices_row[k] + number_of_features) % 32;
 						X[chunk_nr] &= ~(1U << chunk_pos);
 					}
+				}
+			}
+
+			for (int i = 0; i < number_of_active_outputs; ++i) {
+				if (i == target) {
+					int chunk_nr = active_output[i] / 32;
+					int chunk_pos = active_output[i] % 32;
+					X[chunk_nr] &= ~(1U << chunk_pos);
+
+					encoded_Y[i] = T;
+				} else {
+					encoded_Y[i] = -T;
 				}
 			}
 			
