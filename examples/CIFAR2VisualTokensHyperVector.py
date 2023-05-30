@@ -6,7 +6,7 @@ from skimage.util import view_as_windows
 from sklearn.feature_extraction.text import CountVectorizer
 from skimage.transform import pyramid_gaussian, pyramid_laplacian, downscale_local_mean
 import matplotlib.pyplot as plt
-from scipy.sparse import csr_matrix, csc_matrix, lil_matrix, coo_matrix
+from scipy.sparse import csr_matrix, csc_matrix, lil_matrix
 
 import ssl
 
@@ -59,7 +59,7 @@ for z in range(resolution):
     X_test[:, :, :, :, z] = X_test_org[:, :, :, :] >= (z + 1) * 255 / (resolution + 1)
 
 if visual_tokens:
-        X_train_tokenized = coo_matrix((X_train.shape[0], (30//step) * (30//step) * hypervector_size), dtype=np.uint32)
+        X_train_tokenized = lil_matrix((X_train.shape[0], (30//step) * (30//step) * hypervector_size), dtype=np.uint32)
 
         for i in range(X_train.shape[0]):
                 for c in range(3):
@@ -74,7 +74,7 @@ if visual_tokens:
                                                        X_train_tokenized[i, u*(30//step)*hypervector_size + v*hypervector_size + hypervector_index] = 1
         print("Training data produced")
 
-        X_test_tokenized = coo_matrix((X_test.shape[0], 30//step, 30//step, hypervector_size), dtype=np.uint32)
+        X_test_tokenized = lil_matrix((X_test.shape[0], 30//step, 30//step, hypervector_size), dtype=np.uint32)
 
         for i in range(X_test.shape[0]):
                 for c in range(3):
