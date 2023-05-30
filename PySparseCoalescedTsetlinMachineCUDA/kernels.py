@@ -524,9 +524,9 @@ code_encode = """
 
 				for (int i = 0; i < number_of_active_outputs; ++i) {
 					if (i == target) {
-						//int chunk_nr = active_output[i] / 32;
-						//int chunk_pos = active_output[i] % 32;
-						//X[chunk_nr] &= ~(1U << chunk_pos);
+						int chunk_nr = active_output[i] / 32;
+						int chunk_pos = active_output[i] % 32;
+						X[chunk_nr] &= ~(1U << chunk_pos);
 
 						encoded_Y[i] = T;
 					} else {
@@ -559,9 +559,9 @@ code_encode = """
 
 			for (int i = 0; i < number_of_active_outputs; ++i) {
 				if (i == target) {
-					//int chunk_nr = active_output[i] / 32;
-					//int chunk_pos = active_output[i] % 32;
-					//X[chunk_nr] &= ~(1U << chunk_pos);
+					int chunk_nr = active_output[i] / 32;
+					int chunk_pos = active_output[i] % 32;
+					X[chunk_nr] &= ~(1U << chunk_pos);
 
 					encoded_Y[i] = T;
 				} else {
