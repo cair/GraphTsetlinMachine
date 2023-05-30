@@ -590,7 +590,7 @@ class AutoEncoderTsetlinMachine(CommonTsetlinMachine):
 		self.active_output = np.array(active_output).astype(np.uint32)
 		self.accumulation = accumulation
 
-	def _init_fit(self, X_csr, X_csc, encoded_Y, incremental):
+	def _init_fit(self, X_csr, encoded_Y, incremental):
 		if not self.initialized:
 			self._init(X_csr)
 			self.prepare(g.state, self.ta_state_gpu, self.clause_weights_gpu, self.class_sum_gpu, grid=self.grid, block=self.block)
@@ -601,6 +601,8 @@ class AutoEncoderTsetlinMachine(CommonTsetlinMachine):
 
 		if not np.array_equal(self.X_train, np.concatenate((X_csr.indptr, X_csr.indices))):
 			self.train_X = np.concatenate((X_csr.indptr, X_csr.indices))
+
+			X_csc = X_csr.tocsc()
 			
 			self.X_train_csr_indptr_gpu = cuda.mem_alloc(X_csr.indptr.nbytes)
 			cuda.memcpy_htod(self.X_train_csr_indptr_gpu, X_csr.indptr)
@@ -620,8 +622,8 @@ class AutoEncoderTsetlinMachine(CommonTsetlinMachine):
 			self.active_output_gpu = cuda.mem_alloc(self.active_output.nbytes)
 			cuda.memcpy_htod(self.active_output_gpu, self.active_output)
 
-	def _fit(self, X_csr, X_csc, encoded_Y, number_of_examples, epochs, incremental=False):
-		self._init_fit(X_csr, X_csc, encoded_Y, incremental=incremental)
+	def _fit(self, X_csr, encoded_Y, number_of_examples, epochs, incremental=False):
+		self._init_fit(X_csr, encoded_Y, incremental=incremental)
 
 		for epoch in range(epochs):
 			for e in range(number_of_examples):
@@ -640,7 +642,7 @@ class AutoEncoderTsetlinMachine(CommonTsetlinMachine):
                                             X_csr.shape[0],
                                             self.X_train_csc_indptr_gpu,
                                             self.X_train_csc_indices_gpu,
-                                            X_csc.shape[1],
+                                            X_csr.shape[1],
                                             self.encoded_X_gpu,
                                             self.encoded_Y_gpu,
                                             target,
@@ -662,7 +664,6 @@ class AutoEncoderTsetlinMachine(CommonTsetlinMachine):
 
 	def fit(self, X, number_of_examples=2000, epochs=100, incremental=False):
 		X_csr = csr_matrix(X)
-		X_csc = X.tocsc()
 
 		self.number_of_outputs = self.active_output.shape[0]
 
@@ -674,7 +675,7 @@ class AutoEncoderTsetlinMachine(CommonTsetlinMachine):
 		
 		encoded_Y = np.zeros(self.number_of_outputs, dtype = np.int32)
 
-		self._fit(X_csr, X_csc, encoded_Y, number_of_examples, epochs, incremental = incremental)
+		self._fit(X_csr, encoded_Y, number_of_examples, epochs, incremental = incremental)
 
 		return
 
