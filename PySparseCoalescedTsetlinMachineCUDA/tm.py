@@ -622,36 +622,6 @@ class AutoEncoderTsetlinMachine(CommonTsetlinMachine):
 			self.active_output_gpu = cuda.mem_alloc(self.active_output.nbytes)
 			cuda.memcpy_htod(self.active_output_gpu, self.active_output)
 
-	def _prepare_autoencoder_example(self, X_csr):
-		target = np.random.choice(self.number_of_outputs)
-		self.produce_autoencoder_examples.prepared_call(
-                                    self.grid,
-                                    self.block,
-									g.state,
-                                    self.active_output_gpu,
-                                    self.active_output.shape[0],
-                                    self.X_train_csr_indptr_gpu,
-                                    self.X_train_csr_indices_gpu,
-                                    X_csr.shape[0],
-                                    self.X_train_csc_indptr_gpu,
-                                    self.X_train_csc_indices_gpu,
-                                    X_csr.shape[1],
-                                    self.encoded_X_gpu,
-                                    self.encoded_Y_gpu,
-                                    target,
-                                    int(self.accumulation),
-                                    int(self.T),
-                                    int(self.append_negated))
-		cuda.Context.synchronize()
-
-	def _evaluate_update(self):
-		self.evaluate_update.prepared_call(self.grid, self.block, self.ta_state_gpu, self.clause_weights_gpu, self.class_sum_gpu, self.encoded_X_gpu)
-		cuda.Context.synchronize()
-
-	def _update(self):
-		self.update.prepared_call(self.grid, self.block, g.state, self.ta_state_gpu, self.clause_weights_gpu, self.class_sum_gpu, self.encoded_X_gpu, self.encoded_Y_gpu, np.int32(0))
-		cuda.Context.synchronize()
-
 	def _fit(self, X_csr, encoded_Y, number_of_examples, epochs, incremental=False):
 		self._init_fit(X_csr, encoded_Y, incremental=incremental)
 
@@ -660,11 +630,32 @@ class AutoEncoderTsetlinMachine(CommonTsetlinMachine):
 				class_sum = np.zeros(self.number_of_outputs).astype(np.int32)
 				cuda.memcpy_htod(self.class_sum_gpu, class_sum)
 
-				self._prepare_autoencoder_example(X_csr)
+				target = np.random.choice(self.number_of_outputs)
+				self.produce_autoencoder_examples.prepared_call(
+                                            self.grid,
+                                            self.block,
+											g.state,
+                                            self.active_output_gpu,
+                                            self.active_output.shape[0],
+                                            self.X_train_csr_indptr_gpu,
+                                            self.X_train_csr_indices_gpu,
+                                            X_csr.shape[0],
+                                            self.X_train_csc_indptr_gpu,
+                                            self.X_train_csc_indices_gpu,
+                                            X_csr.shape[1],
+                                            self.encoded_X_gpu,
+                                            self.encoded_Y_gpu,
+                                            target,
+                                            int(self.accumulation),
+                                            int(self.T),
+                                            int(self.append_negated))
+				cuda.Context.synchronize()
 
-				self._evaluate_update()
+				self.evaluate_update.prepared_call(self.grid, self.block, self.ta_state_gpu, self.clause_weights_gpu, self.class_sum_gpu, self.encoded_X_gpu)
+				cuda.Context.synchronize()
 
-				self._update()
+				self.update.prepared_call(self.grid, self.block, g.state, self.ta_state_gpu, self.clause_weights_gpu, self.class_sum_gpu, self.encoded_X_gpu, self.encoded_Y_gpu, np.int32(0))
+				cuda.Context.synchronize()
 
 		self.ta_state = np.array([])
 		self.clause_weights = np.array([])
