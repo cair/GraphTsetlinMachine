@@ -118,20 +118,13 @@ X_train = csr_matrix((X_train_data, X_train_indices, X_train_indptr))
 
 print("Testing Data")
 
-X_test = lil_matrix((X_test_org.shape[0], X_test_org.shape[1] * X_test_org.shape[2] * hypervector_size), dtype=np.uint32)
-for i in range(X_test.shape[0]):
-        for x in range(X_test_org.shape[1]):
-                for y in range(X_test_org.shape[2]):
-                        roll = 0
-                        for c in range(X_test_org.shape[3]):
-                                if c == 0:
-                                        roll += (X_test_org[i, x, y, c] // 32)
-                                elif c == 1:
-                                        roll += 11 * (X_test_org[i, x, y, c] // 32)
-                                else:
-                                        code = encoding[(X_test_org[i, x, y, c] // 32)]
-                                        for bit in code:
-                                                X_test[i, x * X_test_org.shape[2] * hypervector_size + y * hypervector_size + ((bit + roll) % hypervector_size)] = 1
+X_test_indptr = np.empty(X_test_org.shape[0]+1, dtype=np.uint32)
+X_test_indices = np.empty(nonzero_count, dtype=np.uint32)
+X_test_data = np.empty(nonzero_count, dtype=np.uint32)
+
+produce_hypervectors(hypervector, hypervector_size, encoding, X_test_org, X_test_indptr, X_test_indices, X_test_data)
+
+X_test = csr_matrix((X_test_data, X_test_indices, X_test_indptr))
 
 print(X_test.shape, X_test.shape)
 
