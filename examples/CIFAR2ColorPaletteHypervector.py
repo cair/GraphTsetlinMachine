@@ -132,7 +132,7 @@ for ensemble in range(ensembles):
         tm = MultiClassConvolutionalTsetlinMachine2D(clauses, T, s, (32, 32, hypervector_size), (3, 3), max_included_literals=max_included_literals)
 
         for epoch in range(epochs):
-                example_selection = np.random.choice(indexes, size=10000, replace=False)
+                example_selection = np.random.choice(indexes, size=1000, replace=False)
 
                 start_training = time()
                 tm.fit(X_train[example_selection], Y_train[example_selection], epochs=1, incremental=True)
