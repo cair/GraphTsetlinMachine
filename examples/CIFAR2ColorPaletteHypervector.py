@@ -15,7 +15,7 @@ hypervector_size = 256
 
 bits = 5
 
-resolution = 8
+resolution = 16
 
 animals = np.array([2, 3, 4, 5, 6, 7])
 
@@ -43,9 +43,9 @@ def count_nonzero_hypervector(hypervector, encoding, X):
                         for y in range(X.shape[2]):
                                 hypervector[:] = 0
 
-                                for k1 in range(X[i, x, y, 0] // 32):
-                                        for k2 in range(X[i, x, y, 1] // 32):
-                                                for k3 in range(X[i, x, y, 2] // 32):
+                                for k1 in range(X[i, x, y, 0] // (256 // resolution)):
+                                        for k2 in range(X[i, x, y, 1] // (256 // resolution)):
+                                                for k3 in range(X[i, x, y, 2] // (256 // resolution)):
                                                         roll = k1 + 11 * k2
                                                         code = encoding[k3]
                                                         for bit in code:
@@ -61,9 +61,9 @@ def produce_hypervectors(hypervector, hypervector_size, encoding, X, indptr, ind
                 for x in range(X.shape[1]):
                         for y in range(X.shape[2]):
                                 hypervector[:] = 0
-                                for k1 in range(X[i, x, y, 0] // 32):
-                                        for k2 in range(X[i, x, y, 1] // 32):
-                                                for k3 in range(X[i, x, y, 2] // 32):
+                                for k1 in range(X[i, x, y, 0] // (256 // resolution)):
+                                        for k2 in range(X[i, x, y, 1] // (256 // resolution)):
+                                                for k3 in range(X[i, x, y, 2] // (256 // resolution)):
                                                         roll = k1 + 11 * k2
                                                         code = encoding[k3]
                                                         for bit in code:
