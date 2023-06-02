@@ -11,7 +11,7 @@ from keras.datasets import cifar10
 
 scaling = 1.0
 
-hypervector_size = 64
+hypervector_size = 128
 
 bits = 5
 
