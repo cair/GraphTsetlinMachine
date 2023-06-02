@@ -11,11 +11,11 @@ from keras.datasets import cifar10
 
 scaling = 1.0
 
-hypervector_size = 64
+hypervector_size = 256
 
 bits = 5
 
-resolution = 16
+resolution = 8
 
 animals = np.array([2, 3, 4, 5, 6, 7])
 
@@ -32,7 +32,6 @@ max_included_literals = 32
 
 clauses = 2000
 T = 5000
-
 s = 1.5
 
 @jit(nopython=True)
@@ -51,7 +50,7 @@ def count_nonzero_hypervector(hypervector, encoding, X):
                                                         for bit in code:
                                                                 hypervector[((bit + roll) % hypervector_size)] = 1
                                 nonzero_count += hypervector.sum()
-        return np.uint32(nonzero_count)
+        return np.uint64(nonzero_count)
 
 @jit(nopython=True)
 def produce_hypervectors(hypervector, hypervector_size, encoding, X, indptr, indices, data):
@@ -71,15 +70,15 @@ def produce_hypervectors(hypervector, hypervector_size, encoding, X, indptr, ind
                                 nonzero = hypervector.nonzero()[0]
 
                                 for bit in nonzero:
-                                        indices[nonzero_count] = np.uint32(x * X.shape[2] * hypervector_size + y * hypervector_size + bit)
+                                        indices[nonzero_count] = np.uint64(x * X.shape[2] * hypervector_size + y * hypervector_size + bit)
                                         data[nonzero_count] = 1
                                         nonzero_count += 1
         indptr[X.shape[0]] = nonzero_count
 
         return nonzero_count
 
-indexes = np.arange(hypervector_size, dtype=np.uint32)
-encoding = np.zeros((resolution, bits), dtype=np.uint32)
+indexes = np.arange(hypervector_size, dtype=np.uint64)
+encoding = np.zeros((resolution, bits), dtype=np.uint64)
 for i in range(resolution):
         encoding[i] = np.random.choice(indexes, size=(bits))
 
@@ -92,27 +91,31 @@ Y_test = Y_test.reshape(Y_test.shape[0])[0:examples]
 Y_train = np.where(np.isin(Y_train, animals), 1, 0)
 Y_test = np.where(np.isin(Y_test, animals), 1, 0)
 
-hypervector = np.zeros(hypervector_size, dtype=np.uint32)
+hypervector = np.zeros(hypervector_size, dtype=np.uint64)
 
 print("Training Data")
 
+start_time = time()
 nonzero_count_train = count_nonzero_hypervector(hypervector, encoding, X_train_org)
-X_train_indptr = np.empty(X_train_org.shape[0]+1, dtype=np.uint32)
-X_train_indices = np.empty(nonzero_count_train, dtype=np.uint32)
+X_train_indptr = np.empty(X_train_org.shape[0]+1, dtype=np.uint64)
+X_train_indices = np.empty(nonzero_count_train, dtype=np.uint64)
 X_train_data = np.empty(nonzero_count_train, dtype=np.uint32)
+
+print(nonzero_count_train)
 
 produce_hypervectors(hypervector, hypervector_size, encoding, X_train_org, X_train_indptr, X_train_indices, X_train_data)
 
 X_train = csr_matrix((X_train_data, X_train_indices, X_train_indptr))
 
+stop_time = time()
+
+print(stop_time - start_time)
+
 print("Testing Data")
 
-start_preprocessing = time()
 nonzero_count_test = count_nonzero_hypervector(hypervector, encoding, X_test_org)
-stop_preprocessing = time()
-
-X_test_indptr = np.empty(X_test_org.shape[0]+1, dtype=np.uint32)
-X_test_indices = np.empty(nonzero_count_test, dtype=np.uint32)
+X_test_indptr = np.empty(X_test_org.shape[0]+1, dtype=np.uint64)
+X_test_indices = np.empty(nonzero_count_test, dtype=np.uint64)
 X_test_data = np.empty(nonzero_count_test, dtype=np.uint32)
 
 produce_hypervectors(hypervector, hypervector_size, encoding, X_test_org, X_test_indptr, X_test_indices, X_test_data)
