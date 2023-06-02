@@ -21,8 +21,6 @@ literal_drop_p = 0.0
 epochs = 250
 ensembles = 5
 
-classes = 10
-
 (X_train_org, Y_train), (X_test_org, Y_test) = cifar10.load_data()
 
 Y_train = Y_train.reshape(Y_train.shape[0])
