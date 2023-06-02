@@ -1,4 +1,4 @@
-from tmu.models.classification.vanilla_classifier import TMClassifier
+from PySparseCoalescedTsetlinMachineCUDA.tm import MultiClassConvolutionalTsetlinMachine2D
 import numpy as np
 from time import time
 import ssl
