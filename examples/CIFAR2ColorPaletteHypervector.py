@@ -11,7 +11,7 @@ from keras.datasets import cifar10
 
 scaling = 1.0
 
-hypervector_size = 128
+hypervector_size = 256
 
 bits = 5
 
@@ -132,7 +132,7 @@ for ensemble in range(ensembles):
 
         for epoch in range(epochs):
                 start_training = time()
-                tm.fit(X_train, Y_train, epochs=1, incremental=True)
+                tm.fit(X_train[epoch*10000:(epoch+1)*10000], Y_train[epoch*10000:(epoch+1)*10000], epochs=1, incremental=True)
                 stop_training = time()
 
                 start_testing = time()
