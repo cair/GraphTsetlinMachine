@@ -67,6 +67,7 @@ Y_test = np.where(np.isin(Y_test, animals), 1, 0)
 
 hypervector = np.zeros(hypervector_size, dtype=np.uint32)
 
+print("Training Data")
 X_train = lil_matrix((X_train_org.shape[0], X_train_org.shape[1] * X_train_org.shape[2] * hypervector_size), dtype=np.uint32)
 for i in range(X_train.shape[0]):
         for x in range(X_train_org.shape[1]):
@@ -74,6 +75,8 @@ for i in range(X_train.shape[0]):
                         produce_hypervector(hypervector, encoding, X_train_org, i, x, y)
                         for bit in hypervector.nonzero():
                                 X_train[i, x * X_train_org.shape[2] * hypervector_size + y * hypervector_size + bit] = 1
+
+print("Testing Data")
 
 X_test = lil_matrix((X_test_org.shape[0], X_test_org.shape[1] * X_test_org.shape[2] * hypervector_size), dtype=np.uint32)
 for i in range(X_test.shape[0]):
