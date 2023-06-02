@@ -125,14 +125,17 @@ X_test = csr_matrix((X_test_data, X_test_indices, X_test_indptr))
 print(X_test.shape, X_test.shape)
 
 f = open("cifar2_%.1f_%d_%d_%d.txt" % (s, clauses, T, scaling), "w+")
+indexes = np.arange(X_train.shape[0], dtype=uint32)
 for ensemble in range(ensembles):
         print("\nAccuracy over %d epochs:\n" % (epochs))
 
         tm = MultiClassConvolutionalTsetlinMachine2D(clauses, T, s, (32, 32, hypervector_size), (3, 3), max_included_literals=max_included_literals)
 
         for epoch in range(epochs):
+                example_selection = np.random.choice(indexes, size=10000, replace=False)
+
                 start_training = time()
-                tm.fit(X_train[epoch*10000:(epoch+1)*10000], Y_train[epoch*10000:(epoch+1)*10000], epochs=1, incremental=True)
+                tm.fit(X_train[example_selection], Y_train[example_selection], epochs=1, incremental=True)
                 stop_training = time()
 
                 start_testing = time()
