@@ -125,7 +125,7 @@ X_test = csr_matrix((X_test_data, X_test_indices, X_test_indptr))
 print(X_test.shape, X_test.shape)
 
 f = open("cifar2_%.1f_%d_%d_%d.txt" % (s, clauses, T, scaling), "w+")
-indexes = np.arange(X_train.shape[0], dtype=uint32)
+indexes = np.arange(X_train.shape[0], dtype=np.uint32)
 for ensemble in range(ensembles):
         print("\nAccuracy over %d epochs:\n" % (epochs))
 
