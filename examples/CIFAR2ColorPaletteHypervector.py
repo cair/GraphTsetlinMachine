@@ -26,13 +26,14 @@ examples = 5000
 
 max_included_literals = 32
 
-#clauses = 8000*2
-#T = int(clauses * 0.75)
+clauses = 8000
+T = int(clauses * 0.75)
+s = 10.0
 
-clauses = 2000
-T = 5000
+#clauses = 2000
+#T = 5000
 
-s = 1.5
+#s = 1.5
 
 @jit(nopython=True)
 def count_nonzero_hypervector(hypervector, encoding, X):
@@ -83,10 +84,10 @@ for i in range(resolution):
         encoding[i] = np.random.choice(indexes, size=(bits))
 
 (X_train_org, Y_train), (X_test_org, Y_test) = cifar10.load_data()
-X_train_org = X_train_org[0:examples]
-X_test_org = X_test_org[0:examples]
-Y_train = Y_train.reshape(Y_train.shape[0])[0:examples]
-Y_test = Y_test.reshape(Y_test.shape[0])[0:examples]
+X_train_org = X_train_org#[0:examples]
+X_test_org = X_test_org#[0:examples]
+Y_train = Y_train.reshape(Y_train.shape[0])#[0:examples]
+Y_test = Y_test.reshape(Y_test.shape[0])#[0:examples]
 
 Y_train = np.where(np.isin(Y_train, animals), 1, 0)
 Y_test = np.where(np.isin(Y_test, animals), 1, 0)
