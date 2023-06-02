@@ -26,14 +26,14 @@ examples = 5000
 
 max_included_literals = 32
 
-clauses = 8000
-T = int(clauses * 0.75)
-s = 10.0
+#clauses = 8000
+#T = int(clauses * 0.75)
+#s = 10.0
 
-#clauses = 2000
-#T = 5000
+clauses = 2000
+T = 5000
 
-#s = 1.5
+s = 1.5
 
 @jit(nopython=True)
 def count_nonzero_hypervector(hypervector, encoding, X):
