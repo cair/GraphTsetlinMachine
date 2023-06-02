@@ -35,21 +35,52 @@ T = 5000
 s = 1.5
 
 @jit(nopython=True)
-def produce_hypervector(hypervector, encoding, X, i, x, y):
-        hypervector[:] = 0
+def count_nonzero_hypervector(hypervector, encoding, X):
+        nonzero_count = 0
+        for i in range(X.shape[0]):
+                for x in range(X.shape[1]):
+                        for y in range(X.shape[2]):
+                                hypervector[:] = 0
+                                roll = 0
+                                for c in range(3):
+                                        if c == 0:
+                                                roll += (X[i, x, y, c] // 32)
+                                        elif c == 1:
+                                                roll += 11 * (X[i, x, y, c] // 32)
+                                        else:
+                                                code = encoding[(X[i, x, y, c] // 32)]
+                                                for bit in code:
+                                                        hypervector[((bit + roll) % hypervector_size)] = 1
+                                nonzero_count += hypervector.sum()
+        return nonzero_count
 
-        roll = 0
-        for c in range(3):
-                if c == 0:
-                        roll += (X[i, x, y, c] // 32)
-                elif c == 1:
-                        roll += 11 * (X[i, x, y, c] // 32)
-                else:
-                        code = encoding[(X[i, x, y, c] // 32)]
-                        for bit in code:
-                                hypervector[((bit + roll) % hypervector_size)] = 1
+@jit(nopython=True)
+def produce_hypervectors(hypervector, hypervector_size, encoding, X, indptr, indices, data):
+        nonzero_count = 0
+        for i in range(X.shape[0]):
+                indptr[i] = nonzero_count
+                for x in range(X.shape[1]):
+                        for y in range(X.shape[2]):
+                                hypervector[:] = 0
+                                roll = 0
+                                for c in range(3):
+                                        if c == 0:
+                                                roll += (X[i, x, y, c] // 32)
+                                        elif c == 1:
+                                                roll += 11 * (X[i, x, y, c] // 32)
+                                        else:
+                                                code = encoding[(X[i, x, y, c] // 32)]
+                                                for bit in code:
+                                                        hypervector[((bit + roll) % hypervector_size)] = 1
+                                nonzero = hypervector.nonzero()[0]
 
-        return
+                                for bit in nonzero:
+                                        indices[nonzero_count] = x * X.shape[2] * hypervector_size + y * hypervector_size + bit
+                                        data[nonzero_count] = 1
+                                        nonzero_count += 1
+        indptr[X.shape[0]] = nonzero_count
+
+        return nonzero_count
 
 indexes = np.arange(hypervector_size, dtype=np.uint32)
 encoding = np.zeros((resolution, bits), dtype=np.uint32)
@@ -65,16 +96,25 @@ Y_test = Y_test.reshape(Y_test.shape[0])[0:examples]
 Y_train = np.where(np.isin(Y_train, animals), 1, 0)
 Y_test = np.where(np.isin(Y_test, animals), 1, 0)
 
+print("Preprocessing")
+
 hypervector = np.zeros(hypervector_size, dtype=np.uint32)
 
+start_preprocessing = time()
+nonzero_count = count_nonzero_hypervector(hypervector, encoding, X_train_org)
+stop_preprocessing = time()
+
+print(stop_preprocessing-start_preprocessing, nonzero_count)
+
 print("Training Data")
-X_train = lil_matrix((X_train_org.shape[0], X_train_org.shape[1] * X_train_org.shape[2] * hypervector_size), dtype=np.uint32)
-for i in range(X_train.shape[0]):
-        for x in range(X_train_org.shape[1]):
-                for y in range(X_train_org.shape[2]):
-                        produce_hypervector(hypervector, encoding, X_train_org, i, x, y)
-                        for bit in hypervector.nonzero():
-                                X_train[i, x * X_train_org.shape[2] * hypervector_size + y * hypervector_size + bit] = 1
+
+X_train_indptr = np.empty(X_train_org.shape[0]+1, dtype=np.uint32)
+X_train_indices = np.empty(nonzero_count, dtype=np.uint32)
+X_train_data = np.empty(nonzero_count, dtype=np.uint32)
+
+produce_hypervectors(hypervector, hypervector_size, encoding, X_train_org, X_train_indptr, X_train_indices, X_train_data)
+
+X_train = csr_matrix((X_train_data, X_train_indices, X_train_indptr))
 
 print("Testing Data")
 
