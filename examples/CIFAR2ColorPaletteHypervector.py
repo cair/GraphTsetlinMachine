@@ -11,7 +11,7 @@ from keras.datasets import cifar10
 
 scaling = 1.0
 
-hypervector_size = 256
+hypervector_size = 64
 
 bits = 5
 
@@ -22,7 +22,7 @@ animals = np.array([2, 3, 4, 5, 6, 7])
 ensembles = 5
 epochs = 250
 
-examples = 5000
+examples = 1000
 
 max_included_literals = 32
 
@@ -84,10 +84,10 @@ for i in range(resolution):
         encoding[i] = np.random.choice(indexes, size=(bits))
 
 (X_train_org, Y_train), (X_test_org, Y_test) = cifar10.load_data()
-X_train_org = X_train_org#[0:examples]
-X_test_org = X_test_org#[0:examples]
-Y_train = Y_train.reshape(Y_train.shape[0])#[0:examples]
-Y_test = Y_test.reshape(Y_test.shape[0])#[0:examples]
+X_train_org = X_train_org[0:examples]
+X_test_org = X_test_org[0:examples]
+Y_train = Y_train.reshape(Y_train.shape[0])[0:examples]
+Y_test = Y_test.reshape(Y_test.shape[0])[0:examples]
 
 Y_train = np.where(np.isin(Y_train, animals), 1, 0)
 Y_test = np.where(np.isin(Y_test, animals), 1, 0)
