@@ -22,7 +22,7 @@ animals = np.array([2, 3, 4, 5, 6, 7])
 ensembles = 5
 epochs = 250
 
-examples = 1000
+examples = 5000
 
 max_included_literals = 32
 
