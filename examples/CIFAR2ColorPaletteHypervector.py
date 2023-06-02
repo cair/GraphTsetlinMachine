@@ -41,18 +41,16 @@ def count_nonzero_hypervector(hypervector, encoding, X):
                 for x in range(X.shape[1]):
                         for y in range(X.shape[2]):
                                 hypervector[:] = 0
-                                roll = 0
-                                for c in range(3):
-                                        if c == 0:
-                                                roll += (X[i, x, y, c] // 32)
-                                        elif c == 1:
-                                                roll += 11 * (X[i, x, y, c] // 32)
-                                        else:
-                                                code = encoding[(X[i, x, y, c] // 32)]
-                                                for bit in code:
-                                                        hypervector[((bit + roll) % hypervector_size)] = 1
+
+                                for k1 in range(X[i, x, y, 0] // 32):
+                                        for k2 in range(X[i, x, y, 1] // 32):
+                                                for k3 in range(X[i, x, y, 2] // 32):
+                                                        roll = k1 + 11 * k2
+                                                        code = encoding[k3]
+                                                        for bit in code:
+                                                                hypervector[((bit + roll) % hypervector_size)] = 1
                                 nonzero_count += hypervector.sum()
-        return nonzero_count
+        return np.uint32(nonzero_count)
 
 @jit(nopython=True)
 def produce_hypervectors(hypervector, hypervector_size, encoding, X, indptr, indices, data):
@@ -62,20 +60,17 @@ def produce_hypervectors(hypervector, hypervector_size, encoding, X, indptr, ind
                 for x in range(X.shape[1]):
                         for y in range(X.shape[2]):
                                 hypervector[:] = 0
-                                roll = 0
-                                for c in range(3):
-                                        if c == 0:
-                                                roll += (X[i, x, y, c] // 32)
-                                        elif c == 1:
-                                                roll += 11 * (X[i, x, y, c] // 32)
-                                        else:
-                                                code = encoding[(X[i, x, y, c] // 32)]
-                                                for bit in code:
-                                                        hypervector[((bit + roll) % hypervector_size)] = 1
+                                for k1 in range(X[i, x, y, 0] // 32):
+                                        for k2 in range(X[i, x, y, 1] // 32):
+                                                for k3 in range(X[i, x, y, 2] // 32):
+                                                        roll = k1 + 11 * k2
+                                                        code = encoding[k3]
+                                                        for bit in code:
+                                                                hypervector[((bit + roll) % hypervector_size)] = 1
                                 nonzero = hypervector.nonzero()[0]
 
                                 for bit in nonzero:
-                                        indices[nonzero_count] = x * X.shape[2] * hypervector_size + y * hypervector_size + bit
+                                        indices[nonzero_count] = np.uint32(x * X.shape[2] * hypervector_size + y * hypervector_size + bit)
                                         data[nonzero_count] = 1
                                         nonzero_count += 1
         indptr[X.shape[0]] = nonzero_count
@@ -96,21 +91,14 @@ Y_test = Y_test.reshape(Y_test.shape[0])[0:examples]
 Y_train = np.where(np.isin(Y_train, animals), 1, 0)
 Y_test = np.where(np.isin(Y_test, animals), 1, 0)
 
-print("Preprocessing")
-
 hypervector = np.zeros(hypervector_size, dtype=np.uint32)
-
-start_preprocessing = time()
-nonzero_count = count_nonzero_hypervector(hypervector, encoding, X_train_org)
-stop_preprocessing = time()
-
-print(stop_preprocessing-start_preprocessing, nonzero_count)
 
 print("Training Data")
 
+nonzero_count_train = count_nonzero_hypervector(hypervector, encoding, X_train_org)
 X_train_indptr = np.empty(X_train_org.shape[0]+1, dtype=np.uint32)
-X_train_indices = np.empty(nonzero_count, dtype=np.uint32)
-X_train_data = np.empty(nonzero_count, dtype=np.uint32)
+X_train_indices = np.empty(nonzero_count_train, dtype=np.uint32)
+X_train_data = np.empty(nonzero_count_train, dtype=np.uint32)
 
 produce_hypervectors(hypervector, hypervector_size, encoding, X_train_org, X_train_indptr, X_train_indices, X_train_data)
 
@@ -118,18 +106,17 @@ X_train = csr_matrix((X_train_data, X_train_indices, X_train_indptr))
 
 print("Testing Data")
 
+start_preprocessing = time()
+nonzero_count_test = count_nonzero_hypervector(hypervector, encoding, X_test_org)
+stop_preprocessing = time()
+
 X_test_indptr = np.empty(X_test_org.shape[0]+1, dtype=np.uint32)
-X_test_indices = np.empty(nonzero_count, dtype=np.uint32)
-X_test_data = np.empty(nonzero_count, dtype=np.uint32)
+X_test_indices = np.empty(nonzero_count_test, dtype=np.uint32)
+X_test_data = np.empty(nonzero_count_test, dtype=np.uint32)
 
 produce_hypervectors(hypervector, hypervector_size, encoding, X_test_org, X_test_indptr, X_test_indices, X_test_data)
 
 X_test = csr_matrix((X_test_data, X_test_indices, X_test_indptr))
-
-print(X_test.shape, X_test.shape)
-
-#X_train = X_train.reshape((X_train.shape[0], -1))
-#X_test = X_test.reshape((X_test.shape[0], -1))
 
 print(X_test.shape, X_test.shape)
 
