@@ -47,7 +47,7 @@ class CommonTsetlinMachine():
 			boost_true_positive_feedback=1,
 			number_of_state_bits=8,
 			append_negated=True,
-			grid=(16*13,1,1),
+			grid=(16*13*4,1,1),
 			block=(128,1,1)
 	):
 		print("Initialization of sparse structure.")
@@ -344,7 +344,7 @@ class MultiClassConvolutionalTsetlinMachine2D(CommonTsetlinMachine):
 			boost_true_positive_feedback=1,
 			number_of_state_bits=8,
 			append_negated=True,
-			grid=(16*13,1,1),
+			grid=(16*13*4,1,1),
 			block=(128,1,1)
 	):
 		super().__init__(number_of_clauses, T, s, q=q, max_included_literals=max_included_literals, boost_true_positive_feedback=boost_true_positive_feedback, number_of_state_bits=number_of_state_bits, append_negated=append_negated, grid=grid, block=block)
@@ -389,7 +389,7 @@ class MultiOutputConvolutionalTsetlinMachine2D(CommonTsetlinMachine):
 			boost_true_positive_feedback=1,
 			number_of_state_bits=8,
 			append_negated=True,
-			grid=(16*13,1,1),
+			grid=(16*13*4,1,1),
 			block=(128,1,1)
 	):
 		super().__init__(number_of_clauses, T, s, q=q, max_included_literals=max_included_literals, boost_true_positive_feedback=boost_true_positive_feedback, number_of_state_bits=number_of_state_bits, append_negated=append_negated, grid=grid, block=block)
@@ -423,7 +423,7 @@ class MultiOutputTsetlinMachine(CommonTsetlinMachine):
 			boost_true_positive_feedback=1,
 			number_of_state_bits=8,
 			append_negated=True,
-			grid=(16*13,1,1),
+			grid=(16*13*4,1,1),
 			block=(128,1,1)
 	):
 		super().__init__(number_of_clauses, T, s, q=q, max_included_literals=max_included_literals, boost_true_positive_feedback=boost_true_positive_feedback, number_of_state_bits=number_of_state_bits, append_negated=append_negated, grid=grid, block=block)
@@ -461,7 +461,7 @@ class MultiClassTsetlinMachine(CommonTsetlinMachine):
 			boost_true_positive_feedback=1,
 			number_of_state_bits=8,
 			append_negated=True,
-			grid=(16*13,1,1),
+			grid=(16*13*4,1,1),
 			block=(128,1,1)
 	):
 		super().__init__(number_of_clauses, T, s, q=q, max_included_literals=max_included_literals, boost_true_positive_feedback=boost_true_positive_feedback, number_of_state_bits=number_of_state_bits, append_negated=append_negated, grid=grid, block=block)
@@ -504,7 +504,7 @@ class TsetlinMachine(CommonTsetlinMachine):
 			boost_true_positive_feedback=1,
 			number_of_state_bits=8,
 			append_negated=True,
-			grid=(16*13,1,1),
+			grid=(16*13*4,1,1),
 			block=(128,1,1)
 	):
 		super().__init__(number_of_clauses, T, s, q=q, max_included_literals=max_included_literals, boost_true_positive_feedback=boost_true_positive_feedback, number_of_state_bits=number_of_state_bits, append_negated=append_negated, grid=grid, block=block)
@@ -542,7 +542,7 @@ class RegressionTsetlinMachine(CommonTsetlinMachine):
 			boost_true_positive_feedback=1,
 			number_of_state_bits=8,
 			append_negated=True,
-			grid=(16*13,1,1),
+			grid=(16*13*4,1,1),
 			block=(128,1,1)
 	):
 		super().__init__(number_of_clauses, T, s, max_included_literals=max_included_literals, boost_true_positive_feedback=boost_true_positive_feedback, number_of_state_bits=number_of_state_bits, append_negated=append_negated, grid=grid, block=block)
@@ -581,7 +581,7 @@ class AutoEncoderTsetlinMachine(CommonTsetlinMachine):
 			boost_true_positive_feedback=1,
 			number_of_state_bits=8,
 			append_negated=True,
-			grid=(16*13,1,1),
+			grid=(16*13*4,1,1),
 			block=(128,1,1)
 	):
 		super().__init__(number_of_clauses, T, s, q=q, max_included_literals=max_included_literals, boost_true_positive_feedback=boost_true_positive_feedback, number_of_state_bits=number_of_state_bits, append_negated=append_negated, grid=grid, block=block)
