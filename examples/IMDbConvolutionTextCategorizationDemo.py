@@ -69,8 +69,8 @@ for e in range(test_y.shape[0]):
 X_test = X_test.tocsr()
 Y_test = test_y.astype(np.uint32)
 
-tm = MultiClassConvolutionalTsetlinMachine2D(clauses, T, s, (1, maxlen, hypervector_size), (1, 1))
-for i in range(epochs):
+tm = MultiClassConvolutionalTsetlinMachine2D(clauses, T, s, (1, maxlen, hypervector_size), (1, 1), max_included_literals=32)
+for i in range(1):
     start_training = time()
     tm.fit(X_train, Y_train, epochs=1, incremental=True)
     stop_training = time()
@@ -82,3 +82,20 @@ for i in range(epochs):
     result_train = 100*(tm.predict(X_train) == Y_train).mean()
 
     print("#%d Accuracy Test: %.2f%% Accuracy Train: %.2f%% Training: %.2fs Testing: %.2fs" % (i+1, result_test, result_train, stop_training-start_training, stop_testing-start_testing))
+
+X_train_transformed = tm.transform(X_train)
+X_test_transformed = tm.transform(X_test)
+tm = MultiClassTsetlinMachine(clauses, T, s, max_included_literals=32)
+for i in range(epochs):
+	start_training = time()
+    tm.fit(X_train_transformed, Y_train, epochs=1, incremental=True)
+    stop_training = time()
+
+    start_testing = time()
+    result_test = 100*(tm.predict(X_test_transformed) == Y_test).mean()
+    stop_testing = time()
+
+    result_train = 100*(tm.predict(X_train_transformed) == Y_train).mean()
+
+    print("#%d Accuracy Test: %.2f%% Accuracy Train: %.2f%% Training: %.2fs Testing: %.2fs" % (i+1, result_test, result_train, stop_training-start_training, stop_testing-start_testing))
+
