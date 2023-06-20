@@ -146,9 +146,6 @@ class CommonTsetlinMachine():
 	def transform(self, X):
 		number_of_examples = X.shape[0]
 		
-		encoded_X_gpu = cuda.mem_alloc(int(number_of_examples * self.number_of_patches * self.number_of_ta_chunks*4))
-		self.encode_X(X, encoded_X_gpu)
-
 		parameters = """
 #define CLASSES %d
 #define CLAUSES %d
@@ -168,13 +165,29 @@ class CommonTsetlinMachine():
 		mod = SourceModule(parameters + kernels.code_header + kernels.code_transform, no_extern_c=True)
 		transform = mod.get_function("transform")
 
-		X_transformed_gpu = cuda.mem_alloc(number_of_examples*self.number_of_clauses*4)
-		transform(self.ta_state_gpu, encoded_X_gpu, X_transformed_gpu, grid=self.grid, block=self.block)
-		cuda.Context.synchronize()
-		X_transformed = np.empty(number_of_examples*self.number_of_clauses, dtype=np.uint32)
-		cuda.memcpy_dtoh(X_transformed, X_transformed_gpu)
+		X_transformed_gpu = cuda.mem_alloc(self.number_of_clauses*4)
+
+		X_transformed = np.empty(number_of_examples, self.number_of_clauses, dtype=np.uint32)
+		for e in range(number_of_examples):
+			self.encode_packed.prepared_call(self.grid, self.block, self.X_test_indptr_gpu, self.X_test_indices_gpu, self.encoded_X_packed_gpu, np.int32(e), np.int32(self.dim[0]), np.int32(self.dim[1]), np.int32(self.dim[2]), np.int32(self.patch_dim[0]), np.int32(self.patch_dim[1]), np.int32(self.append_negated), np.int32(0))
+			cuda.Context.synchronize()
+
+			self.tramsform(
+				self.included_literals_gpu,
+				self.included_literals_length_gpu
+				self.encoded_X_packed_gpu,
+				X_transformed_gpu,
+				grid=self.grid,
+				block=self.block
+			)
+			cuda.Context.synchronize()
+
+			cuda.memcpy_dtoh(X_transformed[e,:], X_transformed_gpu)
+
+			self.restore_packed.prepared_call(self.grid, self.block, self.X_test_indptr_gpu, self.X_test_indices_gpu, self.encoded_X_packed_gpu, np.int32(e), np.int32(self.dim[0]), np.int32(self.dim[1]), np.int32(self.dim[2]), np.int32(self.patch_dim[0]), np.int32(self.patch_dim[1]), np.int32(self.append_negated), np.int32(0))
+			cuda.Context.synchronize()
 		
-		return X_transformed.reshape((number_of_examples, self.number_of_clauses))
+		return csr_matrix(X_transformed)
 
 	def _init(self, X):
 		if self.append_negated:
@@ -261,7 +274,6 @@ class CommonTsetlinMachine():
 		encoded_X = encoded_X.reshape(-1)
 		self.encoded_X_gpu = cuda.mem_alloc(encoded_X.nbytes)
 		cuda.memcpy_htod(self.encoded_X_gpu, encoded_X)
-
 
 		# Encoded X packed
 
@@ -385,7 +397,7 @@ class CommonTsetlinMachine():
 
 			self.restore_packed.prepared_call(self.grid, self.block, self.X_test_indptr_gpu, self.X_test_indices_gpu, self.encoded_X_packed_gpu, np.int32(e), np.int32(self.dim[0]), np.int32(self.dim[1]), np.int32(self.dim[2]), np.int32(self.patch_dim[0]), np.int32(self.patch_dim[1]), np.int32(self.append_negated), np.int32(0))
 			cuda.Context.synchronize()
-			
+
 			cuda.memcpy_dtoh(class_sum[e,:], self.class_sum_gpu)
 
 		return class_sum
