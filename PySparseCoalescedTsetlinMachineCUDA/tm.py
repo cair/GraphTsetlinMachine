@@ -174,7 +174,7 @@ class CommonTsetlinMachine():
 
 			self.tramsform(
 				self.included_literals_gpu,
-				self.included_literals_length_gpu
+				self.included_literals_length_gpu,
 				self.encoded_X_packed_gpu,
 				X_transformed_gpu,
 				grid=self.grid,
