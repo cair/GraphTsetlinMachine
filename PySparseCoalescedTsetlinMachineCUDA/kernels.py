@@ -765,7 +765,7 @@ code_transform = """
     {
 		// Transform examples
 
-		__global__ void transform_packed(
+		__global__ void transform(
 			unsigned int *included_literals,
 			unsigned int *included_literals_length,
 			int *X,
