@@ -70,7 +70,7 @@ X_test = X_test.tocsr()
 Y_test = test_y.astype(np.uint32)
 
 tm = MultiClassConvolutionalTsetlinMachine2D(clauses, T, s, (1, maxlen, hypervector_size), (1, 1), max_included_literals=32)
-for i in range(1):
+for i in range(5):
     start_training = time()
     tm.fit(X_train, Y_train, epochs=1, incremental=True)
     stop_training = time()
