@@ -85,6 +85,7 @@ for i in range(1):
 
 X_train_transformed = tm.transform(X_train)
 X_test_transformed = tm.transform(X_test)
+
 tm = MultiClassTsetlinMachine(clauses, T, s, max_included_literals=32)
 for i in range(epochs):
 	start_training = time()
