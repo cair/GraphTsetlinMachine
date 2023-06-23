@@ -18,6 +18,7 @@ scaling = 1.0
 resolution = 8
 
 animals = np.array([2, 3, 4, 5, 6, 7])
+random_grouping = np.choice(10, size=5, replace=False)
 
 ensembles = 5
 epochs = 250
@@ -30,11 +31,17 @@ s = 1.5
 (X_train_org, Y_train), (X_test_org, Y_test) = cifar10.load_data()
 X_train_org = X_train_org[0:5000]
 X_test_org = X_test_org[0:5000]
+
 Y_train = Y_train.reshape(Y_train.shape[0])[0:5000]
 Y_test = Y_test.reshape(Y_test.shape[0])[0:5000]
 
-Y_train = np.where(np.isin(Y_train, animals), 1, 0)
-Y_test = np.where(np.isin(Y_test, animals), 1, 0)
+Y_train = np.empty((X_train.shape[0], 2), dtype=np.uint32)
+Y_train[0,:] = np.where(np.isin(Y_train, animals), 1, 0)
+Y_train[1,:] = np.where(np.isin(Y_train, random_grouping), 1, 0)
+
+Y_test = np.empty((X_test.shape[0], 2), dtype=np.uint32)
+Y_test[0,:] = np.where(np.isin(Y_test, animals), 1, 0)
+Y_test[1,:] = np.where(np.isin(Y_test, random_grouping), 1, 0)
 
 X_train = np.empty((X_train_org.shape[0], X_train_org.shape[1], X_train_org.shape[2], X_train_org.shape[3], resolution),
                    dtype=np.uint8)
