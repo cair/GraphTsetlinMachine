@@ -34,7 +34,7 @@ Y_test = np.empty((Y_test_org.shape[0], groups), dtype=np.uint32)
 for group in range(groups):
 	Y_test[:, group] = np.where(np.isin(Y_test_org, random_grouping[group]), 1, 0)
 
-f = open("mnist_%.1f_%d_%d_%d.txt" % (s, int(factor*2000), T,  patch_size), "w+")
+f = open("mnist_%.1f_%d_%d_%d.txt" % (s, clauses_1, T_1,  patch_size), "w+")
 
 tm = MultiOutputConvolutionalTsetlinMachine2D(clauses_1, T_1, s, (28, 28, 1), (patch_size, patch_size))
 
@@ -53,9 +53,6 @@ for i in range(20):
     print("%d %.2f %.2f %.2f %.2f" % (i, result_train, result_test, stop_training-start_training, stop_testing-start_testing), file=f)
     f.flush()
 f.close()
-
-f = open("mnist_%.1f_%d_%d_%d.txt" % (s, int(factor*2000), T,  patch_size), "w+")
-
 
 X_train_transformed = tm.transform(X_train)
 X_test_transformed = tm.transform(X_test)
