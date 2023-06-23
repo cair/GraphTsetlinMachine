@@ -51,3 +51,42 @@ for i in range(epochs):
     print("%d %d %.2f %.2f %.2f %.2f" % (e, i, result_train, result_test, stop_training-start_training, stop_testing-start_testing), file=f)
     f.flush()
 f.close()
+
+f = open("mnist_%.1f_%d_%d_%d.txt" % (s, int(factor*2000), T,  patch_size), "w+")
+
+tm = MultiOutputConvolutionalTsetlinMachine2D(int(factor*2000), T, s, (28, 28, 1), (patch_size, patch_size))
+
+for i in range(5):
+    start_training = time()
+    tm.fit(X_train, Y_train, epochs=1, incremental=True)
+    stop_training = time()
+
+    start_testing = time()
+    result_test = 100*(tm.predict(X_test) == Y_test).mean()
+    stop_testing = time()
+
+    result_train = 100*(tm.predict(X_train) == Y_train).mean()
+
+    print("%d %.2f %.2f %.2f %.2f" % (i, result_train, result_test, stop_training-start_training, stop_testing-start_testing))
+    print("%d %.2f %.2f %.2f %.2f" % (i, result_train, result_test, stop_training-start_training, stop_testing-start_testing), file=f)
+    f.flush()
+f.close()
+
+X_train_transformed = tm.transform(X_train)
+X_test_transformed = tm.transform(X_test)
+
+tm = MultiClassTsetlinMachine(int(factor*2000), T, s)
+for i in range(epochs):
+	start_training = time()
+	tm.fit(X_train_transformed, Y_train, epochs=1, incremental=True)
+	stop_training = time()
+
+	start_testing = time()
+	result_test = 100*(tm.predict(X_test_transformed) == Y_test).mean()
+	stop_testing = time()
+
+	result_train = 100*(tm.predict(X_train_transformed) == Y_train).mean()
+
+	print("#%d Accuracy Test: %.2f%% Accuracy Train: %.2f%% Training: %.2fs Testing: %.2fs" % (i+1, result_test, result_train, stop_training-start_training, stop_testing-start_testing))
+
+
