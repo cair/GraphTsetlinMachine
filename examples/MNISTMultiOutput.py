@@ -23,14 +23,14 @@ X_train = np.where(X_train.reshape((X_train.shape[0], 28*28)) > 75, 1, 0)
 X_test = np.where(X_test.reshape((X_test.shape[0], 28*28)) > 75, 1, 0) 
 
 Y_train = np.empty((Y_train_org.shape[0], groups), dtype=np.uint32)
+random_grouping = []
 for group in range(groups):
-	random_grouping = np.random.choice(10, size=5, replace=False)
-	Y_train[:, group] = np.where(np.isin(Y_train_org, random_grouping), 1, 0)
+	random_grouping.append(np.random.choice(10, size=5, replace=False))
+	Y_train[:, group] = np.where(np.isin(Y_train_org, random_grouping[-1]), 1, 0)
 
 Y_test = np.empty((Y_test_org.shape[0], groups), dtype=np.uint32)
 for group in range(groups):
-	random_grouping = np.random.choice(10, size=5, replace=False)
-	Y_test[:, group] = np.where(np.isin(Y_test_org, random_grouping), 1, 0)
+	Y_test[:, group] = np.where(np.isin(Y_test_org, random_grouping[group]), 1, 0)
 
 f = open("mnist_%.1f_%d_%d_%d.txt" % (s, int(factor*2000), T,  patch_size), "w+")
 
