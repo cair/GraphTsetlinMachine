@@ -36,12 +36,12 @@ Y_train_org = Y_train_org.reshape(Y_train_org.shape[0])[0:5000]
 Y_test_org = Y_test_org.reshape(Y_test_org.shape[0])[0:5000]
 
 Y_train = np.empty((Y_train_org.shape[0], 2), dtype=np.uint32)
-Y_train[0,:] = np.where(np.isin(Y_train_org, animals), 1, 0)
-Y_train[1,:] = np.where(np.isin(Y_train_org, random_grouping), 1, 0)
+Y_train[:, 0] = np.where(np.isin(Y_train_org, animals), 1, 0)
+Y_train[:, 1] = np.where(np.isin(Y_train_org, random_grouping), 1, 0)
 
 Y_test = np.empty((Y_test_org.shape[0], 2), dtype=np.uint32)
-Y_test[0,:] = np.where(np.isin(Y_test_org, animals), 1, 0)
-Y_test[1,:] = np.where(np.isin(Y_test_org, random_grouping), 1, 0)
+Y_test[:, 0] = np.where(np.isin(Y_test_org, animals), 1, 0)
+Y_test[:, 1] = np.where(np.isin(Y_test_org, random_grouping), 1, 0)
 
 X_train = np.empty((X_train_org.shape[0], X_train_org.shape[1], X_train_org.shape[2], X_train_org.shape[3], resolution),
                    dtype=np.uint8)
