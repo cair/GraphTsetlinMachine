@@ -18,7 +18,7 @@ scaling = 1.0
 resolution = 8
 
 animals = np.array([2, 3, 4, 5, 6, 7])
-random_grouping = np.choice(10, size=5, replace=False)
+random_grouping = np.random.choice(10, size=5, replace=False)
 
 ensembles = 5
 epochs = 250
