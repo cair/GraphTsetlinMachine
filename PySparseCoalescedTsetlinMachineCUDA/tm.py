@@ -144,6 +144,8 @@ class CommonTsetlinMachine():
 
 	# Transform input data for processing at next layer
 	def transform(self, X):
+		X = csr_matrix(X)
+
 		number_of_examples = X.shape[0]
 		
 		parameters = """

@@ -38,7 +38,7 @@ f = open("mnist_%.1f_%d_%d_%d.txt" % (s, clauses_1, T_1,  patch_size), "w+")
 
 tm = MultiOutputConvolutionalTsetlinMachine2D(clauses_1, T_1, s, (28, 28, 1), (patch_size, patch_size))
 
-for i in range(20):
+for i in range(10):
     start_training = time()
     tm.fit(X_train, Y_train, epochs=1, incremental=True)
     stop_training = time()
