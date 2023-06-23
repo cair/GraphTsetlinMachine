@@ -480,6 +480,8 @@ class MultiOutputConvolutionalTsetlinMachine2D(CommonTsetlinMachine):
 		self.negative_clauses = 1
 
 	def fit(self, X, Y, epochs=100, incremental=False):
+		X = csr_matrix(X)
+
 		self.number_of_outputs = Y.shape[1]
 
 		self.max_y = None
@@ -513,10 +515,12 @@ class MultiOutputTsetlinMachine(CommonTsetlinMachine):
 		self.negative_clauses = 1
 
 	def fit(self, X, Y, epochs=100, incremental=False):
-		X = X.reshape(X.shape[0], X.shape[1], 1)
+		X = csr_matrix(X)
 
 		self.number_of_outputs = Y.shape[1]
-		self.patch_dim = (X.shape[1], 1, 1)
+
+		self.dim = (X.shape[1], 1, 1)
+		self.patch_dim = (X.shape[1], 1)
 
 		self.max_y = None
 		self.min_y = None
