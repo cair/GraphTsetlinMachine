@@ -1,4 +1,5 @@
 from PySparseCoalescedTsetlinMachineCUDA.tm import MultiOutputConvolutionalTsetlinMachine2D
+from PySparseCoalescedTsetlinMachineCUDA.tm import MultiClassTsetlinMachine
 
 import numpy as np
 from time import time
