@@ -43,11 +43,10 @@ for e in range(ensembles):
 	    stop_training = time()
 
 	    start_testing = time()
-	    print(Y_test.shape, tm.predict(X_test).shape)
-	    result_test = 100*(tm.predict(X_test)[:,0] == Y_test[:,0]).mean()
+	    result_test = 100*(tm.predict(X_test) == Y_test).mean()
 	    stop_testing = time()
 
-	    result_train = 100*(tm.predict(X_train[:,0]) == Y_train[:,0]).mean()
+	    result_train = 100*(tm.predict(X_train) == Y_train).mean()
 
 	    print("%d %d %.2f %.2f %.2f %.2f" % (e, i, result_train, result_test, stop_training-start_training, stop_testing-start_testing))
 	    print("%d %d %.2f %.2f %.2f %.2f" % (e, i, result_train, result_test, stop_training-start_training, stop_testing-start_testing), file=f)
