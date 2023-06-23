@@ -56,6 +56,9 @@ for z in range(resolution):
 X_train = X_train.reshape((X_train.shape[0], X_train.shape[1], X_train.shape[2], -1))
 X_test = X_test.reshape((X_test.shape[0], X_test.shape[1], X_test.shape[2], -1))
 
+X_train = csr_matrix(X_train)
+X_test = csr_matrix(X_test)
+
 print(X_train.shape, X_test.shape)
 
 f = open("cifar2_%.1f_%d_%d_%d.txt" % (s, clauses, T, scaling), "w+")
