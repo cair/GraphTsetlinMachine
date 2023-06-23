@@ -53,8 +53,8 @@ X_test = np.empty((X_test_org.shape[0], X_test_org.shape[1], X_test_org.shape[2]
 for z in range(resolution):
     X_test[:, :, :, :, z] = X_test_org[:, :, :, :] >= (z + 1) * 255 / (resolution + 1)
 
-X_train = X_train.reshape((X_train.shape[0], X_train.shape[1], X_train.shape[2], -1))
-X_test = X_test.reshape((X_test.shape[0], X_test.shape[1], X_test.shape[2], -1))
+X_train = X_train.reshape((X_train.shape[0], -1))
+X_test = X_test.reshape((X_test.shape[0], -1))
 
 X_train = csr_matrix(X_train)
 X_test = csr_matrix(X_test)
