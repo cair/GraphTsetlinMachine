@@ -35,11 +35,11 @@ X_test_org = X_test_org[0:5000]
 Y_train = Y_train.reshape(Y_train.shape[0])[0:5000]
 Y_test = Y_test.reshape(Y_test.shape[0])[0:5000]
 
-Y_train = np.empty((X_train.shape[0], 2), dtype=np.uint32)
+Y_train = np.empty((Y_train.shape[0], 2), dtype=np.uint32)
 Y_train[0,:] = np.where(np.isin(Y_train, animals), 1, 0)
 Y_train[1,:] = np.where(np.isin(Y_train, random_grouping), 1, 0)
 
-Y_test = np.empty((X_test.shape[0], 2), dtype=np.uint32)
+Y_test = np.empty((Y_test.shape[0], 2), dtype=np.uint32)
 Y_test[0,:] = np.where(np.isin(Y_test, animals), 1, 0)
 Y_test[1,:] = np.where(np.isin(Y_test, random_grouping), 1, 0)
 
