@@ -43,6 +43,7 @@ for e in range(ensembles):
 	    stop_training = time()
 
 	    start_testing = time()
+	    print(Y_test.shape, tm.predict(X_test).shape)
 	    result_test = 100*(tm.predict(X_test)[:,0] == Y_test[:,0]).mean()
 	    stop_testing = time()
 
