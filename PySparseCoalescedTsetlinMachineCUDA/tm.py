@@ -492,6 +492,8 @@ class MultiOutputConvolutionalTsetlinMachine2D(CommonTsetlinMachine):
 		self._fit(X, encoded_Y, epochs=epochs, incremental=incremental)
 
 	def score(self, X):
+		X = csr_matrix(X)
+
 		return self._score(X)
 
 	def predict(self, X):
@@ -531,7 +533,7 @@ class MultiOutputTsetlinMachine(CommonTsetlinMachine):
 		return
 
 	def score(self, X):
-		X = X.reshape(X.shape[0], X.shape[1], 1)
+		X = csr_matrix(X)
 		return self._score(X)
 
 	def predict(self, X):
