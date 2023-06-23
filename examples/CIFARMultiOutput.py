@@ -1,6 +1,6 @@
 import numpy as np
 from time import time
-from PySparseCoalescedTsetlinMachineCUDA.tm import MultiClassConvolutionalTsetlinMachine2D
+from PySparseCoalescedTsetlinMachineCUDA.tm import MultiOutputConvolutionalTsetlinMachine2D
 from scipy.sparse import lil_matrix
 from skimage.util import view_as_windows
 from sklearn.feature_extraction.text import CountVectorizer
@@ -62,7 +62,7 @@ f = open("cifar2_%.1f_%d_%d_%d.txt" % (s, clauses, T, scaling), "w+")
 for ensemble in range(ensembles):
         print("\nAccuracy over %d epochs:\n" % (epochs))
 
-        tm = MultiClassConvolutionalTsetlinMachine2D(clauses, T, s, (32, 32, X_train_org.shape[3] * resolution), (3, 3), max_included_literals=max_included_literals)
+        tm = MultiOutputConvolutionalTsetlinMachine2D(clauses, T, s, (32, 32, X_train_org.shape[3] * resolution), (3, 3), max_included_literals=max_included_literals)
 
         for epoch in range(epochs):
                 start_training = time()
