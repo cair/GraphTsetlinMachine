@@ -497,7 +497,7 @@ class MultiOutputConvolutionalTsetlinMachine2D(CommonTsetlinMachine):
 		return self._score(X)
 
 	def predict(self, X):
-		return (self.score(X) >= 0).astype(np.uint32).transpose()
+		return (self.score(X) >= 0).astype(np.uint32)
 
 class MultiOutputTsetlinMachine(CommonTsetlinMachine):
 	def __init__(
@@ -537,7 +537,7 @@ class MultiOutputTsetlinMachine(CommonTsetlinMachine):
 		return self._score(X)
 
 	def predict(self, X):
-		return (self.score(X) >= 0).astype(np.uint32).transpose()
+		return (self.score(X) >= 0).astype(np.uint32)
 
 class MultiClassTsetlinMachine(CommonTsetlinMachine):
 	def __init__(
