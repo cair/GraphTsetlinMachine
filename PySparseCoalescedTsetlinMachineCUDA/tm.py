@@ -376,6 +376,7 @@ class CommonTsetlinMachine():
 			self.X_test_indptr_gpu = cuda.mem_alloc(X.indptr.nbytes)
 			cuda.memcpy_htod(self.X_test_indptr_gpu, X.indptr)
 
+			print(X.indices.nbytes)
 			self.X_test_indices_gpu = cuda.mem_alloc(X.indices.nbytes)
 			cuda.memcpy_htod(self.X_test_indices_gpu, X.indices)
 
