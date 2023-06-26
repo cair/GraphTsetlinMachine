@@ -7,6 +7,7 @@ from sklearn.feature_extraction.text import CountVectorizer
 from skimage.transform import pyramid_gaussian, pyramid_laplacian, downscale_local_mean
 import matplotlib.pyplot as plt
 from scipy.sparse import csr_matrix, csc_matrix, lil_matrix
+from PySparseCoalescedTsetlinMachineCUDA.tm import MultiClassTsetlinMachine
 
 import ssl
 
@@ -67,31 +68,24 @@ X_test = csr_matrix(X_test)
 print(X_train.shape, X_test.shape)
 
 f = open("cifar2_%.1f_%d_%d_%d.txt" % (s, clauses, T, scaling), "w+")
-for ensemble in range(ensembles):
-        print("\nAccuracy over %d epochs:\n" % (epochs))
 
-        tm = MultiOutputConvolutionalTsetlinMachine2D(clauses, T, s, (32, 32, X_train_org.shape[3] * resolution), (3, 3), max_included_literals=max_included_literals)
 
-        for epoch in range(epochs):
-                start_training = time()
-                tm.fit(X_train, Y_train)
-                stop_training = time()
+tm = MultiOutputConvolutionalTsetlinMachine2D(clauses, T, s, (32, 32, X_train_org.shape[3] * resolution), (3, 3), max_included_literals=max_included_literals)
 
-                start_testing = time()
-                result_test = 100*(tm.predict(X_test) == Y_test).mean()
-                stop_testing = time()
+for epoch in range(10):
+        start_training = time()
+        tm.fit(X_train, Y_train)
+        stop_training = time()
 
-                result_train = 100*(tm.predict(X_train) == Y_train).mean()
+        start_testing = time()
+        result_test = 100*(tm.predict(X_test) == Y_test).mean()
+        stop_testing = time()
 
-                number_of_includes = 0
-                for i in range(2):
-                        for j in range(clauses):
-                                number_of_includes += tm.number_of_include_actions(i, j)
-                number_of_includes /= 2*clauses
+        result_train = 100*(tm.predict(X_train) == Y_train).mean()
 
-                print("%d %d %.2f %.2f %.2f %.2f %.2f" % (ensemble, epoch, number_of_includes, result_test, result_train, stop_training-start_training, stop_testing-start_testing))
-                print("%d %d %.2f %.2f %.2f %.2f %.2f" % (ensemble, epoch, number_of_includes, result_test, result_train, stop_training-start_training, stop_testing-start_testing), file=f)
-                f.flush()
+        print("%d %d %.2f %.2f %.2f %.2f %.2f" % (ensemble, epoch, result_test, result_train, stop_training-start_training, stop_testing-start_testing))
+        print("%d %d %.2f %.2f %.2f %.2f %.2f" % (ensemble, epoch, result_test, result_train, stop_training-start_training, stop_testing-start_testing), file=f)
+        f.flush()
 f.close()
 
 X_train_transformed = tm.transform(X_train)
