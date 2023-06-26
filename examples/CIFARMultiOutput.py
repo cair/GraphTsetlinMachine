@@ -33,11 +33,11 @@ T_2 = 5000
 s_2 = 1.5
 
 (X_train_org, Y_train_org), (X_test_org, Y_test_org) = cifar10.load_data()
-X_train_org = X_train_org[0:100]
-X_test_org = X_test_org[0:100]
+X_train_org = X_train_org[0:1000]
+X_test_org = X_test_org[0:1000]
 
-Y_train_org = Y_train_org.reshape(Y_train_org.shape[0])[0:100]
-Y_test_org = Y_test_org.reshape(Y_test_org.shape[0])[0:100]
+Y_train_org = Y_train_org.reshape(Y_train_org.shape[0])[0:1000]
+Y_test_org = Y_test_org.reshape(Y_test_org.shape[0])[0:1000]
 
 Y_train = np.empty((Y_train_org.shape[0], groups), dtype=np.uint32)
 random_grouping = []
