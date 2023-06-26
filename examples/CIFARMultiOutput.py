@@ -83,8 +83,8 @@ for epoch in range(10):
 
         result_train = 100*(tm.predict(X_train) == Y_train).mean()
 
-        print("%d %d %.2f %.2f %.2f %.2f %.2f" % (ensemble, epoch, result_test, result_train, stop_training-start_training, stop_testing-start_testing))
-        print("%d %d %.2f %.2f %.2f %.2f %.2f" % (ensemble, epoch, result_test, result_train, stop_training-start_training, stop_testing-start_testing), file=f)
+        print("%d %.2f %.2f %.2f %.2f %.2f" % (epoch, result_test, result_train, stop_training-start_training, stop_testing-start_testing))
+        print("%d %.2f %.2f %.2f %.2f %.2f" % (epoch, result_test, result_train, stop_training-start_training, stop_testing-start_testing), file=f)
         f.flush()
 f.close()
 
