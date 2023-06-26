@@ -38,9 +38,6 @@ X_test_org = X_test_org[0:100]
 Y_train_org = Y_train_org.reshape(Y_train_org.shape[0])[0:100]
 Y_test_org = Y_test_org.reshape(Y_test_org.shape[0])[0:100]
 
-X_train = np.where(X_train.reshape((X_train.shape[0], 28*28)) > 75, 1, 0) 
-X_test = np.where(X_test.reshape((X_test.shape[0], 28*28)) > 75, 1, 0) 
-
 Y_train = np.empty((Y_train_org.shape[0], groups), dtype=np.uint32)
 random_grouping = []
 for group in range(groups):
