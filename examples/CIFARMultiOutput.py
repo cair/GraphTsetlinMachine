@@ -91,7 +91,7 @@ f.close()
 X_train_transformed = tm.transform(X_train)
 X_test_transformed = tm.transform(X_test)
 
-tm = MultiClassTsetlinMachine(clauses_2, T_2, s)
+tm = MultiClassTsetlinMachine(clauses_2, T_2, s_2)
 for i in range(epochs):
         start_training = time()
         tm.fit(X_train_transformed, Y_train_org, epochs=1, incremental=True)
