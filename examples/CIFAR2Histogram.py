@@ -38,7 +38,7 @@ print("Training Data")
 
 start_time = time()
 
-X_train = lil_matrix((X_train_org.shape[0], (X_train_org.shape[1] - patch_size + 1)//step, (X_train_org.shape[2] - patch_size + 1)//step, resolution**3), dtype=np.uint32)
+X_train = lil_matrix((X_train_org.shape[0], ((X_train_org.shape[1] - patch_size + 1)//step)*((X_train_org.shape[2] - patch_size + 1)//step)*(resolution**3)), dtype=np.uint32)
 for i in range(X_train.shape[0]):
         windows_r = view_as_windows(X_train_org[i,:,:,0], (patch_size, patch_size), step=step)
         windows_g = view_as_windows(X_train_org[i,:,:,1], (patch_size, patch_size), step=step)
@@ -52,13 +52,13 @@ for i in range(X_train.shape[0]):
                         for x in range(patch_size):
                                 for y in range(patch_size):
                                         color_id = (patch_r[x, y]//(256//resolution)) * (resolution**2) + (patch_g[x, y]//(256//resolution)) * resolution + (patch_b[x, y]//(256//resolution))
-                                        X_train[i, u, v, color_id] = 1
+                                        X_train[i, u*((X_train_org.shape[2] - patch_size + 1)//step)*(resolution**3) + v*(resolution**3) + color_id] = 1
 
 X_train = X_train.tocsr()
 
 print("Training data produced")
 
-X_test = lil_matrix((X_test_org.shape[0], (X_train_org.shape[1] - patch_size + 1)//step, (X_train_org.shape[2] - patch_size + 1)//step, resolution**3), dtype=np.uint32)
+X_test = lil_matrix((X_test_org.shape[0], ((X_test_org.shape[1] - patch_size + 1)//step)*((X_test_org.shape[2] - patch_size + 1)//step)*(resolution**3)), dtype=np.uint32)
 for i in range(X_test.shape[0]):
         windows_r = view_as_windows(X_test_org[i,:,:,0], (patch_size, patch_size), step=step)
         windows_g = view_as_windows(X_test_org[i,:,:,1], (patch_size, patch_size), step=step)
@@ -72,7 +72,7 @@ for i in range(X_test.shape[0]):
                         for x in range(patch_size):
                                 for y in range(patch_size):
                                         color_id = (patch_r[x, y]//(256//resolution)) * (resolution**2) + (patch_g[x, y]//(256//resolution)) * resolution + (patch_b[x, y]//(256//resolution))
-                                        X_test[i, u, v, color_id] = 1
+                                        X_test[i, u*((X_train_org.shape[2] - patch_size + 1)//step)*(resolution**3) + v*(resolution**3) + color_id] = 1
 
 X_test = X_test.tocsr()
 
@@ -84,7 +84,7 @@ f = open("cifar2_%.1f_%d_%d_%d.txt" % (s, clauses, T, step), "w+")
 for ensemble in range(ensembles):
         print("\nAccuracy over %d epochs:\n" % (epochs))
 
-        tm = TMClassifier(clauses, T, s, max_included_literals=max_included_literals, patch_dim=(1,1), platform='GPU', weighted_clauses=True)
+        tm = MultiClassConvolutionalTsetlinMachine2D(clauses, T, s, (((X_train_org.shape[1] - patch_size + 1)//step), ((X_train_org.shape[2] - patch_size + 1)//step), resolution**3), (1, 1), max_included_literals=max_included_literals)
       
         for epoch in range(epochs):
                 start_training = time()
@@ -97,13 +97,7 @@ for ensemble in range(ensembles):
 
                 result_train = 100*(tm.predict(X_train) == Y_train).mean()
 
-                number_of_includes = 0
-                for i in range(2):
-                        for j in range(clauses):
-                                number_of_includes += tm.number_of_include_actions(i, j)
-                number_of_includes /= 2*clauses
-
-                print("%d %d %.2f %.2f %.2f %.2f %.2f" % (ensemble, epoch, number_of_includes, result_test, result_train, stop_training-start_training, stop_testing-start_testing))
-                print("%d %d %.2f %.2f %.2f %.2f %.2f" % (ensemble, epoch, number_of_includes, result_test, result_train, stop_training-start_training, stop_testing-start_testing), file=f)
+                print("%d %d %.2f %.2f %.2f %.2f" % (ensemble, epoch, result_test, result_train, stop_training-start_training, stop_testing-start_testing))
+                print("%d %d %.2f %.2f %.2f %.2f" % (ensemble, epoch, result_test, result_train, stop_training-start_training, stop_testing-start_testing), file=f)
                 f.flush()
 f.close()
