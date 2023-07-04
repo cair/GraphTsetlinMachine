@@ -26,10 +26,10 @@ literal_drop_p = 0.0
 step = 1
 
 (X_train_org, Y_train), (X_test_org, Y_test) = cifar10.load_data()
-X_train_org = X_train_org.astype(np.uint32)[:1000]
-X_test_org = X_test_org.astype(np.uint32)[:1000]
-Y_train = Y_train.reshape(Y_train.shape[0])[:1000]
-Y_test = Y_test.reshape(Y_test.shape[0])[:1000]
+X_train_org = X_train_org.astype(np.uint32)
+X_test_org = X_test_org.astype(np.uint32)
+Y_train = Y_train.reshape(Y_train.shape[0])
+Y_test = Y_test.reshape(Y_test.shape[0])
 
 Y_train = np.where(np.isin(Y_train, animals), 1, 0)
 Y_test = np.where(np.isin(Y_test, animals), 1, 0)
@@ -58,6 +58,8 @@ X_train = X_train.tocsr()
 
 print("Training data produced")
 
+print("Testing Data")
+
 X_test = lil_matrix((X_test_org.shape[0], ((X_test_org.shape[1] - patch_size + 1)//step)*((X_test_org.shape[2] - patch_size + 1)//step)*(resolution**3)), dtype=np.uint32)
 for i in range(X_test.shape[0]):
         windows_r = view_as_windows(X_test_org[i,:,:,0], (patch_size, patch_size), step=step)
@@ -72,7 +74,7 @@ for i in range(X_test.shape[0]):
                         for x in range(patch_size):
                                 for y in range(patch_size):
                                         color_id = (patch_r[x, y]//(256//resolution)) * (resolution**2) + (patch_g[x, y]//(256//resolution)) * resolution + (patch_b[x, y]//(256//resolution))
-                                        X_test[i, u*((X_train_org.shape[2] - patch_size + 1)//step)*(resolution**3) + v*(resolution**3) + color_id] = 1
+                                        X_test[i, u*((X_test_org.shape[2] - patch_size + 1)//step)*(resolution**3) + v*(resolution**3) + color_id] = 1
 
 X_test = X_test.tocsr()
 
