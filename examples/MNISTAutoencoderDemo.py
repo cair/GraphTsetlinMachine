@@ -64,12 +64,10 @@ for e in range(100):
 	for i in range(3):
 		start_training = time()
 		tm_2.fit(X_train_predicted, Y_train, epochs=1, incremental=True)
-		#tm_2.fit(X_train_transformed, Y_train)
 		stop_training = time()
 
 		start_testing = time()
 		result = 100*(tm_2.predict(X_test_predicted) == Y_test).mean()
-		#result = 100*(tm_2.predict(X_test_transformed) == Y_test).mean()
 		stop_testing = time()
 
 		print("\t#%d Accuracy: %.2f%% Training: %.2fs Testing: %.2fs" % (i+1, result, stop_training-start_training, stop_testing-start_testing))
