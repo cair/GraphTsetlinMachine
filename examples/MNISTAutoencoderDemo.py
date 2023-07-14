@@ -46,7 +46,7 @@ tm = MultiOutputConvolutionalTsetlinMachine2D(number_of_clauses, T, s, (28, 28, 
 print("\nAccuracy Over 40 Epochs:")
 for e in range(100):
 	start_training = time()
-	tm.fit(X_train, X_train.toarray(), epochs=1, incremental=True)
+	tm.fit(X_train_noisy, X_train.toarray(), epochs=1, incremental=True)
 	stop_training = time()
 
 	print("\nEpoch #%d\n" % (e+1))
