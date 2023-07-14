@@ -36,8 +36,8 @@ X_test_org = X_test_org.reshape((X_test_org.shape[0], -1))
 X_train = np.zeros((X_train_org.shape[0], 28*28 + 10), dtype=np.uint32)
 X_test = np.zeros((X_test_org.shape[0], 28*28 + 10), dtype=np.uint32)
 
-X_train[:,:28*28] = np.where(X_train > 75, 1, 0)
-X_test[:,:28*28] = np.where(X_test > 75, 1, 0)
+X_train[:,:28*28] = np.where(X_train_org > 75, 1, 0)
+X_test[:,:28*28] = np.where(X_test_org > 75, 1, 0)
 
 for i in range(10):
 	X_train[:,28*28 + i] = (i == Y_train)
