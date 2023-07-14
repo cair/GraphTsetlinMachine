@@ -10,12 +10,14 @@ from PySparseCoalescedTsetlinMachineCUDA.tm import MultiClassTsetlinMachine
 
 noise = 0.1
 
+factor = 1.25
+
 number_of_features = 28*28
 
 number_of_examples = 1000
 
-number_of_clauses = 1024
-T = int(number_of_clauses*0.75)
+number_of_clauses = int(factor*2000)#1024
+T = int(factor*25*100)#int(number_of_clauses*0.75)
 s = 10.0
 max_included_literals = 2*number_of_features
 accumulation = 1
