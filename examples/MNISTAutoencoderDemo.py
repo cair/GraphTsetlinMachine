@@ -65,9 +65,8 @@ for e in range(100):
 	Y_train_predicted = np.argmax(Y_train_scores[:,28*28:], axis=1) 
 	Y_test_predicted = np.argmax(Y_test_scores[:,28*28:], axis=1) 
 
-	print("Classification train accuracy:", 100*(Y_train_predicted == Y_train).mean())
-
 	print("Classification test accuracy:", 100*(Y_test_predicted == Y_test).mean())
+	print("Classification train accuracy:", 100*(Y_train_predicted == Y_train).mean())
 
 	X_test_predicted = tm.predict(X_test)
 	X_train_predicted = tm.predict(X_train)
