@@ -36,8 +36,6 @@ Y_train = Y_train
 Y_test = Y_test
 #X_train = np.where(np.random.rand(X_train.shape[0], number_of_features) <= noise, 1-X_train, X_train) # Adds noise
 
-X_test_noisy = np.where(np.random.rand(X_test.shape[0], number_of_features) <= noise, 1-X_test, X_test) # Adds noise
-
 tm = MultiOutputConvolutionalTsetlinMachine2D(number_of_clauses, T, s, (28, 28, 1), (10, 10), max_included_literals=max_included_literals)
 
 print("\nAccuracy Over 40 Epochs:")
