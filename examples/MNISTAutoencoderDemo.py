@@ -56,7 +56,7 @@ for e in range(100):
 	print("\nEpoch #%d\n" % (e+1))
 
 	start_training = time()
-	tm.fit(X_train_noisy, X_train.toarray(), epochs=1, incremental=True)
+	tm.fit(X_train, X_train.toarray(), epochs=1, incremental=True)
 	stop_training = time()
 
 	Y_train_scores = tm.score(X_train)
