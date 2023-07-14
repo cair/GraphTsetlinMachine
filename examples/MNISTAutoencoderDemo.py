@@ -59,7 +59,7 @@ for e in range(100):
 	tm.fit(X_train_noisy, X_train.toarray(), epochs=1, incremental=True)
 	stop_training = time()
 
-	Y_train_scores tm.score(X_train)
+	Y_train_scores = tm.score(X_train)
 	Y_test_scores = tm.score(X_test)
 
 	Y_train_predicted = np.argmax(Y_train_scores[:,28*28:], axis=1) 
