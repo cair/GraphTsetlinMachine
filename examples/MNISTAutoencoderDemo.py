@@ -30,8 +30,8 @@ output_active = np.arange(number_of_features, dtype=np.uint32)
 
 (X_train, Y_train), (X_test, Y_test) = mnist.load_data()
 
-X_train = np.where(X_train.reshape((X_train.shape[0], 28*28)) > 75, 1, 0)
-X_test = np.where(X_test.reshape((X_test.shape[0], 28*28)) > 75, 1, 0)
+X_train = np.where(X_train > 75, 1, 0)
+X_test = np.where(X_test > 75, 1, 0)
 Y_train = Y_train
 Y_test = Y_test
 #X_train = np.where(np.random.rand(X_train.shape[0], number_of_features) <= noise, 1-X_train, X_train) # Adds noise
@@ -57,32 +57,8 @@ for e in range(100):
 
 	print("\nTraining Time: %.2f" % (stop_training - start_training))
 
-	# io.imshow(X_test[0,:].reshape((28,28)))
-	# io.show()
-
-	# io.imshow(X_test_predicted[0,:].reshape((28,28)))
-	# io.show()
-
-	# io.imshow(X_test[1,:].reshape((28,28)))
-	# io.show()
-
-	# io.imshow(X_test_predicted[1,:].reshape((28,28)))
-	# io.show()
-
-	# io.imshow(X_test[2,:].reshape((28,28)))
-	# io.show()
-
-	# io.imshow(X_test_predicted[2,:].reshape((28,28)))
-	# io.show()
-
-	# io.imshow(X_test[3,:].reshape((28,28)))
-	# io.show()
-
-	# io.imshow(X_test_predicted[3,:].reshape((28,28)))
-	# io.show()
-
-	X_train_transformed = tm.transform(X_train)
-	X_test_transformed = tm.transform(X_test)
+	X_train_predicted = X_train_predicted.reshape((X_train_predicted.shape[0], -1))
+	X_test_predicted = X_test_predicted.reshape((X_test_predicted.shape[0], -1))
 
 	tm_2 = MultiClassTsetlinMachine(2000, 50*100, 10.0)
 
