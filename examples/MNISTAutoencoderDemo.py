@@ -8,7 +8,7 @@ from skimage import io
 from PySparseCoalescedTsetlinMachineCUDA.tm import MultiOutputConvolutionalTsetlinMachine2D
 from PySparseCoalescedTsetlinMachineCUDA.tm import MultiClassTsetlinMachine
 
-noise = 0.0
+noise = 0.1
 
 number_of_features = 28*28
 
@@ -34,6 +34,8 @@ X_train = np.where(X_train > 75, 1, 0)
 X_test = np.where(X_test > 75, 1, 0)
 
 X_train = X_train.reshape((X_train.shape[0], -1))
+X_train_noisy = np.where(np.random.rand(X_train.shape[0], number_of_features) <= noise, 1-X_train, X_train) # Adds noise
+
 X_test = X_test.reshape((X_test.shape[0], -1))
 
 X_train = csr_matrix(X_train)
