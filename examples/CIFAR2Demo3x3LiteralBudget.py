@@ -18,6 +18,7 @@ patch_size = 3
 resolution = 8
 number_of_state_bits_ta = 8
 literal_drop_p = 0.0
+q=0.1
 
 epochs = 250
 ensembles = 5
@@ -46,7 +47,7 @@ Y_test = np.where(np.isin(Y_test, animals), 1, 0)
 f = open("cifar2_%.1f_%d_%d_%d_%.2f_%d_%d.txt" % (
 s, clauses, T, patch_size, literal_drop_p, resolution, max_included_literals), "w+")
 for ensemble in range(ensembles):
-    tm = MultiClassConvolutionalTsetlinMachine2D(clauses, T, s2, (32, 32, 3*resolution), (patch_size, patch_size), max_included_literals=max_included_literals)
+    tm = MultiClassConvolutionalTsetlinMachine2D(clauses, T, s2, (32, 32, 3*resolution), (patch_size, patch_size), max_included_literals=max_included_literals, q=q)
 
     for epoch in range(epochs):
         start_training = time()
