@@ -1,4 +1,4 @@
-from PyCoalescedTsetlinMachineCUDA.tm import MultiClassConvolutionalTsetlinMachine2D
+from PySparseCoalescedTsetlinMachineCUDA.tm import MultiClassConvolutionalTsetlinMachine2D
 import numpy as np
 from time import time
 
@@ -11,7 +11,7 @@ clauses = int(4000*factor)
 T = int(75*10*factor)
 s = 20.0
 patch_size = 8
-q=5.0
+q=0.1
 
 epochs = 250
 ensembles = 10
