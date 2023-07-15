@@ -59,8 +59,8 @@ X_test = csr_matrix(X_test)
 
 tm = MultiOutputConvolutionalTsetlinMachine2D(number_of_clauses, T, s, (28, 28, 1), (10, 10), max_included_literals=max_included_literals)
 
-print("\nAccuracy Over 40 Epochs:")
-for e in range(100):
+print("\nAccuracy Over 1000 Epochs:")
+for e in range(1000):
 	print("\nEpoch #%d\n" % (e+1))
 
 	start_training = time()
