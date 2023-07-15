@@ -33,6 +33,9 @@ for i in range(X_test.shape[0]):
         for j in range(X_test.shape[3]):
                 X_test[i,:,:,j] = cv2.adaptiveThreshold(X_test[i,:,:,j], 1, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)#cv2.adaptiveThreshold(X_test[i,:,:,j], 1, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 5, 5)
 
+X_train = X_train.reshape(X_train.shape[0], -1)
+X_test = X_train.reshape(X_test.shape[0], -1)
+
 f = open("cifar10_%.1f_%d_%d_%d.txt" % (s, clauses, T,  patch_size), "w+")
 
 for e in range(ensembles):
