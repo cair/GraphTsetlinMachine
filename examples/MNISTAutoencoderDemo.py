@@ -35,8 +35,8 @@ output_active = np.arange(number_of_features, dtype=np.uint32)
 X_train_org = X_train_org.reshape((X_train_org.shape[0], -1))
 X_test_org = X_test_org.reshape((X_test_org.shape[0], -1))
 
-X_train = np.zeros((X_train_org.shape[0], 28*28 + 20), dtype=np.uint32)
-X_test = np.zeros((X_test_org.shape[0], 28*28 + 20), dtype=np.uint32)
+X_train = np.zeros((X_train_org.shape[0], 28*28 + 40), dtype=np.uint32)
+X_test = np.zeros((X_test_org.shape[0], 28*28 + 40), dtype=np.uint32)
 
 X_train[:,:28*28] = np.where(X_train_org > 75, 1, 0)
 X_test[:,:28*28] = np.where(X_test_org > 75, 1, 0)
@@ -46,6 +46,10 @@ for i in range(10):
 	X_test[:,28*28 + i] = (i == Y_test)
 	X_train[:,28*28 + 10 + i] = (i == Y_train)
 	X_test[:,28*28 + 10 + i] = (i == Y_test)
+	X_train[:,28*28 + 20 + i] = (i == Y_train)
+	X_test[:,28*28 + 20 + i] = (i == Y_test)
+	X_train[:,28*28 + 30 + i] = (i == Y_train)
+	X_test[:,28*28 + 30 + i] = (i == Y_test)
 
 #X_train_noisy = np.where(np.random.rand(X_train.shape[0], number_of_features) <= noise, 1-X_train, X_train) # Adds noise
 
