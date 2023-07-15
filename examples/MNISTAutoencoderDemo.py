@@ -10,7 +10,7 @@ from PySparseCoalescedTsetlinMachineCUDA.tm import MultiClassTsetlinMachine
 
 noise = 0.1
 
-factor = 2.5
+factor = 5
 
 number_of_features = 28*28
 
