@@ -6,11 +6,12 @@ from keras.datasets import cifar10
 
 import cv2
 
-factor = 80
+factor = 10
 clauses = int(4000*factor)
 T = int(75*10*factor)
 s = 20.0
 patch_size = 8
+q=5.0
 
 epochs = 250
 ensembles = 10
@@ -35,7 +36,7 @@ for i in range(X_test.shape[0]):
 f = open("cifar10_%.1f_%d_%d_%d.txt" % (s, clauses, T,  patch_size), "w+")
 
 for e in range(ensembles):
-        tm = MultiClassConvolutionalTsetlinMachine2D(clauses, T, s, (patch_size, patch_size), q=1.0, number_of_state_bits=8)
+        tm = MultiClassConvolutionalTsetlinMachine2D(clauses, T, s, (patch_size, patch_size), q=q, number_of_state_bits=8)
 
         for i in range(epochs):
                 start_training = time()
