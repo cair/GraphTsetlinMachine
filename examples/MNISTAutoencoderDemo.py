@@ -10,7 +10,7 @@ from PySparseCoalescedTsetlinMachineCUDA.tm import MultiClassTsetlinMachine
 
 noise = 0.1
 
-factor = 10
+factor = 1.25
 
 number_of_features = 28*28
 
@@ -57,7 +57,7 @@ for i in range(10):
 X_train = csr_matrix(X_train)
 X_test = csr_matrix(X_test)
 
-tm = MultiOutputConvolutionalTsetlinMachine2D(number_of_clauses, T, s, (28, 28, 1), (10, 10), max_included_literals=max_included_literals)
+tm = MultiOutputConvolutionalTsetlinMachine2D(number_of_clauses, T, s, (28, 28, 1), (10, 10), q=28*28+40-1, max_included_literals=max_included_literals)
 
 print("\nAccuracy Over 1000 Epochs:")
 for e in range(1000):
