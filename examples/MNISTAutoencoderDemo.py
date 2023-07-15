@@ -57,7 +57,7 @@ for i in range(10):
 X_train = csr_matrix(X_train)
 X_test = csr_matrix(X_test)
 
-tm = MultiOutputConvolutionalTsetlinMachine2D(number_of_clauses, T, s, (28, 28, 1), (10, 10), q=28*28+40-1, max_included_literals=max_included_literals)
+tm = MultiOutputConvolutionalTsetlinMachine2D(number_of_clauses, T, s, (28, 28, 1), (10, 10), q=9, max_included_literals=max_included_literals)
 
 print("\nAccuracy Over 1000 Epochs:")
 for e in range(1000):
