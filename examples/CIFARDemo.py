@@ -36,7 +36,7 @@ for i in range(X_test.shape[0]):
 f = open("cifar10_%.1f_%d_%d_%d.txt" % (s, clauses, T,  patch_size), "w+")
 
 for e in range(ensembles):
-        tm = MultiClassConvolutionalTsetlinMachine2D(clauses, T, s, (patch_size, patch_size), q=q, number_of_state_bits=8)
+        tm = MultiClassConvolutionalTsetlinMachine2D(clauses, T, s, (32, 32, 3), (patch_size, patch_size), q=q, number_of_state_bits=8)
 
         for i in range(epochs):
                 start_training = time()
