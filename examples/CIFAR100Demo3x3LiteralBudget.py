@@ -39,8 +39,8 @@ X_train = X_train.reshape((X_train_org.shape[0], X_train_org.shape[1], X_train_o
 X_test = X_test.reshape((X_test_org.shape[0], X_test_org.shape[1], X_test_org.shape[2], 3 * resolution)).reshape((X_test.shape[0], -1))
 
 
-f = open("cifar100_%.1f_%d_%d_%d_%.2f_%d_%d.txt" % (
-s, clauses, T, patch_size, literal_drop_p, resolution, max_included_literals), "w+")
+f = open("cifar100_%.1f_%d_%d_%d_%.2f_%d_%d_%.2f.txt" % (
+s, clauses, T, patch_size, literal_drop_p, resolution, max_included_literals, q), "w+")
 for ensemble in range(ensembles):
     tm = MultiClassConvolutionalTsetlinMachine2D(clauses, T, s, (32, 32, 3*resolution), (patch_size, patch_size), max_included_literals=max_included_literals, q=q)
 
