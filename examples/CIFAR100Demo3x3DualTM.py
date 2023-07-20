@@ -21,10 +21,10 @@ ensembles = 5
 
 (X_train_org, Y_train), (X_test_org, Y_test) = cifar100.load_data()
 
-X_train_org = X_train_org[0:100]
-X_test_org = X_test_org[0:100]
-Y_train = Y_train.reshape(Y_train.shape[0])[0:100]
-Y_test = Y_test.reshape(Y_test.shape[0])[0:100]
+X_train_org = X_train_org
+X_test_org = X_test_org
+Y_train = Y_train.reshape(Y_train.shape[0])
+Y_test = Y_test.reshape(Y_test.shape[0])
 
 X_train = np.empty((X_train_org.shape[0], X_train_org.shape[1], X_train_org.shape[2], X_train_org.shape[3], resolution),
                    dtype=np.uint8)
