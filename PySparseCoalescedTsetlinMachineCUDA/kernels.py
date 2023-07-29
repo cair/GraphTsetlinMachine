@@ -410,9 +410,7 @@ code_prepare = """
 			unsigned int *included_literals,
 			unsigned int *included_literals_length,
 			unsigned int *excluded_literals,
-			unsigned int *excluded_literals_length,
-			int *clause_weights,
-			int *class_sum
+			unsigned int *excluded_literals_length
 		)
 		{
 			int index = blockIdx.x * blockDim.x + threadIdx.x;
