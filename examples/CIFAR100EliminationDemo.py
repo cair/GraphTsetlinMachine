@@ -62,7 +62,7 @@ for ensemble in range(ensembles):
 
         print(class_eliminated_test.shape)
         for i in range(class_eliminated_test.shape[1]):
-            print(i, precision_score(class_eliminated_test[:,i], Y_test[:, i]), recall_score(class_eliminated_test[:,i], Y_test[:, i]))
+            print(i, precision_score(1 - class_eliminated_test[:,i], 1 - Y_test[:, i]), recall_score(1 - class_eliminated_test[:,i], 1 - Y_test[:, i]))
 
         print("%d %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f" % (
         ensemble, epoch, result_train_joint, result_test_joint, result_train_positive, result_test_positive, result_train_negative, result_test_negative, stop_training - start_training, stop_testing - start_testing))
