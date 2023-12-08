@@ -40,10 +40,18 @@ word_to_id["<UNK>"] = 2
 
 id_to_word = {value:key for key,value in word_to_id.items()}
 
+# Read from file instead, otherwise the same
+f = open("/data/near-lossless-binarization/binary_vectors_1024.vec", "r")
+s = f.readline()
+while s:
+	print(s)
+	s = f.readline()
+
 indexes = np.arange(hypervector_size, dtype=np.uint32)
 encoding = {}
 for i in range(NUM_WORDS+INDEX_FROM):
 	encoding[i] = np.random.choice(indexes, size=(bits))
+f.close()
 	
 print("Producing bit representation...")
 
