@@ -54,7 +54,7 @@ X_train = np.empty((train_y.shape[0], maxlen*hypervector_size), dtype=np.uint32)
 for e in range(train_y.shape[0]):
 	position = 0
 	for word_id in train_x[e]:
-		if word_id in encoding:
+		if word_id in encoding.nonzero():
 			for bit_index in encoding[word_id]:
 				X_train[e, position*hypervector_size + bit_index] = 1
 			position += 1
@@ -68,7 +68,7 @@ for e in range(test_y.shape[0]):
 	position = 0
 	for word_id in test_x[e]:
 		if word_id in encoding:
-			for bit_index in encoding[word_id]:
+			for bit_index in encoding[word_id].nonzero():
 				X_test[e, position*hypervector_size + bit_index] = 1
 			position += 1
 
