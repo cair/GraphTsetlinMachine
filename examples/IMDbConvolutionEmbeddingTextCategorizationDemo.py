@@ -60,7 +60,7 @@ print("Producing bit representation...")
 
 print(train_y.shape[0])
 X_train = np.empty((train_y.shape[0], maxlen*hypervector_size), dtype=np.uint32)
-for e in range(100):#train_y.shape[0]):
+for e in range(train_y.shape[0]):
 	position = 0
 	for word_id in train_x[e]:
 		if word_id in encoding:
@@ -73,7 +73,7 @@ Y_train = train_y.astype(np.uint32)
 
 print(test_y.shape[0])
 X_test = np.empty((test_y.shape[0], maxlen*hypervector_size), dtype=np.uint32)
-for e in range(100):#test_y.shape[0]):
+for e in range(test_y.shape[0]):
 	position = 0
 	for word_id in test_x[e]:
 		if word_id in encoding:
