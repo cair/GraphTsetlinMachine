@@ -41,10 +41,16 @@ word_to_id["<UNK>"] = 2
 id_to_word = {value:key for key,value in word_to_id.items()}
 
 # Read from file instead, otherwise the same
+
+token_indeks = {}
+
 f = open("/data/near-lossless-binarization/binary_vectors_1024.vec", "r")
 s = f.readline().strip()
 while s:
-	print(s)
+	entries = s.split(" ")
+	token = entries[0]
+	values = np.unpackbits(np.fromstring(entries[1:].join(" "), dtype=np.int64, sep=' ').view(np.uint8))
+	print(token, values)
 	s = f.readline().strip()
 
 indexes = np.arange(hypervector_size, dtype=np.uint32)
