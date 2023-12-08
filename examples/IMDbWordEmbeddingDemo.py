@@ -13,8 +13,6 @@ from PySparseCoalescedTsetlinMachineCUDA.tm import AutoEncoderTsetlinMachine
 
 target_words = ['awful', 'terrible', 'lousy', 'abysmal', 'crap', 'outstanding', 'brilliant', 'excellent', 'superb', 'magnificent', 'marvellous', 'truck', 'plane', 'car', 'cars', 'motorcycle',  'scary', 'frightening', 'terrifying', 'horrifying', 'funny', 'comic', 'hilarious', 'witty']
 
-number_of_output_words = 2000
-
 clause_weight_threshold = 0
 
 number_of_examples = 20000
@@ -71,14 +69,6 @@ vectorizer_X = CountVectorizer(tokenizer=tokenizer, lowercase=False, binary=True
 X_train = vectorizer_X.fit_transform(training_documents)
 feature_names = vectorizer_X.get_feature_names_out()
 number_of_features = vectorizer_X.get_feature_names_out().shape[0]
-
-target_words = []
-for word in feature_names:
-	word_id = vectorizer_X.vocabulary_[word]
-
-	target_words.append(word)
-	if len(target_words) == number_of_output_words:
-		break
 
 X_test = vectorizer_X.transform(testing_documents)
 
