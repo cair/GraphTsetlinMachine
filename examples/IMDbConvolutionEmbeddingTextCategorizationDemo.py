@@ -58,7 +58,7 @@ f.close()
 print("Producing bit representation...")
 
 print(train_y.shape[0])
-X_train = np.empty((test_y.shape[0], maxlen*hypervector_size), dtype=np.uint32)
+X_train = np.empty((train_y.shape[0], maxlen*hypervector_size), dtype=np.uint32)
 for e in range(train_y.shape[0]):
 	position = 0
 	for word_id in train_x[e]:
