@@ -49,7 +49,7 @@ s = f.readline().strip()
 while s:
 	entries = s.split(" ")
 	token = entries[0]
-	values = np.unpackbits(" ".join(np.fromstring(entries[1:]), dtype=np.int64, sep=' ').view(np.uint8))
+	values = np.unpackbits(np.fromstring(" ".join(entries[1:]), dtype=np.int64, sep=' ').view(np.uint8))
 	print(token, values)
 	s = f.readline().strip()
 
