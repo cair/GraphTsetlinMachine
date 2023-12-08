@@ -9,7 +9,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 from scipy.sparse import csr_matrix, csc_matrix, lil_matrix
 
-from PyCoalescedTsetlinMachineCUDA.tm import MultiClassConvolutionalTsetlinMachine2D, MultiClassTsetlinMachine
+from PySparseCoalescedTsetlinMachineCUDA.tm import MultiClassConvolutionalTsetlinMachine2D, MultiClassTsetlinMachine
 
 maxlen = 500
 
@@ -67,6 +67,7 @@ for e in range(train_y.shape[0]):
 				X_train[e, position*hypervector_size + bit_index] = 1
 			position += 1
 
+X_train = csr_matrix(X_train)
 Y_train = train_y.astype(np.uint32)
 
 print(test_y.shape[0])
@@ -79,6 +80,7 @@ for e in range(test_y.shape[0]):
 				X_test[e, position*hypervector_size + bit_index] = 1
 			position += 1
 
+X_test = csr_matrix(X_test)
 Y_test = test_y.astype(np.uint32)
 
 tm = MultiClassConvolutionalTsetlinMachine2D(clauses, T, s, (1, maxlen, hypervector_size), (1, 1), max_included_literals=32)
