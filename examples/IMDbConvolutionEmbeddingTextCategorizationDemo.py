@@ -9,7 +9,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 from scipy.sparse import csr_matrix, csc_matrix, lil_matrix
 
-from PySparseCoalescedTsetlinMachineCUDA.tm import MultiClassConvolutionalTsetlinMachine2D, MultiClassTsetlinMachine
+from PyCoalescedTsetlinMachineCUDA.tm import MultiClassConvolutionalTsetlinMachine2D, MultiClassTsetlinMachine
 
 maxlen = 500
 
