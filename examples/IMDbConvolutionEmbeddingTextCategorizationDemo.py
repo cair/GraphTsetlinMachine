@@ -46,14 +46,14 @@ print("Retrieving embeddings...")
 
 encoding = {}
 f = open("/data/near-lossless-binarization/binary_vectors_1024.vec", "r")
-s = f.readline()
-s = f.readline().strip()
-while s:
-	entries = s.split(" ")
+line = f.readline()
+line = f.readline().strip()
+while line:
+	entries = line.split(" ")
 	if entries[0] in word_to_id:
 		values = np.unpackbits(np.fromstring(" ".join(entries[1:]), dtype=np.int64, sep=' ').view(np.uint8))
 		encoding[word_to_id[entries[0]]] = np.unpackbits(np.fromstring(" ".join(entries[1:]), dtype=np.int64, sep=' ').view(np.uint8)).nonzero()
-	s = f.readline().strip()
+	line = f.readline().strip()
 f.close()
 	
 print("Producing bit representation...")
