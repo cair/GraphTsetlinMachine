@@ -209,6 +209,8 @@ class CommonTsetlinMachine():
 		self.number_of_patches = int((self.dim[0] - self.patch_dim[0] + 1)*(self.dim[1] - self.patch_dim[1] + 1))
 		self.number_of_ta_chunks = int((self.number_of_features-1)/32 + 1)
 
+		print("***", elf.number_of_outputs, self.number_of_clauses, self.number_of_features, self.number_of_state_bits, self.boost_true_positive_feedback, self.s, self.T, self.q, self.max_included_literals, self.negative_clauses, self.number_of_patches, X.shape[0])
+	
 		parameters = """
 #define CLASSES %d
 #define CLAUSES %d
