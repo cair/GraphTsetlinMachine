@@ -47,8 +47,10 @@ f = open("/data/near-lossless-binarization/binary_vectors_1024.vec", "r")
 s = f.readline().strip()
 while s:
 	entries = s.split(" ")
-	values = np.unpackbits(np.fromstring(" ".join(entries[1:]), dtype=np.int64, sep=' ').view(np.uint8))
-	encoding[word_to_id[entries[0]]] = np.unpackbits(np.fromstring(" ".join(entries[1:]), dtype=np.int64, sep=' ').view(np.uint8)).nonzero()
+	if entries[0] in word_to_id:
+		values = np.unpackbits(np.fromstring(" ".join(entries[1:]), dtype=np.int64, sep=' ').view(np.uint8))
+		encoding[word_to_id[entries[0]]] = np.unpackbits(np.fromstring(" ".join(entries[1:]), dtype=np.int64, sep=' ').view(np.uint8)).nonzero()
+		print(entries[0], encoding[word_to_id[entries[0]]])
 	s = f.readline().strip()
 
 indexes = np.arange(hypervector_size, dtype=np.uint32)
