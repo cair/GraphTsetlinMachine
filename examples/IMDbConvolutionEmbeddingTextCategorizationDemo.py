@@ -66,10 +66,7 @@ for e in range(train_y.shape[0]):
 			for bit_index in encoding[word_id]:
 				X_train[e, position*hypervector_size + bit_index] = 1
 			position += 1
-		else:
-			print("Train", id_to_word[word_id])
-
-X_train = X_train.tocsr()
+			
 Y_train = train_y.astype(np.uint32)
 
 print(test_y.shape[0])
@@ -81,8 +78,7 @@ for e in range(test_y.shape[0]):
 			for bit_index in encoding[word_id]:
 				X_test[e, position*hypervector_size + bit_index] = 1
 			position += 1
-		else:
-			print("Test", id_to_word[word_id])
+
 X_test = X_test.tocsr()
 Y_test = test_y.astype(np.uint32)
 
