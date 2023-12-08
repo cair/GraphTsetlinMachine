@@ -42,10 +42,10 @@ id_to_word = {value:key for key,value in word_to_id.items()}
 
 # Read from file instead, otherwise the same
 f = open("/data/near-lossless-binarization/binary_vectors_1024.vec", "r")
-s = f.readline()
+s = f.readline().strip()
 while s:
 	print(s)
-	s = f.readline()
+	s = f.readline().strip()
 
 indexes = np.arange(hypervector_size, dtype=np.uint32)
 encoding = {}
