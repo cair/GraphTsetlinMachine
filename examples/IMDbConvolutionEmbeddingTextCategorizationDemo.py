@@ -46,6 +46,7 @@ print("Retrieving embeddings...")
 
 encoding = {}
 f = open("/data/near-lossless-binarization/binary_vectors_1024.vec", "r")
+s = f.readline()
 s = f.readline().strip()
 while s:
 	entries = s.split(" ")
