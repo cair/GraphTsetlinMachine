@@ -6,6 +6,7 @@ from keras.datasets import imdb
 from time import time
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+import pickle
 
 from scipy.sparse import csr_matrix, csc_matrix, lil_matrix
 
