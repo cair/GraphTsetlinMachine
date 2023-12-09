@@ -11,6 +11,11 @@ from scipy.sparse import csr_matrix, csc_matrix, lil_matrix
 
 from PySparseCoalescedTsetlinMachineCUDA.tm import MultiClassConvolutionalTsetlinMachine2D, MultiClassTsetlinMachine
 
+print("Retrieving embeddings...")
+
+with open('/data/Tsetlin_Embeddings/Extrinsic/IMDB/IMDB_sparse.pkl', 'rb') as f:
+	embedding = pickle.load(f)
+
 maxlen = 500
 
 epochs = 100
@@ -52,9 +57,10 @@ X_train = lil_matrix((train_y.shape[0], maxlen*hypervector_size), dtype=np.uint3
 for e in range(train_y.shape[0]):
 	position = 0
 	for word_id in train_x[e]:
-		for bit_index in encoding[word_id]:
-			X_train[e, position*hypervector_size + bit_index] = 1
-		position += 1
+		if id_to_word[word_id] in embedding:
+			for bit_index in encoding[word_id]:
+				X_train[e, position*hypervector_size + bit_index] = 1
+			position += 1
 X_train = X_train.tocsr()
 Y_train = train_y.astype(np.uint32)
 
@@ -63,9 +69,10 @@ X_test = lil_matrix((test_y.shape[0], maxlen*hypervector_size), dtype=np.uint32)
 for e in range(test_y.shape[0]):
 	position = 0
 	for word_id in test_x[e]:
-		for bit_index in encoding[word_id]:
-			X_test[e, position*hypervector_size + bit_index] = 1
-		position += 1
+		if id_to_word[word_id] in embedding:
+			for bit_index in encoding[word_id]:
+				X_test[e, position*hypervector_size + bit_index] = 1
+			position += 1
 X_test = X_test.tocsr()
 Y_test = test_y.astype(np.uint32)
 
