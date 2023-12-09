@@ -15,8 +15,7 @@ maxlen = 500
 
 epochs = 100
 
-hypervector_size = 1024
-bits = 5
+hypervector_size = 256
 
 clauses = 10000
 T = 8000
@@ -45,7 +44,7 @@ id_to_word = {value:key for key,value in word_to_id.items()}
 print("Retrieving embeddings...")
 
 encoding = {}
-f = open("/data/near-lossless-binarization/binary_vectors_1024.vec", "r")
+f = open("/data/near-lossless-binarization/binary_vectors_256.vec", "r")
 line = f.readline()
 line = f.readline().strip()
 while line:
