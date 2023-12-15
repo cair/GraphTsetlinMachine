@@ -54,7 +54,7 @@ print("DONE")
 
 epochs = 100
 
-tm = MultiClasTsetlinMachine(clauses, T, s, max_included_literals=32)
+tm = MultiClassTsetlinMachine(clauses, T, s, max_included_literals=32)
 for i in range(epochs):
     start_training = time()
     tm.fit(X_train, Y_train, epochs=1, incremental=True)
