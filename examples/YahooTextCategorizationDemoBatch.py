@@ -64,7 +64,7 @@ for i in range(epochs):
 		stop_training = time()
 
 		start_testing = time()
-	    result_test = 100*(tm.predict(X_test) == Y_test).mean()
-	    stop_testing = time()
+		result_test = 100*(tm.predict(X_test) == Y_test).mean()
+		stop_testing = time()
 
-	    print("#%d Accuracy Test: %.2f%% Accuracy Train: %.2f%% Training: %.2fs Testing: %.2fs" % (i+1, result_test, result_train, stop_training-start_training, stop_testing-start_testing))
+		print("#%d Accuracy Test: %.2f%% Accuracy Train: %.2f%% Training: %.2fs Testing: %.2fs" % (i+1, result_test, result_train, stop_training-start_training, stop_testing-start_testing))
