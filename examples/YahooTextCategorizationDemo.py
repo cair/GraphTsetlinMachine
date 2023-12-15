@@ -39,7 +39,7 @@ f.close()
 
 print(len(training_documents))
 
-vectorizer_X = CountVectorizer(binary=True)
+vectorizer_X = CountVectorizer(binary=True, max_features=10000)
 
 print("VECTORIZE")
 X_train = vectorizer_X.fit_transform(training_documents)
