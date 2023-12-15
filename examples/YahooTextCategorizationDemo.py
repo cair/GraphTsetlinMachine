@@ -14,7 +14,7 @@ from scipy.sparse import csr_matrix, csc_matrix, lil_matrix
 from PySparseCoalescedTsetlinMachineCUDA.tm import MultiClassTsetlinMachine
 
 s = 10.0
-T = 80000
+T = 8000
 clauses = 10000*10
 
 print("READ")
