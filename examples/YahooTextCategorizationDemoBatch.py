@@ -56,6 +56,8 @@ print("DONE")
 
 epochs = 100
 
+batch_size_train = Y_train.shape[0] // batches
+
 tm = MultiClassTsetlinMachine(clauses, T, s, max_included_literals=32)
 for i in range(epochs):
 	for batch in range(batches):
