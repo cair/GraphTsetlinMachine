@@ -11,7 +11,7 @@ import csv
 
 from scipy.sparse import csr_matrix, csc_matrix, lil_matrix
 
-#from PySparseCoalescedTsetlinMachineCUDA.tm import MultiClassTsetlinMachine
+from PySparseCoalescedTsetlinMachineCUDA.tm import MultiClassTsetlinMachine
 
 s = 10.0
 T = 80000
