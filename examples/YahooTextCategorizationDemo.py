@@ -28,7 +28,7 @@ for document in reader:
 	training_y.append(int(document[0]))
 f.close()
 
-f = open("/Users/oleg/Dropbox/Research/Datasets/yahoo_answers_csv/test.csv", "r")
+f = open("/data/yahoo_answers_csv/test.csv", "r")
 reader = csv.reader(f, delimiter=',', quotechar='"')
 testing_documents = []
 testing_y = []
