@@ -20,41 +20,51 @@ parser.add_argument("--ensembles", default=5, type=int)
 parser.add_argument("--resolution", default=8, type=int)
 parser.add_argument("--max_included_literals", default=32, type=int)
 parser.add_argument("--convolution_size", default=1, type=int)
-parser.add_argument("--number_of_examples", default=5000, type=int)
 parser.add_argument("--animals",  action='store_true')
 
 args = parser.parse_args()
 
 (X_train_org, Y_train), (X_test_org, Y_test) = cifar10.load_data()
-X_train_org = X_train_org[0:args.number_of_examples]
-X_test_org = X_test_org[0:args.number_of_examples]
 
-Y_train = Y_train.reshape(Y_train.shape[0])[0:args.number_of_examples]
-Y_test = Y_test.reshape(Y_test.shape[0])[0:args.number_of_examples]
+Y_train = Y_train.reshape(Y_train.shape[0])
+Y_test = Y_test.reshape(Y_test.shape[0])
 
 if args.animals:
         Y_train = np.where(np.isin(Y_train, animals), 1, 0)
         Y_test = np.where(np.isin(Y_test, animals), 1, 0)
 
-X_train = np.zeros((X_train_org.shape[0], X_train_org.shape[1], X_train_org.shape[2], args.resolution**3), dtype=np.uint32)
+X_train_data = np.zeros((X_train_org.shape[0], X_test_org.shape[1] * X_test_org.shape[2]), dtype=np.uint32)
+X_train_indices = np.zeros((X_train_org.shape[0], X_test_org.shape[1] * X_test_org.shape[2]), dtype=np.uint32)
+X_train_indptr = np.zeros((X_train_org.shape[0] + 1), dtype=np.uint32)
+X_train_indptr[0] = 0
+
+pos = 0
 for i in range(X_train.shape[0]):
         for x in range(X_train_org.shape[1]):
                 for y in range(X_train_org.shape[2]):
                         index = (X_train_org[i, x, y, 0] // (256//args.resolution))*(args.resolution**2) + (X_train_org[i, x, y, 1] // (256//args.resolution))*args.resolution + (X_train_org[i, x, y, 2] // (256//args.resolution))
-                        X_train[i, x, y, index] = 1 
+                        X_train_data[pos] = 1
+                        x_train_indices[pos] = x*32*(args.resolution**3) + y*(args.resolution**3) + index
+                        pos += 1
+        X_train_indptr[i+1] = pos
+X_train = csr_matrix((X_train_data, X_train_indices, X_train_indptr), (X_train_org.shape[0], 32*32*(args.resolution**3)))
+print(X_train.shape, X_train.shape)
 
-X_test = np.zeros((X_test_org.shape[0], X_test_org.shape[1], X_test_org.shape[2], args.resolution**3), dtype=np.uint32)
+X_test_data = np.zeros((X_test_org.shape[0], X_test_org.shape[1] * X_test_org.shape[2]), dtype=np.uint32)
+X_test_indices = np.zeros((X_test_org.shape[0], X_test_org.shape[1] * X_test_org.shape[2]), dtype=np.uint32)
+X_test_indptr = np.zeros((X_test_org.shape[0] + 1), dtype=np.uint32)
+X_test_indptr[0] = 0
+
+pos = 0
 for i in range(X_test.shape[0]):
         for x in range(X_test_org.shape[1]):
                 for y in range(X_test_org.shape[2]):
                         index = (X_test_org[i, x, y, 0] // (256//args.resolution))*(args.resolution**2) + (X_test_org[i, x, y, 1] // (256//args.resolution))*args.resolution + (X_test_org[i, x, y, 2] // (256//args.resolution))
-                        X_test[i, x, y, index] = 1 
-
-print(X_test.shape, X_test.shape)
-
-X_train = csr_matrix(X_train.reshape((X_train.shape[0], -1)))
-X_test = csr_matrix(X_test.reshape((X_test.shape[0], -1)))
-
+                        X_test_data[pos] = 1
+                        x_test_indices[pos] = x*32*(args.resolution**3) + y*(args.resolution**3) + index
+                        pos += 1
+        X_test_indptr[i+1] = pos
+X_test = csr_matrix((X_test_data, X_test_indices, X_test_indptr), (X_test_org.shape[0], 32*32*(args.resolution**3)))
 print(X_test.shape, X_test.shape)
 
 f = open("cifar2_%.1f_%d_%d_%d_%d_%d.txt" % (args.s, args.clauses, args.T, args.resolution, args.convolution_size, args.max_included_literals), "w+")
