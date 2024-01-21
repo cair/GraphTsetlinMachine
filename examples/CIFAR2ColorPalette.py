@@ -24,11 +24,11 @@ parser.add_argument("--number_of_examples", default=5000, type=int)
 args = parser.parse_args()
 
 (X_train_org, Y_train), (X_test_org, Y_test) = cifar10.load_data()
-X_train_org = X_train_org[0:examples]
-X_test_org = X_test_org[0:examples]
+X_train_org = X_train_org[0:args.number_of_examples]
+X_test_org = X_test_org[0:args.number_of_examples]
 
-Y_train = Y_train.reshape(Y_train.shape[0])[0:examples]
-Y_test = Y_test.reshape(Y_test.shape[0])[0:examples]
+Y_train = Y_train.reshape(Y_train.shape[0])[0:args.number_of_examples]
+Y_test = Y_test.reshape(Y_test.shape[0])[0:args.number_of_examples]
 
 Y_train = np.where(np.isin(Y_train, animals), 1, 0)
 Y_test = np.where(np.isin(Y_test, animals), 1, 0)
