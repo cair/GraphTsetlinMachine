@@ -33,18 +33,18 @@ Y_test = Y_test.reshape(Y_test.shape[0])[0:args.number_of_examples]
 Y_train = np.where(np.isin(Y_train, animals), 1, 0)
 Y_test = np.where(np.isin(Y_test, animals), 1, 0)
 
-X_train = np.zeros((X_train_org.shape[0], X_train_org.shape[1], X_train_org.shape[2], resolution**3), dtype=np.uint32)
+X_train = np.zeros((X_train_org.shape[0], X_train_org.shape[1], X_train_org.shape[2], args.resolution**3), dtype=np.uint32)
 for i in range(X_train.shape[0]):
         for x in range(X_train_org.shape[1]):
                 for y in range(X_train_org.shape[2]):
-                        index = (X_train_org[i, x, y, 0] // (256//resolution))*(resolution**2) + (X_train_org[i, x, y, 1] // (256//resolution))*resolution + (X_train_org[i, x, y, 2] // (256//resolution))
+                        index = (X_train_org[i, x, y, 0] // (256//args.resolution))*(args.resolution**2) + (X_train_org[i, x, y, 1] // (256//args.resolution))*args.resolution + (X_train_org[i, x, y, 2] // (256//args.resolution))
                         X_train[i, x, y, index] = 1 
 
-X_test = np.zeros((X_test_org.shape[0], X_test_org.shape[1], X_test_org.shape[2], resolution**3), dtype=np.uint32)
+X_test = np.zeros((X_test_org.shape[0], X_test_org.shape[1], X_test_org.shape[2], args.resolution**3), dtype=np.uint32)
 for i in range(X_test.shape[0]):
         for x in range(X_test_org.shape[1]):
                 for y in range(X_test_org.shape[2]):
-                        index = (X_test_org[i, x, y, 0] // (256//resolution))*(resolution**2) + (X_test_org[i, x, y, 1] // (256//resolution))*resolution + (X_test_org[i, x, y, 2] // (256//resolution))
+                        index = (X_test_org[i, x, y, 0] // (256//args.resolution))*(args.resolution**2) + (X_test_org[i, x, y, 1] // (256//args.resolution))*args.resolution + (X_test_org[i, x, y, 2] // (256//args.resolution))
                         X_test[i, x, y, index] = 1 
 
 print(X_test.shape, X_test.shape)
