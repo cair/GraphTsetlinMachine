@@ -44,7 +44,7 @@ for i in range(X_train_org.shape[0]):
                 for y in range(X_train_org.shape[2]):
                         index = (X_train_org[i, x, y, 0] // (256//args.resolution))*(args.resolution**2) + (X_train_org[i, x, y, 1] // (256//args.resolution))*args.resolution + (X_train_org[i, x, y, 2] // (256//args.resolution))
                         X_train_data[pos] = 1
-                        X_train_indices[pos] = x*32*(args.resolution**3) + y*(args.resolution**3) + index
+                        X_train_indices[pos] = x*X_train_org.shape[2]*(args.resolution**3) + y*(args.resolution**3) + index
                         pos += 1
         X_train_indptr[i+1] = pos
 X_train = csr_matrix((X_train_data, X_train_indices, X_train_indptr), (X_train_org.shape[0], 32*32*(args.resolution**3)))
@@ -61,10 +61,10 @@ for i in range(X_test_org.shape[0]):
                 for y in range(X_test_org.shape[2]):
                         index = (X_test_org[i, x, y, 0] // (256//args.resolution))*(args.resolution**2) + (X_test_org[i, x, y, 1] // (256//args.resolution))*args.resolution + (X_test_org[i, x, y, 2] // (256//args.resolution))
                         X_test_data[pos] = 1
-                        x_test_indices[pos] = x*32*(args.resolution**3) + y*(args.resolution**3) + index
+                        X_test_indices[pos] = x*X_test_org.shape[2]*(args.resolution**3) + y*(args.resolution**3) + index
                         pos += 1
         X_test_indptr[i+1] = pos
-X_test = csr_matrix((X_test_data, X_test_indices, X_test_indptr), (X_test_org.shape[0], 32*32*(args.resolution**3)))
+X_test = csr_matrix((X_test_data, X_test_indices, X_test_indptr), (X_test_org.shape[0], X_test_org.shape[1]*X_test_org.shape[2]*(args.resolution**3)))
 print(X_test.shape, X_test.shape)
 
 f = open("cifar2_%.1f_%d_%d_%d_%d_%d.txt" % (args.s, args.clauses, args.T, args.resolution, args.convolution_size, args.max_included_literals), "w+")
