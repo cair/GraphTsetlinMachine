@@ -39,7 +39,7 @@ X_train_indptr = np.zeros((X_train_org.shape[0] + 1), dtype=np.uint32)
 X_train_indptr[0] = 0
 
 pos = 0
-for i in range(X_train.shape[0]):
+for i in range(X_train_org.shape[0]):
         for x in range(X_train_org.shape[1]):
                 for y in range(X_train_org.shape[2]):
                         index = (X_train_org[i, x, y, 0] // (256//args.resolution))*(args.resolution**2) + (X_train_org[i, x, y, 1] // (256//args.resolution))*args.resolution + (X_train_org[i, x, y, 2] // (256//args.resolution))
@@ -56,7 +56,7 @@ X_test_indptr = np.zeros((X_test_org.shape[0] + 1), dtype=np.uint32)
 X_test_indptr[0] = 0
 
 pos = 0
-for i in range(X_test.shape[0]):
+for i in range(X_test_org.shape[0]):
         for x in range(X_test_org.shape[1]):
                 for y in range(X_test_org.shape[2]):
                         index = (X_test_org[i, x, y, 0] // (256//args.resolution))*(args.resolution**2) + (X_test_org[i, x, y, 1] // (256//args.resolution))*args.resolution + (X_test_org[i, x, y, 2] // (256//args.resolution))
