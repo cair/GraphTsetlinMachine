@@ -21,6 +21,8 @@ parser.add_argument("--resolution", default=8, type=int)
 parser.add_argument("--max_included_literals", default=32, type=int)
 parser.add_argument("--convolution_size", default=1, type=int)
 parser.add_argument("--number_of_examples", default=5000, type=int)
+parser.add_argument("--animals", default=False, type=bool)
+
 args = parser.parse_args()
 
 (X_train_org, Y_train), (X_test_org, Y_test) = cifar10.load_data()
@@ -30,8 +32,9 @@ X_test_org = X_test_org[0:args.number_of_examples]
 Y_train = Y_train.reshape(Y_train.shape[0])[0:args.number_of_examples]
 Y_test = Y_test.reshape(Y_test.shape[0])[0:args.number_of_examples]
 
-Y_train = np.where(np.isin(Y_train, animals), 1, 0)
-Y_test = np.where(np.isin(Y_test, animals), 1, 0)
+if args.animals:
+        Y_train = np.where(np.isin(Y_train, animals), 1, 0)
+        Y_test = np.where(np.isin(Y_test, animals), 1, 0)
 
 X_train = np.zeros((X_train_org.shape[0], X_train_org.shape[1], X_train_org.shape[2], args.resolution**3), dtype=np.uint32)
 for i in range(X_train.shape[0]):
