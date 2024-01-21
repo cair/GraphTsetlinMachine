@@ -21,7 +21,7 @@ def produce_sparse_matrix(X, indptr, indices, resolution):
                                 index = (X[i, x, y, 0] // (256//resolution))*(resolution**2) + (X[i, x, y, 1] // (256//resolution))*resolution + (X[i, x, y, 2] // (256//resolution))
                                 indices[pos] = x*X.shape[2]*(resolution**3) + y*(resolution**3) + index
                                 pos += 1
-                X_train_indptr[i+1] = pos
+                indptr[i+1] = pos
         return
 
 animals = np.array([2, 3, 4, 5, 6, 7])
