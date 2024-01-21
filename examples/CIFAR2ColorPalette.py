@@ -12,7 +12,7 @@ from keras.datasets import cifar10
 animals = np.array([2, 3, 4, 5, 6, 7])
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--num_clauses", default=100, type=int)
+parser.add_argument("--clauses", default=100, type=int)
 parser.add_argument("--T", default=1000, type=int)
 parser.add_argument("--s", default=1.0, type=float)
 parser.add_argument("--epochs", default=250, type=int)
