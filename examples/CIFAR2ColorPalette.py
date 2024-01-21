@@ -18,8 +18,8 @@ def produce_sparse_matrix(X, indptr, indices, resolution):
         for i in range(X.shape[0]):
                 for x in range(X.shape[1]):
                         for y in range(X.shape[2]):
-                                index = (X[i, x, y, 0] // (256//resolution))*(resolution**2) + (X_train_org[i, x, y, 1] // (256//resolution))*resolution + (X_train_org[i, x, y, 2] // (256//resolution))
-                                X_train_indices[pos] = x*X_train_org.shape[2]*(resolution**3) + y*(resolution**3) + index
+                                index = (X[i, x, y, 0] // (256//resolution))*(resolution**2) + (X[i, x, y, 1] // (256//resolution))*resolution + (X[i, x, y, 2] // (256//resolution))
+                                indices[pos] = x*X.shape[2]*(resolution**3) + y*(resolution**3) + index
                                 pos += 1
                 X_train_indptr[i+1] = pos
         return
