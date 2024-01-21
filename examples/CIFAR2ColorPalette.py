@@ -33,8 +33,8 @@ if args.animals:
         Y_train = np.where(np.isin(Y_train, animals), 1, 0)
         Y_test = np.where(np.isin(Y_test, animals), 1, 0)
 
-X_train_data = np.zeros((X_train_org.shape[0], X_test_org.shape[1] * X_test_org.shape[2]), dtype=np.uint32)
-X_train_indices = np.zeros((X_train_org.shape[0], X_test_org.shape[1] * X_test_org.shape[2]), dtype=np.uint32)
+X_train_data = np.zeros((X_train_org.shape[0] * X_test_org.shape[1] * X_test_org.shape[2]), dtype=np.uint32)
+X_train_indices = np.zeros((X_train_org.shape[0] * X_test_org.shape[1] * X_test_org.shape[2]), dtype=np.uint32)
 X_train_indptr = np.zeros((X_train_org.shape[0] + 1), dtype=np.uint32)
 X_train_indptr[0] = 0
 
@@ -50,8 +50,8 @@ for i in range(X_train_org.shape[0]):
 X_train = csr_matrix((X_train_data, X_train_indices, X_train_indptr), (X_train_org.shape[0], 32*32*(args.resolution**3)))
 print(X_train.shape, X_train.shape)
 
-X_test_data = np.zeros((X_test_org.shape[0], X_test_org.shape[1] * X_test_org.shape[2]), dtype=np.uint32)
-X_test_indices = np.zeros((X_test_org.shape[0], X_test_org.shape[1] * X_test_org.shape[2]), dtype=np.uint32)
+X_test_data = np.zeros((X_test_org.shape[0] * X_test_org.shape[1] * X_test_org.shape[2]), dtype=np.uint32)
+X_test_indices = np.zeros((X_test_org.shape[0] * X_test_org.shape[1] * X_test_org.shape[2]), dtype=np.uint32)
 X_test_indptr = np.zeros((X_test_org.shape[0] + 1), dtype=np.uint32)
 X_test_indptr[0] = 0
 
