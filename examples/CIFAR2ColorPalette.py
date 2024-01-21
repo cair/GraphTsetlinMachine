@@ -21,7 +21,7 @@ parser.add_argument("--resolution", default=8, type=int)
 parser.add_argument("--max_included_literals", default=32, type=int)
 parser.add_argument("--convolution_size", default=1, type=int)
 parser.add_argument("--number_of_examples", default=5000, type=int)
-parser.add_argument("--animals", default=False, type=bool)
+parser.add_argument("--animals")
 
 args = parser.parse_args()
 
