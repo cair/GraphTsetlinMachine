@@ -56,7 +56,7 @@ print(X_test.shape, X_test.shape)
 
 f = open("cifar2_%.1f_%d_%d_%d_%d_%d.txt" % (args.s, args.clauses, args.T, args.resolution, args.convolution_size, args.max_included_literals), "w+")
 for ensemble in range(args.ensembles):
-        print("\nAccuracy over %d epochs:\n" % (epochs))
+        print("\nAccuracy over %d epochs:\n" % (args.epochs))
 
         tm = MultiClassConvolutionalTsetlinMachine2D(args.clauses, args.T, args.s, (32, 32, args.resolution**3), (args.convolution_size, args.convolution_size), max_included_literals=args.max_included_literals)
 
