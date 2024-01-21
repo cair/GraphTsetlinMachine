@@ -2,6 +2,7 @@ import numpy as np
 from time import time
 from PySparseCoalescedTsetlinMachineCUDA.tm import MultiClassConvolutionalTsetlinMachine2D
 from scipy.sparse import csr_matrix, csc_matrix, lil_matrix
+import argparse
 
 import ssl
 
@@ -10,19 +11,20 @@ from keras.datasets import cifar10
 
 scaling = 1.0
 
-resolution = 8
-
 animals = np.array([2, 3, 4, 5, 6, 7])
 
-ensembles = 5
-epochs = 250
-
-examples = 5000
-
-max_included_literals = 32
-clauses = 2000
-T = 5000
-s = 1.5
+parser = argparse.ArgumentParser()
+parser.add_argument("--num_clauses", default=100, type=int)
+parser.add_argument("--T", default=1000, type=int)
+parser.add_argument("--s", default=1.0, type=float)
+parser.add_argument("--epochs", default=250, type=int)
+parser.add_argument("--ensembles", default=5, type=int)
+parser.add_argument("--resolution", default=8, type=int)
+parser.add_argument("--number_of_examples", default=5000, type=int)
+parser.add_argument("--max_included_literals", default=32, type=int)
+parser.add_argument("--convolution_size", default=1, type=int)
+parser.add_argument("--number_of_examples", default=5000, type=int)
+args = parser.parse_args()
 
 (X_train_org, Y_train), (X_test_org, Y_test) = cifar10.load_data()
 X_train_org = X_train_org[0:examples]
@@ -55,13 +57,13 @@ X_test = X_test.reshape((X_test.shape[0], -1))
 
 print(X_test.shape, X_test.shape)
 
-f = open("cifar2_%.1f_%d_%d_%d.txt" % (s, clauses, T, scaling), "w+")
-for ensemble in range(ensembles):
+f = open("cifar2_%.1f_%d_%d_%d_%d_%d.txt" % (args.s, args.clauses, args.T, args.resolution, args.convolution_size, args.max_included_literals), "w+")
+for ensemble in range(args.ensembles):
         print("\nAccuracy over %d epochs:\n" % (epochs))
 
-        tm = MultiClassConvolutionalTsetlinMachine2D(clauses, T, s, (32, 32, resolution**3), (3, 3), max_included_literals=max_included_literals)
+        tm = MultiClassConvolutionalTsetlinMachine2D(args.clauses, args.T, args.s, (32, 32, args.resolution**3), (args.convolution_size, args.convolution_size), max_included_literals=args.max_included_literals)
 
-        for epoch in range(epochs):
+        for epoch in range(args.epochs):
                 start_training = time()
                 tm.fit(X_train, Y_train, epochs=1, incremental=True)
                 stop_training = time()
