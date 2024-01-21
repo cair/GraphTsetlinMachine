@@ -9,8 +9,6 @@ import ssl
 ssl._create_default_https_context = ssl._create_unverified_context
 from keras.datasets import cifar10
 
-scaling = 1.0
-
 animals = np.array([2, 3, 4, 5, 6, 7])
 
 parser = argparse.ArgumentParser()
