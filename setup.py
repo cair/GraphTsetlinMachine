@@ -1,14 +1,14 @@
 from setuptools import *
 
 setup(
-   name='PySparseCoalescedTsetlinMachineCUDA',
+   name='GraphTsetlinMachine',
    version='0.2.0',
    author='Ole-Christoffer Granmo',
    author_email='ole.granmo@uia.no',
    url='https://github.com/cair/PySparseCoalescedTsetlinMachineCUDA/',
    license='MIT',
-   description='Coalesced Tsetlin Machine Architecture.',
-   long_description='Coalesced Tsetlin Machine Architecture.',
-   keywords ='pattern-recognition cuda machine-learning interpretable-machine-learning rule-based-machine-learning propositional-logic tsetlin-machine regression convolution classification multi-layer',
-   packages=['PySparseCoalescedTsetlinMachineCUDA']
+   description='Graph Tsetlin Machine',
+   long_description='Graph Tsetlin Machine for Deep Logical Learning and Reasoning',
+   keywords ='pattern-recognition cuda machine-learning interpretable-machine-learning rule-based-machine-learning propositional-logic graph tsetlin-machine regression convolution classification multi-layer',
+   packages=['GraphTsetlinMachine']
 )
