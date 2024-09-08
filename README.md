@@ -13,7 +13,7 @@ Implementation of the Graph Tsetlin Machine.
 ## Deep Logical Learning and Reasoning
 
 <p align="center">
-  <img width="75%" src="https://github.com/cair/GraphTsetlinMachine/blob/main/figures/DeepLogicalLearningAndReasoning.png">
+  <img width="100%" src="https://github.com/cair/GraphTsetlinMachine/blob/main/figures/DeepLogicalLearningAndReasoning.png">
 </p>
 
 ## Examples
