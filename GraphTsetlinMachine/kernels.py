@@ -656,7 +656,6 @@ code_encode = """
 		)
 		{
 			int index = blockIdx.x * blockDim.x + threadIdx.x;
-			int stride = blockDim.x * gridDim.x;
 
 			if (index != 0) {
 				return;
