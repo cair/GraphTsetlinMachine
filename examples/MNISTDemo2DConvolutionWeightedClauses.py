@@ -1,4 +1,4 @@
-from GraphTsetlinMachine import MultiClassConvolutionalTsetlinMachine2D
+from GraphTsetlinMachine.tm import MultiClassConvolutionalTsetlinMachine2D
 
 import numpy as np
 from time import time
