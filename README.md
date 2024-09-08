@@ -1,11 +1,8 @@
-# Sparse Coalesced Multi-Output Tsetlin Machine
+# Graph Tsetlin Machine for Deep Logical Learning and Reasoning
+
 ![License](https://img.shields.io/github/license/microsoft/interpret.svg?style=flat-square) ![Python Version](https://img.shields.io/pypi/pyversions/interpret.svg?style=flat-square)![Maintenance](https://img.shields.io/maintenance/yes/2024?style=flat-square)
 
-Implementation of the Coalesced Multi-Output Tsetlin Machine (https://arxiv.org/abs/2108.07594).
-
-<p align="center">
-  <img width="75%" src="https://github.com/olegranmo/blob/blob/master/CoalescedMultiOutputTM.png">
-</p>
+Implementation of the Graph Tsetlin Machine.
 
 Demos coming soon.
 
