@@ -548,7 +548,6 @@ code_encode = """
 
 			int number_of_features = class_features + patch_dim_x * patch_dim_y * dim_z + (dim_x - patch_dim_x) + (dim_y - patch_dim_y);
 			int number_of_patches = (dim_x - patch_dim_x + 1) * (dim_y - patch_dim_y + 1);
-			int number_of_patch_chunks = (number_of_patches-1) / 32 + 1;
 
 			int number_of_literals;
 			if (append_negated) {
