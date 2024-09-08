@@ -1,4 +1,4 @@
-# Copyright (c) 2023 Ole-Christoffer Granmo
+# Copyright (c) 20234 Ole-Christoffer Granmo
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -23,7 +23,7 @@
 
 import numpy as np
 
-import PySparseCoalescedTsetlinMachineCUDA.kernels as kernels
+import GraphTsetlinMachine.kernels as kernels
 
 import pycuda.curandom as curandom
 import pycuda.driver as cuda
