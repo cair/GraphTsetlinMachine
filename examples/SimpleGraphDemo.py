@@ -1,8 +1,11 @@
 from GraphTsetlinMachine.graph import Graph
+import numpy as np
 
 number_of_training_examples = 10000
 
-max_sequence_length = 10
+max_sequence_length = 5
+
+max_number_of_classes = 2 # Must be less than or equal to max sequence length
 
 training_examples = []
 
@@ -23,9 +26,14 @@ for i in range(number_of_training_examples):
             sequence_graph.add_edge(j, j+1)
 
     # Add features
-    for j in range(max_sequence_length):
-        sequence_graph.add_node_feature(j, (0, 1))
+    target = np.random.randint(max_number_of_classes) 
+    position = np.random.randint(max_sequence_length-target)
+    print(target, position, max_sequence_length)
+    for p in range(position, position+target):
+        sequence_graph.add_node_feature(p, 'A')
 
     print(sequence_graph.node_name)
 
     print(sequence_graph.node_edges)
+
+    print(sequence_graph.node_features)
