@@ -27,11 +27,9 @@ class Graph():
 	def add_node(self, node_name):
 		self.node_name[node_name] = 1
 		self.node_features[node_name] = {}
+		self.node_edges[node_name] = {}
 
 	def add_edge(self, node_name_1, node_name_2, edge_type='p'):
-		if node_name_1 not in self.node_edges:
-			self.node_edges[node_name_1] = {}
-
 		self.node_edges[node_name_1][(node_name_2, edge_type)] = 1
 
 	def add_node_feature(self, node_name, symbols):
