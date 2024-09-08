@@ -25,14 +25,14 @@ class Graph():
 		self.node_features = {}
 
 	def add_node(self, node_name):
-		self.node_name[node_name] = True
+		self.node_name[node_name] = 1
 		self.node_features[node_name] = {}
 
 	def add_edge(self, node_name_1, node_name_2, edge_type='plain'):
 		if node_name_1 not in self.node_edges:
 			self.node_edges[node_name_1] = {}
 
-		self.node_edges[node_name_1][(node_name_2, edge_type)] = True
+		self.node_edges[node_name_1][(node_name_2, edge_type)] = 1
 
 	def add_node_feature(self, node_name, symbols):
-		self.node_features[node_name][symbols] = True
+		self.node_features[node_name][symbols] = 1
