@@ -5,7 +5,7 @@
 Implementation of the Graph Tsetlin Machine.
 
 <p align="center">
-  <img width="75%" src="[https://github.com/cair/GraphTsetlinMachine/blob/main/figures/MessagePassing.png](https://github.com/cair/GraphTsetlinMachine/blob/main/figures/MessagePassing.png)">
+  <img width="75%" src="https://github.com/cair/GraphTsetlinMachine/blob/main/figures/MessagePassing.png">
 </p>
 
 Demos coming soon.
