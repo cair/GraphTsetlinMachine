@@ -18,6 +18,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import numpy as np
+
 class Graph():
 	def __init__(self):
 		self.node_name = {}
@@ -33,4 +35,26 @@ class Graph():
 		self.node_edges[node_name_1][(node_name_2, edge_type)] = 1
 
 	def add_node_feature(self, node_name, symbols):
+		if type(symbols) != tuple:
+			symbols = (symbols,)
+
 		self.node_features[node_name][symbols] = 1
+
+	def encode(self, hypervectors, hypervector_size=1024, hypervector_bits=3):
+		# Vector for encoding graph
+		Xi = np.zeros((len(self.node_name), hypervector_size), dtype=np.uint32)
+
+		position = 0
+		for n in self.node_name.keys():
+			for symbols in self.node_features[n].keys():
+				for symbol in symbols:
+					if symbol not in hypervectors:
+						indexes = np.arange(hypervector_size, dtype=np.uint32)
+						hypervectors[symbol] = np.random.choice(indexes, size=(hypervector_bits), replace=False)
+						print(symbol, hypervectors[symbol])
+
+				base_indexes = hypervectors[symbols[0]]
+				for symbol in symbols[1:]:
+					base_indexes = (base_indexes + hypervectors[symbol][0]) % hypervector_size
+				Xi[position][base_indexes] = 1
+			position += 1
