@@ -32,5 +32,11 @@ for i in range(number_of_training_examples):
     position = np.random.randint(max_sequence_length-target-1)
     for p in range(position, position+target+1):
         sequence_graph.add_node_feature(p, 'A')
+        sequence_graph.add_node_feature(p, ('A','B'))
+        sequence_graph.add_node_feature(p, ('A','B', 'C'))
  
-    X.append(sequence_graph.encode(hypervectors))
+    print(target)
+    print(position)
+    print(hypervectors)
+    X.append(sequence_graph.encode(hypervectors, hypervector_size=16, hypervector_bits=1))
+    print(X[-1])

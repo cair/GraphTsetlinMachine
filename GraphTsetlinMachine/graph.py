@@ -54,7 +54,8 @@ class Graph():
 						print(symbol, hypervectors[symbol])
 
 				base_indexes = hypervectors[symbols[0]]
-				for symbol in symbols[1:]:
-					base_indexes = (base_indexes + hypervectors[symbol][0]) % hypervector_size
+				for i in range(1, len(symbols)):
+					base_indexes = (base_indexes + (hypervectors[symbols[i]][0]+2)*i) % hypervector_size
 				Xi[position][base_indexes] = 1
 			position += 1
+		return Xi
