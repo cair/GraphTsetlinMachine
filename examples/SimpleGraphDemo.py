@@ -3,9 +3,9 @@ import numpy as np
 
 number_of_training_examples = 10000
 
-max_sequence_length = 10
+max_sequence_length = 5
 
-max_number_of_classes = 3 # Must be less than or equal to max sequence length
+max_number_of_classes = 2 # Must be less than or equal to max sequence length
 
 training_examples = []
 
@@ -22,10 +22,10 @@ for i in range(number_of_training_examples):
     # Add edges in both directions
     for j in range(max_sequence_length):
         if j > 0:
-            sequence_graph.add_edge(j, j-1)
+            sequence_graph.add_edge(j, j-1, edge_type='left')
 
         if j < max_sequence_length-1:
-            sequence_graph.add_edge(j, j+1)
+            sequence_graph.add_edge(j, j+1, edge_type='right')
 
     # Add features
     target = np.random.randint(max_number_of_classes) 
