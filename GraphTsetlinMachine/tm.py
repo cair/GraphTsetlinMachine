@@ -457,6 +457,52 @@ class MultiClassConvolutionalTsetlinMachine2D(CommonTsetlinMachine):
 	def predict(self, X):
 		return np.argmax(self.score(X), axis=1)
 
+class MultiClassGraphTsetlinMachine(CommonTsetlinMachine):
+	"""
+	This class ...
+	"""
+	
+	def __init__(
+			self,
+			number_of_clauses,
+			T,
+			s,
+			dim,
+			patch_dim,
+			q=1.0,
+			max_included_literals=None,
+			boost_true_positive_feedback=1,
+			number_of_state_bits=8,
+			append_negated=True,
+			grid=(16*13*4,1,1),
+			block=(128,1,1)
+	):
+		super().__init__(number_of_clauses, T, s, q=q, max_included_literals=max_included_literals, boost_true_positive_feedback=boost_true_positive_feedback, number_of_state_bits=number_of_state_bits, append_negated=append_negated, grid=grid, block=block)
+		self.dim = dim
+		self.patch_dim = patch_dim
+		self.negative_clauses = 1
+
+	def fit(self, X, Y, epochs=100, incremental=False):
+		X = csr_matrix(X)
+
+		self.number_of_outputs = int(np.max(Y) + 1)
+	
+		self.max_y = None
+		self.min_y = None
+		
+		encoded_Y = np.empty((Y.shape[0], self.number_of_outputs), dtype = np.int32)
+		for i in range(self.number_of_outputs):
+			encoded_Y[:,i] = np.where(Y == i, self.T, -self.T)
+
+		self._fit(X, encoded_Y, epochs=epochs, incremental=incremental)
+
+	def score(self, X):
+		X = csr_matrix(X)
+		return self._score(X)
+
+	def predict(self, X):
+		return np.argmax(self.score(X), axis=1)
+
 class MultiOutputConvolutionalTsetlinMachine2D(CommonTsetlinMachine):
 	"""
 	This class ...
