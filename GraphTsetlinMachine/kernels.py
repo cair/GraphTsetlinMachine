@@ -443,13 +443,12 @@ code_encode = """
 
 	extern "C"
     {
-		__global__ void encode(unsigned int *X_indptr, unsigned int *X_indices, unsigned int *encoded_X, int e, int dim_x, int dim_y, int dim_z, int patch_dim_x, int patch_dim_y, int append_negated, int class_features)
+		__global__ void encode(unsigned int *X_indptr, unsigned int *X_indices, unsigned int *encoded_X, int e, int hypervector_size, int number_of_nodes, int depth, int append_negated)
 		{
 			int index = blockIdx.x * blockDim.x + threadIdx.x;
 			int stride = blockDim.x * gridDim.x;
 
-			int number_of_features = class_features + patch_dim_x * patch_dim_y * dim_z + (dim_x - patch_dim_x) + (dim_y - patch_dim_y);
-			int number_of_patches = (dim_x - patch_dim_x + 1) * (dim_y - patch_dim_y + 1);
+			int number_of_features = hypervector_size * depth; 
 
 			int number_of_ta_chunks;
 			if (append_negated) {
@@ -461,7 +460,7 @@ code_encode = """
 			unsigned int *indices = &X_indices[X_indptr[e]];
 			int number_of_indices = X_indptr[e + 1] - X_indptr[e]; 
 
-			for (int k = 0; k < number_of_indices; ++k) {
+			for (int k = index; k < number_of_indices; k += stride) {
 				int y = indices[k] / (dim_x*dim_z);
 				int x = (indices[k] % (dim_x*dim_z)) / dim_z;
 				int z = (indices[k] % (dim_x*dim_z)) % dim_z;
