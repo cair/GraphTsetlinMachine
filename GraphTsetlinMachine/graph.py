@@ -19,6 +19,7 @@
 # SOFTWARE.
 
 import numpy as np
+from scipy.sparse import coo_matrix
 
 class Graph():
 	def __init__(self):
@@ -26,59 +27,79 @@ class Graph():
 		self.node_id_name = {}
 		self.node_edges = {}
 		self.node_features = {}
-		self.edge_type_id = {}		
-		self.node_counter = 0
 		self.edge_counter = 0
-		self.edge_type_counter = 0
+		self.feature_counter = 0
 
 	def add_node(self, node_name):
-		self.node_name_id[node_name] = self.node_counter
-		self.node_id_name[self.node_counter] = node_name
-		self.node_features[node_name] = {}
-		self.node_edges[node_name] = {}
-		self.node_counter += 1
+		self.node_name_id[node_name] = len(self.node_name_id)
+		self.node_id_name[self.node_name_id[node_name]] = node_name
+		self.node_features[node_name] = []
+		self.node_edges[node_name] = []
 
-	def add_edge(self, node_name_1, node_name_2, edge_type='p'):
-		if edge_type not in self.edge_type_id:
-			self.edge_type_id[edge_type] = self.edge_type_counter
-			self.edge_type_counter += 1
-
-		self.node_edges[node_name_1][(node_name_2, edge_type)] = 1
+	def add_edge(self, node_name_1, node_name_2, edge_type=0):
+		self.node_edges[node_name_1].append((node_name_2, edge_type))
 		self.edge_counter += 1
 
-	def add_node_feature(self, node_name, symbols):
+	def add_feature(self, node_name, symbols):
 		if type(symbols) != tuple:
 			symbols = (symbols,)
+		self.node_features[node_name].append(symbols)
+		self.feature_counter += 1
 
-		self.node_features[node_name][symbols] = 1
+def encode(graphs, hypervector_size=1024, hypervector_bits=3):
+	global_feature_counter = 0
+	global_edge_counter = 0
+	for graph in graphs:
+		global_feature_counter += graph.feature_counter*hypervector_bits
+		global_edge_counter += len(graph.node_name_id) + graph.edge_counter*2
 
-	def encode(self, hypervectors, hypervector_size=1024, hypervector_bits=3):
-		# Vector for encoding node features
-		Nf = np.zeros((len(self.node_name_id), hypervector_size), dtype=np.uint32)
+	hypervectors = {}
+	indexes = np.arange(hypervector_size, dtype=np.uint32)
 
-		# Vector for encoding node edges
-		Ne = np.zeros(len(self.node_name_id) + self.edge_counter*2, dtype=np.uint32)
+	feature_row = np.empty(global_feature_counter, dtype=np.uint32)
+	feature_col = np.empty(global_feature_counter, dtype=np.uint32)
+	feature_data = np.empty(global_feature_counter, dtype=np.uint32)
 
-		position = 0
-		for i in range(self.node_counter):
-			# Encodes node features
-			for symbols in self.node_features[self.node_id_name[i]]:
+	edge_row = np.empty(global_edge_counter, dtype=np.uint32)
+	edge_col = np.empty(global_edge_counter, dtype=np.uint32)
+	edge_data = np.empty(global_edge_counter, dtype=np.uint32)
+
+	feature_position = 0
+	edge_position = 0
+	for i in range(len(graphs)):
+		graph = graphs[i]
+		for j in range(len(graph.node_name_id)):
+			node_name = graph.node_id_name[j]
+
+			for symbols in graph.node_features[node_name]:
 				for symbol in symbols:
 					if symbol not in hypervectors:
-						indexes = np.arange(hypervector_size, dtype=np.uint32)
 						hypervectors[symbol] = np.random.choice(indexes, size=(hypervector_bits), replace=False)
 
 				base_indexes = hypervectors[symbols[0]]
-				for j in range(1, len(symbols)):
-					base_indexes = (base_indexes + (hypervectors[symbols[j]][0]+2)*j) % hypervector_size
-				Nf[i][base_indexes] = 1
+				for k in range(1, len(symbols)):
+					base_indexes = (base_indexes + (hypervectors[symbols[k]][0]+2)*k) % hypervector_size
+			
+				for k in range(hypervector_bits):
+					feature_row[feature_position] = i
+					feature_col[feature_position] = base_indexes[k] + j*hypervector_size
+					feature_data[feature_position] = 1
+					feature_position += 1
 
-			# Encodes node edges
-			Ne[position] = len(self.node_edges[self.node_id_name[i]])
-			position += 1
-			for edge in self.node_edges[self.node_id_name[i]]:
-				Ne[position] = self.node_name_id[edge[0]]
-				Ne[position+1] = self.edge_type_id[edge[1]]
-				position += 2
 
-		return (Nf, Ne)
+			edge_row[edge_position] = i
+			edge_col[edge_position] = edge_position
+			edge_data[edge_position] = len(graph.node_edges[node_name])
+			edge_position += 1
+			for edge in graph.node_edges[graph.node_id_name[j]]:
+				edge_row[edge_position] = i
+				edge_col[edge_position] = edge_position
+				edge_data[edge_position] = graph.node_name_id[edge[0]]
+				edge_position += 1
+
+				edge_row[edge_position] = i
+				edge_col[edge_position] = edge_position
+				edge_data[edge_position] = edge[1]
+				edge_position += 1
+
+	return((coo_matrix((feature_data, (feature_row, feature_col))).tocsr(), coo_matrix((edge_data, (edge_row, edge_col))).tocsr()))

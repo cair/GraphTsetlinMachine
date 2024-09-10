@@ -1,7 +1,9 @@
 from GraphTsetlinMachine.graph import Graph
 import numpy as np
+from scipy.sparse import csr_matrix
+import GraphTsetlinMachine.graph as graph
 
-number_of_training_examples = 10000
+number_of_training_examples = 10
 
 max_sequence_length = 5
 
@@ -9,14 +11,15 @@ number_of_classes = 2 # Must be less than or equal to max sequence length
 
 training_examples = []
 
-X = []
+
 Y = np.empty(number_of_training_examples, dtype=np.uint32)
-hypervectors = {}
+X = []
+
 for i in range(number_of_training_examples):
     # Create graph
 
     sequence_length = np.random.randint(number_of_classes, max_sequence_length+1)
-    print(sequence_length)
+    print("Length", sequence_length)
 
     sequence_graph = Graph()
 
@@ -27,13 +30,15 @@ for i in range(number_of_training_examples):
     # Add edges in both directions
     for j in range(sequence_length):
         if j > 0:
-            sequence_graph.add_edge(j, j-1, edge_type='left')
+            sequence_graph.add_edge(j, j-1, edge_type=0)
 
         if j < sequence_length-1:
-            sequence_graph.add_edge(j, j+1, edge_type='right')
+            sequence_graph.add_edge(j, j+1, edge_type=1)
 
     # Select class
     Y[i] = np.random.randint(number_of_classes) 
+
+    print("Target", Y[i])
 
     # Add features
     if sequence_length-Y[i]-1 == 0:
@@ -41,14 +46,17 @@ for i in range(number_of_training_examples):
     else:
         position = np.random.randint(sequence_length-Y[i]-1)
 
+    print("Position", position)
+
     for p in range(position, position + Y[i] + 1):
-        sequence_graph.add_node_feature(p, 'A')
-        sequence_graph.add_node_feature(p, ('A','B'))
-        sequence_graph.add_node_feature(p, ('A','B', 'C'))
+        sequence_graph.add_feature(p, 'A')
+        sequence_graph.add_feature(p, ('A','B'))
+        sequence_graph.add_feature(p, ('A','B', 'C'))
 
-    X.append(sequence_graph.encode(hypervectors, hypervector_size=16, hypervector_bits=1))
+    X.append(sequence_graph)
 
-    print(Y[i])
-    print(position, sequence_length, max_sequence_length)
-    print(hypervectors)
-    print(X[-1])
+(data, edges) = graph.encode(X, hypervector_size=16, hypervector_bits=1)
+
+print(data)
+print()
+print(edges)
