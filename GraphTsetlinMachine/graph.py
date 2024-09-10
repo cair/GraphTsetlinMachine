@@ -67,7 +67,6 @@ class Graph():
 					if symbol not in hypervectors:
 						indexes = np.arange(hypervector_size, dtype=np.uint32)
 						hypervectors[symbol] = np.random.choice(indexes, size=(hypervector_bits), replace=False)
-						print(symbol, hypervectors[symbol])
 
 				base_indexes = hypervectors[symbols[0]]
 				for j in range(1, len(symbols)):
