@@ -68,6 +68,7 @@ def encode(graphs, hypervector_size=1024, hypervector_bits=3):
 	edge_position = 0
 	for i in range(len(graphs)):
 		graph = graphs[i]
+		local_edge_position = 0
 		for j in range(len(graph.node_name_id)):
 			node_name = graph.node_id_name[j]
 
@@ -88,18 +89,21 @@ def encode(graphs, hypervector_size=1024, hypervector_bits=3):
 
 
 			edge_row[edge_position] = i
-			edge_col[edge_position] = edge_position
+			edge_col[edge_position] = local_edge_position
 			edge_data[edge_position] = len(graph.node_edges[node_name])
 			edge_position += 1
+			local_edge_position += 1
 			for edge in graph.node_edges[graph.node_id_name[j]]:
 				edge_row[edge_position] = i
-				edge_col[edge_position] = edge_position
+				edge_col[edge_position] = local_edge_position
 				edge_data[edge_position] = graph.node_name_id[edge[0]]
 				edge_position += 1
+				local_edge_position += 1
 
 				edge_row[edge_position] = i
-				edge_col[edge_position] = edge_position
+				edge_col[edge_position] = local_edge_position
 				edge_data[edge_position] = edge[1]
 				edge_position += 1
+				local_edge_position += 1
 
 	return((coo_matrix((feature_data, (feature_row, feature_col))).tocsr(), coo_matrix((edge_data, (edge_row, edge_col))).tocsr()))
