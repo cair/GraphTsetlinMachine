@@ -669,8 +669,6 @@ code_encode = """
 			int number_of_features = number_of_cols;
 			int number_of_literals = 2*number_of_features;
 
-			unsigned int number_of_literal_chunks = (number_of_literals-1)/32 + 1;
-
 			// Initialize example vector X
 			
 			for (int k = 0; k < number_of_features; ++k) {
