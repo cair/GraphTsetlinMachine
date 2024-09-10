@@ -36,7 +36,7 @@ for i in range(number_of_training_examples):
         sequence_graph.add_node_feature(p, ('A','B', 'C'))
  
     print(target)
-    print(position)
+    print(position, max_sequence_length)
     print(hypervectors)
     X.append(sequence_graph.encode(hypervectors, hypervector_size=16, hypervector_bits=1))
     print(X[-1])
