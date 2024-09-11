@@ -58,7 +58,7 @@ for i in range(number_of_training_examples):
 
 (X_train, edges, hypervectors, edge_type_id) = graph.encode(X, hypervector_size=16, hypervector_bits=1)
 
-print(data)
+print(X_train)
 print()
 print(edges)
 print(hypervectors)
