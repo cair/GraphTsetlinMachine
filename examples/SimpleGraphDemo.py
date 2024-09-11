@@ -56,7 +56,7 @@ for i in range(number_of_training_examples):
 
     X.append(sequence_graph)
 
-(data, edges, hypervectors, edge_type_id) = graph.encode(X, hypervector_size=16, hypervector_bits=1)
+(X_train, edges, hypervectors, edge_type_id) = graph.encode(X, hypervector_size=16, hypervector_bits=1)
 
 print(data)
 print()
@@ -65,3 +65,5 @@ print(hypervectors)
 print(edge_type_id)
 
 tm = MultiClassGraphTsetlinMachine(100, 1000, 1.0, hypervector_size=16, depth=1)
+
+tm.fit(X_train, Y)
