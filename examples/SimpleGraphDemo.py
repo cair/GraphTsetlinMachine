@@ -30,10 +30,10 @@ for i in range(number_of_training_examples):
     # Add edges in both directions
     for j in range(sequence_length):
         if j > 0:
-            sequence_graph.add_edge(j, j-1, edge_type=0)
+            sequence_graph.add_edge(j, j-1, edge_type='left')
 
         if j < sequence_length-1:
-            sequence_graph.add_edge(j, j+1, edge_type=1)
+            sequence_graph.add_edge(j, j+1, edge_type='right')
 
     # Select class
     Y[i] = np.random.randint(number_of_classes) 

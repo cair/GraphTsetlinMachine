@@ -41,8 +41,8 @@ class Graph():
 		self.edge_counter += 1
 
 	def add_feature(self, node_name, symbols):
-		if type(symbols) != tuple:
-			symbols = (symbols,)
+		if type(symbols) == tuple:
+			symbols = " ".join(symbols)
 		self.node_features[node_name].append(symbols)
 		self.feature_counter += 1
 
@@ -55,6 +55,8 @@ def encode(graphs, hypervector_size=1024, hypervector_bits=3):
 
 	hypervectors = {}
 	indexes = np.arange(hypervector_size, dtype=np.uint32)
+
+	edge_type_id = {}
 
 	feature_row = np.empty(global_feature_counter, dtype=np.uint32)
 	feature_col = np.empty(global_feature_counter, dtype=np.uint32)
@@ -73,20 +75,14 @@ def encode(graphs, hypervector_size=1024, hypervector_bits=3):
 			node_name = graph.node_id_name[j]
 
 			for symbols in graph.node_features[node_name]:
-				for symbol in symbols:
-					if symbol not in hypervectors:
-						hypervectors[symbol] = np.random.choice(indexes, size=(hypervector_bits), replace=False)
-
-				base_indexes = hypervectors[symbols[0]]
-				for k in range(1, len(symbols)):
-					base_indexes = (base_indexes + (hypervectors[symbols[k]][0]+2)*k) % hypervector_size
+				if symbols not in hypervectors:
+					hypervectors[symbols] = np.random.choice(indexes, size=(hypervector_bits), replace=False)
 			
 				for k in range(hypervector_bits):
 					feature_row[feature_position] = i
-					feature_col[feature_position] = base_indexes[k] + j*hypervector_size
+					feature_col[feature_position] = hypervectors[symbols][k] + j*hypervector_size
 					feature_data[feature_position] = 1
 					feature_position += 1
-
 
 			edge_row[edge_position] = i
 			edge_col[edge_position] = local_edge_position
@@ -102,7 +98,10 @@ def encode(graphs, hypervector_size=1024, hypervector_bits=3):
 
 				edge_row[edge_position] = i
 				edge_col[edge_position] = local_edge_position
-				edge_data[edge_position] = edge[1]
+
+				if edge[1] not in edge_type_id:
+					edge_type_id[edge[1]] = len(edge_type_id)
+				edge_data[edge_position] = edge_type_id[edge[1]]
 				edge_position += 1
 				local_edge_position += 1
 
