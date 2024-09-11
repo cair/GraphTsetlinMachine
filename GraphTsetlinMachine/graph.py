@@ -105,4 +105,4 @@ def encode(graphs, hypervector_size=1024, hypervector_bits=3):
 				edge_position += 1
 				local_edge_position += 1
 
-	return((coo_matrix((feature_data, (feature_row, feature_col))).tocsr(), coo_matrix((edge_data, (edge_row, edge_col))).tocsr()))
+	return((coo_matrix((feature_data, (feature_row, feature_col))).tocsr(), coo_matrix((edge_data, (edge_row, edge_col))).tocsr()), hypervectors, edge_type_id)
