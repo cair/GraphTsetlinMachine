@@ -2,6 +2,7 @@ from GraphTsetlinMachine.graph import Graph
 import numpy as np
 from scipy.sparse import csr_matrix
 import GraphTsetlinMachine.graph as graph
+from GraphTsetlinMachine.tm import MultiClassGraphTsetlinMachine
 
 number_of_training_examples = 10
 
@@ -62,3 +63,5 @@ print()
 print(edges)
 print(hypervectors)
 print(edge_type_id)
+
+tm = MultiClassGraphTsetlinMachine(int(factor*2000), T, s, (28, 28, 1), (patch_size, patch_size))
