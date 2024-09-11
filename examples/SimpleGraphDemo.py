@@ -64,4 +64,4 @@ print(edges)
 print(hypervectors)
 print(edge_type_id)
 
-tm = MultiClassGraphTsetlinMachine(100, 1000, 1.0, (28, 28, 1), (1, 1))
+tm = MultiClassGraphTsetlinMachine(100, 1000, 1.0, hypervector_size=16, depth=1)
