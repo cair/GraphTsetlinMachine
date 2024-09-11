@@ -43,6 +43,7 @@ class CommonTsetlinMachine():
 			T,
 			s,
 			hypervector_size=1024,
+			hypervector_bits=3,
 			depth=1,
 			q=1.0,
 			max_included_literals=None,
@@ -426,6 +427,7 @@ class MultiClassGraphTsetlinMachine(CommonTsetlinMachine):
 			T,
 			s,
 			hypervector_size=1024,
+			hypervector_bits=3,
 			depth=1,
 			q=1.0,
 			max_included_literals=None,
@@ -440,6 +442,7 @@ class MultiClassGraphTsetlinMachine(CommonTsetlinMachine):
 			T,
 			s,
 			hypervector_size=hypervector_size,
+			hypervector_bits= hypervector_bits,
 			depth=depth,
 			q=q,
 			max_included_literals=max_included_literals,
@@ -451,8 +454,9 @@ class MultiClassGraphTsetlinMachine(CommonTsetlinMachine):
 		)
 		self.negative_clauses = 1
 
-	def fit(self, X, Y, epochs=100, incremental=False):
-		X = csr_matrix(X)
+	def fit(self, graphs, Y, epochs=100, incremental=False):
+		if not graphs.encoded:
+			graphs.encode(hypervector_size = self.hypervector_size, hypervector_bits = self.hypervector_bits)
 
 		self.number_of_outputs = int(np.max(Y) + 1)
 	
@@ -463,7 +467,7 @@ class MultiClassGraphTsetlinMachine(CommonTsetlinMachine):
 		for i in range(self.number_of_outputs):
 			encoded_Y[:,i] = np.where(Y == i, self.T, -self.T)
 
-		self._fit(X, encoded_Y, epochs=epochs, incremental=incremental)
+		self._fit(graphs, encoded_Y, epochs=epochs, incremental=incremental)
 
 	def score(self, X):
 		X = csr_matrix(X)

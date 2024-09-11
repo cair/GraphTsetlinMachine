@@ -10,7 +10,7 @@ max_sequence_length = 5
 
 number_of_classes = 2 # Must be less than or equal to max sequence length
 
-graphs = Graphs(hypervector_size=16, hypervector_bits=1)
+graphs = Graphs()
 Y = np.empty(number_of_training_examples, dtype=np.uint32)
 
 for i in range(number_of_training_examples):
@@ -53,13 +53,14 @@ for i in range(number_of_training_examples):
 
     graphs.add(sequence_graph)
 
-graphs.encode()
+graphs.encode(hypervector_size=16, hypervector_bits=1)
 
 print(graphs.X)
 print()
 print(graphs.edges)
 print(graphs.hypervectors)
 print(graphs.edge_type_id)
+print(graphs.node_count)
 
 tm = MultiClassGraphTsetlinMachine(100, 1000, 1.0, hypervector_size=16, depth=1)
 

@@ -47,18 +47,19 @@ class Graph():
 		self.feature_counter += 1
 
 class Graphs():
-	def __init__(self, hypervector_size=1024, hypervector_bits=3):
+	def __init__(self):
 		self.hypervectors = {}
 		self.edge_type_id = {}
 		self.graphs = []
-
-		self.hypervector_size = hypervector_size
-		self.hypervector_bits = hypervector_bits
+		self.encoded = False
 
 	def add(self, graph):
 		self.graphs.append(graph)
 
-	def encode(self):
+	def encode(self, hypervector_size=1024, hypervector_bits=3):
+		self.hypervector_size = hypervector_size
+		self.hypervector_bits = hypervector_bits
+
 		global_feature_counter = 0
 		global_edge_counter = 0
 		for graph in self.graphs:
@@ -76,10 +77,13 @@ class Graphs():
 		edge_col = np.empty(global_edge_counter, dtype=np.uint32)
 		edge_data = np.empty(global_edge_counter, dtype=np.uint32)
 
+		self.node_count = np.empty(len(self.graphs), dtype=np.uint32)
+
 		feature_position = 0
 		edge_position = 0
 		for i in range(len(self.graphs)):
 			graph = self.graphs[i]
+			self.node_count[i] = len(graph.node_name_id)
 			local_edge_position = 0
 			for j in range(len(graph.node_name_id)):
 				node_name = graph.node_id_name[j]
@@ -117,5 +121,7 @@ class Graphs():
 
 		self.X = coo_matrix((feature_data, (feature_row, feature_col))).tocsr()
 		self.edges = coo_matrix((edge_data, (edge_row, edge_col))).tocsr()
+
+		self.encoded = True
 
 		return
