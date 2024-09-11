@@ -55,8 +55,10 @@ for i in range(number_of_training_examples):
 
     X.append(sequence_graph)
 
-(data, edges) = graph.encode(X, hypervector_size=16, hypervector_bits=1)
+(data, edges, hypervectors, edge_type_id) = graph.encode(X, hypervector_size=16, hypervector_bits=1)
 
 print(data)
 print()
 print(edges)
+print(hypervectors)
+print(edge_type_id)
