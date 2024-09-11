@@ -1,8 +1,8 @@
 from GraphTsetlinMachine.graph import Graph
+from GraphTsetlinMachine.graph import Graphs
 import numpy as np
 from scipy.sparse import csr_matrix
-import GraphTsetlinMachine.graph as graph
-from GraphTsetlinMachine.tm import MultiClassGraphTsetlinMachine
+#from GraphTsetlinMachine.tm import MultiClassGraphTsetlinMachine
 
 number_of_training_examples = 10
 
@@ -10,11 +10,8 @@ max_sequence_length = 5
 
 number_of_classes = 2 # Must be less than or equal to max sequence length
 
-training_examples = []
-
-
+graphs = Graphs(hypervector_size=16, hypervector_bits=1)
 Y = np.empty(number_of_training_examples, dtype=np.uint32)
-X = []
 
 for i in range(number_of_training_examples):
     # Create graph
@@ -54,15 +51,15 @@ for i in range(number_of_training_examples):
         sequence_graph.add_feature(p, ('A','B'))
         sequence_graph.add_feature(p, ('A','B', 'C'))
 
-    X.append(sequence_graph)
+    graphs.add(sequence_graph)
 
-(X_train, edges, hypervectors, edge_type_id) = graph.encode(X, hypervector_size=16, hypervector_bits=1)
+graphs.encode()
 
-print(X_train)
+print(graphs.X)
 print()
-print(edges)
-print(hypervectors)
-print(edge_type_id)
+print(graphs.edges)
+print(graphs.hypervectors)
+print(graphs.edge_type_id)
 
 tm = MultiClassGraphTsetlinMachine(100, 1000, 1.0, hypervector_size=16, depth=1)
 
