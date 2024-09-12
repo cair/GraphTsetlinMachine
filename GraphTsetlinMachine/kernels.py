@@ -403,9 +403,7 @@ code_prepare = """
 			curandState *state,
 			unsigned int *global_ta_state,
 			unsigned int *included_literals,
-			unsigned int *included_literals_length,
-			unsigned int *excluded_literals,
-			unsigned int *excluded_literals_length
+			unsigned int *included_literals_length
 		)
 		{
 			int index = blockIdx.x * blockDim.x + threadIdx.x;
