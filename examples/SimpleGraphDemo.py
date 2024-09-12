@@ -48,8 +48,6 @@ for i in range(number_of_training_examples):
 
     for p in range(position, position + Y[i] + 1):
         sequence_graph.add_feature(p, 'A')
-        sequence_graph.add_feature(p, ('A','B'))
-        sequence_graph.add_feature(p, ('A','B', 'C'))
 
     graphs.add(sequence_graph)
 
