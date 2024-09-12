@@ -104,11 +104,11 @@ code_update = """
 			} 
 		}
 
-		__device__ inline void calculate_clause_output(curandState *localState, unsigned int *ta_state, unsigned int *clause_output, int *clause_node, int number_of_nodes, unsigned int *X)
+		__device__ inline void calculate_clause_output(curandState *localState, unsigned int *ta_state, unsigned int *clause_output, int *clause_true_node, int number_of_nodes, unsigned int *X)
 		{
 			// Evaluate each node (convolution)
 			int output_one_nodes_count = 0;
-			*clause_node = -1;
+			*clause_true_node = -1;
 			*clause_output = 0;
 			for (int node = 0; node < number_of_nodes; ++node) {
 				int node_clause_output = 1;
@@ -125,17 +125,17 @@ code_update = """
 
 				if (node_clause_output) {
 					if (output_one_nodes_count == 0) {
-						*clause_node = node;
+						*clause_true_node = node;
 						*clause_output = 1;
 					} else if ((curand(localState) % (output_one_nodes_count + 1)) == 0) {
-						*clause_node = node;
+						*clause_true_node = node;
 					}
 					output_one_nodes_count += 1;
 				}
 			}
 		}
 
-		__device__ inline void update_clause(curandState *localState, int *clause_weight, unsigned int *ta_state, int clause_output, int clause_node, int *X, int y, int class_sum)
+		__device__ inline void update_clause(curandState *localState, int *clause_weight, unsigned int *ta_state, int clause_output, int clause_true_node, int *X, int y, int class_sum)
 		{
 			int target = 1 - 2*(class_sum > y);
 			
@@ -166,12 +166,12 @@ code_update = """
 
 						if (clause_output && included_literals <= MAX_INCLUDED_LITERALS) {
 							#if BOOST_TRUE_POSITIVE_FEEDBACK == 1
-								inc(ta_state, 0, ta_chunk, X[clause_node*TA_CHUNKS + ta_chunk]);
+								inc(ta_state, 0, ta_chunk, X[clause_true_node*TA_CHUNKS + ta_chunk]);
 							#else
-								inc(ta_state, 0, ta_chunk, X[clause_node*TA_CHUNKS + ta_chunk] & (~la_feedback));
+								inc(ta_state, 0, ta_chunk, X[clause_true_node*TA_CHUNKS + ta_chunk] & (~la_feedback));
 							#endif
 
-							dec(ta_state, 0, ta_chunk, (~X[clause_node*TA_CHUNKS + ta_chunk]) & la_feedback);
+							dec(ta_state, 0, ta_chunk, (~X[clause_true_node*TA_CHUNKS + ta_chunk]) & la_feedback);
 						} else {
 							dec(ta_state, 0, ta_chunk, la_feedback);
 						}
@@ -187,7 +187,7 @@ code_update = """
 					#endif
 
 					for (int ta_chunk = 0; ta_chunk < TA_CHUNKS; ++ta_chunk) {
-						inc(ta_state, 0, ta_chunk, (~X[clause_node*TA_CHUNKS + ta_chunk]) & (~ta_state[ta_chunk*STATE_BITS + STATE_BITS - 1]));
+						inc(ta_state, 0, ta_chunk, (~X[clause_true_node*TA_CHUNKS + ta_chunk]) & (~ta_state[ta_chunk*STATE_BITS + STATE_BITS - 1]));
 					}
 				}
 			}
@@ -244,8 +244,8 @@ code_update = """
 				unsigned int *ta_state = &global_ta_state[clause*TA_CHUNKS*STATE_BITS];
 
 				unsigned int clause_output;
-				int clause_node;
-				calculate_clause_output(&localState, ta_state, &clause_output, &clause_node, number_of_nodes, X);
+				int clause_true_node;
+				calculate_clause_output(&localState, ta_state, &clause_output, &clause_true_node, number_of_nodes, X);
 
 				for (unsigned long long class_id = 0; class_id < CLASSES; ++class_id) {
 					int local_class_sum = class_sum[class_id];
@@ -254,7 +254,7 @@ code_update = """
 					} else if (local_class_sum < -THRESHOLD) {
 						local_class_sum = -THRESHOLD;
 					}
-					update_clause(&localState, &clause_weights[class_id*CLAUSES + clause], ta_state, clause_output, clause_node, X, y[example*CLASSES + class_id], local_class_sum);
+					update_clause(&localState, &clause_weights[class_id*CLAUSES + clause], ta_state, clause_output, clause_true_node, X, y[example*CLASSES + class_id], local_class_sum);
 				}
 			}
 		
