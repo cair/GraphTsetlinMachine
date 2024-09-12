@@ -69,8 +69,8 @@ class CommonTsetlinMachine():
 		self.grid = grid
 		self.block = block
 
-		self.X_train = np.array([])
-		self.X_test = np.array([])
+		self.train_signature = np.array([])
+		self.test_signature = np.array([])
 		self.encoded_Y = np.array([])
 		
 		self.ta_state = np.array([])
@@ -99,10 +99,10 @@ class CommonTsetlinMachine():
 		self.clause_weights_gpu = cuda.mem_alloc(self.number_of_outputs*self.number_of_clauses*4)
 		self.class_sum_gpu = cuda.mem_alloc(self.number_of_outputs*4)
 
-		self.included_literals_gpu = cuda.mem_alloc(self.number_of_clauses*self.number_of_features*2*4) # Contains index and state of included literals per clause, none at start
+		self.included_literals_gpu = cuda.mem_alloc(self.number_of_clauses*self.number_of_literals*2*4) # Contains index and state of included literals per clause, none at start
 		self.included_literals_length_gpu = cuda.mem_alloc(self.number_of_clauses*4) # Number of included literals per clause
 
-		self.excluded_literals_gpu = cuda.mem_alloc(self.number_of_clauses*self.number_of_features*2*4) # Contains index and state of excluded literals per clause
+		self.excluded_literals_gpu = cuda.mem_alloc(self.number_of_clauses*self.number_of_literals*2*4) # Contains index and state of excluded literals per clause
 		self.excluded_literals_length_gpu = cuda.mem_alloc(self.number_of_clauses*4) # Number of excluded literals per clause
 
 	def ta_action(self, mc_tm_class, clause, ta):
@@ -119,12 +119,12 @@ class CommonTsetlinMachine():
 			cuda.memcpy_dtoh(self.ta_state, self.ta_state_gpu)
 			self.clause_weights = np.empty(self.number_of_outputs*self.number_of_clauses, dtype=np.int32)
 			cuda.memcpy_dtoh(self.clause_weights, self.clause_weights_gpu)
-		return((self.ta_state, self.clause_weights, self.number_of_outputs, self.number_of_clauses, self.number_of_features, self.dim, self.patch_dim, self.number_of_patches, self.number_of_state_bits, self.number_of_ta_chunks, self.append_negated, self.min_y, self.max_y))
+		return((self.ta_state, self.clause_weights, self.number_of_outputs, self.number_of_clauses, self.number_of_literals, self.dim, self.patch_dim, self.number_of_patches, self.number_of_state_bits, self.number_of_ta_chunks, self.append_negated, self.min_y, self.max_y))
 
 	def set_state(self, state):
 		self.number_of_outputs = state[2]
 		self.number_of_clauses = state[3]
-		self.number_of_features = state[4]
+		self.number_of_literals = state[4]
 		self.dim = state[5]
 		self.patch_dim = state[6]
 		self.number_of_patches = state[7]
@@ -139,8 +139,8 @@ class CommonTsetlinMachine():
 		cuda.memcpy_htod(self.ta_state_gpu, state[0])
 		cuda.memcpy_htod(self.clause_weights_gpu, state[1])
 
-		self.X_train = np.array([])
-		self.X_test = np.array([])
+		self.train_signature = np.array([])
+		self.test_signature = np.array([])
 
 		self.encoded_Y = np.array([])
 
@@ -167,7 +167,7 @@ class CommonTsetlinMachine():
 #define PATCHES %d
 
 #define NUMBER_OF_EXAMPLES %d
-		""" % (self.number_of_outputs, self.number_of_clauses, self.number_of_features, self.number_of_state_bits, self.boost_true_positive_feedback, self.s, self.T, self.negative_clauses, self.number_of_patches, number_of_examples)
+		""" % (self.number_of_outputs, self.number_of_clauses, self.number_of_literals, self.number_of_state_bits, self.boost_true_positive_feedback, self.s, self.T, self.negative_clauses, self.number_of_patches, number_of_examples)
 
 		mod = SourceModule(parameters + kernels.code_header + kernels.code_transform, no_extern_c=True)
 		transform_gpu = mod.get_function("transform")
@@ -202,16 +202,17 @@ class CommonTsetlinMachine():
 		
 		return csr_matrix(X_transformed)
 
-	def _init(self, X):
+	def _init(self, graphs):
+		self.number_of_features = self.hypervector_size * self.depth
 		if self.append_negated:
-			self.number_of_features = self.hypervector_size * self.depth * 2
+			self.number_of_literals = self.number_of_features * 2
 		else:
-			self.number_of_features = self.hypervector_size * self.depth
+			self.number_of_literals = self.number_of_features
 
 		if self.max_included_literals == None:
-			self.max_included_literals = self.number_of_features
+			self.max_included_literals = self.number_of_literals
 
-		self.number_of_ta_chunks = int((self.number_of_features-1)/32 + 1)
+		self.number_of_ta_chunks = int((self.number_of_literals-1)/32 + 1)
 
 		parameters = """
 #define CLASSES %d
@@ -224,9 +225,8 @@ class CommonTsetlinMachine():
 #define Q %f
 #define MAX_INCLUDED_LITERALS %d
 #define NEGATIVE_CLAUSES %d
-#define PATCHES %d
 #define NUMBER_OF_EXAMPLES %d
-""" % (self.number_of_outputs, self.number_of_clauses, self.number_of_features, self.number_of_state_bits, self.boost_true_positive_feedback, self.s, self.T, self.q, self.max_included_literals, self.negative_clauses, self.number_of_patches, X.shape[0])
+""" % (self.number_of_outputs, self.number_of_clauses, self.number_of_literals, self.number_of_state_bits, self.boost_true_positive_feedback, self.s, self.T, self.q, self.max_included_literals, self.negative_clauses, X.shape[0])
 
 		mod_prepare = SourceModule(parameters + kernels.code_header + kernels.code_prepare, no_extern_c=True)
 		self.prepare = mod_prepare.get_function("prepare")
@@ -248,40 +248,13 @@ class CommonTsetlinMachine():
 		self.evaluate_packed = mod_evaluate.get_function("evaluate_packed")
 		self.evaluate_packed.prepare("PPPPPPP")
 
-		encoded_X = np.zeros((self.number_of_patches, self.number_of_ta_chunks), dtype=np.uint32)
-		for patch_coordinate_y in range(self.dim[1] - self.patch_dim[1] + 1):
-			for patch_coordinate_x in range(self.dim[0] - self.patch_dim[0] + 1):
-				p = patch_coordinate_y * (self.dim[0] - self.patch_dim[0] + 1) + patch_coordinate_x
-
-				if self.append_negated:
-					for k in range(self.number_of_features//2, self.number_of_features):
-						chunk = k // 32
-						pos = k % 32
-						encoded_X[p, chunk] |= (1 << pos)
-
-				for y_threshold in range(self.dim[1] - self.patch_dim[1]):
-					patch_pos = y_threshold
-					if patch_coordinate_y > y_threshold:
-						chunk = patch_pos // 32
-						pos = patch_pos % 32
-						encoded_X[p, chunk] |= (1 << pos)
-
-						if self.append_negated:
-							chunk = (patch_pos + self.number_of_features//2) // 32
-							pos = (patch_pos + self.number_of_features//2) % 32
-							encoded_X[p, chunk] &= ~(1 << pos)
-
-				for x_threshold in range(self.dim[0] - self.patch_dim[0]):
-					patch_pos = (self.dim[1] - self.patch_dim[1]) + x_threshold
-					if patch_coordinate_x > x_threshold:
-						chunk = patch_pos // 32
-						pos = patch_pos % 32
-						encoded_X[p, chunk] |= (1 << pos)
-
-						if self.append_negated:
-							chunk = (patch_pos + self.number_of_features//2) // 32
-							pos = (patch_pos + self.number_of_features//2) % 32
-							encoded_X[p, chunk] &= ~(1 << pos)
+		encoded_X = np.zeros((graphs.max_node_count, self.number_of_ta_chunks), dtype=np.uint32)
+		if self.append_negated:
+			for n in range(self.max_node_count):
+				for k in range(self.number_of_features, self.number_of_features*2):
+					chunk = k // 32
+					pos = k % 32
+					encoded_X[n, chunk] |= (1 << pos)
 
 		encoded_X = encoded_X.reshape(-1)
 		self.encoded_X_gpu = cuda.mem_alloc(encoded_X.nbytes)
@@ -289,33 +262,11 @@ class CommonTsetlinMachine():
 
 		# Encoded X packed
 
-		encoded_X_packed = np.zeros(((self.number_of_patches-1)//32 + 1, self.number_of_features), dtype=np.uint32)
+		encoded_X_packed = np.zeros(((graphs.max_node_count-1)//32 + 1, self.number_of_literals), dtype=np.uint32)
 		if self.append_negated:
-			for p_chunk in range((self.number_of_patches-1)//32 + 1):
-				for k in range(self.number_of_features//2, self.number_of_features):
-					encoded_X_packed[p_chunk, k] = (~0) 
-
-		for patch_coordinate_y in range(self.dim[1] - self.patch_dim[1] + 1):
-			for patch_coordinate_x in range(self.dim[0] - self.patch_dim[0] + 1):
-				p = patch_coordinate_y * (self.dim[0] - self.patch_dim[0] + 1) + patch_coordinate_x
-				p_chunk = p // 32
-				p_pos = p % 32
-
-				for y_threshold in range(self.dim[1] - self.patch_dim[1]):
-					patch_pos = y_threshold
-					if patch_coordinate_y > y_threshold:
-						encoded_X_packed[p_chunk, patch_pos] |= (1 << p_pos)
-
-						if self.append_negated:
-							encoded_X_packed[p_chunk, patch_pos + self.number_of_features//2] &= ~(1 << p_pos)
-
-				for x_threshold in range(self.dim[0] - self.patch_dim[0]):
-					patch_pos = (self.dim[1] - self.patch_dim[1]) + x_threshold
-					if patch_coordinate_x > x_threshold:
-						encoded_X_packed[p_chunk, patch_pos] |= (1 << p_pos)
-
-						if self.append_negated:
-							encoded_X_packed[p_chunk, patch_pos + self.number_of_features//2] &= ~(1 << p_pos)
+			for n_chunk in range((graphs.max_node_count-1)//32 + 1):
+				for k in range(self.number_of_features, self.number_of_literals):
+					encoded_X_packed[n_chunk, k] = (~0) 
 
 		encoded_X_packed = encoded_X_packed.reshape(-1)
 		self.encoded_X_packed_gpu = cuda.mem_alloc(encoded_X_packed.nbytes)
@@ -323,22 +274,32 @@ class CommonTsetlinMachine():
 
 		self.initialized = True
 
-	def _init_fit(self, X, encoded_Y, incremental):
+	def _init_fit(self, graphs, encoded_Y, incremental):
 		if not self.initialized:
-			self._init(X)
-			self.prepare(g.state, self.ta_state_gpu, self.clause_weights_gpu, self.class_sum_gpu, grid=self.grid, block=self.block)
+			self._init(graphs)
+			self.prepare(g.state, self.ta_state_gpu, self.clause_weights_gpu, grid=self.grid, block=self.block)
 			cuda.Context.synchronize()
 		elif incremental == False:
-			self.prepare(g.state, self.ta_state_gpu, self.clause_weights_gpu, self.class_sum_gpu, grid=self.grid, block=self.block)
+			self.prepare(g.state, self.ta_state_gpu, self.clause_weights_gpu, grid=self.grid, block=self.block)
 			cuda.Context.synchronize()
 
-		if not np.array_equal(self.X_train, np.concatenate((X.indptr, X.indices))):
-			self.train_X = np.concatenate((X.indptr, X.indices))
-			self.X_train_indptr_gpu = cuda.mem_alloc(X.indptr.nbytes)
-			cuda.memcpy_htod(self.X_train_indptr_gpu, X.indptr)
+		if not np.array_equal(self.train_signature, graphs.signature):
+			self.train_signature = graphs.signature
+			
+			self.X_train_indptr_gpu = cuda.mem_alloc(graphs.X.indptr.nbytes)
+			cuda.memcpy_htod(self.X_train_indptr_gpu, graphs.X.indptr)
 
-			self.X_train_indices_gpu = cuda.mem_alloc(X.indices.nbytes)
-			cuda.memcpy_htod(self.X_train_indices_gpu, X.indices)
+			self.X_train_indices_gpu = cuda.mem_alloc(graphs.X.indices.nbytes)
+			cuda.memcpy_htod(self.X_train_indices_gpu, graphs.X.indices)
+
+			self.edges_train_indptr_gpu = cuda.mem_alloc(graphs.edges.indptr.nbytes)
+			cuda.memcpy_htod(self.edges_train_indptr_gpu, graphs.edges.indptr)
+
+			self.edges_train_indices_gpu = cuda.mem_alloc(graphs.edges.indices.nbytes)
+			cuda.memcpy_htod(self.edges_train_indices_gpu, graphs.edges.indices)
+
+			self.edges_train_data_gpu = cuda.mem_alloc(graphs.edges.data.nbytes)
+			cuda.memcpy_htod(self.edges_train_data_gpu, graphs.edges.data)
 
 		if not np.array_equal(self.encoded_Y, encoded_Y):
 			self.encoded_Y = encoded_Y
@@ -346,8 +307,8 @@ class CommonTsetlinMachine():
 			self.encoded_Y_gpu = cuda.mem_alloc(encoded_Y.nbytes)
 			cuda.memcpy_htod(self.encoded_Y_gpu, encoded_Y)
 
-	def _fit(self, X, encoded_Y, epochs=100, incremental=False):
-		self._init_fit(X, encoded_Y, incremental)
+	def _fit(self, graphs, encoded_Y, epochs=100, incremental=False):
+		self._init_fit(graphs, encoded_Y, incremental)
 
 		for epoch in range(epochs):
 			for e in range(X.shape[0]):

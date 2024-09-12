@@ -376,7 +376,7 @@ code_evaluate = """
 code_prepare = """
 	extern "C"
     {
-		__global__ void prepare(curandState *state, unsigned int *global_ta_state, int *clause_weights, int *class_sum)
+		__global__ void prepare(curandState *state, unsigned int *global_ta_state, int *clause_weights)
 		{
 			int index = blockIdx.x * blockDim.x + threadIdx.x;
 			int stride = blockDim.x * gridDim.x;
