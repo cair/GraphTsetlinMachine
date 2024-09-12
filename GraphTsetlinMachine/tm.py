@@ -301,8 +301,8 @@ class CommonTsetlinMachine():
 			self.edges_train_data_gpu = cuda.mem_alloc(graphs.edges.data.nbytes)
 			cuda.memcpy_htod(self.edges_train_data_gpu, graphs.edges.data)
 
-			self.node_count_gpu = cuda.mem_alloc(graphs.node_count.data.nbytes)
-			cuda.memcpy_htod(self.node_count_gpu, graphs.node_count.data)
+			self.node_count_train_gpu = cuda.mem_alloc(graphs.node_count.data.nbytes)
+			cuda.memcpy_htod(self.node_count_train_gpu, graphs.node_count.data)
 
 		if not np.array_equal(self.encoded_Y, encoded_Y):
 			self.encoded_Y = encoded_Y
@@ -336,19 +336,31 @@ class CommonTsetlinMachine():
 		
 		return
 
-	def _score(self, X):
+	def _score(self, graphs):
 		if not self.initialized:
 			print("Error: Model not trained.")
 			sys.exit(-1)
 
-		if not np.array_equal(self.X_test, np.concatenate((X.indptr, X.indices))):
-			self.X_test = np.concatenate((X.indptr, X.indices))
+		if not np.array_equal(self.test_signature, graphs.signature):
+			self.test_signature = graphs.signature
 
-			self.X_test_indptr_gpu = cuda.mem_alloc(X.indptr.nbytes)
-			cuda.memcpy_htod(self.X_test_indptr_gpu, X.indptr)
+			self.X_test_indptr_gpu = cuda.mem_alloc(graphs.X.indptr.nbytes)
+			cuda.memcpy_htod(self.X_test_indptr_gpu, graphs.X.indptr)
 
-			self.X_test_indices_gpu = cuda.mem_alloc(X.indices.nbytes)
-			cuda.memcpy_htod(self.X_test_indices_gpu, X.indices)
+			self.X_test_indices_gpu = cuda.mem_alloc(graphs.X.indices.nbytes)
+			cuda.memcpy_htod(self.X_test_indices_gpu, graphs.X.indices)
+
+			self.edges_test_indptr_gpu = cuda.mem_alloc(graphs.edges.indptr.nbytes)
+			cuda.memcpy_htod(self.edges_test_indptr_gpu, graphs.edges.indptr)
+
+			self.edges_test_indices_gpu = cuda.mem_alloc(graphs.edges.indices.nbytes)
+			cuda.memcpy_htod(self.edges_test_indices_gpu, graphs.edges.indices)
+
+			self.edges_test_data_gpu = cuda.mem_alloc(graphs.edges.data.nbytes)
+			cuda.memcpy_htod(self.edges_test_data_gpu, graphs.edges.data)
+
+			self.node_count_test_gpu = cuda.mem_alloc(graphs.node_count.data.nbytes)
+			cuda.memcpy_htod(self.node_count_test_gpu, graphs.node_count.data)
 
 		self.prepare_packed(
 			g.state,
