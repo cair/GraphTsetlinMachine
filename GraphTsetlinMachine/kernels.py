@@ -1,4 +1,4 @@
-# Copyright (c) 2021 Ole-Christoffer Granmo
+# Copyright (c) 2024 Ole-Christoffer Granmo
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -104,43 +104,43 @@ code_update = """
 			} 
 		}
 
-		__device__ inline void calculate_clause_output(curandState *localState, unsigned int *ta_state, unsigned int *clause_output, int *clause_patch, int *X)
+		__device__ inline void calculate_clause_output(curandState *localState, unsigned int *ta_state, unsigned int *clause_output, unsigned int *clause_node, int number_of_nodes, unsigned int *X)
 		{
-			int output_one_patches[PATCHES];
-			int output_one_patches_count;
+			int output_one_nodees[number_of_nodes];
+			int output_one_nodees_count;
 
-			// Evaluate each patch (convolution)
-			output_one_patches_count = 0;
-			for (int patch = 0; patch < PATCHES; ++patch) {
-				int patch_clause_output = 1;
+			// Evaluate each node (convolution)
+			output_one_nodees_count = 0;
+			for (int node = 0; node < number_of_nodes; ++node) {
+				int node_clause_output = 1;
 				for (int ta_chunk = 0; ta_chunk < TA_CHUNKS-1; ++ta_chunk) {
-					if ((ta_state[ta_chunk*STATE_BITS + STATE_BITS - 1] & X[patch*TA_CHUNKS + ta_chunk]) != ta_state[ta_chunk*STATE_BITS + STATE_BITS - 1]) {
-						patch_clause_output = 0;
+					if ((ta_state[ta_chunk*STATE_BITS + STATE_BITS - 1] & X[node*TA_CHUNKS + ta_chunk]) != ta_state[ta_chunk*STATE_BITS + STATE_BITS - 1]) {
+						node_clause_output = 0;
 						break;
 					}
 				}
 
-				if (((ta_state[(TA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & X[patch*TA_CHUNKS + TA_CHUNKS - 1] & FILTER) != (ta_state[(TA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & FILTER))) {
-					patch_clause_output = 0;
+				if (((ta_state[(TA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & X[node*TA_CHUNKS + TA_CHUNKS - 1] & FILTER) != (ta_state[(TA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & FILTER))) {
+					node_clause_output = 0;
 				}
 
-				if (patch_clause_output) {
-					output_one_patches[output_one_patches_count] = patch;
-					output_one_patches_count++;
+				if (node_clause_output) {
+					output_one_nodees[output_one_nodees_count] = node;
+					output_one_nodees_count++;
 				}
 			}
 		
-			if (output_one_patches_count > 0) {
+			if (output_one_nodees_count > 0) {
 				*clause_output = 1;
-				int patch_id = curand(localState) % output_one_patches_count;
-				*clause_patch = output_one_patches[patch_id];
+				int node_id = curand(localState) % output_one_nodees_count;
+				*clause_node = output_one_nodees[node_id];
 			} else {
 				*clause_output = 0;
-				*clause_patch = -1;
+				*clause_node = -1;
 			}
 		}
 
-		__device__ inline void update_clause(curandState *localState, int *clause_weight, unsigned int *ta_state, int clause_output, int clause_patch, int *X, int y, int class_sum)
+		__device__ inline void update_clause(curandState *localState, int *clause_weight, unsigned int *ta_state, int clause_output, int clause_node, int *X, int y, int class_sum)
 		{
 			int target = 1 - 2*(class_sum > y);
 			
@@ -171,12 +171,12 @@ code_update = """
 
 						if (clause_output && included_literals <= MAX_INCLUDED_LITERALS) {
 							#if BOOST_TRUE_POSITIVE_FEEDBACK == 1
-								inc(ta_state, 0, ta_chunk, X[clause_patch*TA_CHUNKS + ta_chunk]);
+								inc(ta_state, 0, ta_chunk, X[clause_node*TA_CHUNKS + ta_chunk]);
 							#else
-								inc(ta_state, 0, ta_chunk, X[clause_patch*TA_CHUNKS + ta_chunk] & (~la_feedback));
+								inc(ta_state, 0, ta_chunk, X[clause_node*TA_CHUNKS + ta_chunk] & (~la_feedback));
 							#endif
 
-							dec(ta_state, 0, ta_chunk, (~X[clause_patch*TA_CHUNKS + ta_chunk]) & la_feedback);
+							dec(ta_state, 0, ta_chunk, (~X[clause_node*TA_CHUNKS + ta_chunk]) & la_feedback);
 						} else {
 							dec(ta_state, 0, ta_chunk, la_feedback);
 						}
@@ -192,14 +192,14 @@ code_update = """
 					#endif
 
 					for (int ta_chunk = 0; ta_chunk < TA_CHUNKS; ++ta_chunk) {
-						inc(ta_state, 0, ta_chunk, (~X[clause_patch*TA_CHUNKS + ta_chunk]) & (~ta_state[ta_chunk*STATE_BITS + STATE_BITS - 1]));
+						inc(ta_state, 0, ta_chunk, (~X[clause_node*TA_CHUNKS + ta_chunk]) & (~ta_state[ta_chunk*STATE_BITS + STATE_BITS - 1]));
 					}
 				}
 			}
 		}
 
 		// Evaluate example
-		__global__ void evaluate(unsigned int *global_ta_state, int *clause_weights, int *class_sum, int *X)
+		__global__ void evaluate(unsigned int *global_ta_state, int *clause_weights, int *class_sum, int number_of_nodes, int *X)
 		{
 			int index = blockIdx.x * blockDim.x + threadIdx.x;
 			int stride = blockDim.x * gridDim.x;
@@ -208,16 +208,16 @@ code_update = """
 				unsigned int *ta_state = &global_ta_state[clause*TA_CHUNKS*STATE_BITS];
 
 				int clause_output;
-				for (int patch = 0; patch < PATCHES; ++patch) {
+				for (int node = 0; node < number_of_nodes; ++node) {
 					clause_output = 1;
 					for (int ta_chunk = 0; ta_chunk < TA_CHUNKS-1; ++ta_chunk) {
-						if ((ta_state[ta_chunk*STATE_BITS + STATE_BITS - 1] & X[patch*TA_CHUNKS + ta_chunk]) != ta_state[ta_chunk*STATE_BITS + STATE_BITS - 1]) {
+						if ((ta_state[ta_chunk*STATE_BITS + STATE_BITS - 1] & X[node*TA_CHUNKS + ta_chunk]) != ta_state[ta_chunk*STATE_BITS + STATE_BITS - 1]) {
 							clause_output = 0;
 							break;
 						}
 					}
 
-					if ((ta_state[(TA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & X[patch*TA_CHUNKS + TA_CHUNKS-1] & FILTER) != (ta_state[(TA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & FILTER)) {
+					if ((ta_state[(TA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & X[node*TA_CHUNKS + TA_CHUNKS-1] & FILTER) != (ta_state[(TA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & FILTER)) {
 						clause_output = 0;
 					}
 
@@ -236,7 +236,7 @@ code_update = """
 		}
 
 		// Update state of Tsetlin Automata team
-		__global__ void update(curandState *state, unsigned int *global_ta_state, int *clause_weights, int *class_sum, int *X, int *y, int example)
+		__global__ void update(curandState *state, unsigned int *global_ta_state, int *clause_weights, int *class_sum, int number_of_nodes, unsigned int *X, unsigned int *y, int example)
 		{
 			int index = blockIdx.x * blockDim.x + threadIdx.x;
 			int stride = blockDim.x * gridDim.x;
@@ -249,8 +249,8 @@ code_update = """
 				unsigned int *ta_state = &global_ta_state[clause*TA_CHUNKS*STATE_BITS];
 
 				unsigned int clause_output;
-				int clause_patch;
-				calculate_clause_output(&localState, ta_state, &clause_output, &clause_patch, X);
+				unsigned int clause_node;
+				calculate_clause_output(&localState, ta_state, &clause_output, &clause_node, number_of_nodes, X);
 
 				for (unsigned long long class_id = 0; class_id < CLASSES; ++class_id) {
 					int local_class_sum = class_sum[class_id];
@@ -259,7 +259,7 @@ code_update = """
 					} else if (local_class_sum < -THRESHOLD) {
 						local_class_sum = -THRESHOLD;
 					}
-					update_clause(&localState, &clause_weights[class_id*CLAUSES + clause], ta_state, clause_output, clause_patch, X, y[example*CLASSES + class_id], local_class_sum);
+					update_clause(&localState, &clause_weights[class_id*CLAUSES + clause], ta_state, clause_output, clause_node, X, y[example*CLASSES + class_id], local_class_sum);
 				}
 			}
 		
@@ -297,16 +297,16 @@ code_evaluate = """
 				}
 
 				int clause_output;
-				for (int patch = 0; patch < PATCHES; ++patch) {
+				for (int node = 0; node < number_of_nodes; ++node) {
 					clause_output = 1;
 					for (int ta_chunk = 0; ta_chunk < TA_CHUNKS-1; ++ta_chunk) {
-						if ((ta_state[ta_chunk*STATE_BITS + STATE_BITS - 1] & X[patch*TA_CHUNKS + ta_chunk]) != ta_state[ta_chunk*STATE_BITS + STATE_BITS - 1]) {
+						if ((ta_state[ta_chunk*STATE_BITS + STATE_BITS - 1] & X[node*TA_CHUNKS + ta_chunk]) != ta_state[ta_chunk*STATE_BITS + STATE_BITS - 1]) {
 							clause_output = 0;
 							break;
 						}
 					}
 
-					if ((ta_state[(TA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & X[patch*TA_CHUNKS + TA_CHUNKS-1] & FILTER) != (ta_state[(TA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & FILTER)) {
+					if ((ta_state[(TA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & X[node*TA_CHUNKS + TA_CHUNKS-1] & FILTER) != (ta_state[(TA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & FILTER)) {
 						clause_output = 0;
 					}
 
@@ -344,10 +344,10 @@ code_evaluate = """
 				}
 
 				unsigned int clause_output = 0;
-				for (int patch_chunk = 0; patch_chunk < PATCH_CHUNKS-1; ++patch_chunk) {
+				for (int node_chunk = 0; node_chunk < PATCH_CHUNKS-1; ++node_chunk) {
 					clause_output = (~(0U));
 					for (int literal = 0; literal < included_literals_length[clause]; ++literal) {
-						clause_output &= X[patch_chunk*FEATURES + included_literals[clause*FEATURES*2 + literal*2]];
+						clause_output &= X[node_chunk*FEATURES + included_literals[clause*FEATURES*2 + literal*2]];
 					}
 
 					if (clause_output) {
@@ -527,13 +527,13 @@ code_encode = """
 		    }
 		}
 
-		__global__ void encode_packed(unsigned int *X_indptr, unsigned int *X_indices, unsigned int *encoded_X, int e, int dim_x, int dim_y, int dim_z, int patch_dim_x, int patch_dim_y, int append_negated, int class_features)
+		__global__ void encode_packed(unsigned int *X_indptr, unsigned int *X_indices, unsigned int *encoded_X, int e, int dim_x, int dim_y, int dim_z, int node_dim_x, int node_dim_y, int append_negated, int class_features)
 		{
 			int index = blockIdx.x * blockDim.x + threadIdx.x;
 			int stride = blockDim.x * gridDim.x;
 
-			int number_of_features = class_features + patch_dim_x * patch_dim_y * dim_z + (dim_x - patch_dim_x) + (dim_y - patch_dim_y);
-			int number_of_patches = (dim_x - patch_dim_x + 1) * (dim_y - patch_dim_y + 1);
+			int number_of_features = class_features + node_dim_x * node_dim_y * dim_z + (dim_x - node_dim_x) + (dim_y - node_dim_y);
+			int number_of_nodes = (dim_x - node_dim_x + 1) * (dim_y - node_dim_y + 1);
 
 			int number_of_literals;
 			if (append_negated) {
@@ -550,38 +550,38 @@ code_encode = """
 				int x = (indices[k] % (dim_x*dim_z)) / dim_z;
 				int z = (indices[k] % (dim_x*dim_z)) % dim_z;
 
-				for (int patch = index; patch < number_of_patches; patch += stride) {
-					int patch_coordinate_y = patch / (dim_x - patch_dim_x + 1);
-					int patch_coordinate_x = patch % (dim_x - patch_dim_x + 1);
+				for (int node = index; node < number_of_nodes; node += stride) {
+					int node_coordinate_y = node / (dim_x - node_dim_x + 1);
+					int node_coordinate_x = node % (dim_x - node_dim_x + 1);
 
-					if ((y < patch_coordinate_y) || (y >= patch_coordinate_y + patch_dim_y) || (x < patch_coordinate_x) || (x >= patch_coordinate_x + patch_dim_x)) {
+					if ((y < node_coordinate_y) || (y >= node_coordinate_y + node_dim_y) || (x < node_coordinate_x) || (x >= node_coordinate_x + node_dim_x)) {
 						continue;
 					}
 
-					int chunk = patch / 32;
-					int pos = patch % 32;
+					int chunk = node / 32;
+					int pos = node % 32;
 
-					int p_y = y - patch_coordinate_y;
-					int p_x = x - patch_coordinate_x;
+					int p_y = y - node_coordinate_y;
+					int p_x = x - node_coordinate_x;
 
-					int patch_pos = class_features + (dim_y - patch_dim_y) + (dim_x - patch_dim_x) + p_y * patch_dim_x * dim_z + p_x * dim_z + z;
+					int node_pos = class_features + (dim_y - node_dim_y) + (dim_x - node_dim_x) + p_y * node_dim_x * dim_z + p_x * dim_z + z;
 
-					encoded_X[chunk * number_of_literals + patch_pos] |= (1U << pos);
+					encoded_X[chunk * number_of_literals + node_pos] |= (1U << pos);
 
 					if (append_negated) {
-						encoded_X[chunk * number_of_literals + patch_pos + number_of_features] &= ~(1U << pos);
+						encoded_X[chunk * number_of_literals + node_pos + number_of_features] &= ~(1U << pos);
 					}
 				}
 		    }		
 		}
 
-		__global__ void restore_packed(unsigned int *X_indptr, unsigned int *X_indices, unsigned int *encoded_X, int e, int dim_x, int dim_y, int dim_z, int patch_dim_x, int patch_dim_y, int append_negated, int class_features)
+		__global__ void restore_packed(unsigned int *X_indptr, unsigned int *X_indices, unsigned int *encoded_X, int e, int dim_x, int dim_y, int dim_z, int node_dim_x, int node_dim_y, int append_negated, int class_features)
 		{
 			int index = blockIdx.x * blockDim.x + threadIdx.x;
 			int stride = blockDim.x * gridDim.x;
 
-			int number_of_features = class_features + patch_dim_x * patch_dim_y * dim_z + (dim_x - patch_dim_x) + (dim_y - patch_dim_y);
-			int number_of_patches = (dim_x - patch_dim_x + 1) * (dim_y - patch_dim_y + 1);
+			int number_of_features = class_features + node_dim_x * node_dim_y * dim_z + (dim_x - node_dim_x) + (dim_y - node_dim_y);
+			int number_of_nodes = (dim_x - node_dim_x + 1) * (dim_y - node_dim_y + 1);
 
 			int number_of_literals;
 			if (append_negated) {
@@ -598,26 +598,26 @@ code_encode = """
 				int x = (indices[k] % (dim_x*dim_z)) / dim_z;
 				int z = (indices[k] % (dim_x*dim_z)) % dim_z;
 
-				for (int patch = index; patch < number_of_patches; patch += stride) {
-					int patch_coordinate_y = patch / (dim_x - patch_dim_x + 1);
-					int patch_coordinate_x = patch % (dim_x - patch_dim_x + 1);
+				for (int node = index; node < number_of_nodes; node += stride) {
+					int node_coordinate_y = node / (dim_x - node_dim_x + 1);
+					int node_coordinate_x = node % (dim_x - node_dim_x + 1);
 
-					if ((y < patch_coordinate_y) || (y >= patch_coordinate_y + patch_dim_y) || (x < patch_coordinate_x) || (x >= patch_coordinate_x + patch_dim_x)) {
+					if ((y < node_coordinate_y) || (y >= node_coordinate_y + node_dim_y) || (x < node_coordinate_x) || (x >= node_coordinate_x + node_dim_x)) {
 						continue;
 					}
 
-					int chunk = patch / 32;
-					int pos = patch % 32;
+					int chunk = node / 32;
+					int pos = node % 32;
 
-					int p_y = y - patch_coordinate_y;
-					int p_x = x - patch_coordinate_x;
+					int p_y = y - node_coordinate_y;
+					int p_x = x - node_coordinate_x;
 
-					int patch_pos = class_features + (dim_y - patch_dim_y) + (dim_x - patch_dim_x) + p_y * patch_dim_x * dim_z + p_x * dim_z + z;
+					int node_pos = class_features + (dim_y - node_dim_y) + (dim_x - node_dim_x) + p_y * node_dim_x * dim_z + p_x * dim_z + z;
 
-					encoded_X[chunk * number_of_literals + patch_pos] &= ~(1U << pos);
+					encoded_X[chunk * number_of_literals + node_pos] &= ~(1U << pos);
 
 					if (append_negated) {
-						encoded_X[chunk * number_of_literals + patch_pos + number_of_features] |= (1U << pos);
+						encoded_X[chunk * number_of_literals + node_pos + number_of_features] |= (1U << pos);
 					}
 				}
 		    }		
@@ -762,10 +762,10 @@ code_transform = """
 				}
 
 				unsigned int clause_output = 0;
-				for (int patch_chunk = 0; patch_chunk < PATCH_CHUNKS-1; ++patch_chunk) {
+				for (int node_chunk = 0; node_chunk < PATCH_CHUNKS-1; ++node_chunk) {
 					clause_output = (~(0U));
 					for (int literal = 0; literal < included_literals_length[clause]; ++literal) {
-						clause_output &= X[patch_chunk*FEATURES + included_literals[clause*FEATURES*2 + literal*2]];
+						clause_output &= X[node_chunk*FEATURES + included_literals[clause*FEATURES*2 + literal*2]];
 					}
 
 					if (clause_output) {
