@@ -239,7 +239,7 @@ class CommonTsetlinMachine():
 		self.update.prepare("PPPPPPi")
 
 		self.evaluate_update = mod_update.get_function("evaluate")
-		self.evaluate_update.prepare("PPPP")
+		self.evaluate_update.prepare("PPPiP")
 
 		mod_evaluate = SourceModule(parameters + kernels.code_header + kernels.code_evaluate, no_extern_c=True)
 		self.evaluate = mod_evaluate.get_function("evaluate")
@@ -313,18 +313,19 @@ class CommonTsetlinMachine():
 	def _fit(self, graphs, encoded_Y, epochs=100, incremental=False):
 		self._init_fit(graphs, encoded_Y, incremental)
 
+		class_sum = np.zeros(self.number_of_outputs).astype(np.int32)
+
 		for epoch in range(epochs):
-			for e in range(X.shape[0]):
-				class_sum = np.zeros(self.number_of_outputs).astype(np.int32)
+			for e in range(graphs.X.shape[0]):
 				cuda.memcpy_htod(self.class_sum_gpu, class_sum)
 
 				self.encode.prepared_call(self.grid, self.block, self.X_train_indptr_gpu, self.X_train_indices_gpu, self.encoded_X_gpu, np.int32(e), np.int32(self.hypervector_size), np.int32(self.depth), np.int32(self.append_negated))
 				cuda.Context.synchronize()
 
-				self.evaluate_update.prepared_call(self.grid, self.block, self.ta_state_gpu, self.clause_weights_gpu, self.class_sum_gpu, self.encoded_X_gpu)
+				self.evaluate_update.prepared_call(self.grid, self.block, self.ta_state_gpu, self.clause_weights_gpu, self.class_sum_gpu, self.node_count[e], self.encoded_X_gpu)
 				cuda.Context.synchronize()
 
-				self.update.prepared_call(self.grid, self.block, g.state, self.ta_state_gpu, self.clause_weights_gpu, self.class_sum_gpu, self.encoded_X_gpu, self.encoded_Y_gpu, np.int32(e))
+				self.update.prepared_call(self.grid, self.block, g.state, self.ta_state_gpu, self.clause_weights_gpu, self.class_sum_gpu, self.node_count[e], self.encoded_X_gpu, self.encoded_Y_gpu, np.int32(e))
 				cuda.Context.synchronize()
 
 				self.restore.prepared_call(self.grid, self.block, self.X_train_indptr_gpu, self.X_train_indices_gpu, self.encoded_X_gpu, np.int32(e), np.int32(self.dim[0]), np.int32(self.dim[1]), np.int32(self.dim[2]), np.int32(self.patch_dim[0]), np.int32(self.patch_dim[1]), np.int32(self.append_negated), np.int32(0))
