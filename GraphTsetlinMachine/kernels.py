@@ -106,11 +106,11 @@ code_update = """
 
 		__device__ inline void calculate_clause_output(curandState *localState, unsigned int *ta_state, unsigned int *clause_output, unsigned int *clause_node, int number_of_nodes, unsigned int *X)
 		{
-			int output_one_nodees[number_of_nodes];
-			int output_one_nodees_count;
+			int output_one_nodes[number_of_nodes];
+			int output_one_nodes_count;
 
 			// Evaluate each node (convolution)
-			output_one_nodees_count = 0;
+			output_one_nodes_count = 0;
 			for (int node = 0; node < number_of_nodes; ++node) {
 				int node_clause_output = 1;
 				for (int ta_chunk = 0; ta_chunk < TA_CHUNKS-1; ++ta_chunk) {
@@ -125,15 +125,15 @@ code_update = """
 				}
 
 				if (node_clause_output) {
-					output_one_nodees[output_one_nodees_count] = node;
-					output_one_nodees_count++;
+					output_one_nodes[output_one_nodes_count] = node;
+					output_one_nodes_count++;
 				}
 			}
 		
-			if (output_one_nodees_count > 0) {
+			if (output_one_nodes_count > 0) {
 				*clause_output = 1;
-				int node_id = curand(localState) % output_one_nodees_count;
-				*clause_node = output_one_nodees[node_id];
+				int node_id = curand(localState) % output_one_nodes_count;
+				*clause_node = output_one_nodes[node_id];
 			} else {
 				*clause_output = 0;
 				*clause_node = -1;
