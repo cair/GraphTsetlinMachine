@@ -520,7 +520,15 @@ code_encode = """
 		    }
 		}
 
-		__global__ void encode_packed(unsigned int *X_indptr, unsigned int *X_indices, unsigned int *encoded_X, int e, int dim_x, int dim_y, int dim_z, int node_dim_x, int node_dim_y, int append_negated, int class_features)
+		__global__ void encode_packed(
+			unsigned int *X_indptr,
+			unsigned int *X_indices,
+			unsigned int *encoded_X,
+			int e,
+			int hypervector_size,
+			int depth,
+			int append_negated
+		)
 		{
 			int index = blockIdx.x * blockDim.x + threadIdx.x;
 			int stride = blockDim.x * gridDim.x;
