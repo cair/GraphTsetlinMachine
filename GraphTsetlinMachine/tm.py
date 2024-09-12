@@ -301,9 +301,6 @@ class CommonTsetlinMachine():
 			self.edges_train_data_gpu = cuda.mem_alloc(graphs.edges.data.nbytes)
 			cuda.memcpy_htod(self.edges_train_data_gpu, graphs.edges.data)
 
-			self.node_count_train_gpu = cuda.mem_alloc(graphs.node_count.data.nbytes)
-			cuda.memcpy_htod(self.node_count_train_gpu, graphs.node_count.data)
-
 		if not np.array_equal(self.encoded_Y, encoded_Y):
 			self.encoded_Y = encoded_Y
 
@@ -358,9 +355,6 @@ class CommonTsetlinMachine():
 
 			self.edges_test_data_gpu = cuda.mem_alloc(graphs.edges.data.nbytes)
 			cuda.memcpy_htod(self.edges_test_data_gpu, graphs.edges.data)
-
-			self.node_count_test_gpu = cuda.mem_alloc(graphs.node_count.data.nbytes)
-			cuda.memcpy_htod(self.node_count_test_gpu, graphs.node_count.data)
 
 		self.prepare_packed(
 			g.state,
