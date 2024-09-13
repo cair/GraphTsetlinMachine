@@ -234,11 +234,15 @@ code_update = """
 			int index = blockIdx.x * blockDim.x + threadIdx.x;
 			int stride = blockDim.x * gridDim.x;
 
+			if (index != 0) {
+				return;
+			}
+
 			/* Copy state to local memory for efficiency */  
 			curandState localState = state[index];
 
 			// Calculate clause output first
-			for (unsigned long long clause = index; clause < CLAUSES; clause += stride) {
+			for (unsigned long long clause = 0; clause < CLAUSES; clause += 1) {
 				unsigned int *ta_state = &global_ta_state[clause*TA_CHUNKS*STATE_BITS];
 
 				unsigned int clause_output;
