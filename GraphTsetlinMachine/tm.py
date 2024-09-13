@@ -243,7 +243,7 @@ class CommonTsetlinMachine():
 		self.evaluate.prepare("PPPP")
 
 		self.evaluate_packed = mod_evaluate.get_function("evaluate_packed")
-		self.evaluate_packed.prepare("PPPPPPiP")
+		self.evaluate_packed.prepare("PPPPiP")
 
 		encoded_X = np.zeros((graphs.max_node_count, self.number_of_ta_chunks), dtype=np.uint32)
 		if self.append_negated:
@@ -405,8 +405,6 @@ class CommonTsetlinMachine():
 				self.block,
 				self.included_literals_gpu,
 				self.included_literals_length_gpu,
-				self.excluded_literals_gpu,
-				self.excluded_literals_length_gpu,
 				self.clause_weights_gpu,
 				self.class_sum_gpu,
 				np.int32(graphs.node_count[e]),
