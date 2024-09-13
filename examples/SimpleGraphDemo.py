@@ -59,7 +59,7 @@ for i in range(number_of_training_examples):
 
     graphs_train.add(sequence_graph)
 
-graphs_train.encode()
+graphs_train.encode(hypervector_size=16, hypervector_bits=1)
 
 print(graphs_train.hypervectors)
 print(graphs_train.edge_type_id)
