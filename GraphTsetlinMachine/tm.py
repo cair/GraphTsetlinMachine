@@ -214,7 +214,7 @@ class CommonTsetlinMachine():
 		parameters = """
 #define CLASSES %d
 #define CLAUSES %d
-#define FEATURES %d
+#define LITERALS %d
 #define STATE_BITS %d
 #define BOOST_TRUE_POSITIVE_FEEDBACK %d
 #define S %f
