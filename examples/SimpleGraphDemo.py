@@ -54,7 +54,7 @@ for i in range(number_of_training_examples):
 
     graphs_train.add(sequence_graph)
 
-tm = MultiClassGraphTsetlinMachine(100, 1000, 1.0, hypervector_size=16, depth=1)
+tm = MultiClassGraphTsetlinMachine(100, 1000, 1.0, hypervector_size=16, hypervector_bits=1, depth=1)
 
 for i in range(epochs):
     start_training = time()

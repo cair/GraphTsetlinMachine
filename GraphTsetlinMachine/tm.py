@@ -61,6 +61,7 @@ class CommonTsetlinMachine():
 		self.T = int(T)
 		self.s = s
 		self.hypervector_size = hypervector_size
+		self.hypervector_bits = hypervector_bits
 		self.depth = depth
 		self.q = q
 		self.max_included_literals = max_included_literals
