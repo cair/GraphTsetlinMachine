@@ -451,6 +451,10 @@ code_encode = """
 			int index = blockIdx.x * blockDim.x + threadIdx.x;
 			int stride = blockDim.x * gridDim.x;
 
+			if (index != 0) {
+				return;
+			}
+
 			int number_of_features = hypervector_size * depth; 
 
 			int number_of_ta_chunks;
@@ -463,7 +467,7 @@ code_encode = """
 			unsigned int *indices = &X_indices[X_indptr[e]];
 			int number_of_indices = X_indptr[e + 1] - X_indptr[e]; 
 
-			for (int k = index; k < number_of_indices; k += stride) {
+			for (int k = 0; k < number_of_indices; k += 1) {
 				int node_id = indices[k] / hypervector_size;
 				int feature = indices[k] % hypervector_size;
 					
@@ -493,6 +497,10 @@ code_encode = """
 			int index = blockIdx.x * blockDim.x + threadIdx.x;
 			int stride = blockDim.x * gridDim.x;
 
+			if (index != 0) {
+				return;
+			}
+
 			int number_of_features = hypervector_size * depth; 
 
 			int number_of_ta_chunks;
@@ -505,7 +513,7 @@ code_encode = """
 			unsigned int *indices = &X_indices[X_indptr[e]];
 			int number_of_indices = X_indptr[e + 1] - X_indptr[e]; 
 
-			for (int k = index; k < number_of_indices; k += stride) {
+			for (int k = 0; k < number_of_indices; k += 1) {
 				int node_id = indices[k] / hypervector_size;
 				int feature = indices[k] % hypervector_size;
 					
