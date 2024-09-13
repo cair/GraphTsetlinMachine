@@ -552,7 +552,7 @@ code_encode = """
 					int node_id = indices[k] / hypervector_size;
 					int feature = indices[k] % hypervector_size;
 
-					printf("%d %d (%d) %d\\n", node_id, feature, indices[k], INT_SIZE);
+					printf("%d %d (%d)\\n", node_id, feature, indices[k]);
 
 					int chunk_nr = node_id / 32;
 					int chunk_pos = node_id % 32;
