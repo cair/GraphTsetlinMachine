@@ -4,6 +4,8 @@ import numpy as np
 from scipy.sparse import csr_matrix
 from GraphTsetlinMachine.tm import MultiClassGraphTsetlinMachine
 
+epochs = 5
+
 number_of_training_examples = 10
 
 max_sequence_length = 5
