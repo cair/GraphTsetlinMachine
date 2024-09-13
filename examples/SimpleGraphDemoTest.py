@@ -22,7 +22,7 @@ for i in range(number_of_training_examples):
     # Select class
     Y_train[i] = np.random.randint(number_of_classes) 
 
-    nodes = 1
+    nodes = 10
     for j in range(nodes):
         sequence_graph.add_node(j)
 
