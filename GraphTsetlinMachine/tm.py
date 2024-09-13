@@ -117,7 +117,7 @@ class CommonTsetlinMachine():
 			cuda.memcpy_dtoh(self.ta_state, self.ta_state_gpu)
 			self.clause_weights = np.empty(self.number_of_outputs*self.number_of_clauses, dtype=np.int32)
 			cuda.memcpy_dtoh(self.clause_weights, self.clause_weights_gpu)
-		return((self.ta_state, self.clause_weights, self.number_of_outputs, self.number_of_clauses, self.number_of_literals, self.dim, self.patch_dim, self.number_of_patches, self.number_of_state_bits, self.number_of_ta_chunks, self.append_negated, self.min_y, self.max_y))
+		return((self.ta_state, self.clause_weights, self.number_of_outputs, self.number_of_clauses, self.number_of_literals, self.number_of_state_bits, self.number_of_ta_chunks, self.append_negated, self.min_y, self.max_y))
 
 	def set_state(self, state):
 		self.number_of_outputs = state[2]
