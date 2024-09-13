@@ -321,8 +321,6 @@ code_evaluate = """
 		__global__ void evaluate_packed(
 			unsigned int *included_literals,
 			unsigned int *included_literals_length,
-			unsigned int *excluded_literals,
-			unsigned int *excluded_literals_length,
 			int *clause_weights,
 			int *class_sum,
 			int number_of_nodes,
@@ -409,7 +407,6 @@ code_prepare = """
 		}
 
 		__global__ void prepare_packed(
-			curandState *state,
 			unsigned int *global_ta_state,
 			unsigned int *included_literals,
 			unsigned int *included_literals_length
@@ -418,7 +415,7 @@ code_prepare = """
 			int index = blockIdx.x * blockDim.x + threadIdx.x;
 			int stride = blockDim.x * gridDim.x;
 
-			curandState localState = state[index];
+			printf("LITERALS: %d\n", LITERALS);
 
 			for (unsigned long long clause = index; clause < CLAUSES; clause += stride) {
 				unsigned int *ta_state = &global_ta_state[clause*TA_CHUNKS*STATE_BITS];
@@ -434,8 +431,6 @@ code_prepare = """
 					}
 				}
 			}
-
-			state[index] = localState;
 		}
 	}
 """
@@ -554,21 +549,25 @@ code_encode = """
 			unsigned int *indices = &X_indices[X_indptr[e]];
 			int number_of_indices = X_indptr[e + 1] - X_indptr[e]; 
 
-			for (int k = index; k < number_of_indices; k += stride) {
-				int node_id = indices[k] / hypervector_size;
-				int feature = indices[k] % hypervector_size;
+			if (index == 0) {
+				for (int k = 0; k < number_of_indices; k += 1) {
+					int node_id = indices[k] / hypervector_size;
+					int feature = indices[k] % hypervector_size;
 
-				int chunk_nr = node_id / 32;
-				int chunk_pos = node_id % 32;
+					printf("%d %d (%d)\n", node_id, feature, indices[k]);
 
-				int encoded_feature = feature + hypervector_size * (depth - 1);
+					int chunk_nr = node_id / 32;
+					int chunk_pos = node_id % 32;
 
-				encoded_X[chunk_nr * number_of_literals + encoded_feature] |= (1U << chunk_pos);
+					int encoded_feature = feature + hypervector_size * (depth - 1);
 
-				if (append_negated) {
-					encoded_X[chunk_nr * number_of_literals + encoded_feature + number_of_features] &= ~(1U << chunk_pos);
-				}
-			}		
+					encoded_X[chunk_nr * number_of_literals + encoded_feature] |= (1U << chunk_pos);
+
+					if (append_negated) {
+						encoded_X[chunk_nr * number_of_literals + encoded_feature + number_of_features] &= ~(1U << chunk_pos);
+					}
+				}		
+			}
 		}
 
 		__global__ void restore_packed(
