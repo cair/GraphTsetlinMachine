@@ -78,16 +78,16 @@ class CommonTsetlinMachine():
 
 		mod_encode = SourceModule(kernels.code_encode, no_extern_c=True)
 		self.encode = mod_encode.get_function("encode")
-		self.encode.prepare("PPPiiiiiiii")
+		self.encode.prepare("PPPiiii")
 		
 		self.restore = mod_encode.get_function("restore")
-		self.restore.prepare("PPPiiiiiiii")
+		self.restore.prepare("PPPiiii")
 
 		self.encode_packed = mod_encode.get_function("encode_packed")
-		self.encode_packed.prepare("PPPiiiiiiii")
+		self.encode_packed.prepare("PPPiiii")
 		
 		self.restore_packed = mod_encode.get_function("restore_packed")
-		self.restore_packed.prepare("PPPiiiiiiii")
+		self.restore_packed.prepare("PPPiiii")
 
 		self.produce_autoencoder_examples= mod_encode.get_function("produce_autoencoder_example")
 		self.produce_autoencoder_examples.prepare("PPiPPiPPiPPiiii")
