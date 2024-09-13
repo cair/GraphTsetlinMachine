@@ -123,7 +123,7 @@ code_update = """
 						*clause_true_node = node;
 					}
 					output_one_nodes_count += 1;
-					printf("Node: %d\\n", *clause_true_node);
+					//printf("Node: %d\\n", *clause_true_node);
 				}
 			}
 		}
