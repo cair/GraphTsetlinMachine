@@ -396,8 +396,6 @@ class CommonTsetlinMachine():
 		for e in range(len(graphs.graphs)):
 			cuda.memcpy_htod(self.class_sum_gpu, class_sum[e,:])
 
-			print("Example", e)
-
 			self.encode_packed.prepared_call(
 				self.grid,
 				self.block,
