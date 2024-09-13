@@ -171,7 +171,7 @@ code_update = """
 				} else if (target*sign < 0 && clause_output) {
 					// Type II Feedback
 
-					if ((*clause_weight) - sign) != 0) {
+					if ((*clause_weight) - sign != 0) {
 						(*clause_weight) -= sign;
 					}
 					#if NEGATIVE_CLAUSES == 0
