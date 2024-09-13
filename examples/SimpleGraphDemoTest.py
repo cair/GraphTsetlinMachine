@@ -22,10 +22,11 @@ for i in range(number_of_training_examples):
     # Select class
     Y_train[i] = np.random.randint(number_of_classes) 
 
-    for j in range(10):
+    nodes = 2
+    for j in range(nodes):
         sequence_graph.add_node(j)
 
-    j = np.random.randint(10)
+    j = np.random.randint(nodes)
 
     if Y_train[i] == 0:
         sequence_graph.add_feature(j, 'A')
