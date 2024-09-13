@@ -246,7 +246,7 @@ class CommonTsetlinMachine():
 
 		encoded_X = np.zeros((graphs.max_node_count, self.number_of_ta_chunks), dtype=np.uint32)
 		if self.append_negated:
-			for n in range(self.max_node_count):
+			for n in range(graphs.max_node_count):
 				for k in range(self.number_of_features, self.number_of_features*2):
 					chunk = k // 32
 					pos = k % 32
