@@ -415,8 +415,6 @@ code_prepare = """
 			int index = blockIdx.x * blockDim.x + threadIdx.x;
 			int stride = blockDim.x * gridDim.x;
 
-			printf("LITERALS: %d\\n", LITERALS);
-
 			for (unsigned long long clause = index; clause < CLAUSES; clause += stride) {
 				unsigned int *ta_state = &global_ta_state[clause*TA_CHUNKS*STATE_BITS];
 
