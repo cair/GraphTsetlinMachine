@@ -59,6 +59,8 @@ for i in range(number_of_training_examples):
 
     graphs_train.add(sequence_graph)
 
+graphs_train.encode()
+
 print(graphs_train.hypervectors)
 print(graphs_train.edge_type_id)
 print(graphs_train.node_count)
