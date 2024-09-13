@@ -310,8 +310,6 @@ class CommonTsetlinMachine():
 		class_sum = np.zeros(self.number_of_outputs).astype(np.int32)
 		for epoch in range(epochs):
 			for e in range(graphs.X.shape[0]):
-				print("1")
-
 				cuda.memcpy_htod(self.class_sum_gpu, class_sum)
 
 				self.encode.prepared_call(
@@ -327,12 +325,8 @@ class CommonTsetlinMachine():
 				)
 				cuda.Context.synchronize()
 
-				print("2")
-
 				self.evaluate_update.prepared_call(self.grid, self.block, self.ta_state_gpu, self.clause_weights_gpu, self.class_sum_gpu, graphs.node_count[e], self.encoded_X_gpu)
 				cuda.Context.synchronize()
-
-				print("3")
 
 				self.update.prepared_call(
 					self.grid,
@@ -348,8 +342,6 @@ class CommonTsetlinMachine():
 				)
 				cuda.Context.synchronize()
 
-				print("4")
-
 				self.restore.prepared_call(
 					self.grid,
 					self.block,
@@ -362,8 +354,6 @@ class CommonTsetlinMachine():
 					np.int32(self.append_negated)
 				)
 				cuda.Context.synchronize()
-
-				print("5")
 
 		self.ta_state = np.array([])
 		self.clause_weights = np.array([])
@@ -392,6 +382,8 @@ class CommonTsetlinMachine():
 
 			self.edges_test_data_gpu = cuda.mem_alloc(graphs.edges.data.nbytes)
 			cuda.memcpy_htod(self.edges_test_data_gpu, graphs.edges.data)
+
+		return
 
 		self.prepare_packed(
 			g.state,
