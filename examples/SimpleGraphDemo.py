@@ -50,7 +50,12 @@ for i in range(number_of_training_examples):
     print("Position", position)
 
     for p in range(position, position + Y_train[i] + 1):
-        sequence_graph.add_feature(p, 'A')
+        if target == 0:
+            sequence_graph.add_feature(p, 'A')
+        elif target == 1:
+            sequence_graph.add_feature(p, 'B')
+        else:
+            sequence_graph.add_feature(p, 'C')
 
     graphs_train.add(sequence_graph)
 
