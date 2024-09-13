@@ -36,7 +36,7 @@ for i in range(number_of_training_examples):
     # Select class
     Y_train[i] = np.random.randint(number_of_classes) 
 
-    print("Target", Y[i])
+    print("Target", Y_train[i])
 
     # Add features
     if sequence_length-Y[i]-1 == 0:
