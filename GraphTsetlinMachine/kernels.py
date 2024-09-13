@@ -107,8 +107,8 @@ code_update = """
 			for (int node = 0; node < number_of_nodes; ++node) {
 				printf("NODE:%d\\n", node);
 				for (int k = 0; k < LITERALS; ++k) {
-					chunk = k / 32;
-					pos = k % 32;
+					int chunk = k / 32;
+					int pos = k % 32;
 
 					if (X[node*TA_CHUNKS + chunk] & (1 << pos)) {
 						printf("%d ", 1);
