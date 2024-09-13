@@ -272,7 +272,6 @@ class CommonTsetlinMachine():
 		self.initialized = True
 
 	def _init_fit(self, graphs, encoded_Y, incremental):
-		print("HELLO")
 		if not self.initialized:
 			self._init(graphs)
 			self.prepare(g.state, self.ta_state_gpu, self.clause_weights_gpu, grid=self.grid, block=self.block)
@@ -305,14 +304,14 @@ class CommonTsetlinMachine():
 			self.encoded_Y_gpu = cuda.mem_alloc(encoded_Y.nbytes)
 			cuda.memcpy_htod(self.encoded_Y_gpu, encoded_Y)
 
-		print("DONE")
-
 	def _fit(self, graphs, encoded_Y, epochs=100, incremental=False):
 		self._init_fit(graphs, encoded_Y, incremental)
 
 		class_sum = np.zeros(self.number_of_outputs).astype(np.int32)
 		for epoch in range(epochs):
 			for e in range(graphs.X.shape[0]):
+				print("1")
+
 				cuda.memcpy_htod(self.class_sum_gpu, class_sum)
 
 				self.encode.prepared_call(
@@ -328,8 +327,12 @@ class CommonTsetlinMachine():
 				)
 				cuda.Context.synchronize()
 
+				print("2")
+
 				self.evaluate_update.prepared_call(self.grid, self.block, self.ta_state_gpu, self.clause_weights_gpu, self.class_sum_gpu, graphs.node_count[e], self.encoded_X_gpu)
 				cuda.Context.synchronize()
+
+				print("3")
 
 				self.update.prepared_call(
 					self.grid,
@@ -345,8 +348,22 @@ class CommonTsetlinMachine():
 				)
 				cuda.Context.synchronize()
 
-				self.restore.prepared_call(self.grid, self.block, self.X_train_indptr_gpu, self.X_train_indices_gpu, self.encoded_X_gpu, np.int32(e), np.int32(self.hypervector_size), np.int32(self.depth), np.int32(self.append_negated))
+				print("4")
+
+				self.restore.prepared_call(
+					self.grid,
+					self.block,
+					self.X_train_indptr_gpu,
+					self.X_train_indices_gpu,
+					self.encoded_X_gpu,
+					np.int32(e),
+					np.int32(self.hypervector_size),
+					np.int32(self.depth),
+					np.int32(self.append_negated)
+				)
 				cuda.Context.synchronize()
+
+				print("5")
 
 		self.ta_state = np.array([])
 		self.clause_weights = np.array([])
