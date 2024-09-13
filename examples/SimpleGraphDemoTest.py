@@ -5,7 +5,7 @@ from scipy.sparse import csr_matrix
 from GraphTsetlinMachine.tm import MultiClassGraphTsetlinMachine
 from time import time
 
-epochs = 25
+epochs = 1000
 
 number_of_training_examples = 10
 
