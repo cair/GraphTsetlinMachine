@@ -105,7 +105,7 @@ code_update = """
 
 			//printf("START\\n");
 			for (int node = 0; node < number_of_nodes; ++node) {
-				p//rintf("NODE:%d\\n", node);
+				//printf("NODE:%d\\n", node);
 				for (int k = 0; k < LITERALS; ++k) {
 					int chunk = k / 32;
 					int pos = k % 32;
