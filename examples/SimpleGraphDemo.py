@@ -67,7 +67,7 @@ for i in range(epochs):
 
     result_train = 100*(tm.predict(graphs_train) == Y_train).mean()
 
-    print("%d %d %.2f %.2f %.2f %.2f" % (e, i, result_train, result_test, stop_training-start_training, stop_testing-start_testing))
+    print("%d %.2f %.2f %.2f %.2f" % (i, result_train, result_test, stop_training-start_training, stop_testing-start_testing))
 
 print(graphs_train.X)
 print()
