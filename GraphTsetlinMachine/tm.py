@@ -272,6 +272,7 @@ class CommonTsetlinMachine():
 		self.initialized = True
 
 	def _init_fit(self, graphs, encoded_Y, incremental):
+		print("HELLO")
 		if not self.initialized:
 			self._init(graphs)
 			self.prepare(g.state, self.ta_state_gpu, self.clause_weights_gpu, grid=self.grid, block=self.block)
@@ -303,6 +304,8 @@ class CommonTsetlinMachine():
 
 			self.encoded_Y_gpu = cuda.mem_alloc(encoded_Y.nbytes)
 			cuda.memcpy_htod(self.encoded_Y_gpu, encoded_Y)
+
+		print("DONE")
 
 	def _fit(self, graphs, encoded_Y, epochs=100, incremental=False):
 		self._init_fit(graphs, encoded_Y, incremental)
