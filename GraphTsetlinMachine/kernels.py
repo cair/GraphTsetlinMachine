@@ -103,20 +103,20 @@ code_update = """
 			*clause_true_node = -1;
 			*clause_output = 0;
 
-			printf("START\\n");
+			//printf("START\\n");
 			for (int node = 0; node < number_of_nodes; ++node) {
-				printf("NODE:%d\\n", node);
+				p//rintf("NODE:%d\\n", node);
 				for (int k = 0; k < LITERALS; ++k) {
 					int chunk = k / 32;
 					int pos = k % 32;
 
-					if (X[node*TA_CHUNKS + chunk] & (1 << pos)) {
+					/*if (X[node*TA_CHUNKS + chunk] & (1 << pos)) {
 						printf("%d ", 1);
 					} else {
 						printf("%d ", 0);
-					}
+					}*/
 				}
-				printf("\\n");
+				//printf("\\n");
 
 				int node_clause_output = 1;
 				for (int ta_chunk = 0; ta_chunk < TA_CHUNKS-1; ++ta_chunk) {
@@ -131,7 +131,7 @@ code_update = """
 				}
 
 				if (node_clause_output) {
-					printf("%d %d\\n", node, output_one_nodes_count);
+					//printf("%d %d\\n", node, output_one_nodes_count);
 					if (output_one_nodes_count == 0) {
 						*clause_true_node = node;
 						*clause_output = 1;
@@ -143,7 +143,7 @@ code_update = """
 					output_one_nodes_count += 1;
 				}
 			}
-			printf("%d %d\\n", *clause_true_node, *clause_output);
+			//printf("%d %d\\n", *clause_true_node, *clause_output);
 		}
 
 		__device__ inline void update_clause(curandState *localState, int *clause_weight, unsigned int *ta_state, int clause_output, int clause_true_node, unsigned int *X, int y, int class_sum)
@@ -496,7 +496,7 @@ code_encode = """
 				int node_id = indices[k] / hypervector_size;
 				int feature = indices[k] % hypervector_size;
 				
-				printf("%d %d %d %d\\n", k, indices[k], node_id, feature);
+				//printf("%d %d %d %d\\n", k, indices[k], node_id, feature);
 
 				int chunk_nr = (feature + hypervector_size * (depth - 1)) / 32;
 				int chunk_pos = (feature + hypervector_size * (depth - 1)) % 32;
@@ -590,7 +590,7 @@ code_encode = """
 				int node_id = indices[k] / hypervector_size;
 				int feature = indices[k] % hypervector_size;
 
-				printf("%d %d (%d)\\n", node_id, feature, indices[k]);
+				//printf("%d %d (%d)\\n", node_id, feature, indices[k]);
 
 				int chunk_nr = node_id / 32;
 				int chunk_pos = node_id % 32;
