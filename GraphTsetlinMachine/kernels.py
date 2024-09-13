@@ -129,6 +129,7 @@ code_update = """
 					output_one_nodes_count += 1;
 				}
 			}
+			print("%d %d\\n", *clause_true_node, *clause_output);
 		}
 
 		__device__ inline void update_clause(curandState *localState, int *clause_weight, unsigned int *ta_state, int clause_output, int clause_true_node, unsigned int *X, int y, int class_sum)
