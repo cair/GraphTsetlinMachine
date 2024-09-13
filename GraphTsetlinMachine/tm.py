@@ -222,8 +222,7 @@ class CommonTsetlinMachine():
 #define Q %f
 #define MAX_INCLUDED_LITERALS %d
 #define NEGATIVE_CLAUSES %d
-#define NUMBER_OF_EXAMPLES %d
-""" % (self.number_of_outputs, self.number_of_clauses, self.number_of_literals, self.number_of_state_bits, self.boost_true_positive_feedback, self.s, self.T, self.q, self.max_included_literals, self.negative_clauses, X.shape[0])
+""" % (self.number_of_outputs, self.number_of_clauses, self.number_of_literals, self.number_of_state_bits, self.boost_true_positive_feedback, self.s, self.T, self.q, self.max_included_literals, self.negative_clauses)
 
 		mod_prepare = SourceModule(parameters + kernels.code_header + kernels.code_prepare, no_extern_c=True)
 		self.prepare = mod_prepare.get_function("prepare")
@@ -243,7 +242,7 @@ class CommonTsetlinMachine():
 		self.evaluate.prepare("PPPP")
 
 		self.evaluate_packed = mod_evaluate.get_function("evaluate_packed")
-		self.evaluate_packed.prepare("PPPPPPP")
+		self.evaluate_packed.prepare("PPPPPPiP")
 
 		encoded_X = np.zeros((graphs.max_node_count, self.number_of_ta_chunks), dtype=np.uint32)
 		if self.append_negated:
@@ -398,6 +397,7 @@ class CommonTsetlinMachine():
 				self.excluded_literals_length_gpu,
 				self.clause_weights_gpu,
 				self.class_sum_gpu,
+				np.int32(graphs.node_count[e]),
 				self.encoded_X_packed_gpu
 			)
 			cuda.Context.synchronize()
@@ -462,12 +462,14 @@ class MultiClassGraphTsetlinMachine(CommonTsetlinMachine):
 
 		self._fit(graphs, encoded_Y, epochs=epochs, incremental=incremental)
 
-	def score(self, X):
-		X = csr_matrix(X)
-		return self._score(X)
+	def score(self, graphs):
+		if not graphs.encoded:
+			graphs.encode(hypervector_size = self.hypervector_size, hypervector_bits = self.hypervector_bits)
+		
+		return self._score(graphs)
 
-	def predict(self, X):
-		return np.argmax(self.score(X), axis=1)
+	def predict(self, graphs):
+		return np.argmax(self.score(graphs), axis=1)
 
 class MultiOutputConvolutionalTsetlinMachine2D(CommonTsetlinMachine):
 	"""

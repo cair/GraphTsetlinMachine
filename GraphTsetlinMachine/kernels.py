@@ -335,7 +335,7 @@ code_evaluate = """
 			int node_chunks = (((number_of_nodes-1)/INT_SIZE + 1));
 			
 			unsigned int node_filter;
-			if (node_chunks % 32 != 0) {
+			if (node_chunks % INT_SIZE != 0) {
 				node_filter = (~(0xffffffff << (number_of_nodes % INT_SIZE)));
 			} else {
 				node_filter = 0xffffffff;
@@ -749,7 +749,7 @@ code_transform = """
 			int node_chunks = (((number_of_nodes-1)/INT_SIZE + 1));
 			
 			unsigned int node_filter;
-			if (node_chunks % 32 != 0) {
+			if (node_chunks % INT_SIZE != 0) {
 				node_filter = (~(0xffffffff << (number_of_nodes % INT_SIZE)));
 			} else {
 				node_filter = 0xffffffff;
