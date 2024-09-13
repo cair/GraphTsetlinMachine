@@ -105,6 +105,19 @@ code_update = """
 
 			printf("START\\n");
 			for (int node = 0; node < number_of_nodes; ++node) {
+				printf("NODE:%d\\n", node);
+				for (int k = 0; k < LITERALS; ++k) {
+					chunk = k / 32;
+					pos = k % 32;
+
+					if (X[node*TA_CHUNKS + chunk] & (1 << pos)) {
+						printf("%d ", 1);
+					} else {
+						printf("%d ", 0);
+					}
+				}
+				printf("\\n");
+
 				int node_clause_output = 1;
 				for (int ta_chunk = 0; ta_chunk < TA_CHUNKS-1; ++ta_chunk) {
 					if ((ta_state[ta_chunk*STATE_BITS + STATE_BITS - 1] & X[node*TA_CHUNKS + ta_chunk]) != ta_state[ta_chunk*STATE_BITS + STATE_BITS - 1]) {
