@@ -232,7 +232,7 @@ class CommonTsetlinMachine():
 
 		mod_update = SourceModule(parameters + kernels.code_header + kernels.code_update, no_extern_c=True)
 		self.update = mod_update.get_function("update")
-		self.update.prepare("PPPPPPi")
+		self.update.prepare("PPPPiPPi")
 
 		self.evaluate_update = mod_update.get_function("evaluate")
 		self.evaluate_update.prepare("PPPiP")
@@ -327,7 +327,18 @@ class CommonTsetlinMachine():
 				self.evaluate_update.prepared_call(self.grid, self.block, self.ta_state_gpu, self.clause_weights_gpu, self.class_sum_gpu, graphs.node_count[e], self.encoded_X_gpu)
 				cuda.Context.synchronize()
 
-				self.update.prepared_call(self.grid, self.block, g.state, self.ta_state_gpu, self.clause_weights_gpu, self.class_sum_gpu, graphs.node_count[e], self.encoded_X_gpu, self.encoded_Y_gpu, np.int32(e))
+				self.update.prepared_call(
+					self.grid,
+					self.block,
+					g.state,
+					self.ta_state_gpu,
+					self.clause_weights_gpu,
+					self.class_sum_gpu,
+					graphs.node_count[e],
+					self.encoded_X_gpu,
+					self.encoded_Y_gpu,
+					np.int32(e)
+				)
 				cuda.Context.synchronize()
 
 				self.restore.prepared_call(self.grid, self.block, self.X_train_indptr_gpu, self.X_train_indices_gpu, self.encoded_X_gpu, np.int32(e), np.int32(self.hypervector_size), np.int32(self.depth), np.int32(self.append_negated))
