@@ -19,12 +19,11 @@ Y_train = np.empty(number_of_training_examples, dtype=np.uint32)
 for i in range(number_of_training_examples):
     sequence_graph = Graph()
     
-    sequence_graph.add_node(0)
-
     # Select class
     Y_train[i] = np.random.randint(number_of_classes) 
 
-    #print("Target", Y_train[i])
+    for j in range(2):
+        sequence_graph.add_node(j)
 
     if Y_train[i] == 0:
         sequence_graph.add_feature(0, 'A')
