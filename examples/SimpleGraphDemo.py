@@ -10,8 +10,8 @@ max_sequence_length = 5
 
 number_of_classes = 2 # Must be less than or equal to max sequence length
 
-graphs = Graphs()
-Y = np.empty(number_of_training_examples, dtype=np.uint32)
+graphs_train = Graphs()
+Y_train = np.empty(number_of_training_examples, dtype=np.uint32)
 
 for i in range(number_of_training_examples):
     # Create graph
@@ -34,7 +34,7 @@ for i in range(number_of_training_examples):
             sequence_graph.add_edge(j, j+1, edge_type='right')
 
     # Select class
-    Y[i] = np.random.randint(number_of_classes) 
+    Y_train[i] = np.random.randint(number_of_classes) 
 
     print("Target", Y[i])
 
@@ -49,17 +49,26 @@ for i in range(number_of_training_examples):
     for p in range(position, position + Y[i] + 1):
         sequence_graph.add_feature(p, 'A')
 
-    graphs.add(sequence_graph)
+    graphs_train.add(sequence_graph)
 
-graphs.encode(hypervector_size=16, hypervector_bits=1)
-
-print(graphs.X)
+print(graphs_train.X)
 print()
-print(graphs.edges)
-print(graphs.hypervectors)
-print(graphs.edge_type_id)
-print(graphs.node_count)
+print(graphs_train.edges)
+print(graphs_train.hypervectors)
+print(graphs_train.edge_type_id)
+print(graphs_train.node_count)
 
 tm = MultiClassGraphTsetlinMachine(100, 1000, 1.0, hypervector_size=16, depth=1)
 
-tm.fit(graphs, Y)
+for i in range(epochs):
+    start_training = time()
+    tm.fit(graphs_train, Y_train, epochs=1, incremental=True)
+    stop_training = time()
+
+    start_testing = time()
+    result_test = 100*(tm.predict(graphs_train) == Y_train).mean()
+    stop_testing = time()
+
+    result_train = 100*(tm.predict(graphs_train) == Y_train).mean()
+
+    print("%d %d %.2f %.2f %.2f %.2f" % (e, i, result_train, result_test, stop_training-start_training, stop_testing-start_testing))
