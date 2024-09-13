@@ -7,7 +7,7 @@ from time import time
 
 epochs = 100
 
-number_of_training_examples = 1000
+number_of_training_examples = 10000
 
 max_sequence_length = 1
 
