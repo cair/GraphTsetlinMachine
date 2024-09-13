@@ -51,13 +51,6 @@ for i in range(number_of_training_examples):
 
     graphs_train.add(sequence_graph)
 
-print(graphs_train.X)
-print()
-print(graphs_train.edges)
-print(graphs_train.hypervectors)
-print(graphs_train.edge_type_id)
-print(graphs_train.node_count)
-
 tm = MultiClassGraphTsetlinMachine(100, 1000, 1.0, hypervector_size=16, depth=1)
 
 for i in range(epochs):
@@ -72,3 +65,10 @@ for i in range(epochs):
     result_train = 100*(tm.predict(graphs_train) == Y_train).mean()
 
     print("%d %d %.2f %.2f %.2f %.2f" % (e, i, result_train, result_test, stop_training-start_training, stop_testing-start_testing))
+
+print(graphs_train.X)
+print()
+print(graphs_train.edges)
+print(graphs_train.hypervectors)
+print(graphs_train.edge_type_id)
+print(graphs_train.node_count)
