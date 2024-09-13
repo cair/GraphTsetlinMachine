@@ -118,13 +118,14 @@ code_update = """
 				}
 
 				if (node_clause_output) {
+					printf("%d %d\\n", node, output_one_nodes_count);
 					if (output_one_nodes_count == 0) {
 						*clause_true_node = node;
 						*clause_output = 1;
-						printf("%d %d\\n", node, output_one_nodes_count);
+						printf("SELECTED\\n");
 					} else if ((curand(localState) % (output_one_nodes_count + 1)) == 0) {
 						*clause_true_node = node;
-						printf("%d %d\\n", node, output_one_nodes_count);
+						printf("SELECTED\\n")
 					}
 					output_one_nodes_count += 1;
 				}
