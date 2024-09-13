@@ -7,7 +7,7 @@ from time import time
 
 epochs = 25
 
-number_of_training_examples = 1000
+number_of_training_examples = 10
 
 max_sequence_length = 1
 
@@ -56,9 +56,9 @@ for i in range(epochs):
 
     print("%d %.2f %.2f %.2f %.2f" % (i, result_train, result_test, stop_training-start_training, stop_testing-start_testing))
 
-#print(graphs_train.X)
-#print()
-#print(graphs_train.edges)
+print(graphs_train.X)
+print()
+print(graphs_train.edges)
 print(graphs_train.hypervectors)
 print(graphs_train.edge_type_id)
 print(graphs_train.node_count)
