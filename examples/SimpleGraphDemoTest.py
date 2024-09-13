@@ -63,9 +63,9 @@ print(graphs_train.hypervectors)
 print(graphs_train.edge_type_id)
 print(graphs_train.node_count)
 
-weights = tm.get_state()[1]
+weights = tm.get_state()[1].reshape(-1, 2)
 for i in range(tm.number_of_clauses):
-        print("Clause #%d W:%d %d" % (j, weights[0], weights[1]), end=' ')
+        print("Clause #%d W:(%d %d)" % (i, weights[i,0], weights[i,1]), end=' ')
         l = []
         for k in range(16 * 2):
             if tm.ta_action(i, k):
