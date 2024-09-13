@@ -102,6 +102,8 @@ code_update = """
 			int output_one_nodes_count = 0;
 			*clause_true_node = -1;
 			*clause_output = 0;
+
+			printf("START\\n");
 			for (int node = 0; node < number_of_nodes; ++node) {
 				int node_clause_output = 1;
 				for (int ta_chunk = 0; ta_chunk < TA_CHUNKS-1; ++ta_chunk) {
@@ -119,11 +121,12 @@ code_update = """
 					if (output_one_nodes_count == 0) {
 						*clause_true_node = node;
 						*clause_output = 1;
+						printf("%d %d\\n", node, output_one_nodes_count);
 					} else if ((curand(localState) % (output_one_nodes_count + 1)) == 0) {
 						*clause_true_node = node;
+						printf("%d %d\\n", node, output_one_nodes_count);
 					}
 					output_one_nodes_count += 1;
-					//printf("Node: %d\\n", *clause_true_node);
 				}
 			}
 		}
