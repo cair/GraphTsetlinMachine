@@ -415,7 +415,7 @@ code_prepare = """
 			int index = blockIdx.x * blockDim.x + threadIdx.x;
 			int stride = blockDim.x * gridDim.x;
 
-			printf("LITERALS: %d", LITERALS);
+			printf("LITERALS: %d\\n", LITERALS);
 
 			for (unsigned long long clause = index; clause < CLAUSES; clause += stride) {
 				unsigned int *ta_state = &global_ta_state[clause*TA_CHUNKS*STATE_BITS];
@@ -554,7 +554,7 @@ code_encode = """
 					int node_id = indices[k] / hypervector_size;
 					int feature = indices[k] % hypervector_size;
 
-					printf(\"%d %d (%d)\", node_id, feature, indices[k]);
+					printf("%d %d (%d)\\n", node_id, feature, indices[k]);
 
 					int chunk_nr = node_id / 32;
 					int chunk_pos = node_id % 32;
