@@ -543,6 +543,10 @@ code_encode = """
 			int index = blockIdx.x * blockDim.x + threadIdx.x;
 			int stride = blockDim.x * gridDim.x;
 
+			if (index != 0) {
+				return;
+			}
+
 			int number_of_features = hypervector_size * depth;
 
 			int number_of_literals;
@@ -555,25 +559,23 @@ code_encode = """
 			unsigned int *indices = &X_indices[X_indptr[e]];
 			int number_of_indices = X_indptr[e + 1] - X_indptr[e]; 
 
-			if (index == 0) {
-				for (int k = 0; k < number_of_indices; k += 1) {
-					int node_id = indices[k] / hypervector_size;
-					int feature = indices[k] % hypervector_size;
+			for (int k = 0; k < number_of_indices; k += 1) {
+				int node_id = indices[k] / hypervector_size;
+				int feature = indices[k] % hypervector_size;
 
-					printf("%d %d (%d)\\n", node_id, feature, indices[k]);
+				printf("%d %d (%d)\\n", node_id, feature, indices[k]);
 
-					int chunk_nr = node_id / 32;
-					int chunk_pos = node_id % 32;
+				int chunk_nr = node_id / 32;
+				int chunk_pos = node_id % 32;
 
-					int encoded_feature = feature + hypervector_size * (depth - 1);
+				int encoded_feature = feature + hypervector_size * (depth - 1);
 
-					encoded_X[chunk_nr * number_of_literals + encoded_feature] |= (1U << chunk_pos);
+				encoded_X[chunk_nr * number_of_literals + encoded_feature] |= (1U << chunk_pos);
 
-					if (append_negated) {
-						encoded_X[chunk_nr * number_of_literals + encoded_feature + number_of_features] &= ~(1U << chunk_pos);
-					}
-				}		
-			}
+				if (append_negated) {
+					encoded_X[chunk_nr * number_of_literals + encoded_feature + number_of_features] &= ~(1U << chunk_pos);
+				}
+			}		
 		}
 
 		__global__ void restore_packed(
@@ -589,6 +591,10 @@ code_encode = """
 			int index = blockIdx.x * blockDim.x + threadIdx.x;
 			int stride = blockDim.x * gridDim.x;
 
+			if (index != 0) {
+				return;
+			}
+			
 			int number_of_features = hypervector_size * depth;
 
 			int number_of_literals;
