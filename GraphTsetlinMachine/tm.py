@@ -386,7 +386,6 @@ class CommonTsetlinMachine():
 		print("1")
 
 		self.prepare_packed(
-			g.state,
 			self.ta_state_gpu,
 			self.included_literals_gpu,
 			self.included_literals_length_gpu,
