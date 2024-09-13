@@ -495,7 +495,9 @@ code_encode = """
 			for (int k = 0; k < number_of_indices; k += 1) {
 				int node_id = indices[k] / hypervector_size;
 				int feature = indices[k] % hypervector_size;
-					
+				
+				printf("%d %d %d %d", k, indices[k], node_id, feature);
+
 				int chunk_nr = (feature + hypervector_size * (depth - 1)) / 32;
 				int chunk_pos = (feature + hypervector_size * (depth - 1)) % 32;
 
