@@ -103,13 +103,13 @@ class CommonTsetlinMachine():
 		self.included_literals_gpu = cuda.mem_alloc(self.number_of_clauses*self.number_of_literals*2*4) # Contains index and state of included literals per clause, none at start
 		self.included_literals_length_gpu = cuda.mem_alloc(self.number_of_clauses*4) # Number of included literals per clause
 
-	def ta_action(self, mc_tm_class, clause, ta):
+	def ta_action(self, clause, ta):
 		if np.array_equal(self.ta_state, np.array([])):
 			self.ta_state = np.empty(self.number_of_clauses*self.number_of_ta_chunks*self.number_of_state_bits, dtype=np.uint32)
 			cuda.memcpy_dtoh(self.ta_state, self.ta_state_gpu)
 		ta_state = self.ta_state.reshape((self.number_of_clauses, self.number_of_ta_chunks, self.number_of_state_bits))
 
-		return (ta_state[mc_tm_class, clause, ta // 32, self.number_of_state_bits-1] & (1 << (ta % 32))) > 0
+		return (ta_state[clause, ta // 32, self.number_of_state_bits-1] & (1 << (ta % 32))) > 0
 
 	def get_state(self):
 		if np.array_equal(self.clause_weights, np.array([])):
