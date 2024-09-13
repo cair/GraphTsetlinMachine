@@ -135,10 +135,10 @@ code_update = """
 					if (output_one_nodes_count == 0) {
 						*clause_true_node = node;
 						*clause_output = 1;
-						printf("SELECTED\\n");
+						//printf("SELECTED\\n");
 					} else if ((curand(localState) % (output_one_nodes_count + 1)) == 0) {
 						*clause_true_node = node;
-						printf("SELECTED\\n");
+						//printf("SELECTED\\n");
 					}
 					output_one_nodes_count += 1;
 				}
