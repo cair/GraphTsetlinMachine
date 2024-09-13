@@ -2,7 +2,7 @@ from GraphTsetlinMachine.graph import Graph
 from GraphTsetlinMachine.graph import Graphs
 import numpy as np
 from scipy.sparse import csr_matrix
-#from GraphTsetlinMachine.tm import MultiClassGraphTsetlinMachine
+from GraphTsetlinMachine.tm import MultiClassGraphTsetlinMachine
 
 number_of_training_examples = 10
 
@@ -62,4 +62,4 @@ print(graphs.node_count)
 
 tm = MultiClassGraphTsetlinMachine(100, 1000, 1.0, hypervector_size=16, depth=1)
 
-tm.fit(X_train, Y)
+tm.fit(graphs, Y)
