@@ -7,7 +7,7 @@ from time import time
 
 epochs = 100
 
-number_of_training_examples = 10000
+number_of_training_examples = 1000
 
 max_sequence_length = 1
 
@@ -43,7 +43,7 @@ print(graphs_train.hypervectors)
 print(graphs_train.edge_type_id)
 print(graphs_train.node_count)
 
-tm = MultiClassGraphTsetlinMachine(4, 40, 1.0, hypervector_size=16, hypervector_bits=1, depth=1)
+tm = MultiClassGraphTsetlinMachine(4, 40, 5.0, hypervector_size=16, hypervector_bits=1, depth=1)
 
 for i in range(epochs):
     start_training = time()
