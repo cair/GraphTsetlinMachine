@@ -3,6 +3,7 @@ from GraphTsetlinMachine.graph import Graphs
 import numpy as np
 from scipy.sparse import csr_matrix
 from GraphTsetlinMachine.tm import MultiClassGraphTsetlinMachine
+from time import time
 
 epochs = 5
 
