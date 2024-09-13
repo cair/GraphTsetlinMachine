@@ -383,8 +383,8 @@ class CommonTsetlinMachine():
 		)
 		cuda.Context.synchronize()
         
-		class_sum = np.zeros((X.shape[0], self.number_of_outputs), dtype=np.int32)
-		for e in range(X.shape[0]):
+		class_sum = np.zeros((len(graphs.graphs), self.number_of_outputs), dtype=np.int32)
+		for e in range(len(graphs.graphs)):
 			cuda.memcpy_htod(self.class_sum_gpu, class_sum[e,:])
 
 			self.encode_packed.prepared_call(
