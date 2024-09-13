@@ -42,7 +42,7 @@ for i in range(number_of_training_examples):
     if sequence_length-Y_train[i]-1 == 0:
         position = 0
     else:
-        position = np.random.randint(sequence_length-Y[i]-1)
+        position = np.random.randint(sequence_length-Y_train[i]-1)
 
     print("Position", position)
 
