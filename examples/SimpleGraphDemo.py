@@ -20,7 +20,7 @@ for i in range(number_of_training_examples):
     # Create graph
 
     sequence_length = np.random.randint(number_of_classes, max_sequence_length+1)
-    print("Length", sequence_length)
+    #print("Length", sequence_length)
 
     sequence_graph = Graph()
 
@@ -39,7 +39,7 @@ for i in range(number_of_training_examples):
     # Select class
     Y_train[i] = np.random.randint(number_of_classes) 
 
-    print("Target", Y_train[i])
+    #print("Target", Y_train[i])
 
     # Add features
     if sequence_length-Y_train[i]-1 == 0:
@@ -47,7 +47,7 @@ for i in range(number_of_training_examples):
     else:
         position = np.random.randint(sequence_length-Y_train[i]-1)
 
-    print("Position", position)
+    #print("Position", position)
 
     for p in range(position, position + Y_train[i] + 1):
         if Y_train[i] == 0:
@@ -74,9 +74,9 @@ for i in range(epochs):
 
     print("%d %.2f %.2f %.2f %.2f" % (i, result_train, result_test, stop_training-start_training, stop_testing-start_testing))
 
-print(graphs_train.X)
-print()
-print(graphs_train.edges)
+#print(graphs_train.X)
+#print()
+#print(graphs_train.edges)
 print(graphs_train.hypervectors)
 print(graphs_train.edge_type_id)
 print(graphs_train.node_count)
