@@ -22,7 +22,7 @@ for i in range(number_of_training_examples):
     # Select class
     Y_train[i] = np.random.randint(number_of_classes) 
 
-    nodes = 100
+    nodes = 1000
     for j in range(nodes):
         sequence_graph.add_node(j)
 
@@ -35,7 +35,7 @@ for i in range(number_of_training_examples):
 
     graphs_train.add(sequence_graph)
 
-Y_train = np.where(np.random.rand(number_of_training_examples) <= 0.1, 1 - Y_train, Y_train)  # Adds noise
+Y_train = np.where(np.random.rand(number_of_training_examples) < 0, 1 - Y_train, Y_train)  # Adds noise
 
 graphs_train.encode(hypervector_size=16, hypervector_bits=1)
 
@@ -43,7 +43,7 @@ print(graphs_train.hypervectors)
 print(graphs_train.edge_type_id)
 print(graphs_train.node_count)
 
-tm = MultiClassGraphTsetlinMachine(4, 40, 5.0, hypervector_size=16, hypervector_bits=1, depth=1)
+tm = MultiClassGraphTsetlinMachine(10, 80, 5.0, hypervector_size=256, hypervector_bits=3, depth=1)
 
 for i in range(epochs):
     start_training = time()
