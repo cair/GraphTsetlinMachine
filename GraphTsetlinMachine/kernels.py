@@ -99,24 +99,15 @@ code_update = """
 		__device__ inline void calculate_clause_output(curandState *localState, unsigned int *ta_state, unsigned int *clause_output, int *clause_true_node, int number_of_nodes, unsigned int *X)
 		{
 			// Evaluate each node (convolution)
-			int output_one_nodes_count = 0;
+			int output_one_node_count = 0;
 			*clause_true_node = -1;
 			*clause_output = 0;
 
-			//printf("START\\n");
 			for (int node = 0; node < number_of_nodes; ++node) {
-				//printf("NODE:%d\\n", node);
 				for (int k = 0; k < LITERALS; ++k) {
 					int chunk = k / 32;
 					int pos = k % 32;
-
-					/*if (X[node*TA_CHUNKS + chunk] & (1 << pos)) {
-						printf("%d ", 1);
-					} else {
-						printf("%d ", 0);
-					}*/
 				}
-				//printf("\\n");
 
 				int node_clause_output = 1;
 				for (int ta_chunk = 0; ta_chunk < TA_CHUNKS-1; ++ta_chunk) {
@@ -131,19 +122,15 @@ code_update = """
 				}
 
 				if (node_clause_output) {
-					//printf("%d %d\\n", node, output_one_nodes_count);
-					if (output_one_nodes_count == 0) {
+					if (output_one_node_count == 0) {
 						*clause_true_node = node;
 						*clause_output = 1;
-						//printf("SELECTED\\n");
-					} else if ((curand(localState) % (output_one_nodes_count + 1)) == 0) {
+					} else if ((curand(localState) % (output_one_node_count + 1)) == 0) {
 						*clause_true_node = node;
-						//printf("SELECTED\\n");
 					}
-					output_one_nodes_count += 1;
+					output_one_node_count += 1;
 				}
 			}
-			//printf("%d %d\\n", *clause_true_node, *clause_output);
 		}
 
 		__device__ inline void update_clause(curandState *localState, int *clause_weight, unsigned int *ta_state, int clause_output, int clause_true_node, unsigned int *X, int y, int class_sum)
