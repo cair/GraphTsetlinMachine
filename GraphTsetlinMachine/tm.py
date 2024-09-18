@@ -46,7 +46,6 @@ class CommonTsetlinMachine():
 			max_included_literals=None,
 			boost_true_positive_feedback=1,
 			number_of_state_bits=8,
-			append_negated=True,
 			depth=1,
 			grid=(16*13*4,1,1),
 			block=(128,1,1)
@@ -61,7 +60,6 @@ class CommonTsetlinMachine():
 		self.q = q
 		self.max_included_literals = max_included_literals
 		self.boost_true_positive_feedback = boost_true_positive_feedback
-		self.append_negated = append_negated
 		self.depth = depth
 		self.grid = grid
 		self.block = block
@@ -94,7 +92,7 @@ class CommonTsetlinMachine():
 			cuda.memcpy_dtoh(self.ta_state, self.ta_state_gpu)
 			self.clause_weights = np.empty(self.number_of_outputs*self.number_of_clauses, dtype=np.int32)
 			cuda.memcpy_dtoh(self.clause_weights, self.clause_weights_gpu)
-		return((self.ta_state, self.clause_weights, self.number_of_outputs, self.number_of_clauses, self.number_of_literals, self.depth, self.number_of_state_bits, self.number_of_ta_chunks, self.append_negated, self.min_y, self.max_y))
+		return((self.ta_state, self.clause_weights, self.number_of_outputs, self.number_of_clauses, self.number_of_literals, self.depth, self.number_of_state_bits, self.number_of_ta_chunks, self.min_y, self.max_y))
 
 	def set_state(self, state):
 		self.number_of_outputs = state[2]
@@ -103,7 +101,6 @@ class CommonTsetlinMachine():
 		self.depth = state[7]
 		self.number_of_state_bits = state[8]
 		self.number_of_ta_chunks = state[9]
-		self.append_negated = state[10]
 		self.min_y = state[11]
 		self.max_y = state[12]
 		
@@ -122,11 +119,8 @@ class CommonTsetlinMachine():
 
 	def _init(self, graphs):
 		self.number_of_features = graphs.hypervector_size
-		if self.append_negated:
-			self.number_of_literals = self.number_of_features*2
-		else:
-			self.number_of_literals = self.number_of_features
-
+		self.number_of_literals = self.number_of_features*2
+		
 		if self.max_included_literals == None:
 			self.max_included_literals = self.number_of_literals
 
@@ -270,7 +264,6 @@ class MultiClassGraphTsetlinMachine(CommonTsetlinMachine):
 			max_included_literals=None,
 			boost_true_positive_feedback=1,
 			number_of_state_bits=8,
-			append_negated=True,
 			depth=1,
 			grid=(16*13*4,1,1),
 			block=(128,1,1)
@@ -283,7 +276,6 @@ class MultiClassGraphTsetlinMachine(CommonTsetlinMachine):
 			max_included_literals=max_included_literals,
 			boost_true_positive_feedback=boost_true_positive_feedback,
 			number_of_state_bits=number_of_state_bits,
-			append_negated=append_negated,
 			depth=depth,
 			grid=grid,
 			block=block
