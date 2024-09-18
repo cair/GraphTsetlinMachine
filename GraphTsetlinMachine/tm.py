@@ -98,11 +98,11 @@ class CommonTsetlinMachine():
 		self.number_of_outputs = state[2]
 		self.number_of_clauses = state[3]
 		self.number_of_literals = state[4]
-		self.depth = state[7]
-		self.number_of_state_bits = state[8]
-		self.number_of_ta_chunks = state[9]
-		self.min_y = state[11]
-		self.max_y = state[12]
+		self.depth = state[5]
+		self.number_of_state_bits = state[6]
+		self.number_of_ta_chunks = state[7]
+		self.min_y = state[8]
+		self.max_y = state[9]
 		
 		self.ta_state_gpu = cuda.mem_alloc(self.depth*self.number_of_clauses*self.number_of_ta_chunks*self.number_of_state_bits*4)
 		self.clause_weights_gpu = cuda.mem_alloc(self.number_of_outputs*self.number_of_clauses*4)
