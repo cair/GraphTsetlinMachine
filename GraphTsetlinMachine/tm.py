@@ -266,8 +266,6 @@ class MultiClassGraphTsetlinMachine(CommonTsetlinMachine):
 			number_of_clauses,
 			T,
 			s,
-			dim,
-			patch_dim,
 			q=1.0,
 			max_included_literals=None,
 			boost_true_positive_feedback=1,
@@ -290,8 +288,6 @@ class MultiClassGraphTsetlinMachine(CommonTsetlinMachine):
 			grid=grid,
 			block=block
 		)
-		self.dim = dim
-		self.patch_dim = patch_dim
 		self.negative_clauses = 1
 
 	def fit(self, graphs, Y, epochs=100, incremental=False):

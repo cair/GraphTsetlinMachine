@@ -83,7 +83,7 @@ graphs_test.encode()
 
 print("Testing data produced")
 
-tm = MultiClassGraphTsetlinMachine(args.number_of_clauses, args.T, args.s, (1, 19*19, args.hypervector_size), (1, 1), max_included_literals=args.max_included_literals)
+tm = MultiClassGraphTsetlinMachine(args.number_of_clauses, args.T, args.s, max_included_literals=args.max_included_literals)
 
 for i in range(args.epochs):
     start_training = time()
