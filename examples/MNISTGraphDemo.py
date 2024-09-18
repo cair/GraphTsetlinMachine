@@ -17,7 +17,7 @@ Y_test = Y_test.astype(np.uint32)
 
 def default_args(**kwargs):
     parser = argparse.ArgumentParser()
-    parser.add_argument("--epochs", default=25, type=int)
+    parser.add_argument("--epochs", default=250, type=int)
     parser.add_argument("--number-of-clauses", default=20000, type=int)
     parser.add_argument("--T", default=25000, type=int)
     parser.add_argument("--s", default=10.0, type=float)
@@ -103,7 +103,7 @@ for i in range(tm.number_of_clauses):
         print("Clause #%d W:(%d %d)" % (i, weights[0,i], weights[1,i]), end=' ')
         l = []
         for k in range(args.hypervector_size * 2):
-            if tm.ta_action(i, k):
+            if tm.ta_action(0, i, k):
                 if k < args.hypervector_size:
                     l.append("x%d" % (k))
                 else:
