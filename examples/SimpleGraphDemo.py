@@ -38,13 +38,11 @@ for i in range(args.number_of_examples):
     # Select class
     Y_train[i] = np.random.randint(args.number_of_classes)
 
-    feature_pos = np.random.randint(number_of_nodes_train[i])
-    for j in range(number_of_nodes_train[i]):
-        if feature_pos == j:
-            if Y_train[i] == 0:
-                graphs_train.add_node_feature(i, j, 'A')
-            else:
-                graphs_train.add_node_feature(i, j, 'B')
+    j = np.random.randint(number_of_nodes_train[i])
+    if Y_train[i] == 0:
+        graphs_train.add_node_feature(i, j, 'A')
+    else:
+        graphs_train.add_node_feature(i, j, 'B')
    
 Y_train = np.where(np.random.rand(args.number_of_examples) < args.noise, 1 - Y_train, Y_train)  # Adds noise
 
@@ -61,13 +59,11 @@ for i in range(args.number_of_examples):
     # Select class
     Y_test[i] = np.random.randint(args.number_of_classes)
 
-    feature_pos = np.random.randint(number_of_nodes_test[i])
-    for j in range(number_of_nodes_test[i]):
-        if feature_pos == j:
-            if Y_test[i] == 0:
-                graphs_test.add_node_feature(i, j, 'A')
-            else:
-                graphs_test.add_node_feature(i, j, 'B')
+    j = np.random.randint(number_of_nodes_test[i])
+    if Y_test[i] == 0:
+        graphs_test.add_node_feature(i, j, 'A')
+    else:
+        graphs_test.add_node_feature(i, j, 'B')
    
 graphs_test.encode()
 
