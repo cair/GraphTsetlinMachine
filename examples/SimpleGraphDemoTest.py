@@ -73,9 +73,6 @@ graphs_test.encode()
 
 print(graphs_test.hypervectors)
 
-graphs_train.Y = Y_train
-graphs_test.Y = Y_test
-
 tm = MultiClassGraphTsetlinMachine(args.number_of_clauses, args.T, args.s, (1, args.max_sequence_length, args.hypervector_size), (1, 1), max_included_literals=args.max_included_literals)
 
 for i in range(args.epochs):
@@ -96,7 +93,7 @@ for i in range(tm.number_of_clauses):
         print("Clause #%d W:(%d %d)" % (i, weights[0,i], weights[1,i]), end=' ')
         l = []
         for k in range(args.hypervector_size * 2):
-            if tm.ta_action(i, k):
+            if tm.ta_action(0, i, k):
                 if k < args.hypervector_size:
                     l.append("x%d" % (k))
                 else:
