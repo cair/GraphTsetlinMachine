@@ -69,8 +69,8 @@ class Graphs():
 
 	def encode(self, hypervector_size=128, hypervector_bits=2):
 		self.number_of_nodes = np.empty(len(self.graph_id), dtype=np.uint32)
-		for i in range(self.number_of_nodes.shape[0]):
-			self.number_of_nodes[i] = len(self.graph_node_id[i])
+		for graph_id in range(self.number_of_nodes.shape[0]):
+			self.number_of_nodes[graph_id] = len(self.graph_node_id[graph_id])
 
 		self.node_index = np.zeros(self.number_of_nodes.shape[0], dtype=np.uint32)
 		self.node_index[1:] = np.add.accumulate(self.number_of_nodes[:-1])
@@ -102,7 +102,7 @@ class Graphs():
 		for graph_id in range(self.number_of_nodes.shape[0]):
 			for graph_node_id in range(self.number_of_nodes[graph_id]):
 				for symbol_id in self.graph_node_feature[graph_id][graph_node_id]:
-					self._add_node_feature(self.hypervectors, self.hypervector_size, self.node_index[i], i, symbol_id, self.X)
+					self._add_node_feature(self.hypervectors, self.hypervector_size, self.node_index[graph_id], graph_node_id, symbol_id, self.X)
 
 		m = hashlib.sha256()
 		m.update(self.X.data)
