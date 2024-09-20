@@ -101,8 +101,8 @@ for i in range(args.number_of_examples):
 
 graphs_test.encode()
 
-print(graphs_test.graph_node_edge)
-print(graphs_test.edge_id)
+print(graphs_test.graph_node_edge[0])
+print(graphs_test.graph_node_edge[1])
 
 tm = MultiClassGraphTsetlinMachine(args.number_of_clauses, args.T, args.s, max_included_literals=args.max_included_literals)
 
@@ -120,7 +120,6 @@ for i in range(args.epochs):
     print("%d %.2f %.2f %.2f %.2f" % (i, result_train, result_test, stop_training-start_training, stop_testing-start_testing))
 
 weights = tm.get_state()[1].reshape(2, -1)
-print(weights.shape)
 for i in range(tm.number_of_clauses):
         print("Clause #%d W:(%d %d)" % (i, weights[0,i], weights[1,i]), end=' ')
         l = []
