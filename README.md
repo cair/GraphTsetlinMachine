@@ -7,13 +7,13 @@ Implementation of the Graph Tsetlin Machine.
 ## Clause-Driven Message Passing
 
 <p align="center">
-  <img width="75%" src="https://github.com/cair/GraphTsetlinMachine/blob/main/figures/MessagePassing.png">
+  <img width="75%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/MessagePassing.png">
 </p>
 
 ## Deep Logical Learning and Reasoning
 
 <p align="center">
-  <img width="100%" src="https://github.com/cair/GraphTsetlinMachine/blob/main/figures/DeepLogicalLearningAndReasoning.png">
+  <img width="100%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/DeepLogicalLearningAndReasoning.png">
 </p>
 
 ## Examples
