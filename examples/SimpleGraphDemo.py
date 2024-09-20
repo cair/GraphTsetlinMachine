@@ -73,7 +73,7 @@ for i in range(args.number_of_examples):
     
     # Create nodes
 
-    number_of_nodes = np.random.randint(1, args.max_sequence_length)
+    number_of_nodes = 5#np.random.randint(1, args.max_sequence_length)
     for j in range(number_of_nodes):
         node_name = "N%d" % (j)
         graphs_test.add_graph_node(graph_name, node_name)
