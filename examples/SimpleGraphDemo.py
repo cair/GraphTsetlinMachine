@@ -91,7 +91,7 @@ for i in range(args.number_of_examples):
     # Add node edges
 
     for j in range(number_of_nodes):
-        graph_name = "G%d" % (i)
+        node_name = "N%d" % (j)
 
         if j > 0:
             previous_node_name = "N%d" % (j-1)
