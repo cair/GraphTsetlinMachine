@@ -45,6 +45,7 @@ for i in range(args.number_of_examples):
     Y_train[i] = np.random.randint(args.number_of_classes)
 
     j = np.random.randint(number_of_nodes)
+    node_name = "N%d" % (j)
     if Y_train[i] == 0:
         graphs_train.add_graph_node_feature(graph_name, node_name, 'A')
     else:
@@ -53,6 +54,8 @@ for i in range(args.number_of_examples):
     # Add node edges
 
     for j in range(number_of_nodes):
+        node_name = "N%d" % (j)
+
         if j > 0:
             previous_node_name = "N%d" % (j-1)
             graphs_train.add_graph_node_edge(graph_name, node_name, 'Plain', previous_node_name)
@@ -73,7 +76,7 @@ for i in range(args.number_of_examples):
     
     # Create nodes
 
-    number_of_nodes = 5#np.random.randint(1, args.max_sequence_length)
+    number_of_nodes = np.random.randint(1, args.max_sequence_length)
     for j in range(number_of_nodes):
         node_name = "N%d" % (j)
         graphs_test.add_graph_node(graph_name, node_name)
@@ -83,6 +86,7 @@ for i in range(args.number_of_examples):
     Y_test[i] = np.random.randint(args.number_of_classes)
 
     j = np.random.randint(number_of_nodes)
+    node_name = "N%d" % (j)
     if Y_test[i] == 0:
         graphs_test.add_graph_node_feature(graph_name, node_name, 'A')
     else:
@@ -102,9 +106,6 @@ for i in range(args.number_of_examples):
             graphs_test.add_graph_node_edge(graph_name, node_name, 'Plain', next_node_name)
 
 graphs_test.encode()
-
-print(graphs_test.graph_node_edge[0])
-print(graphs_test.graph_node_edge[1])
 
 tm = MultiClassGraphTsetlinMachine(args.number_of_clauses, args.T, args.s, max_included_literals=args.max_included_literals)
 
