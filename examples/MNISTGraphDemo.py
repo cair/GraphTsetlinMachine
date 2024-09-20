@@ -31,6 +31,8 @@ def default_args(**kwargs):
             setattr(args, key, value)
     return args
 
+args = default_args()
+
 number_of_nodes = 19*19
 
 graphs_train = Graphs()
