@@ -79,7 +79,7 @@ for i in range(X_test.shape[0]):
                     graphs_test.add_graph_node_feature(graph_name, node_name, k)
 
                 graphs_test.add_graph_node_feature(graph_name, node_name, "C:%d" % (q))
-                graphs_test.add_graph_node_feature(graph_name, node_nae, "R:%d" % (r))
+                graphs_test.add_graph_node_feature(graph_name, node_name, "R:%d" % (r))
 
 graphs_test.encode()
 
