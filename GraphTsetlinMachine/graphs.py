@@ -99,6 +99,11 @@ class Graphs():
 			pos = k % 32
 			self.X[:,chunk] |= (1 << pos)
 
+		for graph_id in range(self.number_of_nodes.shape[0]):
+			for graph_node_id in range(self.number_of_nodes[graph_id]):
+				for symbol_id in self.graph_node_feature[graph_id][graph_node_id]:
+					self._add_node_feature(self.hypervectors, self.hypervector_size, self.node_index[i], i, symbol_id, self.X)
+
 		m = hashlib.sha256()
 		m.update(self.X.data)
 		self.signature = m.digest()
