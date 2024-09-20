@@ -91,6 +91,8 @@ for i in range(args.number_of_examples):
     # Add node edges
 
     for j in range(number_of_nodes):
+        graph_name = "G%d" % (i)
+
         if j > 0:
             previous_node_name = "N%d" % (j-1)
             graphs_test.add_graph_node_edge(graph_name, node_name, 'Plain', previous_node_name)
