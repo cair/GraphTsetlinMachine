@@ -52,7 +52,7 @@ for i in range(X_train.shape[0]):
                     graphs_train.add_graph_node_feature(graph_name, node_name, k)
 
                 graphs_train.add_graph_node_feature(graph_name, node_name, "C:%d" % (q))
-                graphs_train.add_graph_node_feature(graph_name, node_nae, "R:%d" % (r))
+                graphs_train.add_graph_node_feature(graph_name, node_name, "R:%d" % (r))
 
 graphs_train.encode(hypervector_size=args.hypervector_size, hypervector_bits=args.hypervector_bits)
 
