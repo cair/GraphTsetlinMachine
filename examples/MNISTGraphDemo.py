@@ -33,51 +33,53 @@ def default_args(**kwargs):
 
 args = default_args()
 
-symbols = []
-for i in range(100):
-    symbols.append(i)
+number_of_nodes = 19*19
 
-for i in range(19):
-    symbols.append('c:' + str(i))
-    symbols.append('r:' + str(i))
-
-number_of_train_nodes = np.repeat(19*19, Y_train.shape[0]).astype(np.uint32)
-
-graphs_train = Graphs(number_of_train_nodes, symbols=symbols, hypervector_size=args.hypervector_size, hypervector_bits=args.hypervector_bits)
+graphs_train = Graphs()
 for i in range(X_train.shape[0]):
     if i % 1000 == 0:
         print(i, X_train.shape[0])
      
+    graph_name = "G%d" % (i)
+    graphs_train.add_graph(graph_name)
+
     windows = view_as_windows(X_train[i,:,:], (10, 10))
     for q in range(windows.shape[0]):
             for r in range(windows.shape[1]):
-                node_id = q*19 + r
+                node_name = "P%d:%d" % (q,r)
+                graphs_train.add_graph_node(graph_name, node_name)
+
                 patch = windows[q,r].reshape(-1).astype(np.uint32)
                 for k in patch.nonzero()[0]:
-                    graphs_train.add_node_feature(i, node_id, k)
-                graphs_train.add_node_feature(i, node_id, 'c:'+str(q))
-                graphs_train.add_node_feature(i, node_id, 'r:'+str(r))
+                    graphs_train.add_graph_node_feature(graph_name, node_name, k)
 
-graphs_train.encode()
+                graphs_train.add_graph_node_feature(graph_name, node_name, "C:%d" % (q))
+                graphs_train.add_graph_node_feature(graph_name, node_name, "R:%d" % (r))
+
+graphs_train.encode(hypervector_size=args.hypervector_size, hypervector_bits=args.hypervector_bits)
 
 print("Training data produced")
 
-number_of_test_nodes = np.repeat(19*19, Y_test.shape[0]).astype(np.uint32)
-
-graphs_test = Graphs(number_of_test_nodes, init_with=graphs_train)
+graphs_test = Graphs(init_with=graphs_train)
 for i in range(X_test.shape[0]):
     if i % 1000 == 0:
         print(i, X_test.shape[0])
      
+    graph_name = "G%d" % (i)
+    graphs_test.add_graph(graph_name)
+
     windows = view_as_windows(X_test[i,:,:], (10, 10))
     for q in range(windows.shape[0]):
             for r in range(windows.shape[1]):
-                node_id = q*19 + r
+                node_name = "P%d:%d" % (q,r)
+                graphs_test.add_graph_node(graph_name, node_name)
+
                 patch = windows[q,r].reshape(-1).astype(np.uint32)
                 for k in patch.nonzero()[0]:
-                    graphs_test.add_node_feature(i, node_id, k)
-                graphs_test.add_node_feature(i, node_id, 'c:'+str(q))
-                graphs_test.add_node_feature(i, node_id, 'r:'+str(r))
+                    graphs_test.add_graph_node_feature(graph_name, node_name, k)
+
+                graphs_test.add_graph_node_feature(graph_name, node_name, "C:%d" % (q))
+                graphs_test.add_graph_node_feature(graph_name, node_name, "R:%d" % (r))
 
 graphs_test.encode()
 
