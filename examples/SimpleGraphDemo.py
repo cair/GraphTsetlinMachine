@@ -33,10 +33,14 @@ for i in range(args.number_of_examples):
     graph_name = "G%d" % (i)
     graphs_train.add_graph(graph_name)
     
+    # Create nodes
+
     number_of_nodes = np.random.randint(1, args.max_sequence_length)
     for j in range(number_of_nodes):
         node_name = "N%d" % (j)
         graphs_train.add_graph_node(graph_name, node_name)
+
+    # Add node features
 
     Y_train[i] = np.random.randint(args.number_of_classes)
 
@@ -46,7 +50,18 @@ for i in range(args.number_of_examples):
     else:
         graphs_train.add_graph_node_feature(graph_name, node_name, 'B')
    
-Y_train = np.where(np.random.rand(args.number_of_examples) < args.noise, 1 - Y_train, Y_train)  # Adds noise
+    # Add node edges
+
+    for j in range(number_of_nodes):
+        if j > 0:
+            previous_node_name = "N%d" % (j-1)
+            graphs_train.add_graph_node_edge(graph_name, node_name, 'Plain', previous_node_name)
+        
+        if j < number_of_nodes-1:
+            next_node_name = "N%d" % (j+1)
+            graphs_train.add_graph_node_edge(graph_name, node_name, 'Plain', next_node_name)
+
+Y_train = np.where(np.random.rand(args.number_of_examples) < args.noise, 1 - Y_train, Y_train)  # Add noise
 
 graphs_train.encode(hypervector_size=args.hypervector_size, hypervector_bits=args.hypervector_bits)
 
@@ -56,10 +71,14 @@ for i in range(args.number_of_examples):
     graph_name = "G%d" % (i)
     graphs_test.add_graph(graph_name)
     
+    # Create nodes
+
     number_of_nodes = np.random.randint(1, args.max_sequence_length)
     for j in range(number_of_nodes):
         node_name = "N%d" % (j)
         graphs_test.add_graph_node(graph_name, node_name)
+
+    # Add node features
 
     Y_test[i] = np.random.randint(args.number_of_classes)
 
@@ -69,7 +88,21 @@ for i in range(args.number_of_examples):
     else:
         graphs_test.add_graph_node_feature(graph_name, node_name, 'B')
 
+    # Add node edges
+
+    for j in range(number_of_nodes):
+        if j > 0:
+            previous_node_name = "N%d" % (j-1)
+            graphs_test.add_graph_node_edge(graph_name, node_name, 'Plain', previous_node_name)
+        
+        if j < number_of_nodes-1:
+            next_node_name = "N%d" % (j+1)
+            graphs_test.add_graph_node_edge(graph_name, node_name, 'Plain', next_node_name)
+
 graphs_test.encode()
+
+print(graphs_test.graph_node_edge)
+print(graphs_test.edge_id)
 
 tm = MultiClassGraphTsetlinMachine(args.number_of_clauses, args.T, args.s, max_included_literals=args.max_included_literals)
 

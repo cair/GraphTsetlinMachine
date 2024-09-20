@@ -28,28 +28,38 @@ class Graphs():
 		self.node_id = {}
 		self.graph_node_id = {}
 		self.graph_node_feature = {}
+		self.graph_node_edge = {}
 
 		self.init_with = init_with
 		if self.init_with == None:
 			self.symbol_id = {}
+			self.edge_id = {}
 		else:
 			self.symbol_id = self.init_with.symbol_id
+			self.edge_id = self.init_with.edge_id
 
 	def add_graph(self, graph_name):
 		if graph_name not in self.graph_id:
 			self.graph_id[graph_name] = len(self.graph_id)
 			self.graph_node_id[self.graph_id[graph_name]] = {}
 			self.graph_node_feature[self.graph_id[graph_name]] = {}
+			self.graph_node_edge[self.graph_id[graph_name]] = {}
 
 	def add_graph_node(self, graph_name, node_name):
 		if node_name not in self.graph_node_id[self.graph_id[graph_name]]:
 			self.graph_node_id[self.graph_id[graph_name]][node_name] = len(self.graph_node_id[self.graph_id[graph_name]])
 			self.graph_node_feature[self.graph_id[graph_name]][self.graph_node_id[self.graph_id[graph_name]][node_name]] = {}
+			self.graph_node_edge[self.graph_id[graph_name]][self.graph_node_id[self.graph_id[graph_name]][node_name]] = {}
 
 	def add_graph_node_feature(self, graph_name, node_name, symbol_name):
 		if symbol_name not in self.symbol_id:
 			self.symbol_id[symbol_name] = len(self.symbol_id) 
 		self.graph_node_feature[self.graph_id[graph_name]][self.graph_node_id[self.graph_id[graph_name]][node_name]][self.symbol_id[symbol_name]] = 1
+
+	def add_graph_node_edge(self, graph_name, start_name, edge_name, end_name):
+		if edge_name not in self.edge_id:
+			self.edge_id[edge_name] = len(self.edge_id) 
+		self.graph_node_edge[self.graph_id[graph_name]][self.graph_node_id[self.graph_id[graph_name]][start_name]][self.graph_node_id[self.graph_id[graph_name]][end_name]] = self.edge_id[edge_name]
 
 	@staticmethod
 	@jit(nopython=True)
