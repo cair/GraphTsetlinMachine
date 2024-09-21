@@ -27,47 +27,83 @@ def default_args(**kwargs):
 
 args = default_args()
 
-graphs_train = Graphs()
+print("Creating training data")
+
+# Create train data
+
+graphs_train = Graphs(args.number_of_examples, symbol_names=['A', 'B'], hypervector_size=16, hypervector_bits=1)
+for graph_id in range(args.number_of_examples):
+    graphs_train.set_number_of_graph_nodes(graph_id, np.random.randint(1, args.max_sequence_length))
+
+graphs_train.prepare_node_configuration()
+
+for graph_id in range(args.number_of_examples):
+    for node_id in range(graphs_train.number_of_graph_nodes[graph_id]):
+        number_of_edges = 2 if node_id > 0 and node_id < graphs_train.number_of_graph_nodes[graph_id]-1 else 1
+        graphs_train.add_graph_node(graph_id, node_id, number_of_edges)
+
+graphs_train.prepare_edge_configuration()
+
 Y_train = np.empty(args.number_of_examples, dtype=np.uint32)
-for i in range(args.number_of_examples):
-    graph_name = "G%d" % (i)
-    graphs_train.add_graph(graph_name)
-    
-    number_of_nodes = np.random.randint(1, args.max_sequence_length)
-    for j in range(number_of_nodes):
-        node_name = "N%d" % (j)
-        graphs_train.add_graph_node(graph_name, node_name)
+for graph_id in range(args.number_of_examples):
+    for node_id in range(graphs_train.number_of_graph_nodes[graph_id]):
+        if node_id > 0:
+            destination_node_id = node_id - 1
+            edge_type = 0
+            graphs_train.add_graph_node_edge(graph_id, node_id, destination_node_id, edge_type)
 
-    Y_train[i] = np.random.randint(args.number_of_classes)
+        if node_id < graphs_train.number_of_graph_nodes[graph_id]-1:
+            destination_node_id = node_id + 1
+            edge_type = 0
+            graphs_train.add_graph_node_edge(graph_id, node_id, destination_node_id, edge_type)
 
-    j = np.random.randint(number_of_nodes)
-    if Y_train[i] == 0:
-        graphs_train.add_graph_node_feature(graph_name, node_name, 'A')
+    Y_train[graph_id] = np.random.randint(args.number_of_classes)
+    node_id = np.random.randint(graphs_train.number_of_graph_nodes[graph_id])
+    if Y_train[graph_id] == 0:
+        graphs_train.add_graph_node_feature(graph_id, node_id, 'A')
     else:
-        graphs_train.add_graph_node_feature(graph_name, node_name, 'B')
-   
-Y_train = np.where(np.random.rand(args.number_of_examples) < args.noise, 1 - Y_train, Y_train)  # Adds noise
+        graphs_train.add_graph_node_feature(graph_id, node_id, 'B')
+        
+Y_train = np.where(np.random.rand(args.number_of_examples) < args.noise, 1 - Y_train, Y_train)  # Add noise
 
-graphs_train.encode(hypervector_size=args.hypervector_size, hypervector_bits=args.hypervector_bits)
+graphs_train.encode()
 
-graphs_test = Graphs(init_with=graphs_train)
+# Create test data
+
+print("Creating testing data")
+
+graphs_test = Graphs(args.number_of_examples, init_with=graphs_train)
+for graph_id in range(args.number_of_examples):
+    graphs_test.set_number_of_graph_nodes(graph_id, np.random.randint(1, args.max_sequence_length))
+
+graphs_test.prepare_node_configuration()
+
+for graph_id in range(args.number_of_examples):
+    for node_id in range(graphs_test.number_of_graph_nodes[graph_id]):
+        number_of_edges = 2 if node_id > 0 and node_id < graphs_test.number_of_graph_nodes[graph_id]-1 else 1
+        graphs_test.add_graph_node(graph_id, node_id, number_of_edges)
+
+graphs_test.prepare_edge_configuration()
+
 Y_test = np.empty(args.number_of_examples, dtype=np.uint32)
-for i in range(args.number_of_examples):
-    graph_name = "G%d" % (i)
-    graphs_test.add_graph(graph_name)
-    
-    number_of_nodes = np.random.randint(1, args.max_sequence_length)
-    for j in range(number_of_nodes):
-        node_name = "N%d" % (j)
-        graphs_test.add_graph_node(graph_name, node_name)
+for graph_id in range(args.number_of_examples):
+    for node_id in range(graphs_test.number_of_graph_nodes[graph_id]):
+        if node_id > 0:
+            destination_node_id = node_id - 1
+            edge_type = 0
+            graphs_test.add_graph_node_edge(graph_id, node_id, destination_node_id, edge_type)
 
-    Y_test[i] = np.random.randint(args.number_of_classes)
+        if node_id < graphs_test.number_of_graph_nodes[graph_id]-1:
+            destination_node_id = node_id + 1
+            edge_type = 0
+            graphs_test.add_graph_node_edge(graph_id, node_id, destination_node_id, edge_type)
 
-    j = np.random.randint(number_of_nodes)
-    if Y_test[i] == 0:
-        graphs_test.add_graph_node_feature(graph_name, node_name, 'A')
+    Y_test[graph_id] = np.random.randint(args.number_of_classes)
+    node_id = np.random.randint(graphs_test.number_of_graph_nodes[graph_id])
+    if Y_test[graph_id] == 0:
+        graphs_test.add_graph_node_feature(graph_id, node_id, 'A')
     else:
-        graphs_test.add_graph_node_feature(graph_name, node_name, 'B')
+        graphs_test.add_graph_node_feature(graph_id, node_id, 'B')
 
 graphs_test.encode()
 
@@ -97,5 +133,3 @@ for i in range(tm.number_of_clauses):
                 else:
                     l.append("NOT x%d" % (k - args.hypervector_size))
         print(" AND ".join(l))
-
-print(graphs_train.hypervectors)

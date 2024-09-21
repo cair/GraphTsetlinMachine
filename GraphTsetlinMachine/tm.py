@@ -138,7 +138,7 @@ class CommonTsetlinMachine():
 #define MAX_INCLUDED_LITERALS %d
 #define NEGATIVE_CLAUSES %d
 #define NUMBER_OF_EXAMPLES %d
-""" % (self.number_of_outputs, self.number_of_clauses, self.number_of_literals, self.number_of_state_bits, self.boost_true_positive_feedback, self.s, self.T, self.q, self.max_included_literals, self.negative_clauses, graphs.number_of_nodes.shape[0])
+""" % (self.number_of_outputs, self.number_of_clauses, self.number_of_literals, self.number_of_state_bits, self.boost_true_positive_feedback, self.s, self.T, self.q, self.max_included_literals, self.negative_clauses, graphs.number_of_graphs)
 
 		mod_prepare = SourceModule(parameters + kernels.code_header + kernels.code_prepare, no_extern_c=True)
 		self.prepare = mod_prepare.get_function("prepare")
@@ -183,7 +183,7 @@ class CommonTsetlinMachine():
 		self._init_fit(graphs, encoded_Y, incremental)
 
 		for epoch in range(epochs):
-			for e in range(graphs.number_of_nodes.shape[0]):
+			for e in range(graphs.number_of_graphs):
 				class_sum = np.zeros(self.number_of_outputs).astype(np.int32)
 				cuda.memcpy_htod(self.class_sum_gpu, class_sum)
 
@@ -192,7 +192,7 @@ class CommonTsetlinMachine():
 					self.block,
 					self.ta_state_gpu,
 					self.clause_weights_gpu,
-					np.int32(graphs.number_of_nodes[e]),
+					np.int32(graphs.number_of_graph_nodes[e]),
 					np.int32(graphs.node_index[e]),
 					self.class_sum_gpu,
 					self.encoded_X_train_gpu
@@ -205,7 +205,7 @@ class CommonTsetlinMachine():
 					g.state,
 					self.ta_state_gpu,
 					self.clause_weights_gpu,
-					np.int32(graphs.number_of_nodes[e]),
+					np.int32(graphs.number_of_graph_nodes[e]),
 					np.int32(graphs.node_index[e]),
 					self.class_sum_gpu,
 					self.encoded_X_train_gpu,
@@ -230,8 +230,8 @@ class CommonTsetlinMachine():
 			self.encoded_X_test_gpu = cuda.mem_alloc(graphs.X.nbytes)
 			cuda.memcpy_htod(self.encoded_X_test_gpu, graphs.X)
         
-		class_sum = np.zeros((graphs.number_of_nodes.shape[0], self.number_of_outputs), dtype=np.int32)
-		for e in range(graphs.number_of_nodes.shape[0]):
+		class_sum = np.zeros((graphs.number_of_graphs, self.number_of_outputs), dtype=np.int32)
+		for e in range(graphs.number_of_graphs):
 			cuda.memcpy_htod(self.class_sum_gpu, class_sum[e,:])
 
 			self.evaluate.prepared_call(
@@ -239,7 +239,7 @@ class CommonTsetlinMachine():
 				self.block,
 				self.ta_state_gpu,
 				self.clause_weights_gpu,
-				np.int32(graphs.number_of_nodes[e]),
+				np.int32(graphs.number_of_graph_nodes[e]),
 				np.int32(graphs.node_index[e]),
 				self.class_sum_gpu,
 				self.encoded_X_test_gpu
