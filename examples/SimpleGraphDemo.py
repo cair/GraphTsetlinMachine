@@ -33,7 +33,7 @@ print("Creating training data")
 
 graphs_train = Graphs(args.number_of_examples, symbol_names=['A', 'B'], hypervector_size=16, hypervector_bits=1)
 for graph_id in range(args.number_of_examples):
-    graphs_train.set_number_of_graph_nodes(graph_id, np.random.randint(1, args.max_sequence_length))
+    graphs_train.set_number_of_graph_nodes(graph_id, 5)#np.random.randint(1, args.max_sequence_length))
 
 graphs_train.prepare_node_configuration()
 
@@ -73,7 +73,7 @@ print("Creating testing data")
 
 graphs_test = Graphs(args.number_of_examples, init_with = graphs_train)
 for graph_id in range(args.number_of_examples):
-    graphs_test.set_number_of_graph_nodes(graph_id, np.random.randint(1, args.max_sequence_length))
+    graphs_test.set_number_of_graph_nodes(graph_id, 5)#np.random.randint(1, args.max_sequence_length))
 
 graphs_test.prepare_node_configuration()
 
