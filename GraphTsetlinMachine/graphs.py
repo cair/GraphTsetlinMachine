@@ -26,10 +26,6 @@ class Graphs():
 	def __init__(self, number_of_graphs, hypervector_size = 128, hypervector_bits = 2, symbol_names=None, init_with=None):
 		self.number_of_graphs = number_of_graphs
 		self.number_of_graph_nodes = np.zeros(self.number_of_graphs, dtype=np.uint32)
-
-		self.hypervector_size = hypervector_size
-		self.hypervector_bits = hypervector_bits
-		self.number_of_hypervector_chunks = (self.hypervector_size*2 - 1) // 32 + 1
 		
 		self.graph_node_id = [None] * self.number_of_graphs
 		for i in range(number_of_graphs):
@@ -42,6 +38,7 @@ class Graphs():
 				self.symbol_id[symbol_name] = len(self.symbol_id)
 			self.hypervector_size = hypervector_size
 			self.hypervector_bits = hypervector_bits
+			self.number_of_hypervector_chunks = (self.hypervector_size*2 - 1) // 32 + 1
 
 			indexes = np.arange(self.hypervector_size, dtype=np.uint32)
 			self.hypervectors = np.zeros((len(self.symbol_id), self.hypervector_bits), dtype=np.uint32)
@@ -52,6 +49,7 @@ class Graphs():
 			self.hypervector_size = self.init_with.hypervector_size
 			self.hypervector_bits = self.init_with.hypervector_bits
 			self.hypervectors = self.init_with.hypervectors
+			self.number_of_hypervector_chunks = self.init_with.number_of_hypervector_chunks
 
 	def set_number_of_graph_nodes(self, graph_id, number_of_graph_nodes):
 		self.number_of_graph_nodes[graph_id] = number_of_graph_nodes
@@ -117,5 +115,3 @@ class Graphs():
 		self.signature = m.digest()
 
 		self.encoded = True
-
-		return
