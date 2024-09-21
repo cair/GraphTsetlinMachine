@@ -78,13 +78,7 @@ class Graphs():
 		self._add_node_feature(self.hypervectors, self.hypervector_size, self.node_index[graph], self.node_id[node_name], self.symbol_id[symbol], self.X)
 
 	def encode(self, hypervector_size=128, hypervector_bits=2):
-		self.number_of_nodes = np.empty(len(self.graph_id), dtype=np.uint32)
-		for graph_id in range(self.number_of_nodes.shape[0]):
-			self.number_of_nodes[graph_id] = len(self.graph_node_id[graph_id])
-
-		self.node_index = np.zeros(self.number_of_nodes.shape[0], dtype=np.uint32)
-		self.node_index[1:] = np.add.accumulate(self.number_of_nodes[:-1])
-		self.max_number_of_nodes = self.number_of_nodes.max()
+		# Create one hypervector per symbol
 
 		self.number_of_symbols = len(self.symbol_id)
 
@@ -103,6 +97,17 @@ class Graphs():
 
 		self.number_of_hypervector_chunks = (self.hypervector_size*2 - 1) // 32 + 1
 
+		# Encode graphs and nodes
+
+		self.number_of_nodes = np.empty(len(self.graph_id), dtype=np.uint32)
+		for graph_id in range(self.number_of_nodes.shape[0]):
+			self.number_of_nodes[graph_id] = len(self.graph_node_id[graph_id])
+
+		self.node_index = np.zeros(self.number_of_nodes.shape[0], dtype=np.uint32)
+		self.node_index[1:] = np.add.accumulate(self.number_of_nodes[:-1])
+
+		# Initialize node hypervectors
+
 		self.X = np.zeros((self.number_of_nodes.sum(), self.number_of_hypervector_chunks), dtype=np.uint32)
 		for k in range(self.hypervector_size, self.hypervector_size*2):
 			chunk = k // 32
@@ -114,8 +119,29 @@ class Graphs():
 				for symbol_id in self.graph_node_feature[graph_id][graph_node_id]:
 					self._add_node_feature(self.hypervectors, self.hypervector_size, self.node_index[graph_id], graph_node_id, symbol_id, self.X)
 
+		# Encode edges
+
+		self.number_of_edges = np.empty(self.number_of_nodes.sum(), dtype=np.uint32)
+		for graph_id in range(self.number_of_nodes.shape[0]):
+			for graph_node_id in range(self.number_of_nodes[graph_id]):
+				self.number_of_edges[self.node_index[graph_id] + graph_node_id] = len(self.graph_node_edge[graph_id][graph_node_id])
+		
+		self.edge_index = np.zeros(self.number_of_nodes.sum(), dtype=np.uint32)
+		self.edge_index[1:] = np.add.accumulate(self.number_of_edges[:-1])
+
+		self.edge_target = np.empty(self.number_of_edges.sum(), dtype=np.uint32)
+		self.edge_type = np.empty(self.number_of_edges.sum(), dtype=np.uint32)
+		for graph_id in range(self.number_of_nodes.shape[0]):
+			for graph_node_id in range(self.number_of_nodes[graph_id]):
+				edges = list(self.graph_node_edge[graph_id][graph_node_id].items())
+				for edge_id in range(self.number_of_edges[self.node_index[graph_id] + graph_node_id]):
+					self.edge_target[self.edge_index[self.node_index[graph_id] + graph_node_id] + edge_id] = edges[edge_id][0]
+					self.edge_type[self.edge_index[self.node_index[graph_id] + graph_node_id] + edge_id] = edges[edge_id][1]
+
 		m = hashlib.sha256()
 		m.update(self.X.data)
+		m.update(self.edge_target.data)
+		m.update(self.edge_type.data)
 		self.signature = m.digest()
 
 		self.encoded = True
