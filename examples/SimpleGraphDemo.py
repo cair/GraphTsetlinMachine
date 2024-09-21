@@ -1,7 +1,7 @@
 from GraphTsetlinMachine.graphs import Graphs
 import numpy as np
 from scipy.sparse import csr_matrix
-from GraphTsetlinMachine.tm import MultiClassGraphTsetlinMachine
+#from GraphTsetlinMachine.tm import MultiClassGraphTsetlinMachine
 from time import time
 import argparse
 
@@ -27,7 +27,37 @@ def default_args(**kwargs):
 
 args = default_args()
 
-graphs_train = Graphs()
+graphs_train = Graphs(args.number_of_examples, hypervector_size=16, hypervector_bits=1)
+for i in range(args.number_of_examples):
+    graphs_train.set_number_of_graph_nodes(i, 4)
+
+graphs_train.prepare_node_configuration()
+
+for graph_id in range(args.number_of_examples):
+    for node_id in range(graphs_train.number_of_graph_nodes[graph_id]):
+        number_of_edges = 2 if node_id > 0 and node_id < graphs_train.number_of_graph_nodes[graph_id]-1 else 1
+        graphs_train.add_graph_node(graph_id, node_id, number_of_edges)
+
+graphs_train.prepare_edge_configuration()
+
+for graph_id in range(args.number_of_examples):
+    for source_node_id in range(graphs_train.number_of_graph_nodes[graph_id]):
+        if source_node_id > 0:
+            destination_node_id = source_node_id - 1
+            edge_type = 0
+            graphs_train.add_graph_node_edge(graph_id, source_node_id, destination_node_id, edge_type)
+
+        if source_node_id < graphs_train.number_of_graph_nodes[graph_id]-1:
+            destination_node_id = source_node_id + 1
+            edge_type = 0
+            graphs_train.add_graph_node_edge(graph_id, source_node_id, destination_node_id, edge_type)
+
+print(graphs_train.number_of_graph_node_edges)
+print(graphs_train.edge_index)
+print(graphs_train.graph_node_edge.shape)
+print(graphs_train.graph_node_edge)
+freer
+
 Y_train = np.empty(args.number_of_examples, dtype=np.uint32)
 for i in range(args.number_of_examples):
     graph_name = "G%d" % (i)
@@ -35,7 +65,7 @@ for i in range(args.number_of_examples):
     
     # Create nodes
 
-    number_of_nodes = np.random.randint(1, args.max_sequence_length)
+    number_of_nodes = 4#np.random.randint(1, args.max_sequence_length)
     for j in range(number_of_nodes):
         node_name = "N%d" % (j)
         graphs_train.add_graph_node(graph_name, node_name)
@@ -68,7 +98,7 @@ Y_train = np.where(np.random.rand(args.number_of_examples) < args.noise, 1 - Y_t
 
 graphs_train.encode(hypervector_size=args.hypervector_size, hypervector_bits=args.hypervector_bits)
 
-graphs_test = Graphs(init_with=graphs_train)
+graphs_test = Graphs(args.number_of_examples, init_with=graphs_train)
 Y_test = np.empty(args.number_of_examples, dtype=np.uint32)
 for i in range(args.number_of_examples):
     graph_name = "G%d" % (i)
@@ -76,7 +106,7 @@ for i in range(args.number_of_examples):
     
     # Create nodes
 
-    number_of_nodes = np.random.randint(1, args.max_sequence_length)
+    number_of_nodes = 4#np.random.randint(1, args.max_sequence_length)
     for j in range(number_of_nodes):
         node_name = "N%d" % (j)
         graphs_test.add_graph_node(graph_name, node_name)
@@ -106,6 +136,8 @@ for i in range(args.number_of_examples):
             graphs_test.add_graph_node_edge(graph_name, node_name, 'Plain', next_node_name)
 
 graphs_test.encode()
+
+print(graphs_test.edge_target)
 
 tm = MultiClassGraphTsetlinMachine(args.number_of_clauses, args.T, args.s, max_included_literals=args.max_included_literals)
 
