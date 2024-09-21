@@ -10,10 +10,10 @@ from numba import jit
 
 (X_train, Y_train), (X_test, Y_test) = mnist.load_data()
 
-X_train = np.where(X_train > 75, 1, 0)
-X_test = np.where(X_test > 75, 1, 0)
-Y_train = Y_train.astype(np.uint32)
-Y_test = Y_test.astype(np.uint32)
+X_train = np.where(X_train > 75, 1, 0)[0:1000]
+X_test = np.where(X_test > 75, 1, 0)[0:1000]
+Y_train = Y_train.astype(np.uint32)[0:1000]
+Y_test = Y_test.astype(np.uint32)[0:1000]
 
 def default_args(**kwargs):
     parser = argparse.ArgumentParser()
@@ -33,53 +33,77 @@ def default_args(**kwargs):
 
 args = default_args()
 
-number_of_nodes = 19*19
+patch_size = 10
+dim = 28 - patch_size + 1
 
-graphs_train = Graphs()
-for i in range(X_train.shape[0]):
-    if i % 1000 == 0:
-        print(i, X_train.shape[0])
+number_of_nodes = dim * dim
+
+symbol_names = []
+
+# Column and row symbols
+for i in range(dim):
+    symbol_names.append("C:%d" % (i))
+    symbol_names.append("R:%d" % (i))
+
+# Patch pixel symbols
+for i in range(patch_size*patch_size)
+    symbol_names.append(i)
+
+graphs_train = Graphs(X_train.shape[0], symbol_names=symbol_names, hypervector_size=args.hypervector_size, hypervector_bits=args.hypervector_bits)
+for graph_id in range(X_train.shape[0]):
+    graphs_train.set_number_of_graph_nodes(graph_id, number_of_nodes)
+
+graphs_train.prepare_node_configuration()
+
+for graph_id in range(X_train.shape[0]):
+    for node_id in range(graphs_train.number_of_graph_nodes[graph_id]):
+        graphs_train.add_graph_node(graph_id, node_id, 0)
+
+for graph_id in range(X_train.shape[0]):
+    if graph_id % 1000 == 0:
+        print(graph_id, X_train.shape[0])
      
-    graph_name = "G%d" % (i)
-    graphs_train.add_graph(graph_name)
-
-    windows = view_as_windows(X_train[i,:,:], (10, 10))
+    windows = view_as_windows(X_train[graph_id,:,:], (10, 10))
     for q in range(windows.shape[0]):
             for r in range(windows.shape[1]):
-                node_name = "P%d:%d" % (q,r)
-                graphs_train.add_graph_node(graph_name, node_name)
+                node_id = q*dim + r
 
                 patch = windows[q,r].reshape(-1).astype(np.uint32)
                 for k in patch.nonzero()[0]:
-                    graphs_train.add_graph_node_feature(graph_name, node_name, k)
+                    graphs_train.add_graph_node_feature(graph_id, node_id, k)
 
-                graphs_train.add_graph_node_feature(graph_name, node_name, "C:%d" % (q))
-                graphs_train.add_graph_node_feature(graph_name, node_name, "R:%d" % (r))
+                graphs_train.add_graph_node_feature(graph_id, node_id, "C:%d" % (q))
+                graphs_train.add_graph_node_feature(graph_id, node_id, "R:%d" % (r))
 
-graphs_train.encode(hypervector_size=args.hypervector_size, hypervector_bits=args.hypervector_bits)
+graphs_train.encode()
 
 print("Training data produced")
 
-graphs_test = Graphs(init_with=graphs_train)
-for i in range(X_test.shape[0]):
-    if i % 1000 == 0:
-        print(i, X_test.shape[0])
-     
-    graph_name = "G%d" % (i)
-    graphs_test.add_graph(graph_name)
+graphs_test = Graphs(X_test.shape[0], init_with=graphs_train)
+for graph_id in range(X_test.shape[0]):
+    graphs_test.set_number_of_graph_nodes(graph_id, number_of_nodes)
 
-    windows = view_as_windows(X_test[i,:,:], (10, 10))
+graphs_test.prepare_node_configuration()
+
+for graph_id in range(X_test.shape[0]):
+    for node_id in range(graphs_test.number_of_graph_nodes[graph_id]):
+        graphs_test.add_graph_node(graph_id, node_id, 0)
+
+for graph_id in range(X_test.shape[0]):
+    if graph_id % 1000 == 0:
+        print(graph_id, X_test.shape[0])
+     
+    windows = view_as_windows(X_test[graph_id,:,:], (10, 10))
     for q in range(windows.shape[0]):
             for r in range(windows.shape[1]):
-                node_name = "P%d:%d" % (q,r)
-                graphs_test.add_graph_node(graph_name, node_name)
+                node_id = q*dim + r
 
                 patch = windows[q,r].reshape(-1).astype(np.uint32)
                 for k in patch.nonzero()[0]:
-                    graphs_test.add_graph_node_feature(graph_name, node_name, k)
+                    graphs_test.add_graph_node_feature(graph_id, node_id, k)
 
-                graphs_test.add_graph_node_feature(graph_name, node_name, "C:%d" % (q))
-                graphs_test.add_graph_node_feature(graph_name, node_name, "R:%d" % (r))
+                graphs_test.add_graph_node_feature(graph_id, node_id, "C:%d" % (q))
+                graphs_test.add_graph_node_feature(graph_id, node_id, "R:%d" % (r))
 
 graphs_test.encode()
 
