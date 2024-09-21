@@ -104,7 +104,9 @@ for graph_id in range(args.number_of_examples):
         graphs_test.add_graph_node_feature(graph_id, node_id, 'A')
     else:
         graphs_test.add_graph_node_feature(graph_id, node_id, 'B')
-        
+
+graphs_test.encode()
+
 tm = MultiClassGraphTsetlinMachine(args.number_of_clauses, args.T, args.s, max_included_literals=args.max_included_literals)
 
 for i in range(args.epochs):
