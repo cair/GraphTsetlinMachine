@@ -33,7 +33,7 @@ print("Creating training data")
 
 graphs_train = Graphs(args.number_of_examples, symbol_names=['A', 'B'], hypervector_size=16, hypervector_bits=1)
 for graph_id in range(args.number_of_examples):
-    graphs_train.set_number_of_graph_nodes(graph_id, np.random.randint(1, args.max_sequence_length))
+    graphs_train.set_number_of_graph_nodes(graph_id, 5)#np.random.randint(1, args.max_sequence_length))
 
 graphs_train.prepare_node_configuration()
 
@@ -58,7 +58,7 @@ for graph_id in range(args.number_of_examples):
             graphs_train.add_graph_node_edge(graph_id, node_id, destination_node_id, edge_type)
 
     Y_train[graph_id] = np.random.randint(args.number_of_classes)
-    node_id = 0
+    node_id = np.random.randint(graphs_train.number_of_graph_nodes[graph_id])
     if Y_train[graph_id] == 0:
         graphs_train.add_graph_node_feature(graph_id, node_id, 'A')
     else:
@@ -72,9 +72,9 @@ graphs_train.encode()
 
 print("Creating testing data")
 
-graphs_test = Graphs(args.number_of_examples, symbol_names=['A', 'B'], hypervector_size=16, hypervector_bits=1)
+graphs_test = Graphs(args.number_of_examples, init_with=graphs_train)
 for graph_id in range(args.number_of_examples):
-    graphs_test.set_number_of_graph_nodes(graph_id, np.random.randint(1, args.max_sequence_length))
+    graphs_test.set_number_of_graph_nodes(graph_id, 5)#np.random.randint(1, args.max_sequence_length))
 
 graphs_test.prepare_node_configuration()
 
@@ -99,14 +99,12 @@ for graph_id in range(args.number_of_examples):
             graphs_test.add_graph_node_edge(graph_id, node_id, destination_node_id, edge_type)
 
     Y_test[graph_id] = np.random.randint(args.number_of_classes)
-    node_id = 0
+    node_id = np.random.randint(graphs_test.number_of_graph_nodes[graph_id])
     if Y_test[graph_id] == 0:
         graphs_test.add_graph_node_feature(graph_id, node_id, 'A')
     else:
         graphs_test.add_graph_node_feature(graph_id, node_id, 'B')
         
-graphs_test.encode()
-
 tm = MultiClassGraphTsetlinMachine(args.number_of_clauses, args.T, args.s, max_included_literals=args.max_included_literals)
 
 for i in range(args.epochs):
@@ -133,8 +131,3 @@ for i in range(tm.number_of_clauses):
                 else:
                     l.append("NOT x%d" % (k - args.hypervector_size))
         print(" AND ".join(l))
-
-print(graphs_train.hypervectors)
-print(graphs_train.symbol_id)
-print(graphs_test.hypervectors)
-print(graphs_test.symbol_id)
