@@ -57,11 +57,11 @@ for graph_id in range(args.number_of_examples):
             edge_type = 0
             graphs_train.add_graph_node_edge(graph_id, node_id, destination_node_id, edge_type)
 
-        Y_train[graph_id] = np.random.randint(args.number_of_classes)
-        if Y_train[graph_id] == 0:
-            graphs_train.add_graph_node_feature(graph_id, node_id, 'A')
-        else:
-            graphs_train.add_graph_node_feature(graph_id, node_id, 'B')
+    Y_train[graph_id] = np.random.randint(args.number_of_classes)
+    if Y_train[graph_id] == 0:
+        graphs_train.add_graph_node_feature(graph_id, node_id, 'A')
+    else:
+        graphs_train.add_graph_node_feature(graph_id, node_id, 'B')
         
 Y_train = np.where(np.random.rand(args.number_of_examples) < args.noise, 1 - Y_train, Y_train)  # Add noise
 
@@ -97,11 +97,11 @@ for graph_id in range(args.number_of_examples):
             edge_type = 0
             graphs_test.add_graph_node_edge(graph_id, node_id, destination_node_id, edge_type)
 
-        Y_test[graph_id] = np.random.randint(args.number_of_classes)
-        if Y_test[graph_id] == 0:
-            graphs_test.add_graph_node_feature(graph_id, node_id, 'A')
-        else:
-            graphs_test.add_graph_node_feature(graph_id, node_id, 'B')
+    Y_test[graph_id] = np.random.randint(args.number_of_classes)
+    if Y_test[graph_id] == 0:
+        graphs_test.add_graph_node_feature(graph_id, node_id, 'A')
+    else:
+        graphs_test.add_graph_node_feature(graph_id, node_id, 'B')
         
 graphs_test.encode()
 
