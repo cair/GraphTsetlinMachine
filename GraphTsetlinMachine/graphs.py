@@ -71,7 +71,7 @@ class Graphs():
 
 		self.number_of_nodes = self.number_of_graph_nodes.sum()
 		self.number_of_graph_node_edges = np.empty(self.number_of_nodes, dtype=np.uint32)
-		self.graph_node_edge_counter = np.zeros(, dtype=np.uint32)
+		self.graph_node_edge_counter = np.zeros(self.number_of_nodes, dtype=np.uint32)
 		self.edge_index = np.zeros(self.number_of_nodes, dtype=np.uint32)
 
 		self.X = np.zeros((self.number_of_nodes, self.number_of_hypervector_chunks), dtype=np.uint32)
