@@ -135,4 +135,6 @@ for i in range(tm.number_of_clauses):
         print(" AND ".join(l))
 
 print(graphs_train.hypervectors)
+print(graphs_train.symbol_id)
 print(graphs_test.hypervectors)
+print(graphs_test.symbol_id)
