@@ -33,7 +33,7 @@ print("Creating training data")
 
 graphs_train = Graphs(args.number_of_examples, symbol_names=['A', 'B'], hypervector_size=16, hypervector_bits=1)
 for graph_id in range(args.number_of_examples):
-    graphs_train.set_number_of_graph_nodes(igraph_id, np.random.randint(1, args.max_sequence_length))
+    graphs_train.set_number_of_graph_nodes(graph_id, np.random.randint(1, args.max_sequence_length))
 
 graphs_train.prepare_node_configuration()
 
