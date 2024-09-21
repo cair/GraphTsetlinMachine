@@ -192,7 +192,7 @@ class CommonTsetlinMachine():
 					self.block,
 					self.ta_state_gpu,
 					self.clause_weights_gpu,
-					np.int32(graphs.number_of_nodes[e]),
+					np.int32(graphs.number_of_graph_nodes[e]),
 					np.int32(graphs.node_index[e]),
 					self.class_sum_gpu,
 					self.encoded_X_train_gpu
@@ -205,7 +205,7 @@ class CommonTsetlinMachine():
 					g.state,
 					self.ta_state_gpu,
 					self.clause_weights_gpu,
-					np.int32(graphs.number_of_nodes[e]),
+					np.int32(graphs.number_of_graph_nodes[e]),
 					np.int32(graphs.node_index[e]),
 					self.class_sum_gpu,
 					self.encoded_X_train_gpu,
@@ -239,7 +239,7 @@ class CommonTsetlinMachine():
 				self.block,
 				self.ta_state_gpu,
 				self.clause_weights_gpu,
-				np.int32(graphs.number_of_nodes[e]),
+				np.int32(graphs.number_of_graph_nodes[e]),
 				np.int32(graphs.node_index[e]),
 				self.class_sum_gpu,
 				self.encoded_X_test_gpu
