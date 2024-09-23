@@ -350,7 +350,7 @@ code_evaluate = """
             }
         }
 
-        __global__ void pass_messages(
+        __global__ void pass_messages_new(
             unsigned int *global_ta_state,
             int number_of_nodes,
             int graph_index,
@@ -396,6 +396,94 @@ code_evaluate = """
                     }
 
                     global_clause_output[clause*MAX_NODES + patch] = clause_output;
+                }
+            }
+        }
+
+        __global__ void pass_messages(
+            unsigned int *global_ta_state,
+            int number_of_nodes,
+            int graph_index,
+            int *global_clause_hypervector,
+            int *global_clause_output,
+            int *global_X
+        )
+        {
+            int index = blockIdx.x * blockDim.x + threadIdx.x;
+            int stride = blockDim.x * gridDim.x;
+
+            unsigned int X[LA_CHUNKS];
+            unsigned int clause_hypervector[HYPERVECTOR_CHUNKS];
+
+            int parts = 10;
+
+            for (int node_part = index; node < number_of_nodes*node_parts; node += stride) {
+                int node = node_part / parts;
+                int part = node_part % parts;
+
+                for (int k = 0; k < LA_CHUNKS; ++k) {
+                    X[k] = global_X[graph_index * LA_CHUNKS + node*LA_CHUNKS + k];
+                }
+            
+                for (int k = 0; k < HYPERVECTOR_CHUNKS; ++k) {
+                    clause_hypervector[k] = 0;
+                }
+
+                for (int clause = part*CLAUSES/parts; clause < (part + 1)*CLAUSES/parts; ++clause) {
+                    unsigned int *ta_state = &global_ta_state[clause*LA_CHUNKS*STATE_BITS];
+
+                    int all_exclude = 1;
+                    for (int la_chunk = 0; la_chunk < LA_CHUNKS-1; ++la_chunk) {
+                        if (ta_state[la_chunk*STATE_BITS + STATE_BITS - 1] > 0) {
+                            all_exclude = 0;
+                            break;
+                        }
+                    }
+
+                    if ((ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & FILTER) > 0) {
+                        all_exclude = 0;
+                    }
+
+                    if (all_exclude) {
+                        continue;
+                    }
+
+                    int clause_output = 1;
+                    for (int la_chunk = 0; la_chunk < LA_CHUNKS-1; ++la_chunk) {
+                        if ((ta_state[la_chunk*STATE_BITS + STATE_BITS - 1] & X[la_chunk]) != ta_state[la_chunk*STATE_BITS + STATE_BITS - 1]) {
+                            clause_output = 0;
+                            break;
+                        }
+                    }
+
+                    if ((ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & X[LA_CHUNKS-1] & FILTER) != (ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & FILTER)) {
+                        clause_output = 0;
+                    }
+
+                    global_clause_output[clause] = clause_output;
+
+                    if (clause_output) {
+                        // First index
+
+                        int first_bit = clause % (HYPERVECTOR_SIZE / 2);
+                        int bit_chunk = first_bit / INT_SIZE;
+                        int bit_pos = first_bit % INT_SIZE;
+                        clause_hypervector[bit_chunk] |= (1 << bit_pos);
+
+                        // Second index
+
+                        int second_bit = (HYPERVECTOR_SIZE / 2) + PRIME - (clause % PRIME);
+                      
+                        bit_chunk = second_bit / INT_SIZE;
+                        bit_pos = second_bit % INT_SIZE;
+                        clause_hypervector[bit_chunk] |= (1 << bit_pos);
+                    }
+                }
+
+                // Copy clause_hypervector to memory... No collision because one thread per node...
+
+                for (int k = 0; k < HYPERVECTOR_CHUNKS; ++k) {
+                    global_clause_hypervector[node * HYPERVECTOR_CHUNKS + k] = clause_hypervector[k];
                 }
             }
         }
