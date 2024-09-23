@@ -421,7 +421,10 @@ code_evaluate = """
                         }
                     }
                 }
-                global_clause_output[clause_int*MAX_NODES + patch] = clause_output;
+
+                for (int patch = 0; patch < number_of_nodes; ++patch) {
+                    global_clause_output[clause_int*MAX_NODES + patch] = clause_output;
+                }
             }
         }
 
