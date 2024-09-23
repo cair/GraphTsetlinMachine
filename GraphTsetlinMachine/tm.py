@@ -156,6 +156,10 @@ class CommonTsetlinMachine():
 		self.evaluate = mod_evaluate.get_function("evaluate")
 		self.evaluate.prepare("PPiiPP")
 
+		mod_evaluate = SourceModule(parameters + kernels.code_header + kernels.code_evaluate, no_extern_c=True)
+		self.pass_messages = mod_evaluate.get_function("pass_messages")
+		self.pass_messages.prepare("PiiPP")
+
 		self.initialized = True
 
 	def _init_fit(self, graphs, encoded_Y, incremental):
@@ -229,10 +233,23 @@ class CommonTsetlinMachine():
 
 			self.encoded_X_test_gpu = cuda.mem_alloc(graphs.X.nbytes)
 			cuda.memcpy_htod(self.encoded_X_test_gpu, graphs.X)
-        
+
+			self.clause_hypervector_test_gpu = cuda.mem_alloc(int(graphs.max_number_of_graph_nodes) * ((256-1)//32 + 1) * 4)
+
 		class_sum = np.zeros((graphs.number_of_graphs, self.number_of_outputs), dtype=np.int32)
 		for e in range(graphs.number_of_graphs):
 			cuda.memcpy_htod(self.class_sum_gpu, class_sum[e,:])
+
+			self.pass_messages.prepared_call(
+				self.grid,
+				self.block,
+				self.ta_state_gpu,
+				np.int32(graphs.number_of_graph_nodes[e]),
+				np.int32(graphs.node_index[e]),
+				self.clause_hypervector_test_gpu,
+				self.encoded_X_test_gpu
+			)
+			cuda.Context.synchronize()
 
 			self.evaluate.prepared_call(
 				self.grid,
