@@ -248,7 +248,7 @@ class CommonTsetlinMachine():
 		if not np.array_equal(self.graphs_signature_test, graphs.signature):
 			self.graphs_signature_test = graphs.signature
 
-			self.encoded_X_test_gpu = cuda.mem_alloc(graphs.X.nbytes)
+			self.encoded_X_test_gpu = cuda.mem_alloc(graphs.X.nbytes*1024)
 			cuda.memcpy_htod(self.encoded_X_test_gpu, graphs.X)
 
 			self.clause_output_gpu = cuda.mem_alloc(int(self.number_of_clauses * graphs.max_number_of_graph_node_chunks) * 4)
