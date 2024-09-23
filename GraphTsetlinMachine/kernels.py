@@ -423,7 +423,7 @@ code_evaluate = """
                 }
 
                 for (int patch = 0; patch < number_of_nodes; ++patch) {
-                    global_clause_output[clause_int*MAX_NODES + patch] = clause_output;
+                    global_clause_output[clause_int*MAX_NODES + patch] = local_clause_output[patch];
                 }
             }
         }
