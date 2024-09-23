@@ -425,7 +425,6 @@ code_evaluate = """
                         clause_output = ~0;
                     }
 
-                    int clause_output[patch_chunk] |= (1 << patch_pos);
                     for (int la_chunk = 0; la_chunk < LA_CHUNKS-1; ++la_chunk) {
                         if ((ta_state[la_chunk*STATE_BITS + STATE_BITS - 1] & X[patch*LA_CHUNKS + la_chunk]) != ta_state[la_chunk*STATE_BITS + STATE_BITS - 1]) {
                             clause_output &= ~(1 << patch_pos);
