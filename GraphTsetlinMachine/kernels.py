@@ -356,7 +356,7 @@ code_evaluate = """
             int number_of_nodes,
             int graph_index,
             int *global_clause_hypervector,
-            int *class_sum,
+            int *class_sum
         )
         {
             int index = blockIdx.x * blockDim.x + threadIdx.x;
