@@ -377,7 +377,7 @@ code_evaluate = """
 
                 int clause_output = 0;
                 for (int patch = 0; patch < number_of_nodes; ++patch) {
-                    int clause_output = (global_clause_hypervector[patch * HYPERVECTOR_CHUNKS + first_bit_chunk] & (1 << first_bit_pos)) &&
+                    clause_output = (global_clause_hypervector[patch * HYPERVECTOR_CHUNKS + first_bit_chunk] & (1 << first_bit_pos)) &&
                         (global_clause_hypervector[patch * HYPERVECTOR_CHUNKS + second_bit_chunk] & (1 << second_bit_pos));
 
                     if (clause_output) {
@@ -386,7 +386,6 @@ code_evaluate = """
                 }
 
                 if (clause_output) {
-                    printf("Hello %d\\n", clause);
                     for (int class_id = 0; class_id < CLASSES; ++class_id) {
                         int clause_weight = clause_weights[class_id*CLAUSES + clause];
                         atomicAdd(&class_sum[class_id], clause_weight);                 
