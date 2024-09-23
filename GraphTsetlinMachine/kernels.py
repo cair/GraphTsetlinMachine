@@ -521,12 +521,12 @@ code_evaluate = """
 
                     if (patch_pos == INT_SIZE-1) {
                         int patch_chunk = patch / INT_SIZE;
-                        global_clause_output[patch_chunk*CLAUSES + clause] = clause_output;
+                        global_clause_output[clause*NODE_CHUNKS + patch_chunk] = clause_output;
                     }
                 }
 
                 if ((number_of_nodes % INT_SIZE) != 0) {
-                    global_clause_output[(number_of_node_chunks - 1)*CLAUSES + clause] = clause_output & node_filter;
+                    global_clause_output[clause*NODE_CHUNKS + number_of_node_chunks - 1] = clause_output & node_filter;
                 }
             }
         }
