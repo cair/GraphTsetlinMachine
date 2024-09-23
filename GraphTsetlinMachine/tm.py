@@ -243,17 +243,17 @@ class CommonTsetlinMachine():
 		for e in range(graphs.number_of_graphs):
 			cuda.memcpy_htod(self.class_sum_gpu, class_sum[e,:])
 
-			self.pass_messages.prepared_call(
-				self.grid,
-				self.block,
-				self.ta_state_gpu,
-				np.int32(graphs.number_of_graph_nodes[e]),
-				np.int32(graphs.node_index[e]),
-				self.clause_hypervector_test_gpu,
-				self.clause_output_gpu,
-				self.encoded_X_test_gpu
-			)
-			cuda.Context.synchronize()
+			# self.pass_messages.prepared_call(
+			# 	self.grid,
+			# 	self.block,
+			# 	self.ta_state_gpu,
+			# 	np.int32(graphs.number_of_graph_nodes[e]),
+			# 	np.int32(graphs.node_index[e]),
+			# 	self.clause_hypervector_test_gpu,
+			# 	self.clause_output_gpu,
+			# 	self.encoded_X_test_gpu
+			# )
+			# cuda.Context.synchronize()
 
 			# self.evaluate.prepared_call(
 			# 	self.grid,

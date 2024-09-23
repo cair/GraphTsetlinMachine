@@ -289,19 +289,23 @@ code_evaluate = """
     extern "C"
     {
         // Evaluate examples
-        __global__ void evaluate_old(
+        __global__ void evaluate(
             unsigned int *global_ta_state,
             int *clause_weights,
             int number_of_nodes,
             int graph_index,
             int *class_sum,
-            int *X
+            unsigned int *global_X
         )
         {
             int index = blockIdx.x * blockDim.x + threadIdx.x;
             int stride = blockDim.x * gridDim.x;
 
-            X = &X[graph_index * LA_CHUNKS];
+            int X[LA_CHUNKS*MAX_NODES];
+
+            for (int k = 0; k < MAX_NODES*LA_CHUNKS; ++k) {
+                X[k] = global_X[graph_index * LA_CHUNKS + k];
+            }
 
             for (int clause = index; clause < CLAUSES; clause += stride) {
                 unsigned int *ta_state = &global_ta_state[clause*LA_CHUNKS*STATE_BITS];
