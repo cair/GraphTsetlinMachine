@@ -425,7 +425,9 @@ code_evaluate = """
                         clause_output = 0;
                     }
 
-                    //global_clause_output[clause*MAX_NODES + patch] = clause_output;
+                    int clause_chunk = clause / INT_SIZE;
+                    int clause_pos = clause % INT_SIZE;
+                    global_clause_output[clause_chunk*MAX_NODES + patch] = (1 << clause_pos);
                 }
             }
         }
