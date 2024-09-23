@@ -53,7 +53,7 @@ class CommonTsetlinMachine():
 		print("Initialization of sparse structure.")
 
 		self.number_of_clauses = number_of_clauses
-		self.number_of_clause_chunks = (number_of_clauses-1)/32 + 1
+		self.number_of_clause_chunks = (number_of_clauses-1)//32 + 1
 		self.number_of_state_bits = number_of_state_bits
 		self.T = int(T)
 		self.s = s
@@ -124,7 +124,7 @@ class CommonTsetlinMachine():
 		if self.max_included_literals == None:
 			self.max_included_literals = self.number_of_literals
 
-		self.number_of_ta_chunks = int((self.number_of_literals-1)/32 + 1)
+		self.number_of_ta_chunks = int((self.number_of_literals-1)//32 + 1)
 
 		parameters = """
 #define CLASSES %d
@@ -236,8 +236,7 @@ class CommonTsetlinMachine():
 
 			self.clause_hypervector_test_gpu = cuda.mem_alloc(int(graphs.max_number_of_graph_nodes) * ((256-1)//32 + 1) * 4)
 
-			self.clause_output_gpu = cuda.mem_alloc(int(self.number_of_clause_chunks * graphs.max_number_of_graph_nodes * 128) * 4)
-			self.clause_output = np.empty((self.number_of_clauses, graphs.max_number_of_graph_nodes), dtype=np.uint32)
+			self.clause_output_gpu = cuda.mem_alloc(int(self.number_of_clauses * graphs.max_number_of_graph_node_chunks) * 4)
 
 		class_sum = np.zeros((graphs.number_of_graphs, self.number_of_outputs), dtype=np.int32)
 		for e in range(graphs.number_of_graphs):

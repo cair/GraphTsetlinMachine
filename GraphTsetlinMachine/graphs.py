@@ -68,6 +68,7 @@ class Graphs():
 		self.node_index[1:] = np.add.accumulate(self.number_of_graph_nodes[:-1])
 
 		self.max_number_of_graph_nodes = self.number_of_graph_nodes.max()
+		self.max_number_of_graph_node_chunks = (self.max_number_of_graph_nodes - 1) // 32 + 1
 		self.number_of_nodes = self.number_of_graph_nodes.sum()
 		self.number_of_graph_node_edges = np.empty(self.number_of_nodes, dtype=np.uint32)
 		self.graph_node_edge_counter = np.zeros(self.number_of_nodes, dtype=np.uint32)
