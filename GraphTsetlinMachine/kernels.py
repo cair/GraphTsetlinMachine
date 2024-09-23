@@ -350,7 +350,7 @@ code_evaluate = """
             }
         }
 
-        __global__ void pass_messages_new(
+        __global__ void pass_messages(
             unsigned int *global_ta_state,
             int number_of_nodes,
             int graph_index,
@@ -395,12 +395,14 @@ code_evaluate = """
                         clause_output = 0;
                     }
 
-                    global_clause_output[clause*MAX_NODES + patch] = clause_output;
+                    if (clause_output) {
+                        global_clause_output[clause*MAX_NODES + patch] = clause_output;
+                    }
                 }
             }
         }
 
-        __global__ void pass_messages(
+        __global__ void pass_messages_parts(
             unsigned int *global_ta_state,
             int number_of_nodes,
             int graph_index,
