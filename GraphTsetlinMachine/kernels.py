@@ -425,11 +425,11 @@ code_evaluate = """
                         clause_output = 0;
                     }
 
-                    //int clause_chunk = clause / INT_SIZE;
-                    //int clause_pos = clause % INT_SIZE;
-                    //global_clause_output[clause_chunk*MAX_NODES*128 + patch*128 + threadIdx.x] = (1 << clause_pos);
+                    int clause_chunk = clause / INT_SIZE;
+                    int clause_pos = clause % INT_SIZE;
+                    global_clause_output[clause_chunk*MAX_NODES*128 + patch*128 + threadIdx.x] = (1 << clause_pos);
 
-                    global_clause_output[clause*MAX_NODES + patch] = clause_output;
+                    //global_clause_output[clause*MAX_NODES + patch] = clause_output;
                 }
             }
         }
