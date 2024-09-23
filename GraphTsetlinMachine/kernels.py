@@ -350,6 +350,50 @@ code_evaluate = """
             }
         }
 
+        // Evaluate examples
+        __global__ void evaluate_new(
+            int *clause_weights,
+            int number_of_nodes,
+            int graph_index,
+            int *global_clause_hypervector,
+            int *class_sum,
+        )
+        {
+            int index = blockIdx.x * blockDim.x + threadIdx.x;
+            int stride = blockDim.x * gridDim.x;
+
+            for (int clause = index; clause < CLAUSES; clause += stride) {
+                // First index
+
+                int first_bit = clause % (HYPERVECTOR_SIZE / 2);
+                int first_bit_chunk = first_bit / INT_SIZE;
+                int first_bit_pos = first_bit % INT_SIZE;
+
+                // Second index
+
+                int second_bit = (HYPERVECTOR_SIZE / 2) + PRIME - (clause % PRIME);
+                int second_bit_chunk = second_bit / INT_SIZE;
+                int second_bit_pos = second_bit % INT_SIZE;
+
+                int clause_output = 0;
+                for (int patch = 0; patch < number_of_nodes; ++patch) {
+                    int clause_output = (global_clause_hypervector[patch * HYPERVECTOR_CHUNKS + first_bit_chunk] & (1 << first_bit_pos)) &&
+                        (global_clause_hypervector[patch * HYPERVECTOR_CHUNKS + second_bit_chunk] & (1 << second_bit_pos));
+
+                    if (clause_output) {
+                        break;
+                    }
+                }
+
+                if (clause_output) {
+                    for (int class_id = 0; class_id < CLASSES; ++class_id) {
+                        int clause_weight = clause_weights[class_id*CLAUSES + clause];
+                        atomicAdd(&class_sum[class_id], clause_weight);                 
+                    }
+                }
+            }
+        }
+
         __global__ void pass_messages(
             unsigned int *global_ta_state,
             int number_of_nodes,

@@ -156,7 +156,9 @@ class CommonTsetlinMachine():
 		self.evaluate = mod_evaluate.get_function("evaluate")
 		self.evaluate.prepare("PPiiPP")
 
-		mod_evaluate = SourceModule(parameters + kernels.code_header + kernels.code_evaluate, no_extern_c=True)
+		self.evaluate_new = mod_evaluate.get_function("evaluate_new")
+		self.evaluate_new.prepare("PiiPP")
+
 		self.pass_messages = mod_evaluate.get_function("pass_messages")
 		self.pass_messages.prepare("PiiPP")
 
@@ -240,28 +242,39 @@ class CommonTsetlinMachine():
 		for e in range(graphs.number_of_graphs):
 			cuda.memcpy_htod(self.class_sum_gpu, class_sum[e,:])
 
-			# self.pass_messages.prepared_call(
-			# 	self.grid,
-			# 	self.block,
-			# 	self.ta_state_gpu,
-			# 	np.int32(graphs.number_of_graph_nodes[e]),
-			# 	np.int32(graphs.node_index[e]),
-			# 	self.clause_hypervector_test_gpu,
-			# 	self.encoded_X_test_gpu
-			# )
-			# cuda.Context.synchronize()
-
-			self.evaluate.prepared_call(
+			self.pass_messages.prepared_call(
 				self.grid,
 				self.block,
 				self.ta_state_gpu,
-				self.clause_weights_gpu,
 				np.int32(graphs.number_of_graph_nodes[e]),
 				np.int32(graphs.node_index[e]),
-				self.class_sum_gpu,
+				self.clause_hypervector_test_gpu,
 				self.encoded_X_test_gpu
 			)
 			cuda.Context.synchronize()
+
+			self.evaluate_new.prepared_call(
+				self.grid,
+				self.block,
+				self.clause_weights_gpu,
+				np.int32(graphs.number_of_graph_nodes[e]),
+				np.int32(graphs.node_index[e]),
+				self.clause_hypervector_test_gpu,
+				self.class_sum_gpu
+			)			
+			cuda.Context.synchronize()
+			
+			# self.evaluate.prepared_call(
+			# 	self.grid,
+			# 	self.block,
+			# 	self.ta_state_gpu,
+			# 	self.clause_weights_gpu,
+			# 	np.int32(graphs.number_of_graph_nodes[e]),
+			# 	np.int32(graphs.node_index[e]),
+			# 	self.class_sum_gpu,
+			# 	self.encoded_X_test_gpu
+			# )
+			# cuda.Context.synchronize()
 
 			cuda.memcpy_dtoh(class_sum[e,:], self.class_sum_gpu)
 
