@@ -364,7 +364,7 @@ code_evaluate = """
 
             unsigned int clause_hypervector[MAX_NODES*HYPERVECTOR_CHUNKS];
 
-            for (int k = 0; k < MAX_NODES*HYPERVECTOR_CHUNKS) {
+            for (int k = 0; k < MAX_NODES*HYPERVECTOR_CHUNKS; ++k) {
                 clause_hyper_vector[k] = global_clause_hypervector[k];
             }
 
