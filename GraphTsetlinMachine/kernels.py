@@ -386,6 +386,7 @@ code_evaluate = """
                 }
 
                 if (clause_output) {
+                    printf("Hello %d\\n", clause);
                     for (int class_id = 0; class_id < CLASSES; ++class_id) {
                         int clause_weight = clause_weights[class_id*CLAUSES + clause];
                         atomicAdd(&class_sum[class_id], clause_weight);                 
