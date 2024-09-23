@@ -433,37 +433,26 @@ code_evaluate = """
                 }
 
                 if (all_exclude) {
-                    for (int k = 0; k < number_of_node_chunks; ++k) {
-                        global_clause_output[clause*NODE_CHUNKS + k] = 0; 
+                    for (int patch = 0; patch < number_of_nodes; ++patch) {
+                        global_clause_output[clause*MAX_NODES + patch] = 0; 
                     }
                     continue;
                 }
 
                 for (int patch = 0; patch < number_of_nodes; ++patch) {
-                    int patch_pos = patch % INT_SIZE;
-
-                    if (patch_pos == 0) {
-                        clause_output = ~0;
-                    }
-
+                    int clause_output = 1;
                     for (int la_chunk = 0; la_chunk < LA_CHUNKS-1; ++la_chunk) {
                         if ((ta_state[la_chunk*STATE_BITS + STATE_BITS - 1] & X[patch*LA_CHUNKS + la_chunk]) != ta_state[la_chunk*STATE_BITS + STATE_BITS - 1]) {
-                            clause_output &= ~(1 << patch_pos);
+                            clause_output = 0;
+                            break;
                         }
                     }
 
                     if ((ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & X[patch*LA_CHUNKS + LA_CHUNKS-1] & FILTER) != (ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & FILTER)) {
-                        clause_output &= ~(1 << patch_pos);
+                        clause_output = 0;
                     }
 
-                    if (patch_pos == INT_SIZE-1) {
-                        int patch_chunk = patch / INT_SIZE;
-                        global_clause_output[clause*NODE_CHUNKS + patch_chunk] = clause_output;
-                    }
-                }
-
-                if ((number_of_nodes % INT_SIZE) != 0) {
-                    global_clause_output[clause*NODE_CHUNKS + number_of_node_chunks - 1] = clause_output & node_filter;
+                    global_clause_output[clause*MAX_NODES + patch] = clause_output;
                 }
             }
         }
