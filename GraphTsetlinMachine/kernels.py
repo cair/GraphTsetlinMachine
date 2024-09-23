@@ -394,7 +394,7 @@ code_evaluate = """
             }
         }
 
-        __global__ void calculate_messages(
+        __global__ void calculate_messages_exp(
             unsigned int *global_ta_state,
             int number_of_nodes,
             int graph_index,
@@ -457,7 +457,7 @@ code_evaluate = """
             }
         }
 
-        __global__ void calculate_messages_old(
+        __global__ void calculate_messages(
             unsigned int *global_ta_state,
             int number_of_nodes,
             int graph_index,
