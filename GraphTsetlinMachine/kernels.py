@@ -291,7 +291,7 @@ code_evaluate = """
     extern "C"
     {
         // Evaluate examples
-        __global__ void evaluate(
+        __global__ void evaluate_org(
             unsigned int *global_ta_state,
             int *clause_weights,
             int number_of_nodes,
@@ -352,7 +352,7 @@ code_evaluate = """
             }
         }
 
-        __global__ void evaluate_test(
+        __global__ void evaluate(
             int *global_clause_output,
             int *clause_weights,
             int number_of_nodes,
@@ -364,10 +364,12 @@ code_evaluate = """
             int index = blockIdx.x * blockDim.x + threadIdx.x;
             int stride = blockDim.x * gridDim.x;
 
+            int number_of_node_chunks = (number_of_nodes-1)/INT_SIZE + 1;
+
             for (int clause = index; clause < CLAUSES; clause += stride) {
                 int clause_output = 0;
-                for (int patch = 0; patch < number_of_nodes; ++patch) {
-                    if (global_clause_output[clause*MAX_NODES + patch]) {
+                for (int k = 0; k < number_of_node_chunks; ++k) {
+                    if (global_clause_output[clause*NODE_CHUNKS +k]) {
                         clause_output = 1;
                         break;
                     }
@@ -418,7 +420,6 @@ code_evaluate = """
                 }
 
                 for (int patch = 0; patch < number_of_nodes; ++patch) {
-                    int patch_chunk = patch / INT_SIZE;
                     int patch_pos = patch % INT_SIZE;
 
                     if (patch_pos == 0) {
@@ -435,11 +436,8 @@ code_evaluate = """
                         clause_output &= ~(1 << patch_pos);
                     }
 
-                    //global_clause_output[clause_chunk*MAX_NODES*128 + patch*128 + threadIdx.x] = (1 << clause_pos);
-
-                    //global_clause_output[clause*MAX_NODES + patch] = clause_output;
-
                     if (patch_pos == INT_SIZE-1) {
+                        int patch_chunk = patch / INT_SIZE;
                         global_clause_output[clause*NODE_CHUNKS + patch_chunk] = clause_output;
                     }
                 }
