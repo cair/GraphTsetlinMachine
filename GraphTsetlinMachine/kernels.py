@@ -368,7 +368,7 @@ code_evaluate = """
 
             for (int clause = index; clause < CLAUSES; clause += stride) {
                 int clause_output = 0;
-                for (int k = 0; k < number_of_node_chunks; ++k) {
+                for (int k = 0; k < number_of_node_chunks-1; ++k) {
                     if (global_clause_output[clause*NODE_CHUNKS + k]) {
                         clause_output = 1;
                         break;
