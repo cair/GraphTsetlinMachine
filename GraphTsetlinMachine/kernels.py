@@ -434,6 +434,9 @@ code_evaluate = """
                 }
 
                 if (all_exclude) {
+                    for (int k = 0; k < number_of_node_chunks; ++k) {
+                        global_clause_output[clause*NODE_CHUNKS + k] = 0; 
+                    }
                     continue;
                 }
 
