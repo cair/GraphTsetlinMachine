@@ -486,8 +486,8 @@ code_evaluate = """
                     for (int clause = 0; clause < CLAUSES; ++clause) {
                         if (global_clause_output[clause*NODE_CHUNKS + node_chunk] & (1 << node_pos) > 0) {
                             for (int i = 0; i < HYPERVECTOR_BITS; ++i) {
-                                bit_chunk = hypervectors[clause*HYPERVECTOR_BITS + i] / INT_SIZE;
-                                bit_pos = hypervectors[clause*HYPERVECTOR_BITS + i] % INT_SIZE;
+                                int bit_chunk = hypervectors[clause*HYPERVECTOR_BITS + i] / INT_SIZE;
+                                int bit_pos = hypervectors[clause*HYPERVECTOR_BITS + i] % INT_SIZE;
 
                                 X[bit_chunk] |= (1 << bit_pos);
                             }
@@ -502,8 +502,8 @@ code_evaluate = """
                     for (int clause = 0; clause < CLAUSES; ++clause) {
                         if (global_clause_output[clause*NODE_CHUNKS + node_chunk] & (1 << node_pos) > 0) {
                             for (int i = 0; i < HYPERVECTOR_BITS; ++i) {
-                                bit_chunk = (hypervectors[clause*HYPERVECTOR_BITS + i] + 1) / INT_SIZE;
-                                bit_pos = (hypervectors[clause*HYPERVECTOR_BITS + i] + 1) % INT_SIZE;
+                                int bit_chunk = (hypervectors[clause*HYPERVECTOR_BITS + i] + 1) / INT_SIZE;
+                                int bit_pos = (hypervectors[clause*HYPERVECTOR_BITS + i] + 1) % INT_SIZE;
 
                                 X[bit_chunk] |= (1 << bit_pos);
                             }
