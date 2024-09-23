@@ -444,11 +444,7 @@ code_evaluate = """
                     int patch_pos = patch % INT_SIZE;
 
                     if (patch_pos == 0) {
-                        if (patch < number_of_nodes - 1) {
-                            clause_output = ~0;
-                        } else { 
-                            clause_output = node_filter;
-                        }
+                        clause_output = ~0;
                     }
 
                     for (int la_chunk = 0; la_chunk < LA_CHUNKS-1; ++la_chunk) {
