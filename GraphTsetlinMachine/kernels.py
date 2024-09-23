@@ -29,6 +29,11 @@ code_header = """
     #define LA_CHUNKS (((LITERALS-1)/INT_SIZE + 1))
     #define CLAUSE_CHUNKS ((CLAUSES-1)/INT_SIZE + 1)
 
+    #define HYPERVECTOR_SIZE 256
+    #define HYPERVECTOR_CHUNKS (((HYPERVECTOR_SIZE-1)/INT_SIZE + 1))
+
+    #define PRIME 127
+
     #if (LITERALS % 32 != 0)
     #define FILTER (~(0xffffffff << (LITERALS % INT_SIZE)))
     #else
