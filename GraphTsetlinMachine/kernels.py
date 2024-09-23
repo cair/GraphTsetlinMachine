@@ -400,7 +400,7 @@ code_evaluate = """
             int number_of_nodes,
             int graph_index,
             int *global_clause_hypervector,
-            int *global_clause_output;
+            int *global_clause_output,
             int *global_X
         )
         {
