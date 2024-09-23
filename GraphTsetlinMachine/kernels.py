@@ -417,7 +417,7 @@ code_evaluate = """
 
             int parts = 10;
 
-            for (int node_part = index; node < number_of_nodes*parts; node_part += stride) {
+            for (int node_part = index; node_part < number_of_nodes*parts; node_part += stride) {
                 int node = node_part / parts;
                 int part = node_part % parts;
 
