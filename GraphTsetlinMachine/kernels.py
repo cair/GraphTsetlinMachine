@@ -33,6 +33,13 @@ code_header = """
     #define HYPERVECTOR_CHUNKS (((HYPERVECTOR_SIZE-1)/INT_SIZE + 1))
 
     #define NODE_CHUNKS ((MAX_NODES-1)/INT_SIZE + 1)
+    
+    #if (MAX_NODES % 32 != 0)
+    #define NODE_FILTER (~(0xffffffff << (MAX_NODES % INT_SIZE)))
+    #else
+    #define NODE_FILTER 0xffffffff
+    #endif
+
 
     #define PRIME 127
 
@@ -373,6 +380,10 @@ code_evaluate = """
                         clause_output = 1;
                         break;
                     }
+                }
+
+                if (global_clause_output[clause*NODE_CHUNKS + number_of_node_chunks-1]) {
+                    clause_output = 1;
                 }
 
                 if (clause_output) {
