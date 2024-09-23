@@ -236,7 +236,7 @@ class CommonTsetlinMachine():
 
 			self.clause_hypervector_test_gpu = cuda.mem_alloc(int(graphs.max_number_of_graph_nodes) * ((256-1)//32 + 1) * 4)
 
-			self.clause_output_gpu = cuda.mem_alloc(int(self.number_of_clauses * graphs.max_number_of_graph_nodes) * 4)
+			self.clause_output_gpu = cuda.mem_alloc(int(self.number_of_clauses * graphs.max_number_of_graph_nodes * 128) * 4)
 			self.clause_output = np.empty((self.number_of_clauses, graphs.max_number_of_graph_nodes), dtype=np.uint32)
 
 		class_sum = np.zeros((graphs.number_of_graphs, self.number_of_outputs), dtype=np.int32)
