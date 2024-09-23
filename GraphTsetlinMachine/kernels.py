@@ -398,7 +398,6 @@ code_evaluate = """
             unsigned int *global_ta_state,
             int number_of_nodes,
             int graph_index,
-            int *global_clause_hypervector,
             int *global_clause_output,
             unsigned int *global_X
         )
