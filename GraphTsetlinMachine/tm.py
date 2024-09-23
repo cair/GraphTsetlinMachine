@@ -149,9 +149,10 @@ class CommonTsetlinMachine():
 #define MAX_INCLUDED_LITERALS %d
 #define NEGATIVE_CLAUSES %d
 #define MAX_NODES %d
+#define HYPERVECTOR_SIZE %d
 #define HYPERVECTOR_BITS %d
 #define NUMBER_OF_EXAMPLES %d
-""" % (self.number_of_outputs, self.number_of_clauses, self.number_of_literals, self.number_of_state_bits, self.boost_true_positive_feedback, self.s, self.T, self.q, self.max_included_literals, self.negative_clauses, graphs.max_number_of_graph_nodes, self.hypervector_bits, graphs.number_of_graphs)
+""" % (self.number_of_outputs, self.number_of_clauses, self.number_of_literals, self.number_of_state_bits, self.boost_true_positive_feedback, self.s, self.T, self.q, self.max_included_literals, self.negative_clauses, graphs.max_number_of_graph_nodes, self.hypervector_size, self.hypervector_bits, graphs.number_of_graphs)
 
 		mod_prepare = SourceModule(parameters + kernels.code_header + kernels.code_prepare, no_extern_c=True)
 		self.prepare = mod_prepare.get_function("prepare")
@@ -266,15 +267,15 @@ class CommonTsetlinMachine():
 			)
 			cuda.Context.synchronize()
 
-			# self.exchange_messages.prepared_call(
-			# 	self.grid,
-			# 	self.block,
-			# 	np.int32(graphs.number_of_graph_nodes[e]),
-			# 	self.clause_output_gpu,
-			# 	self.hypervectors_gpu,
-			# 	self.encoded_X_test_gpu
-			# )
-			# cuda.Context.synchronize()
+			self.exchange_messages.prepared_call(
+				self.grid,
+				self.block,
+				np.int32(graphs.number_of_graph_nodes[e]),
+				self.clause_output_gpu,
+				self.hypervectors_gpu,
+				self.encoded_X_test_gpu
+			)
+			cuda.Context.synchronize()
 
 			# self.evaluate.prepared_call(
 			# 	self.grid,
