@@ -32,6 +32,8 @@ code_header = """
     #define HYPERVECTOR_SIZE 256
     #define HYPERVECTOR_CHUNKS (((HYPERVECTOR_SIZE-1)/INT_SIZE + 1))
 
+    #define NODE_CHUNKS ((MAX_NODES-1)/INT_SIZE + 1)
+
     #define PRIME 127
 
     #if (LITERALS % 32 != 0)
@@ -425,9 +427,9 @@ code_evaluate = """
                         clause_output = 0;
                     }
 
-                    int clause_chunk = clause / INT_SIZE;
-                    int clause_pos = clause % INT_SIZE;
-                    global_clause_output[clause_chunk*MAX_NODES + patch] = (1 << clause_pos);
+                    int patch_chunk = patch / INT_SIZE;
+                    int patch_pos = patch % INT_SIZE;
+                    global_clause_output[clause*NODE_CHUNKS + patch_chunk] = (1 << patch_pos);
                     //global_clause_output[clause_chunk*MAX_NODES*128 + patch*128 + threadIdx.x] = (1 << clause_pos);
 
                     //global_clause_output[clause*MAX_NODES + patch] = clause_output;
