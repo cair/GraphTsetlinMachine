@@ -382,7 +382,7 @@ code_evaluate = """
                     }
                 }
 
-                if (global_clause_output[clause*NODE_CHUNKS + number_of_node_chunks-1]) {
+                if (global_clause_output[clause*NODE_CHUNKS + number_of_node_chunks-1] & NODE_FILTER) {
                     clause_output = 1;
                 }
 
