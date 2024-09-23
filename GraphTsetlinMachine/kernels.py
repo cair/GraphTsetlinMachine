@@ -469,7 +469,7 @@ code_evaluate = """
         }
 
         __global__ void exchange_messages(
-            int number_of_nodes
+            int number_of_nodes,
             int *global_clause_output,
             int *hypervectors,
             unsigned int *X
