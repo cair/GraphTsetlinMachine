@@ -397,6 +397,10 @@ code_evaluate = """
             int local_clause_output[INT_SIZE * MAX_NODES];
 
             for (int clause_int = index; clause_int < CLAUSES/INT_SIZE; clause_int += stride) {
+                for (int patch = 0; patch < number_of_nodes; ++patch) {
+                    local_clause_output[patch] = 0;
+                }
+
                 for (int k = 0; k < INT_SIZE; ++k) {
                     int clause = clause_int*INT_SIZE + k;
 
@@ -416,8 +420,6 @@ code_evaluate = """
 
                         if (clause_output) {
                             local_clause_output[patch] |= (1 << k);
-                        } else {
-                            local_clause_output[patch] &= ~(1 << k);
                         }
                     }
                 }
