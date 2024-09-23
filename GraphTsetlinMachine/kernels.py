@@ -301,11 +301,13 @@ code_evaluate = """
             int index = blockIdx.x * blockDim.x + threadIdx.x;
             int stride = blockDim.x * gridDim.x;
 
-            unsigned int X[LA_CHUNKS*MAX_NODES];
+            //unsigned int X[LA_CHUNKS*MAX_NODES];
 
-            for (int k = 0; k < MAX_NODES*LA_CHUNKS; ++k) {
-                X[k] = global_X[graph_index * LA_CHUNKS + k];
-            }
+            // for (int k = 0; k < MAX_NODES*LA_CHUNKS; ++k) {
+            //     X[k] = global_X[graph_index * LA_CHUNKS + k];
+            // }
+
+            unsigned int *X = &global_X[graph_index * LA_CHUNKS;
 
             for (int clause = index; clause < CLAUSES; clause += stride) {
                 unsigned int *ta_state = &global_ta_state[clause*LA_CHUNKS*STATE_BITS];
