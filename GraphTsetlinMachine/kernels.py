@@ -289,7 +289,7 @@ code_evaluate = """
     extern "C"
     {
         // Evaluate examples
-        __global__ void evaluate(
+        __global__ void evaluate_old(
             unsigned int *global_ta_state,
             int *clause_weights,
             int number_of_nodes,
@@ -350,6 +350,36 @@ code_evaluate = """
             }
         }
 
+        __global__ void evaluate(
+            int *global_clause_output,
+            int *clause_weights,
+            int number_of_nodes,
+            int graph_index,
+            int *class_sum,
+            int *X
+        )
+        {
+            int index = blockIdx.x * blockDim.x + threadIdx.x;
+            int stride = blockDim.x * gridDim.x;
+
+            for (int clause = index; clause < CLAUSES; clause += stride) {
+                int clause_output = 0;
+                for (int patch = 0; patch < number_of_nodes; ++patch) {
+                    if (global_clause_output[clause*MAX_NODES + patch]) {
+                        clause_output = 1;
+                        break;
+                    }
+                }
+
+                if (clause_output) {
+                    for (int class_id = 0; class_id < CLASSES; ++class_id) {
+                        int clause_weight = clause_weights[class_id*CLAUSES + clause];
+                        atomicAdd(&class_sum[class_id], clause_weight);                 
+                    }
+                }
+            }
+        }
+
         __global__ void pass_messages(
             unsigned int *global_ta_state,
             int number_of_nodes,
@@ -395,9 +425,7 @@ code_evaluate = """
                         clause_output = 0;
                     }
 
-                    //if (clause_output) {
-                        global_clause_output[clause*MAX_NODES + patch] = clause_output;
-                    //}
+                    global_clause_output[clause*MAX_NODES + patch] = clause_output;
                 }
             }
         }
