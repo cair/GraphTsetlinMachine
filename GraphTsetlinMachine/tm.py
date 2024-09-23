@@ -159,7 +159,7 @@ class CommonTsetlinMachine():
 		self.evaluate.prepare("PPiiPP")
 
 		self.pass_messages = mod_evaluate.get_function("pass_messages")
-		self.pass_messages.prepare("PPiiPP")
+		self.pass_messages.prepare("PiiPPP")
 
 		self.initialized = True
 
