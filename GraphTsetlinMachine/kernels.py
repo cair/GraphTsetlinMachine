@@ -427,12 +427,12 @@ code_evaluate = """
                         clause_output = 0;
                     }
 
-                    int patch_chunk = patch / INT_SIZE;
-                    int patch_pos = patch % INT_SIZE;
-                    global_clause_output[clause*NODE_CHUNKS + patch_chunk] = (1 << patch_pos);
+                    //int patch_chunk = patch / INT_SIZE;
+                    //int patch_pos = patch % INT_SIZE;
+                    //global_clause_output[clause*NODE_CHUNKS + patch_chunk] = (1 << patch_pos);
                     //global_clause_output[clause_chunk*MAX_NODES*128 + patch*128 + threadIdx.x] = (1 << clause_pos);
 
-                    //global_clause_output[clause*MAX_NODES + patch] = clause_output;
+                    global_clause_output[clause*MAX_NODES + patch] = clause_output;
                 }
             }
         }
