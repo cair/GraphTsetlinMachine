@@ -33,13 +33,6 @@ code_header = """
     #define HYPERVECTOR_CHUNKS (((HYPERVECTOR_SIZE-1)/INT_SIZE + 1))
 
     #define NODE_CHUNKS ((MAX_NODES-1)/INT_SIZE + 1)
-    
-    #if (MAX_NODES % 32 != 0)
-    #define NODE_FILTER (~(0xffffffff << (MAX_NODES % INT_SIZE)))
-    #else
-    #define NODE_FILTER 0xffffffff
-    #endif
-
 
     #define PRIME 127
 
@@ -372,6 +365,12 @@ code_evaluate = """
             int stride = blockDim.x * gridDim.x;
 
             int number_of_node_chunks = (number_of_nodes-1)/INT_SIZE + 1;
+            unsigned int node_filter;
+            if (number_of_nodes % INT_SIZE != 0) {
+                node_filter = (~(0xffffffff << (number_of_nodes % INT_SIZE)));
+            } else {
+                node_filter = 0xffffffff;
+            }
 
             for (int clause = index; clause < CLAUSES; clause += stride) {
                 int clause_output = 0;
@@ -382,7 +381,7 @@ code_evaluate = """
                     }
                 }
 
-                if (global_clause_output[clause*NODE_CHUNKS + number_of_node_chunks-1] & NODE_FILTER) {
+                if (global_clause_output[clause*NODE_CHUNKS + number_of_node_chunks-1] & node_filter) {
                     clause_output = 1;
                 }
 
