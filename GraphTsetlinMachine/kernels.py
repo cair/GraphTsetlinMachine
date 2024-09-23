@@ -394,6 +394,8 @@ code_evaluate = """
             int index = blockIdx.x * blockDim.x + threadIdx.x;
             int stride = blockDim.x * gridDim.x;
 
+            unsigned int clause_output;
+
             unsigned int *X = &global_X[graph_index * LA_CHUNKS];
 
             for (int clause = index; clause < CLAUSES; clause += stride) {
@@ -416,23 +418,31 @@ code_evaluate = """
                 }
 
                 for (int patch = 0; patch < number_of_nodes; ++patch) {
-                    int clause_output = 1;
+                    int patch_chunk = patch / INT_SIZE;
+                    int patch_pos = patch % INT_SIZE;
+
+                    if (patch_pos == 0) {
+                        clause_output = ~0;
+                    }
+
+                    int clause_output[patch_chunk] |= (1 << patch_pos);
                     for (int la_chunk = 0; la_chunk < LA_CHUNKS-1; ++la_chunk) {
                         if ((ta_state[la_chunk*STATE_BITS + STATE_BITS - 1] & X[patch*LA_CHUNKS + la_chunk]) != ta_state[la_chunk*STATE_BITS + STATE_BITS - 1]) {
-                            clause_output = 0;
+                            clause_output &= ~(1 << patch_pos);
                         }
                     }
 
                     if ((ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & X[patch*LA_CHUNKS + LA_CHUNKS-1] & FILTER) != (ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & FILTER)) {
-                        clause_output = 0;
+                        clause_output &= ~(1 << patch_pos);
                     }
 
-                    int patch_chunk = patch / INT_SIZE;
-                    int patch_pos = patch % INT_SIZE;
-                    global_clause_output[clause*NODE_CHUNKS + patch_chunk] = (1 << patch_pos);
                     //global_clause_output[clause_chunk*MAX_NODES*128 + patch*128 + threadIdx.x] = (1 << clause_pos);
 
                     //global_clause_output[clause*MAX_NODES + patch] = clause_output;
+
+                    if (patch_pos == INT_SIZE-1) {
+                        global_clause_output[clause*NODE_CHUNKS + patch_chunk] = clause_output;
+                    }
                 }
             }
         }
