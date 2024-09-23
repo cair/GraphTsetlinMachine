@@ -362,6 +362,12 @@ code_evaluate = """
             int index = blockIdx.x * blockDim.x + threadIdx.x;
             int stride = blockDim.x * gridDim.x;
 
+            unsigned int clause_hypervector[MAX_NODES*HYPERVECTOR_CHUNKS];
+
+            for (int k = 0; k < MAX_NODES*HYPERVECTOR_CHUNKS) {
+                clause_hyper_vector[k] = global_clause_hypervector[k];
+            }
+
             for (int clause = index; clause < CLAUSES; clause += stride) {
                 // First index
 
@@ -377,8 +383,8 @@ code_evaluate = """
 
                 int clause_output = 0;
                 for (int patch = 0; patch < number_of_nodes; ++patch) {
-                    clause_output = (global_clause_hypervector[patch * HYPERVECTOR_CHUNKS + first_bit_chunk] & (1 << first_bit_pos)) &&
-                        (global_clause_hypervector[patch * HYPERVECTOR_CHUNKS + second_bit_chunk] & (1 << second_bit_pos));
+                    clause_output = (clause_hypervector[patch * HYPERVECTOR_CHUNKS + first_bit_chunk] & (1 << first_bit_pos)) &&
+                        (clause_hypervector[patch * HYPERVECTOR_CHUNKS + second_bit_chunk] & (1 << second_bit_pos));
 
                     if (clause_output) {
                         break;
