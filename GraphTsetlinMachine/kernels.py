@@ -559,7 +559,7 @@ code_evaluate = """
                     int node_pos = node % INT_SIZE;
 
                     if (global_clause_output[clause*NODE_CHUNKS + node_chunk] & (1 << node_pos) > 0) {
-                        X[clause*MAX_NODES + node] = 1;
+                        X[node*CLAUSES + clause] = 1;
                     }
                 }
             }
