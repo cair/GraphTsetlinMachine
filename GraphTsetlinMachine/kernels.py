@@ -396,13 +396,13 @@ code_evaluate = """
 
             int local_clause_output[INT_SIZE * MAX_NODES];
 
-            for (int clause_int = index; clause_int < CLAUSES/INT_SIZE; clause_int += stride) {
-                for (int k = 0; k < INT_SIZE; ++k) {
-                    int clause = clause_int*INT_SIZE + k;
+            for (int patch = 0; patch < number_of_nodes; ++patch) {
+                for (int clause_int = index; clause_int < CLAUSES/INT_SIZE; clause_int += stride) {
+                    for (int k = 0; k < INT_SIZE; ++k) {
+                        int clause = clause_int*INT_SIZE + k;
 
-                    unsigned int *ta_state = &global_ta_state[clause*LA_CHUNKS*STATE_BITS];
+                        unsigned int *ta_state = &global_ta_state[clause*LA_CHUNKS*STATE_BITS];
 
-                    for (int patch = 0; patch < number_of_nodes; ++patch) {
                         int clause_output = 1;
                         for (int la_chunk = 0; la_chunk < LA_CHUNKS-1; ++la_chunk) {
                             if ((ta_state[la_chunk*STATE_BITS + STATE_BITS - 1] & X[patch*LA_CHUNKS + la_chunk]) != ta_state[la_chunk*STATE_BITS + STATE_BITS - 1]) {
@@ -425,7 +425,7 @@ code_evaluate = """
                 for (int patch = 0; patch < number_of_nodes; ++patch) {
                     global_clause_output[clause_int*MAX_NODES + patch] = local_clause_output[patch];
                 }
-            }
+            }   
         }
 
         __global__ void pass_messages_parts(
