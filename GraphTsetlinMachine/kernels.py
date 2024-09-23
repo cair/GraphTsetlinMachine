@@ -420,10 +420,10 @@ code_evaluate = """
                             local_clause_output[patch] &= ~(1 << k);
                         }
                     }
-                }
-
-                for (int patch = 0; patch < number_of_nodes; ++patch) {
-                    global_clause_output[clause_int*MAX_NODES + patch] = local_clause_output[patch];
+                    
+                    for (int patch = 0; patch < number_of_nodes; ++patch) {
+                       global_clause_output[clause_int*MAX_NODES + patch] = local_clause_output[patch];
+                    }
                 }
             }   
         }
