@@ -415,7 +415,7 @@ code_evaluate = """
             unsigned int X[LA_CHUNKS];
             unsigned int clause_hypervector[HYPERVECTOR_CHUNKS];
 
-            int parts = 20;
+            int parts = 40;
 
             for (int node_part = index; node_part < number_of_nodes*parts; node_part += stride) {
                 int node = node_part / parts;
