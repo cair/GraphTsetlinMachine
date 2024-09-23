@@ -362,7 +362,9 @@ code_evaluate = """
             int index = blockIdx.x * blockDim.x + threadIdx.x;
             int stride = blockDim.x * gridDim.x;
 
-            for (int clause = index; clause < CLAUSES; clause += stride) {
+            for (int patch = index; patch < number_of_nodes; patch += stride) {
+
+            for (int clause = 0; clause < CLAUSES; ++clause) {
                 // First index
 
                 int first_bit = clause % (HYPERVECTOR_SIZE / 2);
@@ -376,7 +378,6 @@ code_evaluate = """
                 int second_bit_pos = second_bit % INT_SIZE;
 
                 int clause_output = 0;
-                for (int patch = 0; patch < number_of_nodes; ++patch) {
                     int clause_output = (global_clause_hypervector[patch * HYPERVECTOR_CHUNKS + first_bit_chunk] & (1 << first_bit_pos)) &&
                         (global_clause_hypervector[patch * HYPERVECTOR_CHUNKS + second_bit_chunk] & (1 << second_bit_pos));
 
@@ -399,6 +400,7 @@ code_evaluate = """
             int number_of_nodes,
             int graph_index,
             int *global_clause_hypervector,
+            int *global_clause_output;
             int *global_X
         )
         {
@@ -447,6 +449,8 @@ code_evaluate = """
                     if ((ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & X[LA_CHUNKS-1] & FILTER) != (ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & FILTER)) {
                         clause_output = 0;
                     }
+
+                    global_clause_output[clause] = clause_output;
 
                     if (clause_output) {
                         // First index

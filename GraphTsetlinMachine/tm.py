@@ -77,6 +77,7 @@ class CommonTsetlinMachine():
 		self.ta_state_gpu = cuda.mem_alloc(self.depth*self.number_of_clauses*self.number_of_ta_chunks*self.number_of_state_bits*4)
 		self.clause_weights_gpu = cuda.mem_alloc(self.number_of_outputs*self.number_of_clauses*4)
 		self.class_sum_gpu = cuda.mem_alloc(self.number_of_outputs*4)
+		self.clause_output_gpu = cuda.mem_alloc(self.number_of_clauses*4)
 
 	def ta_action(self, depth, clause, ta):
 		if np.array_equal(self.ta_state, np.array([])):
@@ -161,7 +162,7 @@ class CommonTsetlinMachine():
 		self.evaluate_new.prepare("PiiPP")
 
 		self.pass_messages = mod_evaluate.get_function("pass_messages")
-		self.pass_messages.prepare("PiiPP")
+		self.pass_messages.prepare("PPiiPP")
 
 		self.initialized = True
 
@@ -250,6 +251,7 @@ class CommonTsetlinMachine():
 				np.int32(graphs.number_of_graph_nodes[e]),
 				np.int32(graphs.node_index[e]),
 				self.clause_hypervector_test_gpu,
+				self.clause_output_gpu,
 				self.encoded_X_test_gpu
 			)
 			cuda.Context.synchronize()
