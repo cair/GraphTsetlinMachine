@@ -395,9 +395,9 @@ code_evaluate = """
                         clause_output = 0;
                     }
 
-                    if (clause_output) {
+                    //if (clause_output) {
                         global_clause_output[clause*MAX_NODES + patch] = clause_output;
-                    }
+                    //}
                 }
             }
         }
