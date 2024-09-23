@@ -47,6 +47,8 @@ class CommonTsetlinMachine():
 			boost_true_positive_feedback=1,
 			number_of_state_bits=8,
 			depth=1,
+			hypervector_size=256,
+			hypervector_bits=2,
 			grid=(16*13*4,1,1),
 			block=(128,1,1)
 	):
@@ -61,6 +63,8 @@ class CommonTsetlinMachine():
 		self.max_included_literals = max_included_literals
 		self.boost_true_positive_feedback = boost_true_positive_feedback
 		self.depth = depth
+		self.hypervector_size = hypervector_size
+		self.hypervector_bits = hypervector_bits
 		self.grid = grid
 		self.block = block
 
@@ -71,10 +75,10 @@ class CommonTsetlinMachine():
 		self.ta_state = np.array([])
 		self.clause_weights = np.array([])
 
-		indexes = np.arange(graphs.hypervector_size, dtype=np.uint32)
-		self.hypervectors = np.zeros((self.number_of_clauses, graphs.hypervector_bits), dtype=np.uint32)
+		indexes = np.arange(self.hypervector_size, dtype=np.uint32)
+		self.hypervectors = np.zeros((self.number_of_clauses, self.hypervector_bits), dtype=np.uint32)
 		for i in range(self.number_of_clauses):
-			self.hypervectors[i,:] = np.random.choice(indexes, size=(graphs.hypervector_bits), replace=False)
+			self.hypervectors[i,:] = np.random.choice(indexes, size=(self.hypervector_bits), replace=False)
 
 		self.initialized = False
 
@@ -316,6 +320,8 @@ class MultiClassGraphTsetlinMachine(CommonTsetlinMachine):
 			boost_true_positive_feedback=1,
 			number_of_state_bits=8,
 			depth=1,
+			hypervector_size=256,
+			hypervector_bits=2,
 			grid=(16*13*4,1,1),
 			block=(128,1,1)
 	):
@@ -328,6 +334,8 @@ class MultiClassGraphTsetlinMachine(CommonTsetlinMachine):
 			boost_true_positive_feedback=boost_true_positive_feedback,
 			number_of_state_bits=number_of_state_bits,
 			depth=depth,
+			hypervector_size=hypervector_size,
+			hypervector_bits=hypervector_bits,
 			grid=grid,
 			block=block
 		)
