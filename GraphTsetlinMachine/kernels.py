@@ -301,7 +301,7 @@ code_evaluate = """
             int index = blockIdx.x * blockDim.x + threadIdx.x;
             int stride = blockDim.x * gridDim.x;
 
-            int X[LA_CHUNKS*MAX_NODES];
+            unsigned int X[LA_CHUNKS*MAX_NODES];
 
             for (int k = 0; k < MAX_NODES*LA_CHUNKS; ++k) {
                 X[k] = global_X[graph_index * LA_CHUNKS + k];
@@ -354,7 +354,7 @@ code_evaluate = """
             }
         }
 
-        __global__ void evaluate(
+        __global__ void evaluate_test(
             int *global_clause_output,
             int *clause_weights,
             int number_of_nodes,
