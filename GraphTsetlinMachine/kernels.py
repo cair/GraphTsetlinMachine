@@ -394,38 +394,38 @@ code_evaluate = """
 
             unsigned int *X = &global_X[graph_index * LA_CHUNKS];
 
-            int local_clause_output[INT_SIZE * MAX_NODES];
+            for (int clause = index; clause < CLAUSES; clause += stride) {
+                unsigned int *ta_state = &global_ta_state[clause*LA_CHUNKS*STATE_BITS];
 
-            for (int clause_int = index; clause_int < CLAUSES/INT_SIZE; clause_int += stride) {
-                for (int patch = 0; patch < number_of_nodes; ++patch) {
-                    local_clause_output[patch] = 0;
-                }
-
-                for (int k = 0; k < INT_SIZE; ++k) {
-                    int clause = clause_int*INT_SIZE + k;
-
-                    unsigned int *ta_state = &global_ta_state[clause*LA_CHUNKS*STATE_BITS];
-
-                    for (int patch = 0; patch < number_of_nodes; ++patch) {
-                        int clause_output = 1;
-                        for (int la_chunk = 0; la_chunk < LA_CHUNKS-1; ++la_chunk) {
-                            if ((ta_state[la_chunk*STATE_BITS + STATE_BITS - 1] & X[patch*LA_CHUNKS + la_chunk]) != ta_state[la_chunk*STATE_BITS + STATE_BITS - 1]) {
-                                clause_output = 0;
-                            }
-                        }
-
-                        if ((ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & X[patch*LA_CHUNKS + LA_CHUNKS-1] & FILTER) != (ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & FILTER)) {
-                            clause_output = 0;
-                        }
-
-                        if (clause_output) {
-                            local_clause_output[patch] |= (1 << k);
-                        }
+                int all_exclude = 1;
+                for (int la_chunk = 0; la_chunk < LA_CHUNKS-1; ++la_chunk) {
+                    if (ta_state[la_chunk*STATE_BITS + STATE_BITS - 1] > 0) {
+                        all_exclude = 0;
+                        break;
                     }
                 }
 
+                if ((ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & FILTER) > 0) {
+                    all_exclude = 0;
+                }
+
+                if (all_exclude) {
+                    continue;
+                }
+
                 for (int patch = 0; patch < number_of_nodes; ++patch) {
-                    global_clause_output[clause_int*MAX_NODES + patch] = local_clause_output[patch];
+                    int clause_output = 1;
+                    for (int la_chunk = 0; la_chunk < LA_CHUNKS-1; ++la_chunk) {
+                        if ((ta_state[la_chunk*STATE_BITS + STATE_BITS - 1] & X[patch*LA_CHUNKS + la_chunk]) != ta_state[la_chunk*STATE_BITS + STATE_BITS - 1]) {
+                            clause_output = 0;
+                        }
+                    }
+
+                    if ((ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & X[patch*LA_CHUNKS + LA_CHUNKS-1] & FILTER) != (ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & FILTER)) {
+                        clause_output = 0;
+                    }
+
+                    global_clause_output[clause*MAX_NODES + patch] = clause_output;
                 }
             }
         }
