@@ -307,7 +307,7 @@ code_evaluate = """
             //     X[k] = global_X[graph_index * LA_CHUNKS + k];
             // }
 
-            unsigned int *X = &global_X[graph_index * LA_CHUNKS;
+            unsigned int *X = &global_X[graph_index * LA_CHUNKS];
 
             for (int clause = index; clause < CLAUSES; clause += stride) {
                 unsigned int *ta_state = &global_ta_state[clause*LA_CHUNKS*STATE_BITS];
