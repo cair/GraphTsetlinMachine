@@ -71,12 +71,19 @@ class CommonTsetlinMachine():
 		self.ta_state = np.array([])
 		self.clause_weights = np.array([])
 
+		indexes = np.arange(graphs.hypervector_size, dtype=np.uint32)
+		self.hypervectors = np.zeros((self.number_of_clauses, graphs.hypervector_bits), dtype=np.uint32)
+		for i in range(self.number_of_clauses):
+			self.hypervectors[i,:] = np.random.choice(indexes, size=(graphs.hypervector_bits), replace=False)
+
 		self.initialized = False
 
 	def allocate_gpu_memory(self):
 		self.ta_state_gpu = cuda.mem_alloc(self.depth*self.number_of_clauses*self.number_of_ta_chunks*self.number_of_state_bits*4)
 		self.clause_weights_gpu = cuda.mem_alloc(self.number_of_outputs*self.number_of_clauses*4)
 		self.class_sum_gpu = cuda.mem_alloc(self.number_of_outputs*4)
+		self.hypervectors_gpu = cuda.mem_alloc(self.hypervectors.nbytes)
+		cuda.memcpy_htod(self.hypervectors_gpu, self.hypervectors)
 
 	def ta_action(self, depth, clause, ta):
 		if np.array_equal(self.ta_state, np.array([])):
@@ -138,8 +145,9 @@ class CommonTsetlinMachine():
 #define MAX_INCLUDED_LITERALS %d
 #define NEGATIVE_CLAUSES %d
 #define MAX_NODES %d
+#define HYPERVECTOR_BITS %d
 #define NUMBER_OF_EXAMPLES %d
-""" % (self.number_of_outputs, self.number_of_clauses, self.number_of_literals, self.number_of_state_bits, self.boost_true_positive_feedback, self.s, self.T, self.q, self.max_included_literals, self.negative_clauses, graphs.max_number_of_graph_nodes, graphs.number_of_graphs)
+""" % (self.number_of_outputs, self.number_of_clauses, self.number_of_literals, self.number_of_state_bits, self.boost_true_positive_feedback, self.s, self.T, self.q, self.max_included_literals, self.negative_clauses, graphs.max_number_of_graph_nodes, graphs.hypervector_bits, graphs.number_of_graphs)
 
 		mod_prepare = SourceModule(parameters + kernels.code_header + kernels.code_prepare, no_extern_c=True)
 		self.prepare = mod_prepare.get_function("prepare")
@@ -157,8 +165,11 @@ class CommonTsetlinMachine():
 		self.evaluate = mod_evaluate.get_function("evaluate")
 		self.evaluate.prepare("PPiiPP")
 
-		self.pass_messages = mod_evaluate.get_function("pass_messages")
-		self.pass_messages.prepare("PiiPP")
+		self.calculate_messages = mod_evaluate.get_function("calculate_messages")
+		self.calculate_messages.prepare("PiiPP")
+
+		self.exchange_messages = mod_evaluate.get_function("exchange_messages")
+		self.exchange_messages.prepare("iPPP")
 
 		self.initialized = True
 
@@ -240,13 +251,23 @@ class CommonTsetlinMachine():
 		for e in range(graphs.number_of_graphs):
 			cuda.memcpy_htod(self.class_sum_gpu, class_sum[e,:])
 
-			self.pass_messages.prepared_call(
+			self.calculate_messages.prepared_call(
 				self.grid,
 				self.block,
 				self.ta_state_gpu,
 				np.int32(graphs.number_of_graph_nodes[e]),
 				np.int32(graphs.node_index[e]),
 				self.clause_output_gpu,
+				self.encoded_X_test_gpu
+			)
+			cuda.Context.synchronize()
+
+			self.exchange_messages.prepared_call(
+				self.grid,
+				self.block,
+				np.int32(graphs.number_of_graph_nodes[e]),
+				self.clause_output_gpu,
+				self.hypervectors_gpu,
 				self.encoded_X_test_gpu
 			)
 			cuda.Context.synchronize()

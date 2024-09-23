@@ -32,9 +32,9 @@ code_header = """
     #define HYPERVECTOR_SIZE 256
     #define HYPERVECTOR_CHUNKS (((HYPERVECTOR_SIZE-1)/INT_SIZE + 1))
 
-    #define NODE_CHUNKS ((MAX_NODES-1)/INT_SIZE + 1)
-
     #define PRIME 127
+
+    #define NODE_CHUNKS ((MAX_NODES-1)/INT_SIZE + 1)
 
     #if (LITERALS % 32 != 0)
     #define FILTER (~(0xffffffff << (LITERALS % INT_SIZE)))
@@ -394,7 +394,7 @@ code_evaluate = """
             }
         }
 
-        __global__ void pass_messages(
+        __global__ void calculate_messages(
             unsigned int *global_ta_state,
             int number_of_nodes,
             int graph_index,
@@ -464,6 +464,51 @@ code_evaluate = """
 
                 if ((number_of_nodes % INT_SIZE) != 0) {
                     global_clause_output[clause*NODE_CHUNKS + number_of_node_chunks - 1] = clause_output & node_filter;
+                }
+            }
+        }
+
+        __global__ void exchange_messages(
+            int number_of_nodes
+            int *global_clause_output,
+            int *hypervectors,
+            unsigned int *X
+        )
+        {
+            int index = blockIdx.x * blockDim.x + threadIdx.x;
+            int stride = blockDim.x * gridDim.x;
+
+            for (int node = index; node < number_of_nodes; node += stride) {
+                if (node > 0) {
+                    int node_chunk = (node - 1) / INT_SIZE;
+                    int node_pos = (node - 1) % INT_SIZE;
+
+                    for (int clause = 0; clause < CLAUSES; ++clause) {
+                        if (global_clause_output[clause*NODE_CHUNKS + node_chunk] & (1 << node_pos) > 0) {
+                            for (int i = 0; i < HYPERVECTOR_BITS; ++i) {
+                                bit_chunk = hypervectors[clause*HYPERVECTOR_BITS + i] / INT_SIZE;
+                                bit_pos = hypervectors[clause*HYPERVECTOR_BITS + i] % INT_SIZE;
+
+                                X[bit_chunk] |= (1 << bit_pos);
+                            }
+                        }
+                    }
+                }
+
+                if (node < number_of_nodes - 1) {
+                    int node_chunk = (node + 1) / INT_SIZE;
+                    int node_pos = (node + 1) % INT_SIZE;
+
+                    for (int clause = 0; clause < CLAUSES; ++clause) {
+                        if (global_clause_output[clause*NODE_CHUNKS + node_chunk] & (1 << node_pos) > 0) {
+                            for (int i = 0; i < HYPERVECTOR_BITS; ++i) {
+                                bit_chunk = (hypervectors[clause*HYPERVECTOR_BITS + i] + 1) / INT_SIZE;
+                                bit_pos = (hypervectors[clause*HYPERVECTOR_BITS + i] + 1) % INT_SIZE;
+
+                                X[bit_chunk] |= (1 << bit_pos);
+                            }
+                        }
+                    }
                 }
             }
         }
