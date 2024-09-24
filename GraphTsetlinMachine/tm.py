@@ -254,7 +254,8 @@ class CommonTsetlinMachine():
 			self.encoded_X_test_gpu = cuda.mem_alloc(graphs.X.nbytes)
 			cuda.memcpy_htod(self.encoded_X_test_gpu, graphs.X)
 
-			self.clause_output_gpu = cuda.mem_alloc(int(self.number_of_clauses * graphs.max_number_of_graph_node_chunks) * 4)
+			#self.clause_output_gpu = cuda.mem_alloc(int(self.number_of_clauses * graphs.max_number_of_graph_node_chunks) * 4)
+			self.clause_output_gpu = cuda.mem_alloc(int(graphs.max_number_of_graph_node_chunks * self.hypervector_chunks) * 4)
 
 			self.clause_output_int_gpu = cuda.mem_alloc(int(self.number_of_clauses * graphs.max_number_of_graph_nodes) * 4)
 
