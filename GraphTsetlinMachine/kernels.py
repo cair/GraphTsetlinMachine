@@ -464,6 +464,7 @@ code_evaluate = """
 
         __global__ void exchange_messages(
             int number_of_nodes,
+            int *hypervectors,
             int *global_clause_output,
             unsigned int *X_int
         )
@@ -495,7 +496,6 @@ code_evaluate = """
         __global__ void encode_messages(
             int number_of_nodes,
             unsigned int *X_int,
-            int *hypervectors,
             unsigned int *X
         )
         {
