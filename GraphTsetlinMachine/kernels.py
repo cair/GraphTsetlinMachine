@@ -577,7 +577,7 @@ code_evaluate = """
                 }
 
                 clause_output = ~0;
-                for (int patch_pos = 0; patch_pos < INT_SIZE; ++patch_pos) {
+                for (int patch_pos = 0; (patch_pos < INT_SIZE) && ((patch_chunk * INT_SIZE + patch_pos) < number_of_nodes); ++patch_pos) {
                     int patch = patch_chunk * INT_SIZE + patch_pos;
 
                     for (int la_chunk = 0; la_chunk < LA_CHUNKS-1; ++la_chunk) {
