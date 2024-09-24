@@ -572,12 +572,20 @@ code_evaluate = """
             int stride = blockDim.x * gridDim.x;
 
             for (int node = index; node < number_of_nodes; node += stride) {
+                int clause_output;
                 for (int clause = 0; clause < CLAUSES; ++clause) {
-                    int clause_pos = clause % INT_SIZE;
-                    int clause_patch = clause / INT_SIZE;
+                    if (clause_output % INT_SIZE == 0) {
+                        clause_output = 0;
+                    }
 
                     if (X_int[node*CLAUSES + clause]) {
-                        X[node*CLAUSE_CHUNKS] |= (1 << clause_pos);
+                        int clause_pos = clause % INT_SIZE;
+                        clause_output |= (1 << clause_pos);
+                    }
+
+                    if (clause_output % INT_SIZE == INT_SIZE - 1) {
+                        int clause_patch = clause / INT_SIZE;
+                        X[node*CLAUSE_CHUNKS + clause_patch] = clause_output;
                     }
                 }
             }
