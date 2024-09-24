@@ -11,8 +11,8 @@ def default_args(**kwargs):
     parser.add_argument("--number-of-clauses", default=20, type=int)
     parser.add_argument("--T", default=200, type=int)
     parser.add_argument("--s", default=1.0, type=float)
-    parser.add_argument("--hypervector_size", default=16, type=int)
-    parser.add_argument("--hypervector_bits", default=1, type=int)
+    parser.add_argument("--hypervector-size", default=16, type=int)
+    parser.add_argument("--hypervector-bits", default=1, type=int)
     parser.add_argument("--noise", default=0.2, type=float)
     parser.add_argument("--number-of-examples", default=10000, type=int)
     parser.add_argument("--max-sequence-length", default=1000, type=int)
@@ -31,7 +31,7 @@ print("Creating training data")
 
 # Create train data
 
-graphs_train = Graphs(args.number_of_examples, symbol_names=['A', 'B'], hypervector_size=16, hypervector_bits=1)
+graphs_train = Graphs(args.number_of_examples, symbol_names=['A', 'B'], hypervector_size=args.hypervector_size, hypervector_bits=args.hypervector_bits)
 for graph_id in range(args.number_of_examples):
     graphs_train.set_number_of_graph_nodes(graph_id, np.random.randint(1, args.max_sequence_length))
 

@@ -21,8 +21,8 @@ def default_args(**kwargs):
     parser.add_argument("--number-of-clauses", default=20000, type=int)
     parser.add_argument("--T", default=25000, type=int)
     parser.add_argument("--s", default=10.0, type=float)
-    parser.add_argument("--hypervector_size", default=128, type=int)
-    parser.add_argument("--hypervector_bits", default=2, type=int)
+    parser.add_argument("--hypervector-size", default=128, type=int)
+    parser.add_argument("--hypervector-bits", default=2, type=int)
     parser.add_argument("--max-included-literals", default=32, type=int)
 
     args = parser.parse_args()
