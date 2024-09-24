@@ -374,13 +374,13 @@ code_evaluate = """
             for (int clause = index; clause < CLAUSES; clause += stride) {
                 int clause_output = 0;
                 for (int k = 0; k < number_of_node_chunks-1; ++k) {
-                    if (global_clause_output[clause*NODE_CHUNKS + k]) {
+                    if (global_clause_output[k*CLAUSES + clause]) {
                         clause_output = 1;
                         break;
                     }
                 }
 
-                if (global_clause_output[clause*NODE_CHUNKS + number_of_node_chunks-1] & node_filter) {
+                if (global_clause_output[(number_of_node_chunks-1)*CLAUSES + clause] & node_filter) {
                     clause_output = 1;
                 }
 
