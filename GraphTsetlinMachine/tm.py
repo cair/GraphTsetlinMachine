@@ -258,7 +258,7 @@ class CommonTsetlinMachine():
 
 			self.clause_output_int_gpu = cuda.mem_alloc(int(self.number_of_clauses * graphs.max_number_of_graph_nodes) * 4)
 
-			self.clause_X_test_gpu = cuda.mem_alloc(int(graphs.max_number_of_graph_nodes * self.number_of_clause_chunks) * 4)
+			self.clause_X_test_gpu = cuda.mem_alloc(int(graphs.max_number_of_graph_nodes * self.number_of_hypervector_chunks) * 4)
 
 		class_sum = np.zeros((graphs.number_of_graphs, self.number_of_outputs), dtype=np.int32)
 		for e in range(graphs.number_of_graphs):
@@ -270,7 +270,7 @@ class CommonTsetlinMachine():
 				self.ta_state_gpu,
 				np.int32(graphs.number_of_graph_nodes[e]),
 				np.int32(graphs.node_index[e]),
-				self.clause_output_gpu,
+				self.clause_X_test_gpu,
 				self.encoded_X_test_gpu
 			)
 			cuda.Context.synchronize()
