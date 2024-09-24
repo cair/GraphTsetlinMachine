@@ -547,6 +547,7 @@ code_evaluate = """
                 int patch = node_hypervector_chunk / HYPERVECTOR_CHUNKS;
                 int hypervector_chunk = node_hypervector_chunk % HYPERVECTOR_CHUNKS;
 
+                printf("PATCH %d HVCHUNK %d\\n", patch, hypervector_chunk);
                 int hypervector = 0;
 
                 for (int clause = 0; clause < CLAUSES; ++clause) {
