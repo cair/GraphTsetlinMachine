@@ -466,7 +466,7 @@ code_evaluate = """
             int number_of_nodes,
             int *hypervectors,
             int *global_clause_output,
-            unsigned int *X_int
+            unsigned int *clause_X_int
         )
         {
             int index = blockIdx.x * blockDim.x + threadIdx.x;
@@ -482,11 +482,11 @@ code_evaluate = """
                     if (global_clause_output[clause*NODE_CHUNKS + node_chunk] & (1 << node_pos) > 0) {              
                         if (node > 0) {
                             int bit = clause % HYPERVECTOR_SIZE;
-                            X_int[(node - 1) * HYPERVECTOR_SIZE + bit] = 1;
+                            clause_X_int[(node - 1) * HYPERVECTOR_SIZE + bit] = 1;
                         }
 
                         if (node < number_of_nodes - 1) {
-                            X_int[(node + 1) * HYPERVECTOR_SIZE + bit] = 1;
+                            clause_X_int[(node + 1) * HYPERVECTOR_SIZE + bit] = 1;
                         }
                     }
                 }
@@ -495,8 +495,8 @@ code_evaluate = """
 
         __global__ void encode_messages(
             int number_of_nodes,
-            unsigned int *X_int,
-            unsigned int *X
+            unsigned int *clause_X_int,
+            unsigned int *clause_X
         )
         {
             int index = blockIdx.x * blockDim.x + threadIdx.x;
@@ -508,12 +508,12 @@ code_evaluate = """
 
                 int hypervector = 0;
                 for (int bit_pos = 0; bit_pos < INT_SIZE; ++bit_pos) {
-                    if (X_int[node*HYPERVECTOR_CHUNKS*INT_SIZE + bit_pos]) {
+                    if (clause_X_int[node*HYPERVECTOR_CHUNKS*INT_SIZE + bit_pos]) {
                         hypervector |= (1 << bit_pos);
                     }
                 }
 
-                X[node*HYPERVECTOR_CHUNKS + hypervector_chunk] = hypervector;
+                clause_X[node*HYPERVECTOR_CHUNKS + hypervector_chunk] = hypervector;
             }
         }
     }
