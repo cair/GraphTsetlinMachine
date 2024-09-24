@@ -503,11 +503,8 @@ code_evaluate = """
             int stride = blockDim.x * gridDim.x;
 
             for (int node_hypervector_chunk = index; node_hypervector_chunk < number_of_nodes * HYPERVECTOR_CHUNKS; node_hypervector_chunk += stride) {
-                //int node = node_hypervector_chunk / HYPERVECTOR_CHUNKS;
-                //int hypervector_chunk = node_hypervector_chunk % HYPERVECTOR_CHUNKS;
-
-                int node = node_hypervector_chunk % number_of_nodes;
-                int hypervector_chunk = node_hypervector_chunk / number_of_nodes;
+                int node = node_hypervector_chunk / HYPERVECTOR_CHUNKS;
+                int hypervector_chunk = node_hypervector_chunk % HYPERVECTOR_CHUNKS;
 
                 int hypervector = 0;
                 for (int bit_pos = 0; bit_pos < INT_SIZE; ++bit_pos) {
