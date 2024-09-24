@@ -265,16 +265,16 @@ class CommonTsetlinMachine():
 		for e in range(graphs.number_of_graphs):
 			cuda.memcpy_htod(self.class_sum_gpu, class_sum[e,:])
 
-			# self.calculate_messages.prepared_call(
-			# 	self.grid,
-			# 	self.block,
-			# 	self.ta_state_gpu,
-			# 	np.int32(graphs.number_of_graph_nodes[e]),
-			# 	np.int32(graphs.node_index[e]),
-			# 	self.clause_output_gpu,
-			# 	self.encoded_X_test_gpu
-			# )
-			# cuda.Context.synchronize()
+			self.calculate_messages.prepared_call(
+				self.grid,
+				self.block,
+				self.ta_state_gpu,
+				np.int32(graphs.number_of_graph_nodes[e]),
+				np.int32(graphs.node_index[e]),
+				self.clause_output_gpu,
+				self.encoded_X_test_gpu
+			)
+			cuda.Context.synchronize()
 
 			# self.exchange_messages.prepared_call(
 			# 	self.grid,
@@ -309,17 +309,17 @@ class CommonTsetlinMachine():
 			# )
 			# cuda.Context.synchronize()
 
-			self.evaluate.prepared_call(
-				self.grid,
-				self.block,
-				self.clause_output_gpu,
-				self.clause_weights_gpu,
-				np.int32(graphs.number_of_graph_nodes[e]),
-				np.int32(graphs.node_index[e]),
-				self.class_sum_gpu,
-				self.encoded_X_test_gpu
-			)
-			cuda.Context.synchronize()
+			# self.evaluate.prepared_call(
+			# 	self.grid,
+			# 	self.block,
+			# 	self.clause_output_gpu,
+			# 	self.clause_weights_gpu,
+			# 	np.int32(graphs.number_of_graph_nodes[e]),
+			# 	np.int32(graphs.node_index[e]),
+			# 	self.class_sum_gpu,
+			# 	self.encoded_X_test_gpu
+			# )
+			# cuda.Context.synchronize()
 
 			cuda.memcpy_dtoh(class_sum[e,:], self.class_sum_gpu)
 			#print(class_sum[e,:])
