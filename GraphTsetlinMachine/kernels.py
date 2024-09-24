@@ -580,6 +580,14 @@ code_evaluate = """
                 for (int patch_pos = 0; (patch_pos < INT_SIZE) && ((patch_chunk * INT_SIZE + patch_pos) < number_of_nodes); ++patch_pos) {
                     int patch = patch_chunk * INT_SIZE + patch_pos;
 
+                    if (clause < 0 || clause >= CLAUSES) {
+                        printf("ERROR\n");
+                    }
+
+                    if (patch < 0 || patch >= number_of_nodes) {
+                        printf("ERROR 2\n");
+                    }
+
                     for (int la_chunk = 0; la_chunk < LA_CHUNKS-1; ++la_chunk) {
                         if ((ta_state[la_chunk*STATE_BITS + STATE_BITS - 1] & X[patch*LA_CHUNKS + la_chunk]) != ta_state[la_chunk*STATE_BITS + STATE_BITS - 1]) {
                             clause_output &= ~(1 << patch_pos);
