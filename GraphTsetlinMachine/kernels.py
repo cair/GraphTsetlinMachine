@@ -663,7 +663,7 @@ code_evaluate = """
             int number_of_nodes,
             int *global_clause_output,
             int *hypervectors,
-            unsigned int *X
+            unsigned int *X_int
         )
         {
             int index = blockIdx.x * blockDim.x + threadIdx.x;
