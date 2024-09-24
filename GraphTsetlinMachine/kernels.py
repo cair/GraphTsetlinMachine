@@ -591,7 +591,7 @@ code_evaluate = """
 
 //                if ((number_of_nodes % INT_SIZE) != 0) {
 //                    global_clause_output[clause*NODE_CHUNKS + number_of_node_chunks - 1] = clause_output & node_filter;
-                }
+//                }
             }
         }
 
@@ -660,6 +660,36 @@ code_evaluate = """
         }
 
         __global__ void exchange_messages(
+            int number_of_nodes,
+            int *global_clause_output,
+            int *hypervectors,
+            unsigned int *X
+        )
+        {
+            int index = blockIdx.x * blockDim.x + threadIdx.x;
+            int stride = blockDim.x * gridDim.x;
+
+            for (int clause = index; clause < CLAUSES; clause += stride) {
+                int clause_one_counter = 0;
+                for (int node = 0; node < number_of_nodes; ++node) {
+
+                    int node_chunk = node / INT_SIZE;
+                    int node_pos = node % INT_SIZE;
+
+                    if (global_clause_output[clause*NODE_CHUNKS + node_chunk] & (1 << node_pos) > 0) {
+                        if (node > 1) {
+                            X_int[(node-1)*CLAUSES + clause] = 1;
+                        }
+
+                        if (node < number_of_nodes-1) {
+                            X_int[(node+1)*CLAUSES + clause] = 1;
+                        }
+                    }
+                }
+            }
+        }
+
+        __global__ void exchange_messages_current(
             int number_of_nodes,
             int *global_clause_output,
             int *hypervectors,
