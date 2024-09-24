@@ -478,10 +478,15 @@ code_evaluate = """
                     int node_chunk = node / INT_SIZE;
                     int node_pos = node % INT_SIZE;
 
-                    if (global_clause_output[clause*NODE_CHUNKS + node_chunk] & (1 << node_pos) > 0) {
-                        X_int[node*HYPERVECTOR_SIZE + bit] = 1;
-                    } else {
-                        X_int[node*HYPERVECTOR_SIZE + bit] = 0;
+                    if (global_clause_output[clause*NODE_CHUNKS + node_chunk] & (1 << node_pos) > 0) {              
+                        if (node > 0) {
+                            int bit = clause % HYPERVECTOR_SIZE;
+                            X_int[(node - 1) * HYPERVECTOR_SIZE + bit] = 1;
+                        }
+
+                        if (node < number_of_nodes - 1) {
+                            X_int[(node + 1) * HYPERVECTOR_SIZE + bit] = 1;
+                        }
                     }
                 }
             }
