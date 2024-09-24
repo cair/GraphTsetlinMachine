@@ -547,7 +547,48 @@ code_evaluate = """
                 int patch = node_hypervector_chunk / HYPERVECTOR_CHUNKS;
                 int hypervector_chunk = node_hypervector_chunk % HYPERVECTOR_CHUNKS;
 
-  
+                int hypervector = 0;
+
+                for (int clause = 0; clause < CLAUSES; ++clause) {
+                    unsigned int *ta_state = &global_ta_state[clause*LA_CHUNKS*STATE_BITS];
+
+                    int all_exclude = 1;
+                    for (int la_chunk = 0; la_chunk < LA_CHUNKS-1; ++la_chunk) {
+                        if (ta_state[la_chunk*STATE_BITS + STATE_BITS - 1] > 0) {
+                            all_exclude = 0;
+                            break;
+                        }
+                    }
+
+                    if ((ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & FILTER) > 0) {
+                        all_exclude = 0;
+                    }
+
+                    if (all_exclude) {
+                        continue;
+                    }
+
+                    int clause_output = 1;
+                    for (int la_chunk = 0; la_chunk < LA_CHUNKS-1; ++la_chunk) {
+                        if ((ta_state[la_chunk*STATE_BITS + STATE_BITS - 1] & X[patch*LA_CHUNKS + la_chunk]) != ta_state[la_chunk*STATE_BITS + STATE_BITS - 1]) {
+                            clause_output = 0;
+                        }
+                    }
+
+                    if ((ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & X[patch*LA_CHUNKS + LA_CHUNKS-1] & FILTER) != (ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & FILTER)) {
+                        clause_output = 0;
+                    }
+
+                    if (clause_output) {
+                        int bit = clause % HYPERVECTOR_SIZE;
+                        int bit_chunk = bit / INT_SIZE;
+
+                        if (bit_chunk == hypervector_chunk) {
+                            int bit_pos = bit % INT_SIZE;
+                            hypervector |= (1 << bit_pos);
+                        }
+                    }
+                }
 
                 //global_clause_output[patch*HYPERVECTOR_CHUNKS + hypervector_chunk] = hypervector;
             }
