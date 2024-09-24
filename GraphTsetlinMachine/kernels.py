@@ -673,23 +673,27 @@ code_evaluate = """
             int index = blockIdx.x * blockDim.x + threadIdx.x;
             int stride = blockDim.x * gridDim.x;
 
-            for (int clause = index; clause < CLAUSES; clause += stride) {
-                int clause_one_counter = 0;
-                for (int node = 0; node < number_of_nodes; ++node) {
+            for (int node_hypervector_chunk = index; node_hypervector_chunk < number_of_nodes * HYPERVECTOR_CHUNKS; node_hypervector_chunk += stride) {
+                int node = node_hypervector_chunk / HYPERVECTOR_CHUNKS;
+                int hypervector_chunk = node_hypervector_chunk % HYPERVECTOR_CHUNKS;
 
-                    int node_chunk = node / INT_SIZE;
-                    int node_pos = node % INT_SIZE;
+                int node_chunk = node / INT_SIZE;
+                int node_pos = node % INT_SIZE;
 
+                int hypervector = 0;
+                for (int clause = 0; clause < CLAUSES; ++clause) {
                     if (global_clause_output[clause*NODE_CHUNKS + node_chunk] & (1 << node_pos) > 0) {
-                        if (node > 1) {
-                            X_int[(node-1)*CLAUSES + clause] = 1;
-                        }
+                        int bit = clause % HYPERVECTOR_SIZE;
+                        int bit_chunk = bit / INT_SIZE;
 
-                        if (node < number_of_nodes-1) {
-                            X_int[(node+1)*CLAUSES + clause] = 1;
+                        if (bit_chunk == hypervector_chunk) {
+                            int bit_pos = bit % INT_SIZE;
+                            hypervector |= (1 << bit_pos);
                         }
                     }
                 }
+                
+                X[node*HYPERVECTOR_CHUNKS + hypervector_chunk] = hypervector;
             }
         }
 
