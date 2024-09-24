@@ -177,6 +177,9 @@ class CommonTsetlinMachine():
 		self.exchange_messages = mod_evaluate.get_function("exchange_messages")
 		self.exchange_messages.prepare("iPPP")
 
+		self.encode_messages = mod_evaluate.get_function("encode_messages")
+		self.encode_messages.prepare("iPPP")
+
 		self.initialized = True
 
 	def _init_fit(self, graphs, encoded_Y, incremental):
@@ -255,6 +258,8 @@ class CommonTsetlinMachine():
 
 			self.clause_output_int_gpu = cuda.mem_alloc(int(self.number_of_clauses * graphs.max_number_of_graph_nodes) * 4)
 
+			self.clause_X_test_gpu = cuda.mem_alloc(int(graphs.max_number_of_graph_nodes * self.number_of_clause_chunks) * 4)
+
 		class_sum = np.zeros((graphs.number_of_graphs, self.number_of_outputs), dtype=np.int32)
 		for e in range(graphs.number_of_graphs):
 			cuda.memcpy_htod(self.class_sum_gpu, class_sum[e,:])
@@ -277,6 +282,17 @@ class CommonTsetlinMachine():
 				self.clause_output_gpu,
 				self.hypervectors_gpu,
 				self.clause_output_int_gpu
+			)
+			cuda.Context.synchronize()
+
+
+			self.encode_messages.prepared_call(
+				self.grid,
+				self.block,
+				np.int32(graphs.number_of_graph_nodes[e]),
+				self.clause_output_gpu_int,
+				self.hypervectors_gpu,
+				self.clause_X_test_gpu
 			)
 			cuda.Context.synchronize()
 
