@@ -693,7 +693,7 @@ code_evaluate = """
                     }
                 }
                 
-                X[node*HYPERVECTOR_CHUNKS + hypervector_chunk] = hypervector;
+                X_int[node*HYPERVECTOR_CHUNKS + hypervector_chunk] = hypervector;
             }
         }
 
