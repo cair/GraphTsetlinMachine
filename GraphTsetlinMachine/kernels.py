@@ -585,6 +585,10 @@ code_evaluate = """
                             clause_output &= ~(1 << patch_pos);
                         }
                     }
+
+                    if ((ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & X[patch*LA_CHUNKS + LA_CHUNKS-1] & FILTER) != (ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & FILTER)) {
+                        clause_output &= ~(1 << patch_pos);
+                    }
                 }
                 
                 if (patch_chunk == number_of_node_chunks - 1) {
