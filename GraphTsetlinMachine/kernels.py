@@ -591,7 +591,7 @@ code_evaluate = """
                     }
                 }
 
-                X[patch*HYPERVECTOR_CHUNKS + hypervector_chunk] = hypervector;
+                global_clause_output[patch*HYPERVECTOR_CHUNKS + hypervector_chunk] = hypervector;
             }
         }
 
