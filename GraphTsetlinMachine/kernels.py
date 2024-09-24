@@ -507,18 +507,12 @@ code_evaluate = """
                 int hypervector_chunk = node_hypervector_chunk % HYPERVECTOR_CHUNKS;
 
                 int hypervector = 0;
-                for (int clause = 0; clause < CLAUSES; ++clause) {
-                    if (X_int[node*CLAUSES + clause]) {
-                        int bit = clause % HYPERVECTOR_SIZE;
-                        int bit_chunk = bit / INT_SIZE;
-
-                        if (bit_chunk == hypervector_chunk) {
-                            int bit_pos = bit % INT_SIZE;
-                            hypervector |= (1 << bit_pos);
-                        }
+                for (int bit = 0; bit < INT_SIZE; ++int) {
+                    if (X_int[node*HYPERVECTOR_CHUNKS*INT_SIZE + bit]) {
+                        hypervector |= (1 << bit);
                     }
                 }
-                
+
                 X[node*HYPERVECTOR_CHUNKS + hypervector_chunk] = hypervector;
             }
         }
