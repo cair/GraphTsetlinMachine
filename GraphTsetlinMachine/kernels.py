@@ -456,7 +456,7 @@ code_evaluate = """
             }
         }
 
-        __global__ void calculate_messages_current(
+        __global__ void calculate_messages(
             unsigned int *global_ta_state,
             int number_of_nodes,
             int graph_index,
@@ -530,7 +530,7 @@ code_evaluate = """
             }
         }
 
-        __global__ void calculate_messages(
+        __global__ void calculate_messages_ggg(
             unsigned int *global_ta_state,
             int number_of_nodes,
             int graph_index,
@@ -591,7 +591,6 @@ code_evaluate = """
                     global_clause_output[clause*NODE_CHUNKS + patch_chunk] = clause_output & node_filter;
                 } else {
                     global_clause_output[clause*NODE_CHUNKS + patch_chunk] = clause_output;
-
                 }
             }
         }
