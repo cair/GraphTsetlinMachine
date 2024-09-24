@@ -541,13 +541,13 @@ code_evaluate = """
             int index = blockIdx.x * blockDim.x + threadIdx.x;
             int stride = blockDim.x * gridDim.x;
 
+            unsigned int *X = &global_X[graph_index * LA_CHUNKS];
+
             for (int node_hypervector_chunk = index; node_hypervector_chunk < number_of_nodes * HYPERVECTOR_CHUNKS; node_hypervector_chunk += stride) {
                 int patch = node_hypervector_chunk / HYPERVECTOR_CHUNKS;
                 int hypervector_chunk = node_hypervector_chunk % HYPERVECTOR_CHUNKS;
 
                 int hypervector = 0;
-
-                unsigned int *X = &global_X[graph_index * LA_CHUNKS];
 
                 for (int clause = 0; clause < CLAUSES; ++clause) {
                     unsigned int *ta_state = &global_ta_state[clause*LA_CHUNKS*STATE_BITS];
