@@ -290,7 +290,7 @@ class CommonTsetlinMachine():
 				self.grid,
 				self.block,
 				np.int32(graphs.number_of_graph_nodes[e]),
-				self.clause_output_gpu_int,
+				self.clause_output_int_gpu,
 				self.hypervectors_gpu,
 				self.clause_X_test_gpu
 			)
