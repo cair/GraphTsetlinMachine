@@ -590,7 +590,6 @@ code_evaluate = """
                     }
                 }
 
-                printf()
                 global_clause_output[patch*HYPERVECTOR_CHUNKS + hypervector_chunk] = hypervector;
             }
         }
