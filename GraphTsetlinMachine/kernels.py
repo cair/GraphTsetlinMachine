@@ -542,9 +542,9 @@ code_evaluate = """
             int stride = blockDim.x * gridDim.x;
 
             if (index != 0) {
-                continue;
-
+                return;
             }
+            
             unsigned int *X = &global_X[graph_index * LA_CHUNKS];
 
             for (int node_hypervector_chunk = 0; node_hypervector_chunk < number_of_nodes * HYPERVECTOR_CHUNKS; node_hypervector_chunk += 1) {
