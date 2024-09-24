@@ -581,11 +581,11 @@ code_evaluate = """
                     int patch = patch_chunk * INT_SIZE + patch_pos;
 
                     if (clause < 0 || clause >= CLAUSES) {
-                        printf("ERROR\n");
+                        printf("ERROR\\n");
                     }
 
                     if (patch < 0 || patch >= number_of_nodes) {
-                        printf("ERROR 2\n");
+                        printf("ERROR 2\\n");
                     }
 
                     for (int la_chunk = 0; la_chunk < LA_CHUNKS-1; ++la_chunk) {
