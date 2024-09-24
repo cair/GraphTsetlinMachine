@@ -553,9 +553,9 @@ code_evaluate = """
 
             unsigned int *X = &global_X[graph_index * LA_CHUNKS];
 
-            for (int clause_node_chunk = index; clause_node_chunk < CLAUSES*NODE_CHUNKS; clause_node_chunk += stride) {
-                int clause = clause / NODE_CHUNKS;
-                int patch_chunk = clause % NODE_CHUNKS;
+            for (int clause_node_chunk = index; clause_node_chunk < (CLAUSES)*(NODE_CHUNKS); clause_node_chunk += stride) {
+                int clause = clause / (NODE_CHUNKS);
+                int patch_chunk = clause % (NODE_CHUNKS);
 
                 unsigned int *ta_state = &global_ta_state[clause*LA_CHUNKS*STATE_BITS];
 
