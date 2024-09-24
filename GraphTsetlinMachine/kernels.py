@@ -587,11 +587,12 @@ code_evaluate = """
                     }
                 }
                 
-                global_clause_output[clause*NODE_CHUNKS + patch_chunk] = clause_output;
+                if (patch_chunk == number_of_node_chunks - 1) {
+                    global_clause_output[clause*NODE_CHUNKS + patch_chunk] = clause_output & node_filter;
+                } else {
+                    global_clause_output[clause*NODE_CHUNKS + patch_chunk] = clause_output;
 
-//                if ((number_of_nodes % INT_SIZE) != 0) {
-//                    global_clause_output[clause*NODE_CHUNKS + number_of_node_chunks - 1] = clause_output & node_filter;
-//                }
+                }
             }
         }
 
