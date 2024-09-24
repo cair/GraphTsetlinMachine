@@ -541,13 +541,9 @@ code_evaluate = """
             int index = blockIdx.x * blockDim.x + threadIdx.x;
             int stride = blockDim.x * gridDim.x;
 
-            if (index != 0) {
-                return;
-            }
-            
             unsigned int *X = &global_X[graph_index * LA_CHUNKS];
 
-            for (int node_hypervector_chunk = 0; node_hypervector_chunk < number_of_nodes * HYPERVECTOR_CHUNKS; node_hypervector_chunk += 1) {
+            for (int node_hypervector_chunk = index; node_hypervector_chunk < number_of_nodes * HYPERVECTOR_CHUNKS; node_hypervector_chunk += stride) {
                 int patch = node_hypervector_chunk / HYPERVECTOR_CHUNKS;
                 int hypervector_chunk = node_hypervector_chunk % HYPERVECTOR_CHUNKS;
 
@@ -594,7 +590,7 @@ code_evaluate = """
                     }
                 }
 
-                printf("%d %d %d %d\\n", patch, hypervector_chunk, HYPERVECTOR_CHUNKS, patch*HYPERVECTOR_CHUNKS + hypervector_chunk);
+                printf()
                 global_clause_output[patch*HYPERVECTOR_CHUNKS + hypervector_chunk] = hypervector;
             }
         }
