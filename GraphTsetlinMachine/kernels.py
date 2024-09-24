@@ -554,8 +554,8 @@ code_evaluate = """
             unsigned int *X = &global_X[graph_index * LA_CHUNKS];
 
             for (int clause_node_chunk = index; clause_node_chunk < (CLAUSES)*(NODE_CHUNKS); clause_node_chunk += stride) {
-                int clause = clause / (NODE_CHUNKS);
-                int patch_chunk = clause % (NODE_CHUNKS);
+                int clause = clause_node_chunk / (NODE_CHUNKS);
+                int patch_chunk = clause_node_chunk % (NODE_CHUNKS);
 
                 unsigned int *ta_state = &global_ta_state[clause*LA_CHUNKS*STATE_BITS];
 
@@ -579,14 +579,6 @@ code_evaluate = """
                 clause_output = ~0;
                 for (int patch_pos = 0; (patch_pos < INT_SIZE) && ((patch_chunk * INT_SIZE + patch_pos) < number_of_nodes); ++patch_pos) {
                     int patch = patch_chunk * INT_SIZE + patch_pos;
-
-                    if (clause < 0 || clause >= CLAUSES) {
-                        printf("ERROR\\n");
-                    }
-
-                    if (patch < 0 || patch >= number_of_nodes) {
-                        printf("ERROR 2\\n");
-                    }
 
                     for (int la_chunk = 0; la_chunk < LA_CHUNKS-1; ++la_chunk) {
                         if ((ta_state[la_chunk*STATE_BITS + STATE_BITS - 1] & X[patch*LA_CHUNKS + la_chunk]) != ta_state[la_chunk*STATE_BITS + STATE_BITS - 1]) {
