@@ -574,12 +574,21 @@ code_evaluate = """
             for (int node = index; node < number_of_nodes; node += stride) {
                 unsigned int *X_int = &global_X_int[node*CLAUSES];
                 unsigned int *X = &global_X[node*LA_CHUNKS];
-                for (int clause = 0; clause < CLAUSES; ++clause) {
-                    if (X_int[clause]) {
-                        int clause_chunk = clause / INT_SIZE;
-                        int clause_pos = clause % INT_SIZE;
 
-                        X[clause_chunk] |= (1 << clause_pos); 
+                int clause_output;
+                for (int clause = 0; clause < CLAUSES; ++clause) {
+                    if (clause_output % INT_SIZE == 0) {
+                        clause_output = 0;
+                    }
+
+                    if (X_int[clause]) {
+                        int clause_pos = clause % INT_SIZE;
+                        clause_output |= (1 << clause_pos);
+                    }
+
+                    if (clause_output % INT_SIZE == INT_SIZE - 1) {
+                        int clause_patch = clause / INT_SIZE;
+                        X[clause_patch] = clause_output;
                     }
                 }
             }
