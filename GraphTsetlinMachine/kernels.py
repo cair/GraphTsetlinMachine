@@ -507,9 +507,9 @@ code_evaluate = """
                 int hypervector_chunk = node_hypervector_chunk % HYPERVECTOR_CHUNKS;
 
                 int hypervector = 0;
-                for (int bit = 0; bit < INT_SIZE; ++int) {
-                    if (X_int[node*HYPERVECTOR_CHUNKS*INT_SIZE + bit]) {
-                        hypervector |= (1 << bit);
+                for (int bit_pos = 0; bit_pos < INT_SIZE; ++bit_pos) {
+                    if (X_int[node*HYPERVECTOR_CHUNKS*INT_SIZE + bit_pos]) {
+                        hypervector |= (1 << bit_pos);
                     }
                 }
 
