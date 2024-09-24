@@ -456,7 +456,7 @@ code_evaluate = """
             }
         }
 
-        __global__ void calculate_messages(
+        __global__ void calculate_messages_current(
             unsigned int *global_ta_state,
             int number_of_nodes,
             int graph_index,
@@ -530,6 +530,71 @@ code_evaluate = """
             }
         }
 
+        __global__ void calculate_messages(
+            unsigned int *global_ta_state,
+            int number_of_nodes,
+            int graph_index,
+            int *global_clause_output,
+            unsigned int *global_X
+        )
+        {
+            int index = blockIdx.x * blockDim.x + threadIdx.x;
+            int stride = blockDim.x * gridDim.x;
+
+            unsigned int clause_output;
+
+            int number_of_node_chunks = (number_of_nodes - 1)/INT_SIZE + 1;
+            unsigned int node_filter;
+            if ((number_of_nodes % INT_SIZE) != 0) {
+                node_filter = (~(0xffffffff << (number_of_nodes % INT_SIZE)));
+            } else {
+                node_filter = 0xffffffff;
+            }
+
+            unsigned int *X = &global_X[graph_index * LA_CHUNKS];
+
+            for (int clause_node_chunk = index; clause_node_chunk < CLAUSES*NODE_CHUNKS; clause_node_chunk += stride) {
+                int clause = clause / NODE_CHUNKS;
+                int patch_chunk = clause % NODE_CHUNKS;
+
+                unsigned int *ta_state = &global_ta_state[clause*LA_CHUNKS*STATE_BITS];
+
+                int all_exclude = 1;
+                for (int la_chunk = 0; la_chunk < LA_CHUNKS-1; ++la_chunk) {
+                    if (ta_state[la_chunk*STATE_BITS + STATE_BITS - 1] > 0) {
+                        all_exclude = 0;
+                        break;
+                    }
+                }
+
+                if ((ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & FILTER) > 0) {
+                    all_exclude = 0;
+                }
+
+                if (all_exclude) {
+                    global_clause_output[clause*NODE_CHUNKS + patch_chunk] = 0; 
+                    continue;
+                }
+
+                clause_output = ~0;
+                for (int patch_pos = 0; patch_pos < INT_SIZE; ++patch_pos) {
+                    int patch = patch_chunk * INT_SIZE + patch_pos;
+
+                    for (int la_chunk = 0; la_chunk < LA_CHUNKS-1; ++la_chunk) {
+                        if ((ta_state[la_chunk*STATE_BITS + STATE_BITS - 1] & X[patch*LA_CHUNKS + la_chunk]) != ta_state[la_chunk*STATE_BITS + STATE_BITS - 1]) {
+                            clause_output &= ~(1 << patch_pos);
+                        }
+                    }
+                }
+                
+                global_clause_output[clause*NODE_CHUNKS + patch_chunk] = clause_output;
+
+//                if ((number_of_nodes % INT_SIZE) != 0) {
+//                    global_clause_output[clause*NODE_CHUNKS + number_of_node_chunks - 1] = clause_output & node_filter;
+                }
+            }
+        }
+
         __global__ void calculate_messages_experimental(
             unsigned int *global_ta_state,
             int number_of_nodes,
@@ -595,6 +660,36 @@ code_evaluate = """
         }
 
         __global__ void exchange_messages(
+            int number_of_nodes,
+            int *global_clause_output,
+            int *hypervectors,
+            unsigned int *X
+        )
+        {
+            int index = blockIdx.x * blockDim.x + threadIdx.x;
+            int stride = blockDim.x * gridDim.x;
+
+            for (int clause = index; clause < CLAUSES; clause += stride) {
+                int clause_one_counter = 0;
+                for (int node = 0; node < number_of_nodes; ++node) {
+
+                    int node_chunk = node / INT_SIZE;
+                    int node_pos = node % INT_SIZE;
+
+                    if (global_clause_output[clause*NODE_CHUNKS + node_chunk] & (1 << node_pos) > 0) {
+                        if (node > 1) {
+                            X_int[(node-1)*CLAUSES + clause] = 1;
+                        }
+
+                        if (node < number_of_nodes-1) {
+                            X_int[(node+1)*CLAUSES + clause] = 1;
+                        }
+                    }
+                }
+            }
+        }
+
+        __global__ void exchange_messages_current(
             int number_of_nodes,
             int *global_clause_output,
             int *hypervectors,
