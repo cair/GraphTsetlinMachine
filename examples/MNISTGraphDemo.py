@@ -49,7 +49,7 @@ for i in range(dim):
 for i in range(patch_size*patch_size):
     symbol_names.append(i)
 
-graphs_train = Graphs(X_train.shape[0], symbol_names=symbol_names, hypervector_size=args.hypervector_size, hypervector_bits=args.hypervector_bits)
+graphs_train = Graphs(X_train.shape[0], symbol_names=symbol_names, hypervector_size=128, hypervector_bits=2)
 for graph_id in range(X_train.shape[0]):
     graphs_train.set_number_of_graph_nodes(graph_id, number_of_nodes)
 
