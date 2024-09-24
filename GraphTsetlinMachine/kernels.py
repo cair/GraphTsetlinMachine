@@ -571,11 +571,11 @@ code_evaluate = """
             int index = blockIdx.x * blockDim.x + threadIdx.x;
             int stride = blockDim.x * gridDim.x;
 
-            for (int clause = 0; clause < CLAUSES; ++clause) {
-                int clause_pos = clause % INT_SIZE;
-                int clause_patch = clause / INT_SIZE;
+            for (int node = index; node < number_of_nodes; node += stride) {
+                for (int clause = 0; clause < CLAUSES; ++clause) {
+                    int clause_pos = clause % INT_SIZE;
+                    int clause_patch = clause / INT_SIZE;
 
-                for (int node = index; node < number_of_nodes; node += stride) {
                     if (X_int[node*CLAUSES + clause]) {
                         X[node*CLAUSE_CHUNKS] |= (1 << clause_pos);
                     }
