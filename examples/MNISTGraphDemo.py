@@ -23,6 +23,8 @@ def default_args(**kwargs):
     parser.add_argument("--s", default=10.0, type=float)
     parser.add_argument("--hypervector-size", default=128, type=int)
     parser.add_argument("--hypervector-bits", default=2, type=int)
+    parser.add_argument("--message-hypervector-size", default=256, type=int)
+    parser.add_argument("--message-hypervector-bits", default=2, type=int)
     parser.add_argument("--max-included-literals", default=32, type=int)
 
     args = parser.parse_args()
@@ -49,7 +51,7 @@ for i in range(dim):
 for i in range(patch_size*patch_size):
     symbol_names.append(i)
 
-graphs_train = Graphs(X_train.shape[0], symbol_names=symbol_names, hypervector_size=128, hypervector_bits=2)
+graphs_train = Graphs(X_train.shape[0], symbol_names=symbol_names, hypervector_size=args.hypervector_size, hypervector_bits=args.hypervector_bits)
 for graph_id in range(X_train.shape[0]):
     graphs_train.set_number_of_graph_nodes(graph_id, number_of_nodes)
 
@@ -65,7 +67,7 @@ for graph_id in range(X_train.shape[0]):
     if graph_id % 1000 == 0:
         print(graph_id, X_train.shape[0])
      
-    windows = view_as_windows(X_train[graph_id,:,:], (10, 10))
+    windows = view_as_windows(X_train[graph_id,:,:], (patch_size, patch_size))
     for q in range(windows.shape[0]):
             for r in range(windows.shape[1]):
                 node_id = q*dim + r
@@ -113,7 +115,7 @@ graphs_test.encode()
 
 print("Testing data produced")
 
-tm = MultiClassGraphTsetlinMachine(args.number_of_clauses, args.T, args.s, hypervector_size=args.hypervector_size, hypervector_bits=args.hypervector_bits, max_included_literals=args.max_included_literals)
+tm = MultiClassGraphTsetlinMachine(args.number_of_clauses, args.T, args.s, hypervector_size=args.message_hypervector_size, hypervector_bits=args.message_hypervector_bits, max_included_literals=args.max_included_literals)
 
 for i in range(args.epochs):
     start_training = time()
