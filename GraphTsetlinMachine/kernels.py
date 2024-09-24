@@ -485,6 +485,14 @@ code_evaluate = """
                         if (node < number_of_nodes-1) {
                             X_int[(node+1)*CLAUSES + clause] = 1;
                         }
+                    } else {
+                        if (node > 1) {
+                            X_int[(node-1)*CLAUSES + clause] = 0;
+                        }
+
+                        if (node < number_of_nodes-1) {
+                            X_int[(node+1)*CLAUSES + clause] = 0;
+                        }
                     }
                 }
             }
