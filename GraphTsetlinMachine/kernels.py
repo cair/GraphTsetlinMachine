@@ -561,7 +561,7 @@ code_evaluate = """
             }
         }
 
-        __global__ void encode_messages(
+        __global__ void encode_messages_old(
             int number_of_nodes,
             unsigned int *X_int,
             int *hypervectors,
@@ -583,6 +583,37 @@ code_evaluate = """
                 }
                 
                 X[node*CLAUSE_CHUNKS + clause_chunk] = clause_output;
+            }
+        }
+
+        __global__ void encode_messages(
+            int number_of_nodes,
+            unsigned int *X_int,
+            int *hypervectors,
+            unsigned int *X
+        )
+        {
+            int index = blockIdx.x * blockDim.x + threadIdx.x;
+            int stride = blockDim.x * gridDim.x;
+
+            for (int node_hypervector_chunk = index; node_hypervector_chunk < number_of_nodes * HYPERVECTOR_CHUNKS; node_hypervector_chunk += stride) {
+                int node = node_hypervector_chunk / HYPERVECTOR_CHUNKS;
+                int hypervector_chunk = node_hypervector_chunk % HYPERVECTOR_CHUNKS;
+
+                int hypervector = 0;
+                for (int clause = 0; clause < CLAUSES; ++clause) {
+                    if (X_int[node*CLAUSES + clause]) {
+                        int bit = clause % HYPERVECTOR_SIZE;
+                        int bit_chunk = bit / INT_SIZE;
+
+                        if (bit_chunk == hypervector_chunk) {
+                            int bit_pos = bit % INT_SIZE;
+                            hypervector |= (1 << bit_pos);
+                        }
+                    }
+                }
+                
+                X[node*HYPERVECTOR_CHUNKS + hypervector_chunk] = hypervector;
             }
         }
 
