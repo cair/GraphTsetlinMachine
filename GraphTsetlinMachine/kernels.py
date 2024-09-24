@@ -374,13 +374,13 @@ code_evaluate = """
             for (int clause = index; clause < CLAUSES; clause += stride) {
                 int clause_output = 0;
                 for (int k = 0; k < number_of_node_chunks-1; ++k) {
-                    if (global_clause_output[k*CLAUSES + clause]) {
+                    if (global_clause_output[clause*NODE_CHUNKS + k]) {
                         clause_output = 1;
                         break;
                     }
                 }
 
-                if (global_clause_output[(number_of_node_chunks-1)*CLAUSES + clause] & node_filter) {
+                if (global_clause_output[clause*NODE_CHUNKS + number_of_node_chunks-1] & node_filter) {
                     clause_output = 1;
                 }
 
@@ -554,8 +554,8 @@ code_evaluate = """
             unsigned int *X = &global_X[graph_index * LA_CHUNKS];
 
             for (int clause_node_chunk = index; clause_node_chunk < (CLAUSES)*(NODE_CHUNKS); clause_node_chunk += stride) {
-                int clause = clause_node_chunk % (NODE_CHUNKS);
-                int patch_chunk = clause_node_chunk / (NODE_CHUNKS);
+                int clause = clause_node_chunk / (NODE_CHUNKS);
+                int patch_chunk = clause_node_chunk % (NODE_CHUNKS);
 
                 unsigned int *ta_state = &global_ta_state[clause*LA_CHUNKS*STATE_BITS];
 
