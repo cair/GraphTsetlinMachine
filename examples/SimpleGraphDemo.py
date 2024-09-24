@@ -107,7 +107,7 @@ for graph_id in range(args.number_of_examples):
 
 graphs_test.encode()
 
-tm = MultiClassGraphTsetlinMachine(args.number_of_clauses, args.T, args.s, hypervector_size = self.hypervector_size, hypervector_bits = self.hypervector_bits, max_included_literals=args.max_included_literals)
+tm = MultiClassGraphTsetlinMachine(args.number_of_clauses, args.T, args.s, hypervector_size = args.hypervector_size, hypervector_bits = args.hypervector_bits, max_included_literals=args.max_included_literals)
 
 for i in range(args.epochs):
     start_training = time()
