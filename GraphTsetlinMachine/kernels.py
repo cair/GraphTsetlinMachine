@@ -471,8 +471,8 @@ code_evaluate = """
             int index = blockIdx.x * blockDim.x + threadIdx.x;
             int stride = blockDim.x * gridDim.x;
 
-            for (int node = 0; node < number_of_nodes; ++node) {
-                for (int clause = index; clause < CLAUSES; clause += stride) {
+            for (int clause = index; clause < CLAUSES; clause += stride) {
+                for (int node = 0; node < number_of_nodes; ++node) {
                     int node_chunk = node / INT_SIZE;
                     int node_pos = node % INT_SIZE;
 
@@ -507,12 +507,13 @@ code_evaluate = """
             int index = blockIdx.x * blockDim.x + threadIdx.x;
             int stride = blockDim.x * gridDim.x;
 
+                for (int clause = 0; clause < CLAUSES; ++clause) {
+
             for (int node_hypervector_chunk = index; node_hypervector_chunk < number_of_nodes * HYPERVECTOR_CHUNKS; node_hypervector_chunk += stride) {
                 int node = node_hypervector_chunk / HYPERVECTOR_CHUNKS;
                 int hypervector_chunk = node_hypervector_chunk % HYPERVECTOR_CHUNKS;
 
                 int hypervector = 0;
-                for (int clause = 0; clause < CLAUSES; ++clause) {
                     if (X_int[node*CLAUSES + clause]) {
                         int bit = clause % HYPERVECTOR_SIZE;
                         int bit_chunk = bit / INT_SIZE;
