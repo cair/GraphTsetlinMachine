@@ -276,15 +276,15 @@ class CommonTsetlinMachine():
 			)
 			cuda.Context.synchronize()
 
-			self.exchange_messages.prepared_call(
-				self.grid,
-				self.block,
-				np.int32(graphs.number_of_graph_nodes[e]),
-				self.clause_output_gpu,
-				self.hypervectors_gpu,
-				self.clause_output_int_gpu
-			)
-			cuda.Context.synchronize()
+			# self.exchange_messages.prepared_call(
+			# 	self.grid,
+			# 	self.block,
+			# 	np.int32(graphs.number_of_graph_nodes[e]),
+			# 	self.clause_output_gpu,
+			# 	self.hypervectors_gpu,
+			# 	self.clause_output_int_gpu
+			# )
+			# cuda.Context.synchronize()
 
 
 			# self.encode_messages.prepared_call(
