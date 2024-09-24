@@ -563,32 +563,21 @@ code_evaluate = """
 
         __global__ void encode_messages(
             int number_of_nodes,
-            unsigned int *global_X_int,
+            unsigned int *X_int,
             int *hypervectors,
-            unsigned int *global_X
+            unsigned int *X
         )
         {
             int index = blockIdx.x * blockDim.x + threadIdx.x;
             int stride = blockDim.x * gridDim.x;
 
-            for (int node = index; node < number_of_nodes; node += stride) {
-                unsigned int *X_int = &global_X_int[node*CLAUSES];
-                unsigned int *X = &global_X[node*LA_CHUNKS];
+            for (int clause = 0; clause < CLAUSES; ++clause) {
+                int clause_pos = clause % INT_SIZE;
+                int clause_patch = clause / INT_SIZE;
 
-                int clause_output;
-                for (int clause = 0; clause < CLAUSES; ++clause) {
-                    if (clause_output % INT_SIZE == 0) {
-                        clause_output = 0;
-                    }
-
-                    if (X_int[clause]) {
-                        int clause_pos = clause % INT_SIZE;
-                        clause_output |= (1 << clause_pos);
-                    }
-
-                    if (clause_output % INT_SIZE == INT_SIZE - 1) {
-                        int clause_patch = clause / INT_SIZE;
-                        X[clause_patch] = clause_output;
+                for (int node = index; node < number_of_nodes; node += stride) {
+                    if (X_int[node*CLAUSES + clause]) {
+                        X[node*CLAUSE_CHUNKS] |= (1 << clause_pos);
                     }
                 }
             }
