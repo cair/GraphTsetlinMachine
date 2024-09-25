@@ -446,6 +446,8 @@ code_evaluate = """
             int stride = blockDim.x * gridDim.x;
 
             for (int clause = index; clause < CLAUSES; clause += stride) {
+                int bit = clause % HYPERVECTOR_SIZE;
+                
                 for (int node = 0; node < number_of_nodes; ++node) {
                     int node_chunk = node / INT_SIZE;
                     int node_pos = node % INT_SIZE;
@@ -491,8 +493,9 @@ code_evaluate = """
                 int hypervector_chunk = node_hypervector_chunk % HYPERVECTOR_CHUNKS;
 
                 int hypervector = 0;
-                for (int bit_pos = 0; bit_pos < INT_SIZE; ++bit_pos) {
-                    if (clause_X_int[node*HYPERVECTOR_CHUNKS*INT_SIZE + bit_pos]) {
+                int bit_base = node*HYPERVECTOR_CHUNKS*INT_SIZE;
+                for (int bit_pos = 0; (bit_pos < INT_SIZE) && (bit_base + bit_pos < HYPERVECTOR_SIZE); ++bit_pos) {
+                    if (clause_X_int[bit_base + bit_pos]) {
                         hypervector |= (1 << bit_pos);
                     }
                 }
