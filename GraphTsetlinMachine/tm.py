@@ -132,11 +132,14 @@ class CommonTsetlinMachine():
 	def _init(self, graphs):
 		self.number_of_features = graphs.hypervector_size
 		self.number_of_literals = self.number_of_features*2
-		
+		self.number_of_ta_chunks = int((self.number_of_literals-1)//32 + 1)
+
+		self.number_of_message_features = self.hypervector_size
+		self.number_of_message_literals = self.number_of_message_features*2
+		self.number_of_message_chunks = int((self.number_of_message_literals-1)//32 + 1)
+
 		if self.max_included_literals == None:
 			self.max_included_literals = self.number_of_literals
-
-		self.number_of_ta_chunks = int((self.number_of_literals-1)//32 + 1)
 
 		parameters = """
 #define CLASSES %d
