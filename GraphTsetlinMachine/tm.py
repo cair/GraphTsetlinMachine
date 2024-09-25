@@ -308,7 +308,7 @@ class CommonTsetlinMachine():
 			self.calculate_messages.prepared_call(
 				self.grid,
 				self.block,
-				self.number_of_clauses*2,
+				self.hypervector_size*2,
 				self.ta_state_gpu,
 				np.int32(graphs.number_of_graph_nodes[e]),
 				np.int32(0),
