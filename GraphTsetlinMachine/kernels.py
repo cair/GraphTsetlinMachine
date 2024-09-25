@@ -424,9 +424,9 @@ code_evaluate = """
                 }
                 
                 if (patch_chunk == number_of_node_chunks - 1) {
-                    global_clause_node_output[clause*NODE_CHUNKS + patch_chunk] = clause_node_output & node_filter;
+                    global_clause_node_output[clause*NODE_CHUNKS + patch_chunk] = global_clause_node_output_condition[clause*NODE_CHUNKS + patch_chunk] & clause_node_output & node_filter;
                 } else {
-                    global_clause_node_output[clause*NODE_CHUNKS + patch_chunk] = clause_node_output;
+                    global_clause_node_output[clause*NODE_CHUNKS + patch_chunk] = global_clause_node_output_condition[clause*NODE_CHUNKS + patch_chunk] & clause_node_output;
                 }
             }
         }
