@@ -259,7 +259,7 @@ class CommonTsetlinMachine():
 
 			self.clause_node_output_test_gpu = cuda.mem_alloc(int(self.number_of_clauses * graphs.max_number_of_graph_node_chunks) * 4)
 
-			self.clause_output_test_gpu = cuda.mem_alloc(int(self.clause_chunks) * 4)
+			self.clause_output_test_gpu = cuda.mem_alloc(int(self.number_of_clause_chunks) * 4)
 
 			self.clause_X_test_int_gpu = cuda.mem_alloc(int(self.number_of_clauses * graphs.max_number_of_graph_nodes) * 4)
 
