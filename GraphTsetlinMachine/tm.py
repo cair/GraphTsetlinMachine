@@ -311,14 +311,14 @@ class CommonTsetlinMachine():
 			# )
 			# cuda.Context.synchronize()
 
-			self.calculate_clause_output(
-				self.grid,
-				self.block,
-				self.clause_node_output_test_gpu,
-				np.int32(graphs.number_of_graph_nodes[e]),
-				self.clause_output_test_gpu
-			)
-			cuda.Context.synchronize()
+			# self.calculate_clause_output(
+			# 	self.grid,
+			# 	self.block,
+			# 	self.clause_node_output_test_gpu,
+			# 	np.int32(graphs.number_of_graph_nodes[e]),
+			# 	self.clause_output_test_gpu
+			# )
+			# cuda.Context.synchronize()
 
 			self.evaluate.prepared_call(
 				self.grid,
