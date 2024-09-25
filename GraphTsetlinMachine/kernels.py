@@ -384,10 +384,9 @@ code_evaluate = """
         __global__ void calculate_messages_conditional(
             unsigned int *global_ta_state,
             int number_of_nodes,
-            int graph_index,
             int *global_clause_node_output_condition,
             int *global_clause_node_output,
-            unsigned int *global_X
+            unsigned int *X
         )
         {
             int index = blockIdx.x * blockDim.x + threadIdx.x;
@@ -402,8 +401,6 @@ code_evaluate = """
             } else {
                 node_filter = 0xffffffff;
             }
-
-            unsigned int *X = &global_X[graph_index * LA_CHUNKS];
 
             for (int clause_node_chunk = index; clause_node_chunk < (CLAUSES)*(NODE_CHUNKS); clause_node_chunk += stride) {
                 int clause = clause_node_chunk % CLAUSES;

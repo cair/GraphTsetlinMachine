@@ -175,7 +175,7 @@ class CommonTsetlinMachine():
 		self.calculate_messages.prepare("PiiPP")
 
 		self.calculate_messages_conditional = mod_evaluate.get_function("calculate_messages_conditional")
-		self.calculate_messages_conditional.prepare("PiiPPP")
+		self.calculate_messages_conditional.prepare("PiPPP")
 
 		self.exchange_messages = mod_evaluate.get_function("exchange_messages")
 		self.exchange_messages.prepare("iPPP")
@@ -306,7 +306,6 @@ class CommonTsetlinMachine():
 				self.block,
 				self.ta_state_gpu,
 				np.int32(graphs.number_of_graph_nodes[e]),
-				np.int32(graphs.node_index[e]),
 				self.clause_node_output_test_gpu,
 				self.clause_node_output_round_test_gpu,
 				self.clause_X_test_gpu
