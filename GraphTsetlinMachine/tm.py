@@ -64,7 +64,7 @@ class CommonTsetlinMachine():
 		self.boost_true_positive_feedback = boost_true_positive_feedback
 		self.depth = depth
 		self.hypervector_size = hypervector_size
-		self.hypervector_chunks = (hypervector_size - 1) // 32 + 1
+		self.hypervector_chunks = (hypervector_size*2 - 1) // 32 + 1
 		self.hypervector_bits = hypervector_bits
 		self.grid = grid
 		self.block = block

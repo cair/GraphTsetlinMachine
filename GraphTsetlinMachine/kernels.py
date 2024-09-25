@@ -29,7 +29,7 @@ code_header = """
     #define LA_CHUNKS (((LITERALS-1)/INT_SIZE + 1))
     #define CLAUSE_CHUNKS ((CLAUSES-1)/INT_SIZE + 1)
 
-    #define HYPERVECTOR_CHUNKS (((HYPERVECTOR_SIZE-1)/INT_SIZE + 1))
+    #define HYPERVECTOR_CHUNKS ((((HYPERVECTOR_SIZE*2)-1)/INT_SIZE + 1))
 
     #define PRIME 4093
 
@@ -446,8 +446,6 @@ code_evaluate = """
             int stride = blockDim.x * gridDim.x;
 
             for (int clause = index; clause < CLAUSES; clause += stride) {
-                int bit = clause % HYPERVECTOR_SIZE;
-
                 for (int node = 0; node < number_of_nodes; ++node) {
                     int node_chunk = node / INT_SIZE;
                     int node_pos = node % INT_SIZE;
@@ -455,11 +453,24 @@ code_evaluate = """
                     if (global_clause_node_output[clause*NODE_CHUNKS + node_chunk] & (1 << node_pos) > 0) {              
                         if (node > 0) {
                             int bit = clause % HYPERVECTOR_SIZE;
-                            clause_X_int[(node - 1) * HYPERVECTOR_SIZE + bit] = 1;
+                            clause_X_int[(node - 1) * HYPERVECTOR_SIZE * 2 + bit] = 1;
+                            clause_X_int[(node - 1) * HYPERVECTOR_SIZE * 2 + HYPERVECTOR_SIZE + bit] = 0;
                         }
 
                         if (node < number_of_nodes - 1) {
-                            clause_X_int[(node + 1) * HYPERVECTOR_SIZE + bit] = 1;
+                            clause_X_int[(node + 1) * HYPERVECTOR_SIZE * 2 + bit] = 1;
+                            clause_X_int[(node + 1) * HYPERVECTOR_SIZE * 2 + HYPERVECTOR_SIZE + bit] = 0;
+                        }
+                    } else {
+                        if (node > 0) {
+                            int bit = clause % HYPERVECTOR_SIZE;
+                            clause_X_int[(node - 1) * HYPERVECTOR_SIZE * 2 + bit] = 0;
+                            clause_X_int[(node - 1) * HYPERVECTOR_SIZE * 2 + HYPERVECTOR_SIZE + bit] = 1;
+                        }
+
+                        if (node < number_of_nodes - 1) {
+                            clause_X_int[(node + 1) * HYPERVECTOR_SIZE * 2 + bit] = 0;
+                            clause_X_int[(node + 1) * HYPERVECTOR_SIZE * 2 + HYPERVECTOR_SIZE + bit] = 1;
                         }
                     }
                 }
