@@ -379,10 +379,10 @@ code_evaluate = """
                             break;
                         }
                     }
-                }
 
-                if (global_clause_node_output[clause*NODE_CHUNKS + number_of_node_chunks-1] & node_filter) {
-                    clause_output |= (1 << clause_pos);
+                    if (global_clause_node_output[clause*NODE_CHUNKS + number_of_node_chunks-1] & node_filter) {
+                        clause_output |= (1 << clause_pos);
+                    }
                 }
 
                 global_clause_output[clause_chunk] = clause_output;
