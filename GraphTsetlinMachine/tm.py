@@ -311,7 +311,7 @@ class CommonTsetlinMachine():
 			# )
 			# cuda.Context.synchronize()
 
-			self.calculate_clause_output(
+			self.prepared_call.calculate_clause_output(
 				self.grid,
 				self.block,
 				self.clause_node_output_test_gpu,
