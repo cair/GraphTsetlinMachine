@@ -174,9 +174,6 @@ class CommonTsetlinMachine():
 		self.calculate_messages = mod_evaluate.get_function("calculate_messages")
 		self.calculate_messages.prepare("PiiPP")
 
-		self.calculate_clause_output = mod_evaluate.get_function("calculate_clause_output")
-		self.calculate_clause_output.prepare("PiP")
-
 		self.exchange_messages = mod_evaluate.get_function("exchange_messages")
 		self.exchange_messages.prepare("iPPP")
 
@@ -259,8 +256,6 @@ class CommonTsetlinMachine():
 
 			self.clause_node_output_test_gpu = cuda.mem_alloc(int(self.number_of_clauses * graphs.max_number_of_graph_node_chunks) * 4)
 
-			self.clause_output_test_gpu = cuda.mem_alloc(int(self.number_of_clause_chunks) * 4)
-
 			self.clause_X_test_int_gpu = cuda.mem_alloc(int(self.number_of_clauses * graphs.max_number_of_graph_nodes) * 4)
 
 			self.clause_X_test_gpu = cuda.mem_alloc(int(graphs.max_number_of_graph_nodes * self.hypervector_chunks) * 4)
@@ -299,31 +294,10 @@ class CommonTsetlinMachine():
 			)
 			cuda.Context.synchronize()
 
-			# self.evaluate.prepared_call(
-			# 	self.grid,
-			# 	self.block,
-			# 	self.ta_state_gpu,
-			# 	self.clause_weights_gpu,
-			# 	np.int32(graphs.number_of_graph_nodes[e]),
-			# 	np.int32(graphs.node_index[e]),
-			# 	self.class_sum_gpu,
-			# 	self.encoded_X_test_gpu
-			# )
-			# cuda.Context.synchronize()
-
-			self.calculate_clause_output.prepared_call(
-				self.grid,
-				self.block,
-				self.clause_node_output_test_gpu,
-				np.int32(graphs.number_of_graph_nodes[e]),
-				self.clause_output_test_gpu
-			)
-			cuda.Context.synchronize()
-
 			self.evaluate.prepared_call(
 				self.grid,
 				self.block,
-				self.clause_output_test_gpu,
+				self.clause_node_output_test_gpu,
 				self.clause_weights_gpu,
 				np.int32(graphs.number_of_graph_nodes[e]),
 				np.int32(graphs.node_index[e]),
