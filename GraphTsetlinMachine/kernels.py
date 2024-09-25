@@ -412,7 +412,7 @@ code_evaluate = """
                 int clause_chunk = clause / INT_SIZE;
                 int clause_pos = clause % INT_SIZE;
 
-                if (globa_clause_output[clause_chunk] & (1 << clause_pos)) {
+                if (global_clause_output[clause_chunk] & (1 << clause_pos)) {
                     for (int class_id = 0; class_id < CLASSES; ++class_id) {
                         int clause_weight = clause_weights[class_id*CLAUSES + clause];
                         atomicAdd(&class_sum[class_id], clause_weight);                 
