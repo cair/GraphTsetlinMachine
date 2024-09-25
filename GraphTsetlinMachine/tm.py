@@ -174,7 +174,7 @@ class CommonTsetlinMachine():
 		self.calculate_messages = mod_evaluate.get_function("calculate_messages")
 		self.calculate_messages.prepare("PiiPP")
 
-		self.calculate_clause_output = mod_evaluate.get_function("calculate_messages")
+		self.calculate_clause_output = mod_evaluate.get_function("calculate_clause_output")
 		self.calculate_clause_output.prepare("PiiP")
 
 		self.exchange_messages = mod_evaluate.get_function("exchange_messages")
