@@ -354,7 +354,6 @@ code_evaluate = """
         __global__ void calculate_clause_output(
             int *global_clause_node_output,
             int number_of_nodes,
-            int graph_index,
             int *global_clause_output
         )
         {
