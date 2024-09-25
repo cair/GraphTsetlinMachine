@@ -351,43 +351,7 @@ code_evaluate = """
             }
         }
 
-        __global__ void calculate_clause_output(
-            int *global_clause_node_output,
-            int number_of_nodes,
-            int graph_index,
-            int *global_clause_output
-        )
-        {
-            int index = blockIdx.x * blockDim.x + threadIdx.x;
-            int stride = blockDim.x * gridDim.x;
 
-            int number_of_node_chunks = (number_of_nodes - 1)/INT_SIZE + 1;
-            unsigned int node_filter;
-            if ((number_of_nodes % INT_SIZE) != 0) {
-                node_filter = (~(0xffffffff << (number_of_nodes % INT_SIZE)));
-            } else {
-                node_filter = 0xffffffff;
-            }
-
-            for (int clause_chunk = index; clause_chunk < CLAUSE_CHUNKS; clause_chunk += stride) {
-                
-                int clause_output = 0;
-                for (int clause_pos = 0; clause_pos < INT_SIZE; ++clause_pos) {
-                    int clause = clause_chunk * INT_SIZE + clause_pos;
-                    for (int k = 0; k < number_of_node_chunks-1; ++k) {
-                        if (global_clause_node_output[clause*NODE_CHUNKS + k]) {
-                            clause_output |= (1 << clause_pos);
-                            break;
-                        }
-                    }
-
-                if (global_clause_node_output[clause*NODE_CHUNKS + number_of_node_chunks-1] & node_filter) {
-                    clause_output |= (1 << clause_pos);
-                }
-
-                global_clause_output[clause_chunk] = clause_output;
-            }
-        }
 
         __global__ void evaluate(
             int *global_clause_node_output,
