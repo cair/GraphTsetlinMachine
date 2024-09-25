@@ -358,24 +358,6 @@ code_evaluate = """
 
                 unsigned int *ta_state = &global_ta_state[clause*LA_CHUNKS*STATE_BITS];
 
-                int all_exclude = 1;
-                for (int la_chunk = 0; la_chunk < LA_CHUNKS-1; ++la_chunk) {
-                    if (ta_state[la_chunk*STATE_BITS + STATE_BITS - 1] > 0) {
-                        all_exclude = 0;
-                        break;
-                    }
-                }
-
-                if ((ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & FILTER) > 0) {
-                    all_exclude = 0;
-                }
-
-
-                if (all_exclude) {
-                    global_clause_node_output[clause*NODE_CHUNKS + patch_chunk] = 0; 
-                    continue;
-                }
-
                 clause_node_output = ~0;
                 for (int patch_pos = 0; (patch_pos < INT_SIZE) && ((patch_chunk * INT_SIZE + patch_pos) < number_of_nodes); ++patch_pos) {
                     int patch = patch_chunk * INT_SIZE + patch_pos;
