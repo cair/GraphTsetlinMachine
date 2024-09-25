@@ -447,7 +447,7 @@ code_evaluate = """
 
             for (int clause = index; clause < CLAUSES; clause += stride) {
                 int bit = clause % HYPERVECTOR_SIZE;
-                
+
                 for (int node = 0; node < number_of_nodes; ++node) {
                     int node_chunk = node / INT_SIZE;
                     int node_pos = node % INT_SIZE;
@@ -497,6 +497,8 @@ code_evaluate = """
                 for (int bit_pos = 0; (bit_pos < INT_SIZE) && (bit_base + bit_pos < HYPERVECTOR_SIZE); ++bit_pos) {
                     if (clause_X_int[bit_base + bit_pos]) {
                         hypervector |= (1 << bit_pos);
+                    } else {
+                        hypervector &= ~(1 << bit_pos);
                     }
                 }
 

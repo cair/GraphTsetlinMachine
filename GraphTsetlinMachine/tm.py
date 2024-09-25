@@ -64,7 +64,8 @@ class CommonTsetlinMachine():
 		self.boost_true_positive_feedback = boost_true_positive_feedback
 		self.depth = depth
 		self.hypervector_size = hypervector_size
-		self.hypervector_chunks = (hypervector_size*2 - 1) // 32 + 1
+		self.hypervector_literals = hypervector_size*2
+		self.hypervector_chunks = (self.hypervector_literals - 1) // 32 + 1
 		self.hypervector_bits = hypervector_bits
 		self.grid = grid
 		self.block = block
@@ -266,7 +267,7 @@ class CommonTsetlinMachine():
 
 			#self.clause_node_output_round_test_gpu = cuda.mem_alloc(int(self.number_of_clauses * graphs.max_number_of_graph_node_chunks) * 4)
 
-			self.clause_X_test_int_gpu = cuda.mem_alloc(int(self.number_of_clauses * graphs.max_number_of_graph_nodes) * 4)
+			self.clause_X_test_int_gpu = cuda.mem_alloc(int(graphs.max_number_of_graph_nodes * self.hypervector_ligerals) * 4)
 
 			self.clause_X_test_gpu = cuda.mem_alloc(int(graphs.max_number_of_graph_nodes * self.hypervector_chunks) * 4)
 
