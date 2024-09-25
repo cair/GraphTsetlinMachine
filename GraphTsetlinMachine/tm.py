@@ -64,7 +64,7 @@ class CommonTsetlinMachine():
 		self.boost_true_positive_feedback = boost_true_positive_feedback
 		self.depth = depth
 		self.hypervector_size = hypervector_size
-		self.hypervector_chunks = (hypervector_size - 1) // 32 + 1
+		self.hypervector_chunks = (hypervector_size*2 - 1) // 32 + 1
 		self.hypervector_bits = hypervector_bits
 		self.grid = grid
 		self.block = block
@@ -84,7 +84,12 @@ class CommonTsetlinMachine():
 		self.initialized = False
 
 	def allocate_gpu_memory(self):
-		self.ta_state_gpu = cuda.mem_alloc(self.depth*self.number_of_clauses*self.number_of_ta_chunks*self.number_of_state_bits*4)
+		self.ta_state_gpu = cuda.mem_alloc(self.number_of_clauses*self.number_of_ta_chunks*self.number_of_state_bits*4)
+
+		self.message_ta_state_gpu = []
+		for depth in range(self.depth - 1):
+			self.message_ta_state_gpu.append(cuda.mem_alloc(self.number_of_clauses*self.number_of_message_chunks*self.number_of_state_bits*4))
+
 		self.clause_weights_gpu = cuda.mem_alloc(self.number_of_outputs*self.number_of_clauses*4)
 		self.class_sum_gpu = cuda.mem_alloc(self.number_of_outputs*4)
 		self.hypervectors_gpu = cuda.mem_alloc(self.hypervectors.nbytes)
@@ -132,11 +137,14 @@ class CommonTsetlinMachine():
 	def _init(self, graphs):
 		self.number_of_features = graphs.hypervector_size
 		self.number_of_literals = self.number_of_features*2
-		
+		self.number_of_ta_chunks = int((self.number_of_literals-1)//32 + 1)
+
+		self.number_of_message_features = self.hypervector_size
+		self.number_of_message_literals = self.number_of_message_features*2
+		self.number_of_message_chunks = int((self.number_of_message_literals-1)//32 + 1)
+
 		if self.max_included_literals == None:
 			self.max_included_literals = self.number_of_literals
-
-		self.number_of_ta_chunks = int((self.number_of_literals-1)//32 + 1)
 
 		parameters = """
 #define CLASSES %d
@@ -172,7 +180,7 @@ class CommonTsetlinMachine():
 		self.evaluate.prepare("PPiP")
 
 		self.calculate_messages = mod_evaluate.get_function("calculate_messages")
-		self.calculate_messages.prepare("iPiiPPP")
+		self.calculate_messages.prepare("PiiPP")
 
 		self.exchange_messages = mod_evaluate.get_function("exchange_messages")
 		self.exchange_messages.prepare("iPPP")
@@ -256,16 +264,11 @@ class CommonTsetlinMachine():
 
 			self.clause_node_output_test_gpu = cuda.mem_alloc(int(self.number_of_clauses * graphs.max_number_of_graph_node_chunks) * 4)
 
-			self.clause_node_output_round_test_gpu = cuda.mem_alloc(int(self.number_of_clauses * graphs.max_number_of_graph_node_chunks) * 4)
+			#self.clause_node_output_round_test_gpu = cuda.mem_alloc(int(self.number_of_clauses * graphs.max_number_of_graph_node_chunks) * 4)
 
 			self.clause_X_test_int_gpu = cuda.mem_alloc(int(self.number_of_clauses * graphs.max_number_of_graph_nodes) * 4)
 
 			self.clause_X_test_gpu = cuda.mem_alloc(int(graphs.max_number_of_graph_nodes * self.hypervector_chunks) * 4)
-
-			self.clause_node_output_all_true = np.empty(self.number_of_clauses * graphs.max_number_of_graph_node_chunks, dtype=np.uint32)
-			self.clause_node_output_all_true[:] = ~0
-			self.clause_node_output_all_true_gpu = cuda.mem_alloc(self.clause_node_output_all_true.nbytes)
-			cuda.memcpy_htod(self.clause_node_output_all_true_gpu, self.clause_node_output_all_true[:])
 
 		class_sum = np.zeros((graphs.number_of_graphs, self.number_of_outputs), dtype=np.int32)
 		for e in range(graphs.number_of_graphs):
@@ -274,11 +277,9 @@ class CommonTsetlinMachine():
 			self.calculate_messages.prepared_call(
 				self.grid,
 				self.block,
-				self.number_of_literals,
 				self.ta_state_gpu,
 				np.int32(graphs.number_of_graph_nodes[e]),
 				np.int32(graphs.node_index[e]),
-				self.clause_node_output_all_true_gpu,
 				self.clause_node_output_test_gpu,
 				self.encoded_X_test_gpu
 			)
@@ -305,18 +306,18 @@ class CommonTsetlinMachine():
 
 			# Calculate clause node output for self.clause_X_test_gpu, conditioned on self.clause_node_output_test_gpu... Or AND afterwards...
 
-			self.calculate_messages.prepared_call(
-				self.grid,
-				self.block,
-				self.hypervector_size*2,
-				self.ta_state_gpu,
-				np.int32(graphs.number_of_graph_nodes[e]),
-				np.int32(0),
-				self.clause_node_output_test_gpu,
-				self.clause_node_output_round_test_gpu,
-				self.clause_X_test_gpu
-			)
-			cuda.Context.synchronize()
+			# self.calculate_messages.prepared_call(
+			# 	self.grid,
+			# 	self.block,
+			# 	self.hypervector_size*2,
+			# 	self.ta_state_gpu,
+			# 	np.int32(graphs.number_of_graph_nodes[e]),
+			# 	np.int32(0),
+			# 	self.clause_node_output_test_gpu,
+			# 	self.clause_node_output_round_test_gpu,
+			# 	self.clause_X_test_gpu
+			# )
+			# cuda.Context.synchronize()
 
 			self.evaluate.prepared_call(
 				self.grid,

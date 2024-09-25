@@ -29,7 +29,7 @@ code_header = """
     #define LA_CHUNKS (((LITERALS-1)/INT_SIZE + 1))
     #define CLAUSE_CHUNKS ((CLAUSES-1)/INT_SIZE + 1)
 
-    #define HYPERVECTOR_CHUNKS (((HYPERVECTOR_SIZE-1)/INT_SIZE + 1))
+    #define HYPERVECTOR_CHUNKS ((((HYPERVECTOR_SIZE*2)-1)/INT_SIZE + 1))
 
     #define PRIME 4093
 
@@ -330,6 +330,58 @@ code_evaluate = """
         }
 
         __global__ void calculate_messages(
+            unsigned int *global_ta_state,
+            int number_of_nodes,
+            int graph_index,
+            int *global_clause_node_output,
+            unsigned int *global_X
+        )
+        {
+            int index = blockIdx.x * blockDim.x + threadIdx.x;
+            int stride = blockDim.x * gridDim.x;
+
+            unsigned int clause_node_output;
+
+            int number_of_node_chunks = (number_of_nodes - 1)/INT_SIZE + 1;
+            unsigned int node_filter;
+            if ((number_of_nodes % INT_SIZE) != 0) {
+                node_filter = (~(0xffffffff << (number_of_nodes % INT_SIZE)));
+            } else {
+                node_filter = 0xffffffff;
+            }
+
+            unsigned int *X = &global_X[graph_index * LA_CHUNKS];
+
+            for (int clause_node_chunk = index; clause_node_chunk < (CLAUSES)*(NODE_CHUNKS); clause_node_chunk += stride) {
+                int clause = clause_node_chunk % CLAUSES;
+                int patch_chunk = clause_node_chunk / CLAUSES;
+
+                unsigned int *ta_state = &global_ta_state[clause*LA_CHUNKS*STATE_BITS];
+
+                clause_node_output = ~0;
+                for (int patch_pos = 0; (patch_pos < INT_SIZE) && ((patch_chunk * INT_SIZE + patch_pos) < number_of_nodes); ++patch_pos) {
+                    int patch = patch_chunk * INT_SIZE + patch_pos;
+
+                    for (int la_chunk = 0; la_chunk < LA_CHUNKS-1; ++la_chunk) {
+                        if ((ta_state[la_chunk*STATE_BITS + STATE_BITS - 1] & X[patch*LA_CHUNKS + la_chunk]) != ta_state[la_chunk*STATE_BITS + STATE_BITS - 1]) {
+                            clause_node_output &= ~(1 << patch_pos);
+                        }
+                    }
+
+                    if ((ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & X[patch*LA_CHUNKS + LA_CHUNKS-1] & FILTER) != (ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & FILTER)) {
+                        clause_node_output &= ~(1 << patch_pos);
+                    }
+                }
+                
+                if (patch_chunk == number_of_node_chunks - 1) {
+                    global_clause_node_output[clause*NODE_CHUNKS + patch_chunk] = clause_node_output & node_filter;
+                } else {
+                    global_clause_node_output[clause*NODE_CHUNKS + patch_chunk] = clause_node_output;
+                }
+            }
+        }
+
+        __global__ void calculate_messages_conditional(
             int number_of_literals,
             unsigned int *global_ta_state,
             int number_of_nodes,
@@ -342,14 +394,6 @@ code_evaluate = """
             int index = blockIdx.x * blockDim.x + threadIdx.x;
             int stride = blockDim.x * gridDim.x;
 
-            int number_of_literal_chunks = (number_of_literals - 1)/INT_SIZE + 1;
-            unsigned int literal_filter;
-            if ((number_of_literals % INT_SIZE) != 0) {
-                literal_filter = (~(0xffffffff << (number_of_literals % INT_SIZE)));
-            } else {
-                literal_filter = 0xffffffff;
-            }
-
             unsigned int clause_node_output;
 
             int number_of_node_chunks = (number_of_nodes - 1)/INT_SIZE + 1;
@@ -360,25 +404,25 @@ code_evaluate = """
                 node_filter = 0xffffffff;
             }
 
-            unsigned int *X = &global_X[graph_index * number_of_literal_chunks];
+            unsigned int *X = &global_X[graph_index * LA_CHUNKS];
 
             for (int clause_node_chunk = index; clause_node_chunk < (CLAUSES)*(NODE_CHUNKS); clause_node_chunk += stride) {
                 int clause = clause_node_chunk % CLAUSES;
                 int patch_chunk = clause_node_chunk / CLAUSES;
 
-                unsigned int *ta_state = &global_ta_state[clause*number_of_literal_chunks*STATE_BITS];
+                unsigned int *ta_state = &global_ta_state[clause*LA_CHUNKS*STATE_BITS];
 
                 clause_node_output = ~0;
                 for (int patch_pos = 0; (patch_pos < INT_SIZE) && ((patch_chunk * INT_SIZE + patch_pos) < number_of_nodes); ++patch_pos) {
                     int patch = patch_chunk * INT_SIZE + patch_pos;
 
-                    for (int la_chunk = 0; la_chunk < number_of_literal_chunks-1; ++la_chunk) {
-                        if ((ta_state[la_chunk*STATE_BITS + STATE_BITS - 1] & X[patch*number_of_literal_chunks + la_chunk]) != ta_state[la_chunk*STATE_BITS + STATE_BITS - 1]) {
+                    for (int la_chunk = 0; la_chunk < LA_CHUNKS-1; ++la_chunk) {
+                        if ((ta_state[la_chunk*STATE_BITS + STATE_BITS - 1] & X[patch*LA_CHUNKS + la_chunk]) != ta_state[la_chunk*STATE_BITS + STATE_BITS - 1]) {
                             clause_node_output &= ~(1 << patch_pos);
                         }
                     }
 
-                    if ((ta_state[(number_of_literal_chunks-1)*STATE_BITS + STATE_BITS - 1] & X[patch*number_of_literal_chunks + number_of_literal_chunks-1] & literal_filter) != (ta_state[(number_of_literal_chunks-1)*STATE_BITS + STATE_BITS - 1] & literal_filter)) {
+                    if ((ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & X[patch*LA_CHUNKS + LA_CHUNKS-1] & FILTER) != (ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & FILTER)) {
                         clause_node_output &= ~(1 << patch_pos);
                     }
                 }
@@ -403,7 +447,7 @@ code_evaluate = """
 
             for (int clause = index; clause < CLAUSES; clause += stride) {
                 int bit = clause % HYPERVECTOR_SIZE;
-
+                
                 for (int node = 0; node < number_of_nodes; ++node) {
                     int node_chunk = node / INT_SIZE;
                     int node_pos = node % INT_SIZE;
@@ -411,11 +455,24 @@ code_evaluate = """
                     if (global_clause_node_output[clause*NODE_CHUNKS + node_chunk] & (1 << node_pos) > 0) {              
                         if (node > 0) {
                             int bit = clause % HYPERVECTOR_SIZE;
-                            clause_X_int[(node - 1) * HYPERVECTOR_SIZE + bit] = 1;
+                            clause_X_int[(node - 1) * HYPERVECTOR_SIZE * 2 + bit] = 1;
+                            clause_X_int[(node - 1) * HYPERVECTOR_SIZE * 2 + HYPERVECTOR_SIZE + bit] = 0;
                         }
 
                         if (node < number_of_nodes - 1) {
-                            clause_X_int[(node + 1) * HYPERVECTOR_SIZE + bit] = 1;
+                            clause_X_int[(node + 1) * HYPERVECTOR_SIZE * 2 + bit] = 1;
+                            clause_X_int[(node + 1) * HYPERVECTOR_SIZE * 2 + HYPERVECTOR_SIZE + bit] = 0;
+                        }
+                    } else {
+                        if (node > 0) {
+                            int bit = clause % HYPERVECTOR_SIZE;
+                            clause_X_int[(node - 1) * HYPERVECTOR_SIZE * 2 + bit] = 0;
+                            clause_X_int[(node - 1) * HYPERVECTOR_SIZE * 2 + HYPERVECTOR_SIZE + bit] = 1;
+                        }
+
+                        if (node < number_of_nodes - 1) {
+                            clause_X_int[(node + 1) * HYPERVECTOR_SIZE * 2 + bit] = 0;
+                            clause_X_int[(node + 1) * HYPERVECTOR_SIZE * 2 + HYPERVECTOR_SIZE + bit] = 1;
                         }
                     }
                 }
@@ -436,8 +493,9 @@ code_evaluate = """
                 int hypervector_chunk = node_hypervector_chunk % HYPERVECTOR_CHUNKS;
 
                 int hypervector = 0;
-                for (int bit_pos = 0; bit_pos < INT_SIZE; ++bit_pos) {
-                    if (clause_X_int[node*HYPERVECTOR_CHUNKS*INT_SIZE + bit_pos]) {
+                int bit_base = node*HYPERVECTOR_CHUNKS*INT_SIZE;
+                for (int bit_pos = 0; (bit_pos < INT_SIZE) && (bit_base + bit_pos < HYPERVECTOR_SIZE); ++bit_pos) {
+                    if (clause_X_int[bit_base + bit_pos]) {
                         hypervector |= (1 << bit_pos);
                     }
                 }
