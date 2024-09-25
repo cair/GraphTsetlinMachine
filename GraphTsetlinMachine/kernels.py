@@ -289,75 +289,11 @@ code_update = """
 code_evaluate = """
     extern "C"
     {
-        // Evaluate examples
-        __global__ void evaluate_org(
-            unsigned int *global_ta_state,
-            int *clause_weights,
-            int number_of_nodes,
-            int graph_index,
-            int *class_sum,
-            unsigned int *global_X
-        )
-        {
-            int index = blockIdx.x * blockDim.x + threadIdx.x;
-            int stride = blockDim.x * gridDim.x;
-
-            unsigned int *X = &global_X[graph_index * LA_CHUNKS];
-
-            for (int clause = index; clause < CLAUSES; clause += stride) {
-                unsigned int *ta_state = &global_ta_state[clause*LA_CHUNKS*STATE_BITS];
-
-                int all_exclude = 1;
-                for (int la_chunk = 0; la_chunk < LA_CHUNKS-1; ++la_chunk) {
-                    if (ta_state[la_chunk*STATE_BITS + STATE_BITS - 1] > 0) {
-                        all_exclude = 0;
-                        break;
-                    }
-                }
-
-                if ((ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & FILTER) > 0) {
-                    all_exclude = 0;
-                }
-
-                if (all_exclude) {
-                    continue;
-                }
-
-                int clause_output;
-                for (int patch = 0; patch < number_of_nodes; ++patch) {
-                    clause_output = 1;
-                    for (int la_chunk = 0; la_chunk < LA_CHUNKS-1; ++la_chunk) {
-                        if ((ta_state[la_chunk*STATE_BITS + STATE_BITS - 1] & X[patch*LA_CHUNKS + la_chunk]) != ta_state[la_chunk*STATE_BITS + STATE_BITS - 1]) {
-                            clause_output = 0;
-                            break;
-                        }
-                    }
-
-                    if ((ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & X[patch*LA_CHUNKS + LA_CHUNKS-1] & FILTER) != (ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & FILTER)) {
-                        clause_output = 0;
-                    }
-
-                    if (clause_output) {
-                        break;
-                    }
-                }
-
-                if (clause_output) {
-                    for (int class_id = 0; class_id < CLASSES; ++class_id) {
-                        int clause_weight = clause_weights[class_id*CLAUSES + clause];
-                        atomicAdd(&class_sum[class_id], clause_weight);                 
-                    }
-                }
-            }
-        }
-
         __global__ void evaluate(
-            int *global_clause_output,
+            int *global_clause_node_output,
             int *clause_weights,
             int number_of_nodes,
-            int graph_index,
-            int *class_sum,
-            int *X
+            int *class_sum
         )
         {
             int index = blockIdx.x * blockDim.x + threadIdx.x;
@@ -374,13 +310,13 @@ code_evaluate = """
             for (int clause = index; clause < CLAUSES; clause += stride) {
                 int clause_output = 0;
                 for (int k = 0; k < number_of_node_chunks-1; ++k) {
-                    if (global_clause_output[clause*NODE_CHUNKS + k]) {
+                    if (global_clause_node_output[clause*NODE_CHUNKS + k]) {
                         clause_output = 1;
                         break;
                     }
                 }
 
-                if (global_clause_output[clause*NODE_CHUNKS + number_of_node_chunks-1] & node_filter) {
+                if (global_clause_node_output[clause*NODE_CHUNKS + number_of_node_chunks-1] & node_filter) {
                     clause_output = 1;
                 }
 
@@ -397,14 +333,15 @@ code_evaluate = """
             unsigned int *global_ta_state,
             int number_of_nodes,
             int graph_index,
-            int *global_clause_output,
+            int *global_clause_node_output_condition,
+            int *global_clause_node_output,
             unsigned int *global_X
         )
         {
             int index = blockIdx.x * blockDim.x + threadIdx.x;
             int stride = blockDim.x * gridDim.x;
 
-            unsigned int clause_output;
+            unsigned int clause_node_output;
 
             int number_of_node_chunks = (number_of_nodes - 1)/INT_SIZE + 1;
             unsigned int node_filter;
@@ -422,42 +359,25 @@ code_evaluate = """
 
                 unsigned int *ta_state = &global_ta_state[clause*LA_CHUNKS*STATE_BITS];
 
-                int all_exclude = 1;
-                for (int la_chunk = 0; la_chunk < LA_CHUNKS-1; ++la_chunk) {
-                    if (ta_state[la_chunk*STATE_BITS + STATE_BITS - 1] > 0) {
-                        all_exclude = 0;
-                        break;
-                    }
-                }
-
-                if ((ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & FILTER) > 0) {
-                    all_exclude = 0;
-                }
-
-                if (all_exclude) {
-                    global_clause_output[clause*NODE_CHUNKS + patch_chunk] = 0; 
-                    continue;
-                }
-
-                clause_output = ~0;
+                clause_node_output = ~0;
                 for (int patch_pos = 0; (patch_pos < INT_SIZE) && ((patch_chunk * INT_SIZE + patch_pos) < number_of_nodes); ++patch_pos) {
                     int patch = patch_chunk * INT_SIZE + patch_pos;
 
                     for (int la_chunk = 0; la_chunk < LA_CHUNKS-1; ++la_chunk) {
                         if ((ta_state[la_chunk*STATE_BITS + STATE_BITS - 1] & X[patch*LA_CHUNKS + la_chunk]) != ta_state[la_chunk*STATE_BITS + STATE_BITS - 1]) {
-                            clause_output &= ~(1 << patch_pos);
+                            clause_node_output &= ~(1 << patch_pos);
                         }
                     }
 
                     if ((ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & X[patch*LA_CHUNKS + LA_CHUNKS-1] & FILTER) != (ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & FILTER)) {
-                        clause_output &= ~(1 << patch_pos);
+                        clause_node_output &= ~(1 << patch_pos);
                     }
                 }
                 
                 if (patch_chunk == number_of_node_chunks - 1) {
-                    global_clause_output[clause*NODE_CHUNKS + patch_chunk] = clause_output & node_filter;
+                    global_clause_node_output[clause*NODE_CHUNKS + patch_chunk] = global_clause_node_output_condition[clause*NODE_CHUNKS + patch_chunk] & clause_node_output & node_filter;
                 } else {
-                    global_clause_output[clause*NODE_CHUNKS + patch_chunk] = clause_output;
+                    global_clause_node_output[clause*NODE_CHUNKS + patch_chunk] = global_clause_node_output_condition[clause*NODE_CHUNKS + patch_chunk] & clause_node_output;
                 }
             }
         }
@@ -465,7 +385,7 @@ code_evaluate = """
         __global__ void exchange_messages(
             int number_of_nodes,
             int *hypervectors,
-            int *global_clause_output,
+            int *global_clause_node_output,
             unsigned int *clause_X_int
         )
         {
@@ -479,7 +399,7 @@ code_evaluate = """
                     int node_chunk = node / INT_SIZE;
                     int node_pos = node % INT_SIZE;
 
-                    if (global_clause_output[clause*NODE_CHUNKS + node_chunk] & (1 << node_pos) > 0) {              
+                    if (global_clause_node_output[clause*NODE_CHUNKS + node_chunk] & (1 << node_pos) > 0) {              
                         if (node > 0) {
                             int bit = clause % HYPERVECTOR_SIZE;
                             clause_X_int[(node - 1) * HYPERVECTOR_SIZE + bit] = 1;
@@ -548,61 +468,6 @@ code_prepare = """
             }
 
             state[index] = localState;
-        }
-    }
-"""
-
-code_transform = """
-    extern "C"
-    {
-        // Transform examples
-
-        __global__ void transform(
-            unsigned int *included_literals,
-            unsigned int *included_literals_length,
-            int number_of_nodes,
-            int *X,
-            int *transformed_X
-        )
-        {   
-            int index = blockIdx.x * blockDim.x + threadIdx.x;
-            int stride = blockDim.x * gridDim.x;
-
-            int patch_chunks = (((number_of_nodes-1)/INT_SIZE + 1));
-            unsigned int patch_filter;
-            if (patch_chunks % 32 != 0) {
-                patch_filter = (~(0xffffffff << (number_of_nodes % INT_SIZE)));
-            } else {
-                patch_filter = 0xffffffff;
-            }
-
-            for (int clause = index; clause < CLAUSES; clause += stride) {
-                if (included_literals_length[clause] == 0) {
-                    transformed_X[clause] = 0;
-                    continue;
-                }
-
-                unsigned int clause_output = 0;
-                for (int patch_chunk = 0; patch_chunk < patch_chunks-1; ++patch_chunk) {
-                    clause_output = (~(0U));
-                    for (int literal = 0; literal < included_literals_length[clause]; ++literal) {
-                        clause_output &= X[patch_chunk*LITERALS + included_literals[clause*LITERALS + literal]];
-                    }
-
-                    if (clause_output) {
-                        break;
-                    }
-                }
-
-                if (!clause_output) {
-                    clause_output = patch_filter;
-                    for (int literal = 0; literal < included_literals_length[clause]; ++literal) {
-                        clause_output &= X[(PATCH_CHUNKS-1)*LITERALS + included_literals[clause*LITERALS + literal]];
-                    }
-                }
-
-                transformed_X[clause] = clause_output;
-            }
         }
     }
 """
