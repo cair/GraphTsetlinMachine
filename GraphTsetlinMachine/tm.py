@@ -84,7 +84,12 @@ class CommonTsetlinMachine():
 		self.initialized = False
 
 	def allocate_gpu_memory(self):
-		self.ta_state_gpu = cuda.mem_alloc(self.depth*self.number_of_clauses*self.number_of_ta_chunks*self.number_of_state_bits*4)
+		self.ta_state_gpu = cuda.mem_alloc(self.number_of_clauses*self.number_of_ta_chunks*self.number_of_state_bits*4)
+
+		self.message_ta_state_gpu = []
+		for depth in range(self.depth - 1):
+			self.message_ta_state_gpu.append(cuda.mem_alloc(self.number_of_clauses*self.number_of_message_chunks*self.number_of_state_bits*4))
+
 		self.clause_weights_gpu = cuda.mem_alloc(self.number_of_outputs*self.number_of_clauses*4)
 		self.class_sum_gpu = cuda.mem_alloc(self.number_of_outputs*4)
 		self.hypervectors_gpu = cuda.mem_alloc(self.hypervectors.nbytes)
