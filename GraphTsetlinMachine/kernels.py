@@ -372,7 +372,7 @@ code_evaluate = """
 
 
                 if (all_exclude) {
-                    global_clause_output[clause*NODE_CHUNKS + patch_chunk] = 0; 
+                    global_clause_node_output[clause*NODE_CHUNKS + patch_chunk] = 0; 
                     continue;
                 }
 
