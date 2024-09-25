@@ -89,7 +89,7 @@ class CommonTsetlinMachine():
 
 		self.message_ta_state_gpu = []
 		for depth in range(self.depth - 1):
-			self.message_ta_state_gpu.append(cuda.mem_alloc(self.number_of_clauses*self.number_of_message_chunks*self.number_of_state_bits*4))
+			self.message_ta_state_gpu.append(cuda.mem_alloc(self.number_of_clauses*self.hypervector_chunks*self.number_of_state_bits*4))
 
 		self.clause_weights_gpu = cuda.mem_alloc(self.number_of_outputs*self.number_of_clauses*4)
 		self.class_sum_gpu = cuda.mem_alloc(self.number_of_outputs*4)
@@ -183,6 +183,9 @@ class CommonTsetlinMachine():
 		self.calculate_messages = mod_evaluate.get_function("calculate_messages")
 		self.calculate_messages.prepare("PiiPP")
 
+		self.calculate_messages_conditional = mod_evaluate.get_function("calculate_messages_conditional")
+		self.calculate_messages_conditional.prepare("PiPPP")
+
 		self.exchange_messages = mod_evaluate.get_function("exchange_messages")
 		self.exchange_messages.prepare("iPPP")
 
@@ -265,7 +268,7 @@ class CommonTsetlinMachine():
 
 			self.clause_node_output_test_gpu = cuda.mem_alloc(int(self.number_of_clauses * graphs.max_number_of_graph_node_chunks) * 4)
 
-			#self.clause_node_output_round_test_gpu = cuda.mem_alloc(int(self.number_of_clauses * graphs.max_number_of_graph_node_chunks) * 4)
+			self.clause_node_output_round_test_gpu = cuda.mem_alloc(int(self.number_of_clauses * graphs.max_number_of_graph_node_chunks) * 4)
 
 			self.clause_X_test_int_gpu = cuda.mem_alloc(int(graphs.max_number_of_graph_nodes * self.hypervector_literals) * 4)
 
@@ -307,18 +310,16 @@ class CommonTsetlinMachine():
 
 			# Calculate clause node output for self.clause_X_test_gpu, conditioned on self.clause_node_output_test_gpu... Or AND afterwards...
 
-			# self.calculate_messages.prepared_call(
-			# 	self.grid,
-			# 	self.block,
-			# 	self.hypervector_size*2,
-			# 	self.ta_state_gpu,
-			# 	np.int32(graphs.number_of_graph_nodes[e]),
-			# 	np.int32(0),
-			# 	self.clause_node_output_test_gpu,
-			# 	self.clause_node_output_round_test_gpu,
-			# 	self.clause_X_test_gpu
-			# )
-			# cuda.Context.synchronize()
+			self.calculate_messages_conditional.prepared_call(
+				self.grid,
+				self.block,
+				self.ta_state_gpu,
+				np.int32(graphs.number_of_graph_nodes[e]),
+				self.clause_node_output_test_gpu,
+				self.clause_node_output_round_test_gpu,
+				self.clause_X_test_gpu
+			)
+			cuda.Context.synchronize()
 
 			self.evaluate.prepared_call(
 				self.grid,
