@@ -169,7 +169,7 @@ class CommonTsetlinMachine():
 
 		mod_evaluate = SourceModule(parameters + kernels.code_header + kernels.code_evaluate, no_extern_c=True)
 		self.evaluate = mod_evaluate.get_function("evaluate")
-		self.evaluate.prepare("PPiiPP")
+		self.evaluate.prepare("PPiP")
 
 		self.calculate_messages = mod_evaluate.get_function("calculate_messages")
 		self.calculate_messages.prepare("PiiPP")
@@ -300,9 +300,7 @@ class CommonTsetlinMachine():
 				self.clause_node_output_test_gpu,
 				self.clause_weights_gpu,
 				np.int32(graphs.number_of_graph_nodes[e]),
-				np.int32(graphs.node_index[e]),
-				self.class_sum_gpu,
-				self.encoded_X_test_gpu
+				self.class_sum_gpu
 			)
 			cuda.Context.synchronize()
 
