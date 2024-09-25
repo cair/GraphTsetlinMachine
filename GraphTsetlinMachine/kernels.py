@@ -293,7 +293,7 @@ code_evaluate = """
             int *global_clause_node_output,
             int *clause_weights,
             int number_of_nodes,
-            int *class_sum,
+            int *class_sum
         )
         {
             int index = blockIdx.x * blockDim.x + threadIdx.x;
