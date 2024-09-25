@@ -313,7 +313,7 @@ class CommonTsetlinMachine():
 			self.calculate_messages_conditional.prepared_call(
 				self.grid,
 				self.block,
-				self.ta_state_gpu,
+				self.message_ta_state_gpu[0],
 				np.int32(graphs.number_of_graph_nodes[e]),
 				self.clause_node_output_test_gpu,
 				self.clause_node_output_round_test_gpu,
