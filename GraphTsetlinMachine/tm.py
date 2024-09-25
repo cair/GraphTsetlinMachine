@@ -323,7 +323,7 @@ class CommonTsetlinMachine():
 			self.evaluate.prepared_call(
 				self.grid,
 				self.block,
-				self.clause_node_output_test_gpu,
+				self.clause_output_test_gpu,
 				self.clause_weights_gpu,
 				np.int32(graphs.number_of_graph_nodes[e]),
 				np.int32(graphs.node_index[e]),

@@ -389,7 +389,7 @@ code_evaluate = """
         }
 
         __global__ void evaluate(
-            int *global_clause_node_output,
+            int *global_clause_output,
             int *clause_weights,
             int number_of_nodes,
             int graph_index,
@@ -409,19 +409,10 @@ code_evaluate = """
             }
 
             for (int clause = index; clause < CLAUSES; clause += stride) {
-                int clause_output = 0;
-                for (int k = 0; k < number_of_node_chunks-1; ++k) {
-                    if (global_clause_node_output[clause*NODE_CHUNKS + k]) {
-                        clause_output = 1;
-                        break;
-                    }
-                }
+                int clause_chunk = clause / INT_SIZE;
+                int clause_pos = clause % INT_SIZE;
 
-                if (global_clause_node_output[clause*NODE_CHUNKS + number_of_node_chunks-1] & node_filter) {
-                    clause_output = 1;
-                }
-
-                if (clause_output) {
+                if (globa_clause_output[clause_chunk] & (1 << clause_pos)) {
                     for (int class_id = 0; class_id < CLASSES; ++class_id) {
                         int clause_weight = clause_weights[class_id*CLAUSES + clause];
                         atomicAdd(&class_sum[class_id], clause_weight);                 
