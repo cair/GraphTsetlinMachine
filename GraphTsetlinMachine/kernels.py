@@ -396,14 +396,6 @@ code_evaluate = """
             int index = blockIdx.x * blockDim.x + threadIdx.x;
             int stride = blockDim.x * gridDim.x;
 
-            int LA_CHUNKS = (number_of_literals - 1)/INT_SIZE + 1;
-            unsigned int literal_filter;
-            if ((number_of_literals % INT_SIZE) != 0) {
-                literal_filter = (~(0xffffffff << (number_of_literals % INT_SIZE)));
-            } else {
-                literal_filter = 0xffffffff;
-            }
-
             unsigned int clause_node_output;
 
             int number_of_node_chunks = (number_of_nodes - 1)/INT_SIZE + 1;
@@ -432,7 +424,7 @@ code_evaluate = """
                         }
                     }
 
-                    if ((ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & X[patch*LA_CHUNKS + LA_CHUNKS-1] & literal_filter) != (ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & FILTER)) {
+                    if ((ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & X[patch*LA_CHUNKS + LA_CHUNKS-1] & FILTER) != (ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & FILTER)) {
                         clause_node_output &= ~(1 << patch_pos);
                     }
                 }
