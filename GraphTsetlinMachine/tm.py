@@ -174,6 +174,9 @@ class CommonTsetlinMachine():
 		self.calculate_messages = mod_evaluate.get_function("calculate_messages")
 		self.calculate_messages.prepare("PiiPP")
 
+		self.calculate_messages_conditional = mod_evaluate.get_function("calculate_messages_conditional")
+		self.calculate_messages_conditional.prepare("PiiPPP")
+
 		self.exchange_messages = mod_evaluate.get_function("exchange_messages")
 		self.exchange_messages.prepare("iPPP")
 
@@ -256,6 +259,8 @@ class CommonTsetlinMachine():
 
 			self.clause_node_output_test_gpu = cuda.mem_alloc(int(self.number_of_clauses * graphs.max_number_of_graph_node_chunks) * 4)
 
+			self.clause_node_output_round_test_gpu = cuda.mem_alloc(int(self.number_of_clauses * graphs.max_number_of_graph_node_chunks) * 4)
+
 			self.clause_X_test_int_gpu = cuda.mem_alloc(int(self.number_of_clauses * graphs.max_number_of_graph_nodes) * 4)
 
 			self.clause_X_test_gpu = cuda.mem_alloc(int(graphs.max_number_of_graph_nodes * self.hypervector_chunks) * 4)
@@ -291,6 +296,20 @@ class CommonTsetlinMachine():
 				np.int32(graphs.number_of_graph_nodes[e]),
 				self.clause_X_test_int_gpu,
 				self.clause_X_test_gpu
+			)
+			cuda.Context.synchronize()
+
+			# Calculate clause node output for self.clause_X_test_gpu, conditioned on self.clause_node_output_test_gpu... Or AND afterwards...
+
+			self.calculate_messages_conditional.prepared_call(
+				self.grid,
+				self.block,
+				self.ta_state_gpu,
+				np.int32(graphs.number_of_graph_nodes[e]),
+				np.int32(graphs.node_index[e]),
+				self.clause_node_output_test_gpu,
+				self.clause_node_output_round_test_gpu,
+				self.encoded_clause_X_test_gpu
 			)
 			cuda.Context.synchronize()
 
