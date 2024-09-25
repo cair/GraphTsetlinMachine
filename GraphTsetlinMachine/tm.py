@@ -172,7 +172,7 @@ class CommonTsetlinMachine():
 		self.evaluate.prepare("PPiP")
 
 		self.calculate_messages = mod_evaluate.get_function("calculate_messages")
-		self.calculate_messages.prepare("PiiPPP")
+		self.calculate_messages.prepare("iPiiPPP")
 
 		self.exchange_messages = mod_evaluate.get_function("exchange_messages")
 		self.exchange_messages.prepare("iPPP")
@@ -274,6 +274,7 @@ class CommonTsetlinMachine():
 			self.calculate_messages.prepared_call(
 				self.grid,
 				self.block,
+				self.number_of_literals,
 				self.ta_state_gpu,
 				np.int32(graphs.number_of_graph_nodes[e]),
 				np.int32(graphs.node_index[e]),
@@ -307,6 +308,7 @@ class CommonTsetlinMachine():
 			self.calculate_messages.prepared_call(
 				self.grid,
 				self.block,
+				self.hypervector_size*2,
 				self.ta_state_gpu,
 				np.int32(graphs.number_of_graph_nodes[e]),
 				np.int32(0),
