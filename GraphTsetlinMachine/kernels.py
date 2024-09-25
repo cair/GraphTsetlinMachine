@@ -330,11 +330,9 @@ code_evaluate = """
         }
 
         __global__ void calculate_messages(
-            int number_of_literals,
             unsigned int *global_ta_state,
             int number_of_nodes,
             int graph_index,
-            int *global_clause_node_output_condition,
             int *global_clause_node_output,
             unsigned int *global_X
         )
