@@ -448,6 +448,7 @@ code_evaluate = """
         }
 
         __device__ inline unsigned int jenkins(unsigned int key_int, unsigned int h)
+        {
             unsigned char *key = (unsigned char *)&key_int;
             unsigned int hash, i;
             for(hash = i = 0; i < 4; ++i) {
