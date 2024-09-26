@@ -18,8 +18,9 @@ parser.add_argument("--bits", default=16384, type=int)
 args = parser.parse_args()
 
 prime = prevprime(args.bits // 2)
-
 prime_2 = prevprime(args.bits // 3)
+
+ensembles = 10000
 
 param = 27
 
@@ -34,7 +35,7 @@ for i in range(args.items):
     collision[(first_bit, second_bit)] = 1
 
 collisions_insert_average = 0
-for k in range(1000):
+for k in range(ensembles):
 
     collision_first = {}
     collision_second = {}
@@ -53,7 +54,7 @@ for k in range(1000):
 
     collisions_insert_average += collisions_insert
 
-print(collisions_insert_average / 1000, collisions)
+print(collisions_insert_average / ensembles, collisions)
 
 collision = {}
 collisions = 0
@@ -67,7 +68,7 @@ for i in range(args.items):
     collision[(first_bit, second_bit, third_bit)] = 1
 
 collisions_insert_average = 0
-for k in range(1000):
+for k in range(ensembles):
 
     collision_first = {}
     collision_second = {}
@@ -76,6 +77,7 @@ for k in range(1000):
     collisions_insert = 0
     for j in range(args.inserts):
         i = np.random.randint(args.items)
+
         first_bit = i % (args.bits // 3)
         second_bit = prime_2 - (i % prime_2)
         third_bit = (i // param) % (args.bits // 3)
@@ -89,7 +91,7 @@ for k in range(1000):
 
     collisions_insert_average += collisions_insert
 
-print(collisions_insert_average / 1000, collisions)
+print(collisions_insert_average / ensembles, collisions)
 
 collision = {}
 hypervectors = {}
@@ -108,7 +110,7 @@ for i in range(args.items):
 
 hypervectors = list(hypervectors.keys())
 collisions_insert_average = 0
-for k in range(1000):
+for k in range(ensembles):
     collision_local = {}
     collisions_insert = 0
 
@@ -122,7 +124,7 @@ for k in range(1000):
 
         collision_local[first_bit] = 1
         collision_local[second_bit] = 1
-    collisions_insert_average += collisions_insert/1000.0
+    collisions_insert_average += collisions_insert/ensembles
 
 print(collisions_insert_average, collisions)
 
@@ -147,7 +149,7 @@ for i in range(args.items):
 
 hypervectors = list(hypervectors.keys())
 collisions_insert_average = 0
-for k in range(1000):
+for k in range(ensembles):
     collision_local = {}
     collisions_insert = 0
 
@@ -163,7 +165,7 @@ for k in range(1000):
         collision_local[second_bit] = 1
         collision_local[third_bit] = 1
     
-    collisions_insert_average += collisions_insert/1000.0
+    collisions_insert_average += collisions_insert/ensembles
 
 print(collisions_insert_average, collisions)
 
@@ -186,7 +188,7 @@ for i in range(args.items):
     collision[(third_bit, first_bit, second_bit)] = 1
 
 collisions_insert_average = 0
-for k in range(1000):
+for k in range(ensembles):
     collision_local = {}
     collisions_insert = 0
 
@@ -204,6 +206,6 @@ for k in range(1000):
         collision_local[second_bit] = 1
         collision_local[third_bit] = 1
     
-    collisions_insert_average += collisions_insert/1000.0
+    collisions_insert_average += collisions_insert/ensembles
 
 print(collisions_insert_average, collisions)
