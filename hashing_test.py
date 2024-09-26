@@ -41,7 +41,8 @@ for k in range(ensembles):
     collision_second = {}
 
     collisions_insert = 0
-    for j in range(args.inserts):
+    indexes = np.random.choice(np.arange(args.items), size=(args.inserts), replace=False)
+    for i in indexes:
         i = np.random.randint(args.items)
         first_bit = i % (args.bits // 2)
         second_bit = prime - (i % prime)
@@ -75,9 +76,8 @@ for k in range(ensembles):
     collision_third = {}
 
     collisions_insert = 0
-    for j in range(args.inserts):
-        i = np.random.randint(args.items)
-
+    indexes = np.random.choice(np.arange(args.items), size=(args.inserts), replace=False)
+    for i in indexes:
         first_bit = i % (args.bits // 3)
         second_bit = prime_2 - (i % prime_2)
         third_bit = (i // param) % (args.bits // 3)
@@ -114,9 +114,8 @@ for k in range(ensembles):
     collision_local = {}
     collisions_insert = 0
 
-    for j in range(args.inserts):
-        i = np.random.randint(len(hypervectors))
-
+    indexes = np.random.choice(np.arange(len(hypervectors)), size=(args.inserts), replace=False)
+    for i in indexes:
         (first_bit, second_bit) = hypervectors[i]
 
         if (first_bit in collision_local) and (second_bit in collision_local):
@@ -153,9 +152,8 @@ for k in range(ensembles):
     collision_local = {}
     collisions_insert = 0
 
-    for j in range(args.inserts):
-        i = np.random.randint(len(hypervectors))
-
+    indexes = np.random.choice(np.arange(len(hypervectors)), size=(args.inserts), replace=False)
+    for i in indexes:
         (first_bit, second_bit, third_bit) = hypervectors[i]
 
         if (first_bit in collision_local) and (second_bit in collision_local) and (third_bit in collision_local):
@@ -192,9 +190,9 @@ for k in range(ensembles):
     collision_local = {}
     collisions_insert = 0
 
-    for j in range(args.inserts):
-        i = np.random.randint(args.items, dtype=np.uint32).tobytes()
-
+    indexes = np.random.choice(np.arange(args.items), size=(args.inserts), replace=False)
+    for i in indexes:
+        i = np.array([i]).tobytes()
         first_bit = murmur(i, 0x81726354) % (args.bits)
         second_bit = murmur(i, 0x12345678) % (args.bits)
         third_bit = murmur(i, 0x87654321) % (args.bits)
