@@ -436,7 +436,7 @@ code_evaluate = """
             }
         }
 
-        __device__ inline unsigned int murmur(unigned char *key, unsigned int h)
+        __device__ inline unsigned int murmur(unsigned char *key, unsigned int h)
         {        
             h ^= key[i];
             h *= 0x5bd1e995;
