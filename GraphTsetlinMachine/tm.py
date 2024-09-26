@@ -97,12 +97,15 @@ class CommonTsetlinMachine():
 		cuda.memcpy_htod(self.hypervectors_gpu, self.hypervectors)
 
 	def ta_action(self, depth, clause, ta):
-		if np.array_equal(self.ta_state, np.array([])):
-			self.ta_state = np.empty(self.depth*self.number_of_clauses*self.number_of_ta_chunks*self.number_of_state_bits, dtype=np.uint32)
-			cuda.memcpy_dtoh(self.ta_state, self.ta_state_gpu)
-		ta_state = self.ta_state.reshape((self.depth, self.number_of_clauses, self.number_of_ta_chunks, self.number_of_state_bits))
+		if depth == 0:
+			if np.array_equal(self.ta_state, np.array([])):
+				self.ta_state = np.empty(self.number_of_clauses*self.number_of_ta_chunks*self.number_of_state_bits, dtype=np.uint32)
+				cuda.memcpy_dtoh(self.ta_state, self.ta_state_gpu)
+			ta_state = self.ta_state.reshape((self.number_of_clauses, self.number_of_ta_chunks, self.number_of_state_bits))
 
-		return (ta_state[depth, clause, ta // 32, self.number_of_state_bits-1] & (1 << (ta % 32))) > 0
+			return (ta_state[depth, clause, ta // 32, self.number_of_state_bits-1] & (1 << (ta % 32))) > 0
+		else:
+			print("Not implemented yet")
 
 	def get_state(self):
 		if np.array_equal(self.clause_weights, np.array([])):
