@@ -467,8 +467,8 @@ code_evaluate = """
                 //bit[0] = clause % (MESSAGE_SIZE / 2);
                 //bit[1] = (MESSAGE_SIZE / 2) + MESSAGE_PRIME - (clause % MESSAGE_PRIME);
 
-                bit[0] = murmur(clause, 0x81726354);
-                bit[1] = murmur(clause, 0x12345678);
+                bit[0] = murmur(clause, 0x81726354) % MESSAGE_SIZE;
+                bit[1] = murmur(clause, 0x12345678) % MESSAGE_SIZE;
 
                 for (int node = 0; node < number_of_nodes; ++node) {
                     int node_chunk = node / INT_SIZE;
