@@ -440,7 +440,7 @@ code_evaluate = """
         {
             unsigned char *key_char = &key;
             for (int i = 0; i < 4; ++i) {
-                h ^= key[i];
+                h ^= key_char[i];
                 h *= 0x5bd1e995;
                 h ^= h >> 15;
             }
