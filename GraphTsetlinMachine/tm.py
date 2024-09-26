@@ -311,7 +311,7 @@ class CommonTsetlinMachine():
 					self.block,
 					np.int32(graphs.number_of_graph_nodes[e]),
 					self.hypervectors_gpu,
-					self.current_clause_node_output,
+					current_clause_node_output,
 					self.clause_X_test_int_gpu
 				)
 				cuda.Context.synchronize()
