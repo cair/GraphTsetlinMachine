@@ -468,9 +468,7 @@ code_evaluate = """
                         }
 
                         if (node < number_of_nodes - 1) {
-                             for (int bit_index = 0; bit_index < MESSAGE_BITS; ++bit_index) {
-                                int bit = hypervectors[clause*MESSAGE_BITS + bit_index];
-                                
+                             for (int bit_index = 0; bit_index < MESSAGE_BITS; ++bit_index) {                                
                                 clause_X_int[(node + 1) * MESSAGE_SIZE * 2 + bit[bit_index]] = 1;
                                 clause_X_int[(node + 1) * MESSAGE_SIZE * 2 + MESSAGE_SIZE + bit[bit_index]] = 0;
                             }
@@ -478,17 +476,13 @@ code_evaluate = """
                     } else {
                         if (node > 0) {
                             for (int bit_index = 0; bit_index < MESSAGE_BITS; ++bit_index) {
-                                int bit = hypervectors[clause*MESSAGE_BITS + bit_index];
-
                                 clause_X_int[(node - 1) * MESSAGE_SIZE * 2 + bit[bit_index]] = 0;
                                 clause_X_int[(node - 1) * MESSAGE_SIZE * 2 + MESSAGE_SIZE + bit[bit_index]] = 1;
                             }
                         }
 
                         if (node < number_of_nodes - 1) {
-                             for (int bit_index = 0; bit_index < MESSAGE_BITS; ++bit_index) {
-                                int bit = hypervectors[clause*MESSAGE_BITS + bit_index];
-                                
+                             for (int bit_index = 0; bit_index < MESSAGE_BITS; ++bit_index) {                                
                                 clause_X_int[(node + 1) * MESSAGE_SIZE * 2 + bit[bit_index]] = 0;
                                 clause_X_int[(node + 1) * MESSAGE_SIZE * 2 + MESSAGE_SIZE + bit[bit_index]] = 1;
                             }
