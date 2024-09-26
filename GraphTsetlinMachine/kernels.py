@@ -447,6 +447,20 @@ code_evaluate = """
             return (h);
         }
 
+        __device__ inline unsigned int jenkins(unsigned int key_int, unsigned int h)
+            unsigned char *key = (unsigned char *)&key_int;
+            unsigned int hash, i;
+            for(hash = i = 0; i < 4; ++i) {
+                hash += key[i];
+                hash += (hash << 10);
+                hash ^= (hash >> 6);
+            }
+            hash += (hash << 3);
+            hash ^= (hash >> 11);
+            hash += (hash << 15);
+            return hash;
+        }
+
         __global__ void exchange_messages(
             int number_of_nodes,
             int *hypervectors,
@@ -464,8 +478,11 @@ code_evaluate = """
                 //     bit[bit_index] = hypervectors[clause*MESSAGE_BITS + bit_index];
                 //}
 
-                bit[0] = clause % (MESSAGE_SIZE / 2);
-                bit[1] = (MESSAGE_SIZE / 2) + MESSAGE_PRIME - (clause % MESSAGE_PRIME);
+                //bit[0] = clause % (MESSAGE_SIZE / 2);
+                //bit[1] = (MESSAGE_SIZE / 2) + MESSAGE_PRIME - (clause % MESSAGE_PRIME);
+
+                bit[0] = jenkins(clause, 0x81726354) % MESSAGE_SIZE;
+                bit[1] = jenkins(clause, 0x12345678) % MESSAGE_SIZE;
 
                 //bit[0] = murmur(clause, 0x81726354) % MESSAGE_SIZE;
                 //bit[1] = murmur(clause, 0x12345678) % MESSAGE_SIZE;
