@@ -436,6 +436,15 @@ code_evaluate = """
             }
         }
 
+        _device__ inline unsigned int murmur(unigned char *key, unsigned int h)
+        {        
+            h ^= key[i];
+            h *= 0x5bd1e995;
+            h ^= h >> 15;
+    
+            return (h);
+        }
+
         __global__ void exchange_messages(
             int number_of_nodes,
             int *hypervectors,
@@ -453,8 +462,11 @@ code_evaluate = """
                 //     bit[bit_index] = hypervectors[clause*MESSAGE_BITS + bit_index];
                 //}
 
-                bit[0] = clause % (MESSAGE_SIZE / 2);
-                bit[1] = (MESSAGE_SIZE / 2) + MESSAGE_PRIME - (clause % MESSAGE_PRIME);
+                //bit[0] = clause % (MESSAGE_SIZE / 2);
+                //bit[1] = (MESSAGE_SIZE / 2) + MESSAGE_PRIME - (clause % MESSAGE_PRIME);
+
+                bit[0] = murmur((unsigned char*)&clause, 0x81726354);
+                bit[1] = murmur((unsigned char*)&clause, 0x12345678);
 
                 for (int node = 0; node < number_of_nodes; ++node) {
                     int node_chunk = node / INT_SIZE;
