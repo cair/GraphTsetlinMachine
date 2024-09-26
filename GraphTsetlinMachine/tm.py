@@ -47,8 +47,8 @@ class CommonTsetlinMachine():
 			boost_true_positive_feedback=1,
 			number_of_state_bits=8,
 			depth=1,
-			hypervector_size=256,
-			hypervector_bits=2,
+			message_size=256,
+			message_bits=2,
 			grid=(16*13*4,1,1),
 			block=(128,1,1)
 	):
@@ -63,10 +63,10 @@ class CommonTsetlinMachine():
 		self.max_included_literals = max_included_literals
 		self.boost_true_positive_feedback = boost_true_positive_feedback
 		self.depth = depth
-		self.hypervector_size = hypervector_size
-		self.hypervector_literals = hypervector_size*2
+		self.message_size = message_size
+		self.hypervector_literals = message_size*2
 		self.hypervector_chunks = (self.hypervector_literals - 1) // 32 + 1
-		self.hypervector_bits = hypervector_bits
+		self.message_bits = message_bits
 		self.grid = grid
 		self.block = block
 
@@ -77,10 +77,10 @@ class CommonTsetlinMachine():
 		self.ta_state = np.array([])
 		self.clause_weights = np.array([])
 
-		indexes = np.arange(self.hypervector_size, dtype=np.uint32)
-		self.hypervectors = np.zeros((self.number_of_clauses, self.hypervector_bits), dtype=np.uint32)
+		indexes = np.arange(self.message_size, dtype=np.uint32)
+		self.hypervectors = np.zeros((self.number_of_clauses, self.message_bits), dtype=np.uint32)
 		for i in range(self.number_of_clauses):
-			self.hypervectors[i,:] = np.random.choice(indexes, size=(self.hypervector_bits), replace=False)
+			self.hypervectors[i,:] = np.random.choice(indexes, size=(self.message_bits), replace=False)
 
 		self.initialized = False
 
@@ -89,7 +89,7 @@ class CommonTsetlinMachine():
 
 		self.message_ta_state_gpu = []
 		for depth in range(self.depth - 1):
-			self.message_ta_state_gpu.append(cuda.mem_alloc(self.number_of_clauses*self.number_of_message_chunks*self.number_of_state_bits*4))
+			self.message_ta_state_gpu.append(cuda.mem_alloc(self.number_of_clauses*self.hypervector_chunks*self.number_of_state_bits*4))
 
 		self.clause_weights_gpu = cuda.mem_alloc(self.number_of_outputs*self.number_of_clauses*4)
 		self.class_sum_gpu = cuda.mem_alloc(self.number_of_outputs*4)
@@ -97,12 +97,15 @@ class CommonTsetlinMachine():
 		cuda.memcpy_htod(self.hypervectors_gpu, self.hypervectors)
 
 	def ta_action(self, depth, clause, ta):
-		if np.array_equal(self.ta_state, np.array([])):
-			self.ta_state = np.empty(self.depth*self.number_of_clauses*self.number_of_ta_chunks*self.number_of_state_bits, dtype=np.uint32)
-			cuda.memcpy_dtoh(self.ta_state, self.ta_state_gpu)
-		ta_state = self.ta_state.reshape((self.depth, self.number_of_clauses, self.number_of_ta_chunks, self.number_of_state_bits))
+		if depth == 0:
+			if np.array_equal(self.ta_state, np.array([])):
+				self.ta_state = np.empty(self.number_of_clauses*self.number_of_ta_chunks*self.number_of_state_bits, dtype=np.uint32)
+				cuda.memcpy_dtoh(self.ta_state, self.ta_state_gpu)
+			ta_state = self.ta_state.reshape((self.number_of_clauses, self.number_of_ta_chunks, self.number_of_state_bits))
 
-		return (ta_state[depth, clause, ta // 32, self.number_of_state_bits-1] & (1 << (ta % 32))) > 0
+			return (ta_state[clause, ta // 32, self.number_of_state_bits-1] & (1 << (ta % 32))) > 0
+		else:
+			print("Not implemented yet")
 
 	def get_state(self):
 		if np.array_equal(self.clause_weights, np.array([])):
@@ -140,7 +143,7 @@ class CommonTsetlinMachine():
 		self.number_of_literals = self.number_of_features*2
 		self.number_of_ta_chunks = int((self.number_of_literals-1)//32 + 1)
 
-		self.number_of_message_features = self.hypervector_size
+		self.number_of_message_features = self.message_size
 		self.number_of_message_literals = self.number_of_message_features*2
 		self.number_of_message_chunks = int((self.number_of_message_literals-1)//32 + 1)
 
@@ -162,7 +165,7 @@ class CommonTsetlinMachine():
 #define HYPERVECTOR_SIZE %d
 #define HYPERVECTOR_BITS %d
 #define NUMBER_OF_EXAMPLES %d
-""" % (self.number_of_outputs, self.number_of_clauses, self.number_of_literals, self.number_of_state_bits, self.boost_true_positive_feedback, self.s, self.T, self.q, self.max_included_literals, self.negative_clauses, graphs.max_number_of_graph_nodes, self.hypervector_size, self.hypervector_bits, graphs.number_of_graphs)
+""" % (self.number_of_outputs, self.number_of_clauses, self.number_of_literals, self.number_of_state_bits, self.boost_true_positive_feedback, self.s, self.T, self.q, self.max_included_literals, self.negative_clauses, graphs.max_number_of_graph_nodes, self.message_size, self.message_bits, graphs.number_of_graphs)
 
 		mod_prepare = SourceModule(parameters + kernels.code_header + kernels.code_prepare, no_extern_c=True)
 		self.prepare = mod_prepare.get_function("prepare")
@@ -182,6 +185,9 @@ class CommonTsetlinMachine():
 
 		self.calculate_messages = mod_evaluate.get_function("calculate_messages")
 		self.calculate_messages.prepare("PiiPP")
+
+		self.calculate_messages_conditional = mod_evaluate.get_function("calculate_messages_conditional")
+		self.calculate_messages_conditional.prepare("PiPPP")
 
 		self.exchange_messages = mod_evaluate.get_function("exchange_messages")
 		self.exchange_messages.prepare("iPPP")
@@ -265,7 +271,7 @@ class CommonTsetlinMachine():
 
 			self.clause_node_output_test_gpu = cuda.mem_alloc(int(self.number_of_clauses * graphs.max_number_of_graph_node_chunks) * 4)
 
-			#self.clause_node_output_round_test_gpu = cuda.mem_alloc(int(self.number_of_clauses * graphs.max_number_of_graph_node_chunks) * 4)
+			self.clause_node_output_round_test_gpu = cuda.mem_alloc(int(self.number_of_clauses * graphs.max_number_of_graph_node_chunks) * 4)
 
 			self.clause_X_test_int_gpu = cuda.mem_alloc(int(graphs.max_number_of_graph_nodes * self.hypervector_literals) * 4)
 
@@ -286,39 +292,36 @@ class CommonTsetlinMachine():
 			)
 			cuda.Context.synchronize()
 
-			self.exchange_messages.prepared_call(
-				self.grid,
-				self.block,
-				np.int32(graphs.number_of_graph_nodes[e]),
-				self.hypervectors_gpu,
-				self.clause_node_output_test_gpu,
-				self.clause_X_test_int_gpu
-			)
-			cuda.Context.synchronize()
+			for depth in range(self.depth-1):
+				self.exchange_messages.prepared_call(
+					self.grid,
+					self.block,
+					np.int32(graphs.number_of_graph_nodes[e]),
+					self.hypervectors_gpu,
+					self.clause_node_output_test_gpu,
+					self.clause_X_test_int_gpu
+				)
+				cuda.Context.synchronize()
 
-			self.encode_messages.prepared_call(
-				self.grid,
-				self.block,
-				np.int32(graphs.number_of_graph_nodes[e]),
-				self.clause_X_test_int_gpu,
-				self.clause_X_test_gpu
-			)
-			cuda.Context.synchronize()
+				self.encode_messages.prepared_call(
+					self.grid,
+					self.block,
+					np.int32(graphs.number_of_graph_nodes[e]),
+					self.clause_X_test_int_gpu,
+					self.clause_X_test_gpu
+				)
+				cuda.Context.synchronize()
 
-			# Calculate clause node output for self.clause_X_test_gpu, conditioned on self.clause_node_output_test_gpu... Or AND afterwards...
-
-			# self.calculate_messages.prepared_call(
-			# 	self.grid,
-			# 	self.block,
-			# 	self.hypervector_size*2,
-			# 	self.ta_state_gpu,
-			# 	np.int32(graphs.number_of_graph_nodes[e]),
-			# 	np.int32(0),
-			# 	self.clause_node_output_test_gpu,
-			# 	self.clause_node_output_round_test_gpu,
-			# 	self.clause_X_test_gpu
-			# )
-			# cuda.Context.synchronize()
+				self.calculate_messages_conditional.prepared_call(
+					self.grid,
+					self.block,
+					self.message_ta_state_gpu[0],
+					np.int32(graphs.number_of_graph_nodes[e]),
+					self.clause_node_output_test_gpu,
+					self.clause_node_output_round_test_gpu,
+					self.clause_X_test_gpu
+				)
+				cuda.Context.synchronize()
 
 			self.evaluate.prepared_call(
 				self.grid,
@@ -350,8 +353,8 @@ class MultiClassGraphTsetlinMachine(CommonTsetlinMachine):
 			boost_true_positive_feedback=1,
 			number_of_state_bits=8,
 			depth=1,
-			hypervector_size=256,
-			hypervector_bits=2,
+			message_size=256,
+			message_bits=2,
 			grid=(16*13*4,1,1),
 			block=(128,1,1)
 	):
@@ -364,8 +367,8 @@ class MultiClassGraphTsetlinMachine(CommonTsetlinMachine):
 			boost_true_positive_feedback=boost_true_positive_feedback,
 			number_of_state_bits=number_of_state_bits,
 			depth=depth,
-			hypervector_size=hypervector_size,
-			hypervector_bits=hypervector_bits,
+			message_size=message_size,
+			message_bits=message_bits,
 			grid=grid,
 			block=block
 		)
