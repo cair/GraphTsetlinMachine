@@ -31,6 +31,7 @@ import pycuda.autoinit
 from pycuda.compiler import SourceModule
 from scipy.sparse import csr_matrix
 import sys
+from sympy import prevprime
 
 from time import time
 
@@ -64,9 +65,10 @@ class CommonTsetlinMachine():
 		self.boost_true_positive_feedback = boost_true_positive_feedback
 		self.depth = depth
 		self.message_size = message_size
+		self.message_bits = message_bits
+		self.message_prime = prevprime(message_size//2)
 		self.hypervector_literals = message_size*2
 		self.hypervector_chunks = (self.hypervector_literals - 1) // 32 + 1
-		self.message_bits = message_bits
 		self.grid = grid
 		self.block = block
 
@@ -164,8 +166,9 @@ class CommonTsetlinMachine():
 #define MAX_NODES %d
 #define MESSAGE_SIZE %d
 #define MESSAGE_BITS %d
+#define MESSAGE_PRIME %d
 #define NUMBER_OF_EXAMPLES %d
-""" % (self.number_of_outputs, self.number_of_clauses, self.number_of_literals, self.number_of_state_bits, self.boost_true_positive_feedback, self.s, self.T, self.q, self.max_included_literals, self.negative_clauses, graphs.max_number_of_graph_nodes, self.message_size, self.message_bits, graphs.number_of_graphs)
+""" % (self.number_of_outputs, self.number_of_clauses, self.number_of_literals, self.number_of_state_bits, self.boost_true_positive_feedback, self.s, self.T, self.q, self.max_included_literals, self.negative_clauses, graphs.max_number_of_graph_nodes, self.message_size, self.message_bits, self.message_prime, graphs.number_of_graphs)
 
 		mod_prepare = SourceModule(parameters + kernels.code_header + kernels.code_prepare, no_extern_c=True)
 		self.prepare = mod_prepare.get_function("prepare")
