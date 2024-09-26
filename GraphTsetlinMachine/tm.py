@@ -162,8 +162,8 @@ class CommonTsetlinMachine():
 #define MAX_INCLUDED_LITERALS %d
 #define NEGATIVE_CLAUSES %d
 #define MAX_NODES %d
-#define HYPERVECTOR_SIZE %d
-#define HYPERVECTOR_BITS %d
+#define MESSAGE_SIZE %d
+#define MESSAGE_BITS %d
 #define NUMBER_OF_EXAMPLES %d
 """ % (self.number_of_outputs, self.number_of_clauses, self.number_of_literals, self.number_of_state_bits, self.boost_true_positive_feedback, self.s, self.T, self.q, self.max_included_literals, self.negative_clauses, graphs.max_number_of_graph_nodes, self.message_size, self.message_bits, graphs.number_of_graphs)
 
