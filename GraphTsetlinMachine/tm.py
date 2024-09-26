@@ -281,7 +281,7 @@ class CommonTsetlinMachine():
 		for e in range(graphs.number_of_graphs):
 			cuda.memcpy_htod(self.class_sum_gpu, class_sum[e,:])
 
-			current_clause_node_output = self.curent_clause_node_output_test_gpu
+			current_clause_node_output = self.current_clause_node_output_test_gpu
 			previous_clause_node_output = self.previous_clause_node_output_test_gpu
 
 			self.calculate_messages.prepared_call(
