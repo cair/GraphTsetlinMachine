@@ -17,6 +17,7 @@ parser.add_argument("--bits", default=16384, type=int)
 
 args = parser.parse_args()
 
+collision = {}
 hypervectors = {}
 collisions = 0
 indexes = np.arange(args.bits)
