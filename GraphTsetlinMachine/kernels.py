@@ -438,9 +438,11 @@ code_evaluate = """
 
         __device__ inline unsigned int murmur(unsigned char *key, unsigned int h)
         {        
-            h ^= key[i];
-            h *= 0x5bd1e995;
-            h ^= h >> 15;
+            for (int i = 0; i < 4; ++i) {
+                h ^= key[i];
+                h *= 0x5bd1e995;
+                h ^= h >> 15;
+            }
     
             return (h);
         }
