@@ -269,9 +269,9 @@ class CommonTsetlinMachine():
 			self.encoded_X_test_gpu = cuda.mem_alloc(graphs.X.nbytes)
 			cuda.memcpy_htod(self.encoded_X_test_gpu, graphs.X)
 
-			self.clause_node_output_test_gpu = cuda.mem_alloc(int(self.number_of_clauses * graphs.max_number_of_graph_node_chunks) * 4)
+			self.current_clause_node_output_test_gpu = cuda.mem_alloc(int(self.number_of_clauses * graphs.max_number_of_graph_node_chunks) * 4)
 
-			self.clause_node_output_round_test_gpu = cuda.mem_alloc(int(self.number_of_clauses * graphs.max_number_of_graph_node_chunks) * 4)
+			self.previous_clause_node_output_test_gpu = cuda.mem_alloc(int(self.number_of_clauses * graphs.max_number_of_graph_node_chunks) * 4)
 
 			self.clause_X_test_int_gpu = cuda.mem_alloc(int(graphs.max_number_of_graph_nodes * self.hypervector_literals) * 4)
 
@@ -281,14 +281,27 @@ class CommonTsetlinMachine():
 		for e in range(graphs.number_of_graphs):
 			cuda.memcpy_htod(self.class_sum_gpu, class_sum[e,:])
 
+			current_clause_node_output = self.current_clause_node_output_test_gpu
+			previous_clause_node_output = self.previous_clause_node_output_test_gpu
+
 			self.calculate_messages.prepared_call(
 				self.grid,
 				self.block,
 				self.ta_state_gpu,
 				np.int32(graphs.number_of_graph_nodes[e]),
 				np.int32(graphs.node_index[e]),
-				self.clause_node_output_test_gpu,
+				current_clause_node_output,
 				self.encoded_X_test_gpu
+			)
+			cuda.Context.synchronize()
+
+			self.evaluate.prepared_call(
+				self.grid,
+				self.block,
+				current_clause_node_output,
+				self.clause_weights_gpu,
+				np.int32(graphs.number_of_graph_nodes[e]),
+				self.class_sum_gpu
 			)
 			cuda.Context.synchronize()
 
@@ -298,7 +311,7 @@ class CommonTsetlinMachine():
 					self.block,
 					np.int32(graphs.number_of_graph_nodes[e]),
 					self.hypervectors_gpu,
-					self.clause_node_output_test_gpu,
+					current_clause_node_output,
 					self.clause_X_test_int_gpu
 				)
 				cuda.Context.synchronize()
@@ -317,21 +330,15 @@ class CommonTsetlinMachine():
 					self.block,
 					self.message_ta_state_gpu[0],
 					np.int32(graphs.number_of_graph_nodes[e]),
-					self.clause_node_output_test_gpu,
-					self.clause_node_output_round_test_gpu,
+					current_clause_node_output,
+					previous_clause_node_output,
 					self.clause_X_test_gpu
 				)
 				cuda.Context.synchronize()
 
-			self.evaluate.prepared_call(
-				self.grid,
-				self.block,
-				self.clause_node_output_test_gpu,
-				self.clause_weights_gpu,
-				np.int32(graphs.number_of_graph_nodes[e]),
-				self.class_sum_gpu
-			)
-			cuda.Context.synchronize()
+				tmp = current_clause_node_output
+				current_clause_node_output = previous_clause_node_output
+				previous_clause_node_output = tmp
 
 			cuda.memcpy_dtoh(class_sum[e,:], self.class_sum_gpu)
 			#print(class_sum[e,:])
