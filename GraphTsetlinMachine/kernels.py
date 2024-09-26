@@ -32,7 +32,7 @@ code_header = """
     #define MESSAGE_LITERALS (MESSAGE_SIZE*2)
     #define MESSAGE_CHUNKS (((MESSAGE_LITERALS-1)/INT_SIZE + 1))
 
-    #define PRIME 4093
+    #define PRIME 509
 
     #define NODE_CHUNKS ((MAX_NODES-1)/INT_SIZE + 1)
 
@@ -451,9 +451,12 @@ code_evaluate = """
             int bit[MESSAGE_BITS];
 
             for (int clause = index; clause < CLAUSES; clause += stride) {
-                for (int bit_index = 0; bit_index < MESSAGE_BITS; ++bit_index) {
-                    bit[bit_index] = hypervectors[clause*MESSAGE_BITS + bit_index];
-                }
+                // for (int bit_index = 0; bit_index < MESSAGE_BITS; ++bit_index) {
+                //     bit[bit_index] = hypervectors[clause*MESSAGE_BITS + bit_index];
+                // }
+
+                bit[0] = clause % MESSAGE_SIZE;
+                bit[1] = PRIME - (clause % PRIME);
 
                 for (int node = 0; node < number_of_nodes; ++node) {
                     int node_chunk = node / INT_SIZE;
