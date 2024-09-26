@@ -292,28 +292,26 @@ class CommonTsetlinMachine():
 			)
 			cuda.Context.synchronize()
 
-			self.exchange_messages.prepared_call(
-				self.grid,
-				self.block,
-				np.int32(graphs.number_of_graph_nodes[e]),
-				self.hypervectors_gpu,
-				self.clause_node_output_test_gpu,
-				self.clause_X_test_int_gpu
-			)
-			cuda.Context.synchronize()
-
-			self.encode_messages.prepared_call(
-				self.grid,
-				self.block,
-				np.int32(graphs.number_of_graph_nodes[e]),
-				self.clause_X_test_int_gpu,
-				self.clause_X_test_gpu
-			)
-			cuda.Context.synchronize()
-
-			# Calculate clause node output for self.clause_X_test_gpu, conditioned on self.clause_node_output_test_gpu... Or AND afterwards...
-
 			for depth in range(self.depth-1):
+				self.exchange_messages.prepared_call(
+					self.grid,
+					self.block,
+					np.int32(graphs.number_of_graph_nodes[e]),
+					self.hypervectors_gpu,
+					self.clause_node_output_test_gpu,
+					self.clause_X_test_int_gpu
+				)
+				cuda.Context.synchronize()
+
+				self.encode_messages.prepared_call(
+					self.grid,
+					self.block,
+					np.int32(graphs.number_of_graph_nodes[e]),
+					self.clause_X_test_int_gpu,
+					self.clause_X_test_gpu
+				)
+				cuda.Context.synchronize()
+
 				self.calculate_messages_conditional.prepared_call(
 					self.grid,
 					self.block,
