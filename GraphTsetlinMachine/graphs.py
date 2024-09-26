@@ -44,11 +44,13 @@ class Graphs():
 			#indexes = np.arange(self.hypervector_size, dtype=np.uint32)
 			prime = prevprime(self.hypervector_size // 3)
 			self.hypervectors = np.zeros((len(self.symbol_id), self.hypervector_bits), dtype=np.uint32)
+			indexes = np.arange(self.symbol_id)
+			np.random.shuffle(indexes)
 			for i in range(len(self.symbol_id)):
 				#self.hypervectors[i,:] = np.random.choice(indexes, size=(self.hypervector_bits), replace=False)
-				self.hypervectors[i, 0] = i % (self.hypervector_size // 3)
-				self.hypervectors[i, 1] = prime - (i % prime)
-				self.hypervectors[i, 2] = (i // 27) % (self.hypervector_size // 3)
+				self.hypervectors[indexes[i], 0] = indexes[i] % (self.hypervector_size // 3)
+				self.hypervectors[indexes[i], 1] = prime - (indexes[i] % prime)
+				self.hypervectors[indexes[i], 2] = (indexes[i] // 27) % (self.hypervector_size // 3)
 		else:
 			self.symbol_id = self.init_with.symbol_id
 			self.hypervector_size = self.init_with.hypervector_size
