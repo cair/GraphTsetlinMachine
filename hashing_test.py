@@ -17,6 +17,41 @@ parser.add_argument("--bits", default=16384, type=int)
 
 args = parser.parse_args()
 
+prime = prevprime(args.bits // 2)
+
+collision = {}
+collisions = 0
+for i in range(args.items):
+    first_bit = i % (args.bits // 2)
+    second_bit = prime - (i % prime)
+
+    if (first_bit, second_bit) in collision:
+        collisions += 1
+    collision[(first_bit, second_bit)] = 1
+#    collision[(second_bit, first_bit)] = 1
+
+collisions_insert_average = 0
+for k in range(1000):
+
+    collision_first = {}
+    collision_second = {}
+
+    collisions_insert = 0
+    for j in range(args.inserts):
+        i = np.random.randint(args.items)
+        first_bit = i % (args.bits // 2)
+        second_bit = prime - (i % prime)
+
+        if (first_bit in collision_first) and (second_bit in collision_second):
+            collisions_insert += 1
+
+        collision_first[first_bit] = 1
+        collision_second[second_bit] = 1
+
+    collisions_insert_average += collisions_insert
+
+print(collisions_insert_average / 1000, collisions)
+
 collision = {}
 hypervectors = {}
 collisions = 0
