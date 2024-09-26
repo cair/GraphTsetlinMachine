@@ -19,6 +19,8 @@ args = parser.parse_args()
 
 prime = prevprime(args.bits // 2)
 
+prime_2 = prevprime((args.bits - 11) // 2)
+
 collision = {}
 collisions = 0
 for i in range(args.items):
@@ -54,9 +56,9 @@ print(collisions_insert_average / 1000, collisions)
 collision = {}
 collisions = 0
 for i in range(args.items):
-    first_bit = i % (args.bits // 2)
-    second_bit = prime - (i % prime)
-    third_bit = (i // 11) % (args.bits // 2)
+    first_bit = i % ((args.bits - 11) // 2)
+    second_bit = prime_2 - (i % prime_2)
+    third_bit = (i // 11) % ((args.bits - 11) // 2)
 
     if (first_bit, second_bit, third_bit) in collision:
         collisions += 1
@@ -72,9 +74,9 @@ for k in range(1000):
     collisions_insert = 0
     for j in range(args.inserts):
         i = np.random.randint(args.items)
-        first_bit = i % (args.bits // 2)
-        second_bit = prime - (i % prime)
-        third_bit = (i // 11) % (args.bits // 2)
+        first_bit = i % ((args.bits - 11) // 2)
+        second_bit = prime_2 - (i % prime_2)
+        third_bit = (i // 11) % ((args.bits - 11) // 2)
 
         if (first_bit in collision_first) and (second_bit in collision_second) and (third_bit in collision_third):
             collisions_insert += 1
