@@ -449,12 +449,12 @@ code_evaluate = """
             int bit[MESSAGE_BITS];
 
             for (int clause = index; clause < CLAUSES; clause += stride) {
-                // for (int bit_index = 0; bit_index < MESSAGE_BITS; ++bit_index) {
-                //     bit[bit_index] = hypervectors[clause*MESSAGE_BITS + bit_index];
-                // }
+                for (int bit_index = 0; bit_index < MESSAGE_BITS; ++bit_index) {
+                     bit[bit_index] = hypervectors[clause*MESSAGE_BITS + bit_index];
+                }
 
-                bit[0] = clause % (MESSAGE_SIZE / 2);
-                bit[1] = (MESSAGE_SIZE / 2) + MESSAGE_PRIME - (clause % MESSAGE_PRIME);
+                //bit[0] = clause % (MESSAGE_SIZE / 2);
+                //bit[1] = (MESSAGE_SIZE / 2) + MESSAGE_PRIME - (clause % MESSAGE_PRIME);
 
                 for (int node = 0; node < number_of_nodes; ++node) {
                     int node_chunk = node / INT_SIZE;
