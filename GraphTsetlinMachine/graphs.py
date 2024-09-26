@@ -44,7 +44,7 @@ class Graphs():
 			#indexes = np.arange(self.hypervector_size, dtype=np.uint32)
 			prime = prevprime(self.hypervector_size // 3)
 			self.hypervectors = np.zeros((len(self.symbol_id), self.hypervector_bits), dtype=np.uint32)
-			indexes = np.arange(self.symbol_id)
+			indexes = np.arange(len(self.symbol_id))
 			np.random.shuffle(indexes)
 			for i in range(len(self.symbol_id)):
 				#self.hypervectors[i,:] = np.random.choice(indexes, size=(self.hypervector_bits), replace=False)
