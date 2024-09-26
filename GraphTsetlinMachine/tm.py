@@ -310,16 +310,17 @@ class CommonTsetlinMachine():
 
 			# Calculate clause node output for self.clause_X_test_gpu, conditioned on self.clause_node_output_test_gpu... Or AND afterwards...
 
-			self.calculate_messages_conditional.prepared_call(
-				self.grid,
-				self.block,
-				self.message_ta_state_gpu[0],
-				np.int32(graphs.number_of_graph_nodes[e]),
-				self.clause_node_output_test_gpu,
-				self.clause_node_output_round_test_gpu,
-				self.clause_X_test_gpu
-			)
-			cuda.Context.synchronize()
+			for depth in range(self.depth-1):
+				self.calculate_messages_conditional.prepared_call(
+					self.grid,
+					self.block,
+					self.message_ta_state_gpu[0],
+					np.int32(graphs.number_of_graph_nodes[e]),
+					self.clause_node_output_test_gpu,
+					self.clause_node_output_round_test_gpu,
+					self.clause_X_test_gpu
+				)
+				cuda.Context.synchronize()
 
 			self.evaluate.prepared_call(
 				self.grid,
