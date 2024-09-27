@@ -334,6 +334,43 @@ code_evaluate = """
             }
         }
 
+        __global__ void select_clause_patch(
+            curandState *state,
+            int *global_clause_node_output,
+            int number_of_nodes,
+            int *clause_patch
+        )
+        {
+            int index = blockIdx.x * blockDim.x + threadIdx.x;
+            int stride = blockDim.x * gridDim.x;
+
+            curandState localState = state[index];
+
+            int clause_true_patch[MAX_NODES];
+            int clause_true_patch_len; 
+
+            for (int clause = index; clause < CLAUSES; clause += stride) {
+                clause_true_patch_len = 0;
+                for (int node = 0; node < number_of_nodes; ++node) {
+                    int node_chunk = node / INT_SIZE;
+                    int node_pos = node % INT_SIZE;
+
+                    if (global_clause_node_output[clause*NODE_CHUNKS + node_chunk] && (1 << node_pos)) {
+                        clause_true_patch[clause_true_patch_len] = node;
+                        clause_true_patch_len++;
+                    }
+                }
+
+                if (clause_true_len > 0) {
+                    clause_patch[clause] = clause_true_patch[curand(localState) % (clause_true_len)];
+                } else {
+                    clause_patch[clause] = -1;
+                }
+            }
+
+            state[index] = localState;
+        }
+
         __global__ void calculate_messages(
             unsigned int *global_ta_state,
             int number_of_nodes,

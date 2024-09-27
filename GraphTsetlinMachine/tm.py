@@ -229,6 +229,66 @@ class CommonTsetlinMachine():
 				class_sum = np.zeros(self.number_of_outputs).astype(np.int32)
 				cuda.memcpy_htod(self.class_sum_gpu, class_sum)
 
+				# self.calculate_messages.prepared_call(
+				# 	self.grid,
+				# 	self.block,
+				# 	self.ta_state_gpu,
+				# 	np.int32(graphs.number_of_graph_nodes[e]),
+				# 	np.int32(graphs.node_index[e]),
+				# 	current_clause_node_output,
+				# 	self.encoded_X_test_gpu
+				# )
+				# cuda.Context.synchronize()
+
+				# self.evaluate.prepared_call(
+				# 	self.grid,
+				# 	self.block,
+				# 	current_clause_node_output,
+				# 	self.clause_weights_gpu,
+				# 	np.int32(graphs.number_of_graph_nodes[e]),
+				# 	self.class_sum_gpu
+				# )
+				# cuda.Context.synchronize()
+
+				# for depth in range(self.depth-1):
+				# 	self.exchange_messages.prepared_call(
+				# 		self.grid,
+				# 		self.block,
+				# 		np.int32(graphs.number_of_graph_nodes[e]),
+				# 		self.hypervectors_gpu,
+				# 		current_clause_node_output,
+				# 		self.clause_X_test_int_gpu
+				# 	)
+				# 	cuda.Context.synchronize()
+
+				# 	self.encode_messages.prepared_call(
+				# 		self.grid,
+				# 		self.block,
+				# 		np.int32(graphs.number_of_graph_nodes[e]),
+				# 		self.clause_X_test_int_gpu,
+				# 		self.clause_X_test_gpu
+				# 	)
+				# 	cuda.Context.synchronize()
+
+				# 	self.calculate_messages_conditional.prepared_call(
+				# 		self.grid,
+				# 		self.block,
+				# 		self.message_ta_state_gpu[depth],
+				# 		np.int32(graphs.number_of_graph_nodes[e]),
+				# 		current_clause_node_output,
+				# 		previous_clause_node_output,
+				# 		self.clause_X_test_gpu
+				# 	)
+				# 	cuda.Context.synchronize()
+
+				# 	tmp = current_clause_node_output
+				# 	current_clause_node_output = previous_clause_node_output
+				# 	previous_clause_node_output = tmp
+
+				# ## PICK RANDOM PATCH INDEX WHERE CLAUSES ARE TRUE, -1 MEANS FALSE
+
+				## FOR LOOP UPDATING EACH BLOCK
+
 				self.evaluate_update.prepared_call(
 					self.grid,
 					self.block,
@@ -279,6 +339,8 @@ class CommonTsetlinMachine():
 			self.clause_X_test_int_gpu = cuda.mem_alloc(int(graphs.max_number_of_graph_nodes * self.hypervector_literals) * 4)
 
 			self.clause_X_test_gpu = cuda.mem_alloc(int(graphs.max_number_of_graph_nodes * self.hypervector_chunks) * 4)
+
+			self.clause_patch_gpu = cuda.mem_alloc(int(self.number_of_clauses) * 4)
 
 		class_sum = np.zeros((graphs.number_of_graphs, self.number_of_outputs), dtype=np.int32)
 		for e in range(graphs.number_of_graphs):
@@ -342,6 +404,16 @@ class CommonTsetlinMachine():
 				tmp = current_clause_node_output
 				current_clause_node_output = previous_clause_node_output
 				previous_clause_node_output = tmp
+
+			self.select_clause_patch.prepared_call(
+				self.grid,
+				self.block,
+				g.state,
+				np.int32(graphs.number_of_graph_nodes[e]),
+				current_clause_node_output,
+				self.clause_patch_gpu
+			)
+			cuda.Context.synchronize()
 
 			cuda.memcpy_dtoh(class_sum[e,:], self.class_sum_gpu)
 			#print(class_sum[e,:])
