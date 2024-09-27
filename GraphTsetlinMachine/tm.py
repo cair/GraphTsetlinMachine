@@ -187,7 +187,7 @@ class CommonTsetlinMachine():
 		self.evaluate.prepare("PPiP")
 
 		self.select_clause_patch = mod_evaluate.get_function("select_clause_patch")
-		self.select_clause_patch.prepare("PPiP")
+		self.select_clause_patch.prepare("PiPP")
 
 		self.calculate_messages = mod_evaluate.get_function("calculate_messages")
 		self.calculate_messages.prepare("PiiPP")
@@ -363,16 +363,6 @@ class CommonTsetlinMachine():
 			)
 			cuda.Context.synchronize()
 
-			self.select_clause_patch.prepared_call(
-				self.grid,
-				self.block,
-				g.state,
-				int(graphs.number_of_graph_nodes[e]),
-				current_clause_node_output,
-				self.clause_patch_gpu
-			)
-			cuda.Context.synchronize()
-
 			self.evaluate.prepared_call(
 				self.grid,
 				self.block,
@@ -417,6 +407,16 @@ class CommonTsetlinMachine():
 				tmp = current_clause_node_output
 				current_clause_node_output = previous_clause_node_output
 				previous_clause_node_output = tmp
+
+			self.select_clause_patch.prepared_call(
+				self.grid,
+				self.block,
+				g.state,
+				int(graphs.number_of_graph_nodes[e]),
+				current_clause_node_output,
+				self.clause_patch_gpu
+			)
+			cuda.Context.synchronize()
 
 			cuda.memcpy_dtoh(class_sum[e,:], self.class_sum_gpu)
 			#print(class_sum[e,:])
