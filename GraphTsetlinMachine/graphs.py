@@ -24,7 +24,7 @@ from numba import jit
 from sympy import prevprime
 
 class Graphs():
-	def __init__(self, number_of_graphs, hypervector_size = 128, hypervector_bits = 2, double_hashing=False, symbol_names=None, init_with=None):
+	def __init__(self, number_of_graphs, hypervector_size = 128, hypervector_bits = 2, double_hashing=True, symbol_names=None, init_with=None):
 		self.number_of_graphs = number_of_graphs
 		self.number_of_graph_nodes = np.zeros(self.number_of_graphs, dtype=np.uint32)
 		self.double_hashing = double_hashing
