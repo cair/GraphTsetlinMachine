@@ -362,7 +362,7 @@ code_evaluate = """
                 }
 
                 if (clause_true_patch_len > 0) {
-                    clause_patch[clause] = clause_true_patch[curand(localState) % (clause_true_patch_len)];
+                    clause_patch[clause] = clause_true_patch[curand(&localState) % (clause_true_patch_len)];
                 } else {
                     clause_patch[clause] = -1;
                 }
