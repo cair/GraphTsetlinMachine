@@ -394,7 +394,7 @@ code_evaluate = """
                     int node_chunk = node / INT_SIZE;
                     int node_pos = node % INT_SIZE;
 
-                    if (global_clause_node_output[clause*NODE_CHUNKS + node_chunk] && (1 << node_pos)) {
+                    if (global_clause_node_output[clause*NODE_CHUNKS + node_chunk] & (1 << node_pos)) {
                         clause_true_patch[clause_true_patch_len] = node;
                         clause_true_patch_len++;
                     }
