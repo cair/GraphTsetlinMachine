@@ -367,7 +367,7 @@ class CommonTsetlinMachine():
 				self.grid,
 				self.block,
 				g.state,
-				np.int32(graphs.number_of_graph_nodes[e]),
+				int(graphs.number_of_graph_nodes[e]),
 				current_clause_node_output,
 				self.clause_patch_gpu
 			)
