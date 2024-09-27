@@ -386,7 +386,7 @@ code_evaluate = """
             curandState localState = state[index];
 
             int clause_true_patch[MAX_NODES];
-            int clause_true_patch_len; 
+            int clause_true_patch_len;
 
             for (int clause = index; clause < CLAUSES; clause += stride) {
                 clause_true_patch_len = 0;

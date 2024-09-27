@@ -189,7 +189,7 @@ class CommonTsetlinMachine():
 		self.evaluate.prepare("PPiP")
 
 		self.select_clause_patch = mod_evaluate.get_function("select_clause_patch")
-		self.select_clause_patch.prepare("PiPP")
+		self.select_clause_patch.prepare("PPiP")
 
 		self.calculate_messages = mod_evaluate.get_function("calculate_messages")
 		self.calculate_messages.prepare("PiiPP")
@@ -265,8 +265,8 @@ class CommonTsetlinMachine():
 					self.grid,
 					self.block,
 					g.state,
-					int(graphs.number_of_graph_nodes[e]),
 					current_clause_node_output,
+					int(graphs.number_of_graph_nodes[e]),
 					self.clause_patch_gpu
 				)
 				cuda.Context.synchronize()
