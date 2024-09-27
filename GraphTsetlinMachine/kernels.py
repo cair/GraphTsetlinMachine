@@ -344,6 +344,8 @@ code_evaluate = """
             int index = blockIdx.x * blockDim.x + threadIdx.x;
             int stride = blockDim.x * gridDim.x;
 
+            return;
+            
             curandState localState = state[index];
 
             int clause_true_patch[MAX_NODES];
@@ -361,11 +363,11 @@ code_evaluate = """
                     }
                 }
 
-                //if (clause_true_patch_len > 0) {
-                //    clause_patch[clause] = clause_true_patch[curand(&localState) % (clause_true_patch_len)];
-                //} else {
-                //    clause_patch[clause] = -1;
-                //}
+                if (clause_true_patch_len > 0) {
+                    clause_patch[clause] = clause_true_patch[curand(&localState) % (clause_true_patch_len)];
+                } else {
+                    clause_patch[clause] = -1;
+                }
             }
 
             state[index] = localState;
