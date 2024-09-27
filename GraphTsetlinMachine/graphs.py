@@ -24,7 +24,7 @@ from numba import jit
 from sympy import prevprime
 
 class Graphs():
-	def __init__(self, number_of_graphs, hypervector_size = 128, hypervector_bits = 2, double_hashing=True, symbol_names=None, init_with=None):
+	def __init__(self, number_of_graphs, hypervector_size = 128, hypervector_bits = 2, double_hashing=False, symbol_names=None, init_with=None):
 		self.number_of_graphs = number_of_graphs
 		self.number_of_graph_nodes = np.zeros(self.number_of_graphs, dtype=np.uint32)
 		self.double_hashing = double_hashing
@@ -54,7 +54,7 @@ class Graphs():
 					#self.hypervectors[indexes[i], 2] = 2 * (self.hypervector_size // 3) + (indexes[i] // 27) % (self.hypervector_size // 3)
 			else:
 				self.hypervectors = np.zeros((len(self.symbol_id), self.hypervector_bits), dtype=np.uint32)
-				indexes = np.arange(len(self.symbol_id))
+				indexes = np.arange(self.hypervector_size)
 				for i in range(len(self.symbol_id)):
 					self.hypervectors[i,:] = np.random.choice(indexes, size=(self.hypervector_bits), replace=False)
 		else:
