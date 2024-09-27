@@ -95,6 +95,7 @@ class CommonTsetlinMachine():
 
 		self.clause_weights_gpu = cuda.mem_alloc(self.number_of_outputs*self.number_of_clauses*4)
 		self.class_sum_gpu = cuda.mem_alloc(self.number_of_outputs*4)
+		self.clause_patch_gpu = cuda.mem_alloc(int(self.number_of_clauses) * 4)
 		self.hypervectors_gpu = cuda.mem_alloc(self.hypervectors.nbytes)
 		cuda.memcpy_htod(self.hypervectors_gpu, self.hypervectors)
 
@@ -372,7 +373,6 @@ class CommonTsetlinMachine():
 			self.previous_clause_node_output_test_gpu = cuda.mem_alloc(int(self.number_of_clauses * graphs.max_number_of_graph_node_chunks) * 4)
 			self.clause_X_test_int_gpu = cuda.mem_alloc(int(graphs.max_number_of_graph_nodes * self.hypervector_literals) * 4)
 			self.clause_X_test_gpu = cuda.mem_alloc(int(graphs.max_number_of_graph_nodes * self.hypervector_chunks) * 4)
-			self.clause_patch_gpu = cuda.mem_alloc(int(self.number_of_clauses) * 4)
 
 		class_sum = np.zeros((graphs.number_of_graphs, self.number_of_outputs), dtype=np.int32)
 		for e in range(graphs.number_of_graphs):
