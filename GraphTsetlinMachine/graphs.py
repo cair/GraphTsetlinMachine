@@ -53,7 +53,7 @@ class Graphs():
 					#self.hypervectors[indexes[i], 1] = (self.hypervector_size // 3) + prime - (indexes[i] % prime)
 					#self.hypervectors[indexes[i], 2] = 2 * (self.hypervector_size // 3) + (indexes[i] // 27) % (self.hypervector_size // 3)
 			else:
-				self.hypervectors[i, 0] = i % (self.hypervector_size)
+				self.hypervectors = np.zeros((len(self.symbol_id), self.hypervector_bits), dtype=np.uint32)
 				indexes = np.arange(len(self.symbol_id))
 				for i in range(len(self.symbol_id)):
 					self.hypervectors[i,:] = np.random.choice(indexes, size=(self.hypervector_bits), replace=False)
