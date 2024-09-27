@@ -247,7 +247,7 @@ code_update = """
         }
 
         // Update state of Tsetlin Automata team
-        __global__ void update(
+        __global__ void update_old(
             curandState *state,
             unsigned int *global_ta_state,
             int *clause_weights,
@@ -283,6 +283,45 @@ code_update = """
                         local_class_sum = -THRESHOLD;
                     }
                     update_clause(&localState, &clause_weights[class_id*CLAUSES + clause], ta_state, clause_output, clause_patch, X, y[example*CLASSES + class_id], local_class_sum);
+                }
+            }
+        
+            state[index] = localState;
+        }
+
+        __global__ void update(
+            curandState *state,
+            unsigned int *global_ta_state,
+            int *clause_weights,
+            int number_of_nodes,
+            int graph_index,
+            int *class_sum,
+            int *clause_patch,
+            int *X,
+            int *y,
+            int example
+        )
+        {
+            int index = blockIdx.x * blockDim.x + threadIdx.x;
+            int stride = blockDim.x * gridDim.x;
+
+            /* Copy state to local memory for efficiency */  
+            curandState localState = state[index];
+
+            X = &X[graph_index * LA_CHUNKS];
+
+            // Calculate clause output first
+            for (unsigned long long clause = index; clause < CLAUSES; clause += stride) {
+                unsigned int *ta_state = &global_ta_state[clause*LA_CHUNKS*STATE_BITS];
+
+                for (unsigned long long class_id = 0; class_id < CLASSES; ++class_id) {
+                    int local_class_sum = class_sum[class_id];
+                    if (local_class_sum > THRESHOLD) {
+                        local_class_sum = THRESHOLD;
+                    } else if (local_class_sum < -THRESHOLD) {
+                        local_class_sum = -THRESHOLD;
+                    }
+                    update_clause(&localState, &clause_weights[class_id*CLAUSES + clause], ta_state, clause_patch[clause] != -1, clause_patch[clause], X, y[example*CLASSES + class_id], local_class_sum);
                 }
             }
         
@@ -345,7 +384,7 @@ code_evaluate = """
             int stride = blockDim.x * gridDim.x;
 
             return;
-            
+
             curandState localState = state[index];
 
             int clause_true_patch[MAX_NODES];
