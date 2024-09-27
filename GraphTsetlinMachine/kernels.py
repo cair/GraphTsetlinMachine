@@ -361,8 +361,8 @@ code_evaluate = """
                     }
                 }
 
-                if (clause_true_len > 0) {
-                    clause_patch[clause] = clause_true_patch[curand(localState) % (clause_true_len)];
+                if (clause_true_patch_len > 0) {
+                    clause_patch[clause] = clause_true_patch[curand(localState) % (clause_true_patch_len)];
                 } else {
                     clause_patch[clause] = -1;
                 }
