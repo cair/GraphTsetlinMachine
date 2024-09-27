@@ -180,9 +180,6 @@ class CommonTsetlinMachine():
 		self.update = mod_update.get_function("update")
 		self.update.prepare("PPPiiPPPPi")
 
-		self.evaluate_update = mod_update.get_function("evaluate")
-		self.evaluate_update.prepare("PPiiPP")
-
 		mod_evaluate = SourceModule(parameters + kernels.code_header + kernels.code_evaluate, no_extern_c=True)
 		self.evaluate = mod_evaluate.get_function("evaluate")
 		self.evaluate.prepare("PPiP")
