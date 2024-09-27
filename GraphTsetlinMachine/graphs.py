@@ -24,10 +24,11 @@ from numba import jit
 from sympy import prevprime
 
 class Graphs():
-	def __init__(self, number_of_graphs, hypervector_size = 128, hypervector_bits = 2, symbol_names=None, init_with=None):
+	def __init__(self, number_of_graphs, hypervector_size = 128, hypervector_bits = 2, double_hashing=False, symbol_names=None, init_with=None):
 		self.number_of_graphs = number_of_graphs
 		self.number_of_graph_nodes = np.zeros(self.number_of_graphs, dtype=np.uint32)
-		
+		self.double_hashing = double_hashing
+
 		self.graph_node_id = [None] * self.number_of_graphs
 		for i in range(number_of_graphs):
 			self.graph_node_id[i] = {}
@@ -38,28 +39,23 @@ class Graphs():
 			for symbol_name in symbol_names:
 				self.symbol_id[symbol_name] = len(self.symbol_id)
 			self.hypervector_size = hypervector_size
-			self.hypervector_bits = 3#hypervector_bits
+			self.hypervector_bits = 2#hypervector_bits
 			self.number_of_hypervector_chunks = (self.hypervector_size*2 - 1) // 32 + 1
 
-			#indexes = np.arange(self.hypervector_size, dtype=np.uint32)
-			#prime = prevprime(self.hypervector_size // 3)
-			prime = prevprime(self.hypervector_size)
-			self.hypervectors = np.zeros((len(self.symbol_id), self.hypervector_bits), dtype=np.uint32)
-			#indexes = np.arange(len(self.symbol_id))
-			#np.random.shuffle(indexes)
-			for i in range(len(self.symbol_id)):
-				#self.hypervectors[i,:] = np.random.choice(indexes, size=(self.hypervector_bits), replace=False)
-				#self.hypervectors[indexes[i], 0] = indexes[i] % (self.hypervector_size // 3)
-				#self.hypervectors[indexes[i], 1] = (self.hypervector_size // 3) + prime - (indexes[i] % prime)
-				#self.hypervectors[indexes[i], 2] = 2 * (self.hypervector_size // 3) + (indexes[i] // 27) % (self.hypervector_size // 3)
-
-				self.hypervectors[i, 0] = i % (self.hypervector_size)
-				self.hypervectors[i, 1] = (self.hypervector_size) + prime - (i % prime)
-				#self.hypervectors[i, 2] = 2 * (self.hypervector_size // 3) + (i // 27) % (self.hypervector_size // 3)
-
-				#self.hypervectors[i, 0] = i % (self.hypervector_size // 3)
-				#self.hypervectors[i, 1] = (self.hypervector_size // 3) + prime - (i % prime)
-				#self.hypervectors[i, 2] = 2 * (self.hypervector_size // 3) + (i // 27) % (self.hypervector_size // 3)
+			if self.double_hashing:
+				self.hypervector_bits = 2
+				self.hypervectors = np.zeros((len(self.symbol_id), self.hypervector_bits), dtype=np.uint32)
+				prime = prevprime(self.hypervector_size)
+				for i in range(len(self.symbol_id)):
+					self.hypervectors[i, 0] = i % (self.hypervector_size)
+					self.hypervectors[i, 1] = (self.hypervector_size) + prime - (i % prime)
+					#self.hypervectors[indexes[i], 0] = indexes[i] % (self.hypervector_size // 3)
+					#self.hypervectors[indexes[i], 1] = (self.hypervector_size // 3) + prime - (indexes[i] % prime)
+					#self.hypervectors[indexes[i], 2] = 2 * (self.hypervector_size // 3) + (indexes[i] // 27) % (self.hypervector_size // 3)
+			else:
+				indexes = np.arange(len(self.symbol_id))
+				for i in range(len(self.symbol_id)):
+					self.hypervectors[i,:] = np.random.choice(indexes, size=(self.hypervector_bits), replace=False)
 		else:
 			self.symbol_id = self.init_with.symbol_id
 			self.hypervector_size = self.init_with.hypervector_size
