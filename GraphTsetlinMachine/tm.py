@@ -179,7 +179,6 @@ class CommonTsetlinMachine():
 		mod_update = SourceModule(parameters + kernels.code_header + kernels.code_update, no_extern_c=True)
 		self.update = mod_update.get_function("update")
 		self.update.prepare("PPPiiPPPPi")
-		#self.update.prepare("PPPiiPPPi")
 
 		self.evaluate_update = mod_update.get_function("evaluate")
 		self.evaluate_update.prepare("PPiiPP")
@@ -261,32 +260,6 @@ class CommonTsetlinMachine():
 				)
 				cuda.Context.synchronize()
 
-				self.select_clause_patch.prepared_call(
-					self.grid,
-					self.block,
-					g.state,
-					current_clause_node_output,
-					int(graphs.number_of_graph_nodes[e]),
-					self.clause_patch_gpu
-				)
-				cuda.Context.synchronize()
-
-				self.update.prepared_call(
-					self.grid,
-					self.block,
-					g.state,
-					self.ta_state_gpu,
-					self.clause_weights_gpu,
-					np.int32(graphs.number_of_graph_nodes[e]),
-					np.int32(graphs.node_index[e]),
-					self.class_sum_gpu,
-					self.clause_patch_gpu,
-					self.encoded_X_train_gpu,
-					self.encoded_Y_gpu,
-					np.int32(e)
-				)
-				cuda.Context.synchronize()
-
 				# for depth in range(self.depth-1):
 				# 	self.exchange_messages.prepared_call(
 				# 		self.grid,
@@ -322,36 +295,31 @@ class CommonTsetlinMachine():
 				# 	current_clause_node_output = previous_clause_node_output
 				# 	previous_clause_node_output = tmp
 
-				# ## PICK RANDOM PATCH INDEX WHERE CLAUSES ARE TRUE, -1 MEANS FALSE
+				self.select_clause_patch.prepared_call(
+					self.grid,
+					self.block,
+					g.state,
+					current_clause_node_output,
+					int(graphs.number_of_graph_nodes[e]),
+					self.clause_patch_gpu
+				)
+				cuda.Context.synchronize()
 
-				## FOR LOOP UPDATING EACH BLOCK
-
-				# self.evaluate_update.prepared_call(
-				# 	self.grid,
-				# 	self.block,
-				# 	self.ta_state_gpu,
-				# 	self.clause_weights_gpu,
-				# 	np.int32(graphs.number_of_graph_nodes[e]),
-				# 	np.int32(graphs.node_index[e]),
-				# 	self.class_sum_gpu,
-				# 	self.encoded_X_train_gpu
-				# )
-				# cuda.Context.synchronize()
-
-				# self.update.prepared_call(
-				# 	self.grid,
-				# 	self.block,
-				# 	g.state,
-				# 	self.ta_state_gpu,
-				# 	self.clause_weights_gpu,
-				# 	np.int32(graphs.number_of_graph_nodes[e]),
-				# 	np.int32(graphs.node_index[e]),
-				# 	self.class_sum_gpu,
-				# 	self.encoded_X_train_gpu,
-				# 	self.encoded_Y_gpu,
-				# 	np.int32(e)
-				# )
-				# cuda.Context.synchronize()
+				self.update.prepared_call(
+					self.grid,
+					self.block,
+					g.state,
+					self.ta_state_gpu,
+					self.clause_weights_gpu,
+					np.int32(graphs.number_of_graph_nodes[e]),
+					np.int32(graphs.node_index[e]),
+					self.class_sum_gpu,
+					self.clause_patch_gpu,
+					self.encoded_X_train_gpu,
+					self.encoded_Y_gpu,
+					np.int32(e)
+				)
+				cuda.Context.synchronize()
 
 		self.ta_state = np.array([])
 		self.clause_weights = np.array([])
@@ -438,7 +406,6 @@ class CommonTsetlinMachine():
 				previous_clause_node_output = tmp
 
 			cuda.memcpy_dtoh(class_sum[e,:], self.class_sum_gpu)
-			#print(class_sum[e,:])
 
 		return class_sum
 	

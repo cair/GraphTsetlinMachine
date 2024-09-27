@@ -107,38 +107,6 @@ code_update = """
             } 
         }
 
-        __device__ inline void calculate_clause_output(curandState *localState, unsigned int *ta_state, int number_of_nodes, unsigned int *clause_output, int *clause_patch, int *X)
-        {
-            int output_one_patch_count = 0;
-            *clause_patch = -1;
-            *clause_output = 0;
-
-            // Evaluate each patch (convolution)
-            for (int patch = 0; patch < number_of_nodes; ++patch) {
-                int patch_clause_output = 1;
-                for (int la_chunk = 0; la_chunk < LA_CHUNKS-1; ++la_chunk) {
-                    if ((ta_state[la_chunk*STATE_BITS + STATE_BITS - 1] & X[patch*LA_CHUNKS + la_chunk]) != ta_state[la_chunk*STATE_BITS + STATE_BITS - 1]) {
-                        patch_clause_output = 0;
-                        break;
-                    }
-                }
-
-                if (((ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & X[patch*LA_CHUNKS + LA_CHUNKS - 1] & FILTER) != (ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & FILTER))) {
-                    patch_clause_output = 0;
-                }
-
-                if (patch_clause_output) {
-                    if (output_one_patch_count == 0) {
-                        *clause_patch = patch;
-                        *clause_output = 1;
-                    } else if ((curand(localState) % (output_one_patch_count + 1)) == 0) {
-                        *clause_patch = patch;
-                    }
-                    output_one_patch_count += 1;
-                }
-            }
-        }
-
         __device__ inline void update_clause(curandState *localState, int *clause_weight, unsigned int *ta_state, int clause_output, int clause_patch, int *X, int y, int class_sum)
         {
             int target = 1 - 2*(class_sum > y);
@@ -198,95 +166,6 @@ code_update = """
                     }
                 }
             }
-        }
-
-        // Evaluate example
-        __global__ void evaluate(
-            unsigned int *global_ta_state,
-            int *clause_weights,
-            int number_of_nodes,
-            int graph_index,
-            int *class_sum,
-            int *X
-        )
-        {
-            int index = blockIdx.x * blockDim.x + threadIdx.x;
-            int stride = blockDim.x * gridDim.x;
-
-            X = &X[graph_index * LA_CHUNKS];
-
-            for (int clause = index; clause < CLAUSES; clause += stride) {
-                unsigned int *ta_state = &global_ta_state[clause*LA_CHUNKS*STATE_BITS];
-
-                int clause_output;
-                for (int patch = 0; patch < number_of_nodes; ++patch) {
-                    clause_output = 1;
-                    for (int la_chunk = 0; la_chunk < LA_CHUNKS-1; ++la_chunk) {
-                        if ((ta_state[la_chunk*STATE_BITS + STATE_BITS - 1] & X[patch*LA_CHUNKS + la_chunk]) != ta_state[la_chunk*STATE_BITS + STATE_BITS - 1]) {
-                            clause_output = 0;
-                            break;
-                        }
-                    }
-
-                    if ((ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & X[patch*LA_CHUNKS + LA_CHUNKS-1] & FILTER) != (ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & FILTER)) {
-                        clause_output = 0;
-                    }
-
-                    if (clause_output) {
-                        break;
-                    }
-                }
-
-                if (clause_output) {
-                    for (int class_id = 0; class_id < CLASSES; ++class_id) {
-                        int clause_weight = clause_weights[class_id*CLAUSES + clause];
-                        atomicAdd(&class_sum[class_id], clause_weight);                 
-                    }
-                }
-            }
-        }
-
-        // Update state of Tsetlin Automata team
-        __global__ void update_old(
-            curandState *state,
-            unsigned int *global_ta_state,
-            int *clause_weights,
-            int number_of_nodes,
-            int graph_index,
-            int *class_sum,
-            int *X,
-            int *y,
-            int example
-        )
-        {
-            int index = blockIdx.x * blockDim.x + threadIdx.x;
-            int stride = blockDim.x * gridDim.x;
-
-            /* Copy state to local memory for efficiency */  
-            curandState localState = state[index];
-
-            X = &X[graph_index * LA_CHUNKS];
-
-            // Calculate clause output first
-            for (unsigned long long clause = index; clause < CLAUSES; clause += stride) {
-                unsigned int *ta_state = &global_ta_state[clause*LA_CHUNKS*STATE_BITS];
-
-                unsigned int clause_output;
-                int clause_patch;
-                calculate_clause_output(&localState, ta_state, number_of_nodes, &clause_output, &clause_patch, X);
-
-                for (unsigned long long class_id = 0; class_id < CLASSES; ++class_id) {
-                    int local_class_sum = class_sum[class_id];
-                    if (local_class_sum > THRESHOLD) {
-                        local_class_sum = THRESHOLD;
-                    } else if (local_class_sum < -THRESHOLD) {
-                        local_class_sum = -THRESHOLD;
-                    }
-                    update_clause(&localState, &clause_weights[class_id*CLAUSES + clause], ta_state, clause_output, clause_patch, X, y[example*CLASSES + class_id], local_class_sum);
-                }
-            }
-        
-            state[index] = localState;
         }
 
         __global__ void update(
