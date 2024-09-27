@@ -383,8 +383,6 @@ code_evaluate = """
             int index = blockIdx.x * blockDim.x + threadIdx.x;
             int stride = blockDim.x * gridDim.x;
 
-            return;
-
             curandState localState = state[index];
 
             int clause_true_patch[MAX_NODES];
