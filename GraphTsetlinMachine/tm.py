@@ -182,6 +182,9 @@ class CommonTsetlinMachine():
 		self.update = mod_update.get_function("update")
 		self.update.prepare("PPPiiPPPPi")
 
+		#self.update_message = mod_update.get_function("update_message")
+		#self.update_message.prepare("PPPiiPPPPi")
+
 		mod_evaluate = SourceModule(parameters + kernels.code_header + kernels.code_evaluate, no_extern_c=True)
 		self.evaluate = mod_evaluate.get_function("evaluate")
 		self.evaluate.prepare("PPiP")
