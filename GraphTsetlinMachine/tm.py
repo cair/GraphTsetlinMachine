@@ -341,6 +341,7 @@ class CommonTsetlinMachine():
 				)
 				cuda.Context.synchronize()
 
+				print(self.number_of_message_chunks, self.number_of_ta_chunks)
 				for depth in range(self.depth-1):
 					self.update.prepared_call(
 						self.grid,
