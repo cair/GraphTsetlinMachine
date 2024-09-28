@@ -337,7 +337,7 @@ code_evaluate = """
                         }
                     }
 
-                    if ((ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & X[patch*LA_CHUNKS + LA_CHUNKS-1] & filter) != (ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & filter)) {
+                    if ((ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & X[patch*LA_CHUNKS + LA_CHUNKS-1] & FILTER) != (ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & FILTER)) {
                         clause_node_output &= ~(1 << patch_pos);
                     }
                 }
