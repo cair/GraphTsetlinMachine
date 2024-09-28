@@ -179,7 +179,7 @@ class CommonTsetlinMachine():
 
 		mod_update = SourceModule(parameters + kernels.code_header + kernels.code_update, no_extern_c=True)
 		self.update = mod_update.get_function("update")
-		self.update.prepare("PiPPiiPPPPi")
+		self.update.prepare("PPPiiPPPPi")
 
 		#self.update_message = mod_update.get_function("update_message")
 		#self.update_message.prepare("PPPiiPPPPi")
@@ -329,7 +329,6 @@ class CommonTsetlinMachine():
 					self.grid,
 					self.block,
 					g.state,
-					self.number_of_literals,
 					self.ta_state_gpu,
 					self.clause_weights_gpu,
 					np.int32(graphs.number_of_graph_nodes[e]),
@@ -347,7 +346,6 @@ class CommonTsetlinMachine():
 						self.grid,
 						self.block,
 						g.state,
-						self.number_of_message_literals,
 						self.message_ta_state_gpu[depth],
 						self.clause_weights_dummy_gpu,
 						np.int32(graphs.number_of_graph_nodes[e]),
