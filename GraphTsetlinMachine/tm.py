@@ -218,6 +218,15 @@ class CommonTsetlinMachine():
 
 			self.current_clause_node_output_train_gpu = cuda.mem_alloc(int(self.number_of_clauses * graphs.max_number_of_graph_node_chunks) * 4)
 			self.previous_clause_node_output_train_gpu = cuda.mem_alloc(int(self.number_of_clauses * graphs.max_number_of_graph_node_chunks) * 4)
+			
+			self.number_of_graph_node_edges_train_gpu = cuda.mem_alloc(graphs.number_of_graph_node_edges.nbytes)
+			cuda.memcpy_htod(self.number_of_graph_node_edges_train_gpu, graphs.number_of_graph_node_edges)
+
+			if graphs.edge.nbytes > 0:
+				self.edge_train_gpu = cuda.mem_alloc(graphs.edge.nbytes)
+				cuda.memcpy_htod(self.edge_train_gpu, graphs.edge)
+			else:
+				self.edge_train_gpu = cuda.mem_alloc(1)
 
 		if not np.array_equal(self.encoded_Y, encoded_Y):
 			self.encoded_Y = encoded_Y
@@ -247,6 +256,45 @@ class CommonTsetlinMachine():
 				)
 				cuda.Context.synchronize()
 
+				for depth in range(self.depth-1):
+					self.exchange_messages.prepared_call(
+						self.grid,
+						self.block,
+						np.int32(graphs.number_of_graph_nodes[e]),
+						self.hypervectors_gpu,
+						current_clause_node_output,
+						np.int32(graphs.node_index[e]),
+						np.int32(graphs.edge_index[graphs.node_index[e]]),
+						self.number_of_graph_node_edges_gpu,
+						self.edge_gpu,
+						self.clause_X_train_int_gpu
+					)
+					cuda.Context.synchronize()
+
+					self.encode_messages.prepared_call(
+						self.grid,
+						self.block,
+						np.int32(graphs.number_of_graph_nodes[e]),
+						self.clause_X_train_int_gpu,
+						self.clause_X_train_gpu
+					)
+					cuda.Context.synchronize()
+
+					self.calculate_messages_conditional.prepared_call(
+						self.grid,
+						self.block,
+						self.message_ta_state_gpu[depth],
+						np.int32(graphs.number_of_graph_nodes[e]),
+						current_clause_node_output,
+						previous_clause_node_output,
+						self.clause_X_train_gpu
+					)
+					cuda.Context.synchronize()
+
+					tmp = current_clause_node_output
+					current_clause_node_output = previous_clause_node_output
+					previous_clause_node_output = tmp
+
 				self.evaluate.prepared_call(
 					self.grid,
 					self.block,
@@ -256,41 +304,6 @@ class CommonTsetlinMachine():
 					self.class_sum_gpu
 				)
 				cuda.Context.synchronize()
-
-				# for depth in range(self.depth-1):
-				# 	self.exchange_messages.prepared_call(
-				# 		self.grid,
-				# 		self.block,
-				# 		np.int32(graphs.number_of_graph_nodes[e]),
-				# 		self.hypervectors_gpu,
-				# 		current_clause_node_output,
-				# 		self.clause_X_test_int_gpu
-				# 	)
-				# 	cuda.Context.synchronize()
-
-				# 	self.encode_messages.prepared_call(
-				# 		self.grid,
-				# 		self.block,
-				# 		np.int32(graphs.number_of_graph_nodes[e]),
-				# 		self.clause_X_test_int_gpu,
-				# 		self.clause_X_test_gpu
-				# 	)
-				# 	cuda.Context.synchronize()
-
-				# 	self.calculate_messages_conditional.prepared_call(
-				# 		self.grid,
-				# 		self.block,
-				# 		self.message_ta_state_gpu[depth],
-				# 		np.int32(graphs.number_of_graph_nodes[e]),
-				# 		current_clause_node_output,
-				# 		previous_clause_node_output,
-				# 		self.clause_X_test_gpu
-				# 	)
-				# 	cuda.Context.synchronize()
-
-				# 	tmp = current_clause_node_output
-				# 	current_clause_node_output = previous_clause_node_output
-				# 	previous_clause_node_output = tmp
 
 				self.select_clause_patch.prepared_call(
 					self.grid,
@@ -339,14 +352,14 @@ class CommonTsetlinMachine():
 			self.clause_X_test_int_gpu = cuda.mem_alloc(int(graphs.max_number_of_graph_nodes * self.hypervector_literals) * 4)
 			self.clause_X_test_gpu = cuda.mem_alloc(int(graphs.max_number_of_graph_nodes * self.hypervector_chunks) * 4)
 
-			self.number_of_graph_node_edges_gpu = cuda.mem_alloc(graphs.number_of_graph_node_edges.nbytes)
-			cuda.memcpy_htod(self.number_of_graph_node_edges_gpu, graphs.number_of_graph_node_edges)
+			self.number_of_graph_node_edges_test_gpu = cuda.mem_alloc(graphs.number_of_graph_node_edges.nbytes)
+			cuda.memcpy_htod(self.number_of_graph_node_edges_test_gpu, graphs.number_of_graph_node_edges)
 
 			if graphs.edge.nbytes > 0:
-				self.edge_gpu = cuda.mem_alloc(graphs.edge.nbytes)
-				cuda.memcpy_htod(self.edge_gpu, graphs.edge)
+				self.edge_test_gpu = cuda.mem_alloc(graphs.edge.nbytes)
+				cuda.memcpy_htod(self.edge_test_gpu, graphs.edge)
 			else:
-				self.edge_gpu = cuda.mem_alloc(1)
+				self.edge_test_gpu = cuda.mem_alloc(1)
 
 		class_sum = np.zeros((graphs.number_of_graphs, self.number_of_outputs), dtype=np.int32)
 		for e in range(graphs.number_of_graphs):
@@ -375,8 +388,8 @@ class CommonTsetlinMachine():
 					current_clause_node_output,
 					np.int32(graphs.node_index[e]),
 					np.int32(graphs.edge_index[graphs.node_index[e]]),
-					self.number_of_graph_node_edges_gpu,
-					self.edge_gpu,
+					self.number_of_graph_node_edges_test_gpu,
+					self.edge_test_gpu,
 					self.clause_X_test_int_gpu
 				)
 				cuda.Context.synchronize()
@@ -414,7 +427,7 @@ class CommonTsetlinMachine():
 				self.class_sum_gpu
 			)
 			cuda.Context.synchronize()
-			
+
 			cuda.memcpy_dtoh(class_sum[e,:], self.class_sum_gpu)
 
 		return class_sum
