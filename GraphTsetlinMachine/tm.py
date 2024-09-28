@@ -343,7 +343,7 @@ class CommonTsetlinMachine():
 			cuda.memcpy_htod(self.number_of_graph_node_edges_gpu, graphs.number_of_graph_node_edges)
 
 			self.edge_gpu = cuda.mem_alloc(graphs.edge.nbytes)
-			cuda.memcpy_htod(self.edges_gpu, graphs.edge)
+			cuda.memcpy_htod(self.edge_gpu, graphs.edge)
 
 		class_sum = np.zeros((graphs.number_of_graphs, self.number_of_outputs), dtype=np.int32)
 		for e in range(graphs.number_of_graphs):
