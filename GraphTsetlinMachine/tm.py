@@ -366,16 +366,6 @@ class CommonTsetlinMachine():
 			)
 			cuda.Context.synchronize()
 
-			self.evaluate.prepared_call(
-				self.grid,
-				self.block,
-				current_clause_node_output,
-				self.clause_weights_gpu,
-				np.int32(graphs.number_of_graph_nodes[e]),
-				self.class_sum_gpu
-			)
-			cuda.Context.synchronize()
-
 			for depth in range(self.depth-1):
 				self.exchange_messages.prepared_call(
 					self.grid,
@@ -415,6 +405,16 @@ class CommonTsetlinMachine():
 				current_clause_node_output = previous_clause_node_output
 				previous_clause_node_output = tmp
 
+			self.evaluate.prepared_call(
+				self.grid,
+				self.block,
+				current_clause_node_output,
+				self.clause_weights_gpu,
+				np.int32(graphs.number_of_graph_nodes[e]),
+				self.class_sum_gpu
+			)
+			cuda.Context.synchronize()
+			
 			cuda.memcpy_dtoh(class_sum[e,:], self.class_sum_gpu)
 
 		return class_sum
