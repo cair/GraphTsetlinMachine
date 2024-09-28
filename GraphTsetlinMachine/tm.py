@@ -67,8 +67,7 @@ class CommonTsetlinMachine():
 		self.message_size = message_size
 		self.message_bits = 3#2#message_bits
 		self.message_prime = prevprime(message_size//3)
-		self.hypervector_literals = message_size*2
-		self.hypervector_chunks = (self.hypervector_literals - 1) // 32 + 1
+		self.message_literals = message_size*2
 		self.grid = grid
 		self.block = block
 
@@ -91,7 +90,7 @@ class CommonTsetlinMachine():
 
 		self.message_ta_state_gpu = []
 		for depth in range(self.depth - 1):
-			self.message_ta_state_gpu.append(cuda.mem_alloc(self.number_of_clauses*self.hypervector_chunks*self.number_of_state_bits*4))
+			self.message_ta_state_gpu.append(cuda.mem_alloc(self.number_of_clauses*self.number_of_message_chunks*self.number_of_state_bits*4))
 
 		self.clause_weights_gpu = cuda.mem_alloc(self.number_of_outputs*self.number_of_clauses*4)
 		self.clause_weights_dummy_gpu = cuda.mem_alloc(self.number_of_outputs*self.number_of_clauses*4)
@@ -224,11 +223,11 @@ class CommonTsetlinMachine():
 			self.current_clause_node_output_train_gpu = cuda.mem_alloc(int(self.number_of_clauses * graphs.max_number_of_graph_node_chunks) * 4)
 			self.previous_clause_node_output_train_gpu = cuda.mem_alloc(int(self.number_of_clauses * graphs.max_number_of_graph_node_chunks) * 4)
 			
-			self.clause_X_int_train_gpu = cuda.mem_alloc(int(graphs.max_number_of_graph_nodes * self.hypervector_literals) * 4)
+			self.clause_X_int_train_gpu = cuda.mem_alloc(int(graphs.max_number_of_graph_nodes * self.message_literals) * 4)
 			
 			self.clause_X_train_gpu = []
 			for depth in range(self.depth-1):
-				self.clause_X_train_gpu.append(cuda.mem_alloc(int(graphs.max_number_of_graph_nodes * self.hypervector_chunks) * 4))
+				self.clause_X_train_gpu.append(cuda.mem_alloc(int(graphs.max_number_of_graph_nodes * self.number_of_message_chunks) * 4))
 
 			self.number_of_graph_node_edges_train_gpu = cuda.mem_alloc(graphs.number_of_graph_node_edges.nbytes)
 			cuda.memcpy_htod(self.number_of_graph_node_edges_train_gpu, graphs.number_of_graph_node_edges)
@@ -395,8 +394,8 @@ class CommonTsetlinMachine():
 			self.current_clause_node_output_test_gpu = cuda.mem_alloc(int(self.number_of_clauses * graphs.max_number_of_graph_node_chunks) * 4)
 			self.previous_clause_node_output_test_gpu = cuda.mem_alloc(int(self.number_of_clauses * graphs.max_number_of_graph_node_chunks) * 4)
 			
-			self.clause_X_int_test_gpu = cuda.mem_alloc(int(graphs.max_number_of_graph_nodes * self.hypervector_literals) * 4)
-			self.clause_X_test_gpu = cuda.mem_alloc(int(graphs.max_number_of_graph_nodes * self.hypervector_chunks) * 4)
+			self.clause_X_int_test_gpu = cuda.mem_alloc(int(graphs.max_number_of_graph_nodes * self.number_of_message_literals) * 4)
+			self.clause_X_test_gpu = cuda.mem_alloc(int(graphs.max_number_of_graph_nodes * self.number_of_message_chunks) * 4)
 
 			self.number_of_graph_node_edges_test_gpu = cuda.mem_alloc(graphs.number_of_graph_node_edges.nbytes)
 			cuda.memcpy_htod(self.number_of_graph_node_edges_test_gpu, graphs.number_of_graph_node_edges)
