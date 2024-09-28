@@ -107,7 +107,7 @@ code_update = """
             } 
         }
 
-        __device__ inline void update_clause(curandState *localState, unsignd int number_of_ta_chunks, unsigned int filter, int *clause_weight, unsigned int *ta_state, int clause_output, int clause_patch, int *X, int y, int class_sum)
+        __device__ inline void update_clause(curandState *localState, unsigned int number_of_ta_chunks, unsigned int filter, int *clause_weight, unsigned int *ta_state, int clause_output, int clause_patch, int *X, int y, int class_sum)
         {
             int target = 1 - 2*(class_sum > y);
             
