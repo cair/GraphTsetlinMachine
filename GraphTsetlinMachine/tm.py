@@ -348,7 +348,7 @@ class CommonTsetlinMachine():
 						self.block,
 						g.state,
 						self.ta_state_gpu,
-						self.clause_weights_gpu,
+						self.clause_weights_dummy_gpu,
 						np.int32(graphs.number_of_graph_nodes[e]),
 						np.int32(graphs.node_index[e]),
 						self.class_sum_gpu,
@@ -358,7 +358,7 @@ class CommonTsetlinMachine():
 						np.int32(e)
 					)
 					cuda.Context.synchronize()
-					
+
 					# self.update.prepared_call(
 					# 	self.grid,
 					# 	self.block,
