@@ -329,7 +329,7 @@ class CommonTsetlinMachine():
 					self.grid,
 					self.block,
 					g.state,
-					self.number_of_literals
+					self.number_of_literals,
 					self.ta_state_gpu,
 					self.clause_weights_gpu,
 					np.int32(graphs.number_of_graph_nodes[e]),
