@@ -94,6 +94,8 @@ class CommonTsetlinMachine():
 			self.message_ta_state_gpu.append(cuda.mem_alloc(self.number_of_clauses*self.hypervector_chunks*self.number_of_state_bits*4))
 
 		self.clause_weights_gpu = cuda.mem_alloc(self.number_of_outputs*self.number_of_clauses*4)
+		self.clause_weights_dummy_gpu = cuda.mem_alloc(self.number_of_outputs*self.number_of_clauses*4)
+
 		self.class_sum_gpu = cuda.mem_alloc(self.number_of_outputs*4)
 		self.clause_patch_gpu = cuda.mem_alloc(int(self.number_of_clauses) * 4)
 		self.hypervectors_gpu = cuda.mem_alloc(self.hypervectors.nbytes)
@@ -338,11 +340,12 @@ class CommonTsetlinMachine():
 				cuda.Context.synchronize()
 
 				for depth in range(self.depth-1):
-					self.update_without_clause_weights.prepared_call(
+					self.update.prepared_call(
 						self.grid,
 						self.block,
 						g.state,
 						self.message_ta_state_gpu[depth],
+						self.clause_weights_dummy_gpu,
 						np.int32(graphs.number_of_graph_nodes[e]),
 						np.int32(graphs.node_index[e]),
 						self.class_sum_gpu,
