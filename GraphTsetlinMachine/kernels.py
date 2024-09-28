@@ -458,8 +458,9 @@ code_evaluate = """
                             int edge_type = edges[edge_index * 2 + 1;
 
                             for (int bit_index = 0; bit_index < MESSAGE_BITS; ++bit_index) {
-                                clause_X_int[destination_node * MESSAGE_SIZE * 2 + bit[bit_index]] = 1;
-                                clause_X_int[destination_node * MESSAGE_SIZE * 2 + MESSAGE_SIZE + bit[bit_index]] = 0;
+                                int shifted_bit = (bit[bit_index] + edge_type) % MESSAGE_SIZE;
+                                clause_X_int[destination_node * MESSAGE_SIZE * 2 + shifted_bit] = 1;
+                                clause_X_int[destination_node * MESSAGE_SIZE * 2 + MESSAGE_SIZE + shifted_bit] = 0;
                             }
                         }
                     }
