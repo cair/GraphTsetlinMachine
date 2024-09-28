@@ -265,8 +265,8 @@ class CommonTsetlinMachine():
 						current_clause_node_output,
 						np.int32(graphs.node_index[e]),
 						np.int32(graphs.edge_index[graphs.node_index[e]]),
-						self.number_of_graph_node_edges_gpu,
-						self.edge_gpu,
+						self.number_of_graph_node_edges_train_gpu,
+						self.edge_train_gpu,
 						self.clause_X_train_int_gpu
 					)
 					cuda.Context.synchronize()
