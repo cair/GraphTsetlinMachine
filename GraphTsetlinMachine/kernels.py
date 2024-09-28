@@ -463,6 +463,8 @@ code_evaluate = """
                             //    clause_X_int[destination_node * MESSAGE_SIZE * 2 + shifted_bit] = 1;
                             //    clause_X_int[destination_node * MESSAGE_SIZE * 2 + MESSAGE_SIZE + shifted_bit] = 0;
                             //}
+
+                            edge_index++;
                         }
                     }
                 }
