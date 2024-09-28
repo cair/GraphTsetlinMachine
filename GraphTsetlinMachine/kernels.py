@@ -455,7 +455,7 @@ code_evaluate = """
                     if (global_clause_node_output[clause*NODE_CHUNKS + source_node_chunk] & (1 << source_node_pos) > 0) { 
                         for (int i = 0; i < number_of_graph_node_edges[node_index + source_node]; ++i) {
                             int destination_node = edges[edge_index * 2];
-                            int edge_type = edges[edge_index * 2 + 1;
+                            int edge_type = edges[edge_index * 2 + 1];
 
                             for (int bit_index = 0; bit_index < MESSAGE_BITS; ++bit_index) {
                                 int shifted_bit = (bit[bit_index] + edge_type) % MESSAGE_SIZE;
