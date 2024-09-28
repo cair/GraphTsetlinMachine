@@ -421,8 +421,8 @@ code_evaluate = """
             int number_of_nodes,
             int *hypervectors,
             int *global_clause_node_output,
-            int graph_index,
             int node_index,
+            int edge_index,
             int *number_of_graph_node_edges,
             int *edges,
             unsigned int *clause_X_int
@@ -448,36 +448,18 @@ code_evaluate = """
                 //bit[0] = murmur(clause, 0x81726354) % MESSAGE_SIZE;
                 //bit[1] = murmur(clause, 0x12345678) % MESSAGE_SIZE;
 
-                for (int node = 0; node < number_of_nodes; ++node) {
-                    int node_chunk = node / INT_SIZE;
-                    int node_pos = node % INT_SIZE;
+                for (int source_node = 0; source_node < number_of_nodes; ++source_node) {
+                    int source_node_chunk = source_node / INT_SIZE;
+                    int source_node_pos = source_node % INT_SIZE;
 
-                    if (global_clause_node_output[clause*NODE_CHUNKS + node_chunk] & (1 << node_pos) > 0) {              
-                        if (node > 0) {
+                    if (global_clause_node_output[clause*NODE_CHUNKS + source_node_chunk] & (1 << source_node_pos) > 0) { 
+                        for (int i = 0; i < number_of_graph_node_edges[node_index + source_node]; ++i) {
+                            int destination_node = edges[edge_index * 2];
+                            int edge_type = edges[edge_index * 2 + 1;
+
                             for (int bit_index = 0; bit_index < MESSAGE_BITS; ++bit_index) {
-                                clause_X_int[(node - 1) * MESSAGE_SIZE * 2 + bit[bit_index]] = 1;
-                                clause_X_int[(node - 1) * MESSAGE_SIZE * 2 + MESSAGE_SIZE + bit[bit_index]] = 0;
-                            }
-                        }
-
-                        if (node < number_of_nodes - 1) {
-                             for (int bit_index = 0; bit_index < MESSAGE_BITS; ++bit_index) {                                
-                                clause_X_int[(node + 1) * MESSAGE_SIZE * 2 + bit[bit_index]] = 1;
-                                clause_X_int[(node + 1) * MESSAGE_SIZE * 2 + MESSAGE_SIZE + bit[bit_index]] = 0;
-                            }
-                        }
-                    } else {
-                        if (node > 0) {
-                            for (int bit_index = 0; bit_index < MESSAGE_BITS; ++bit_index) {
-                                clause_X_int[(node - 1) * MESSAGE_SIZE * 2 + bit[bit_index]] = 0;
-                                clause_X_int[(node - 1) * MESSAGE_SIZE * 2 + MESSAGE_SIZE + bit[bit_index]] = 1;
-                            }
-                        }
-
-                        if (node < number_of_nodes - 1) {
-                             for (int bit_index = 0; bit_index < MESSAGE_BITS; ++bit_index) {                                
-                                clause_X_int[(node + 1) * MESSAGE_SIZE * 2 + bit[bit_index]] = 0;
-                                clause_X_int[(node + 1) * MESSAGE_SIZE * 2 + MESSAGE_SIZE + bit[bit_index]] = 1;
+                                clause_X_int[destination_node * MESSAGE_SIZE * 2 + bit[bit_index]] = 1;
+                                clause_X_int[destination_node * MESSAGE_SIZE * 2 + MESSAGE_SIZE + bit[bit_index]] = 0;
                             }
                         }
                     }
