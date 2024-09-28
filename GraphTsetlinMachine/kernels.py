@@ -421,6 +421,10 @@ code_evaluate = """
             int number_of_nodes,
             int *hypervectors,
             int *global_clause_node_output,
+            int graph_index,
+            int node_index,
+            int *number_of_graph_node_edges,
+            int *edges,
             unsigned int *clause_X_int
         )
         {
