@@ -347,13 +347,11 @@ class CommonTsetlinMachine():
 						self.block,
 						g.state,
 						self.message_ta_state_gpu[depth],
-						#self.ta_state_gpu,
 						self.clause_weights_dummy_gpu,
 						np.int32(graphs.number_of_graph_nodes[e]),
 						0,
 						self.class_sum_gpu,
 						self.clause_patch_gpu,
-						#self.encoded_X_train_gpu,
 						self.clause_X_train_gpu[depth],
 						self.encoded_Y_gpu,
 						np.int32(e)
