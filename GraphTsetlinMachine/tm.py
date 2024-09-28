@@ -342,6 +342,7 @@ class CommonTsetlinMachine():
 			self.number_of_graph_node_edges_gpu = cuda.mem_alloc(graphs.number_of_graph_node_edges.nbytes)
 			cuda.memcpy_htod(self.number_of_graph_node_edges_gpu, graphs.number_of_graph_node_edges)
 
+			print(graphs.edge)
 			self.edge_gpu = cuda.mem_alloc(graphs.edge.nbytes)
 			cuda.memcpy_htod(self.edge_gpu, graphs.edge)
 
