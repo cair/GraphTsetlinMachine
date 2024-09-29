@@ -546,7 +546,7 @@ code_evaluate = """
             int *hypervectors,
             int *global_clause_node_output,
             int node_index,
-            int edge_index,
+            int global_edge_index,
             int *number_of_graph_node_edges,
             int *edge,
             unsigned int *clause_X_int
@@ -576,6 +576,7 @@ code_evaluate = """
                 //bit[0] = murmur(clause, 0x81726354) % MESSAGE_SIZE;
                 //bit[1] = murmur(clause, 0x12345678) % MESSAGE_SIZE;
 
+                int edge_index = global_edge_index;
                 for (int source_node = 0; source_node < number_of_nodes; ++source_node) {
                     int source_node_chunk = source_node / INT_SIZE;
                     int source_node_pos = source_node % INT_SIZE;
