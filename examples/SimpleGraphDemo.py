@@ -140,10 +140,10 @@ for i in range(tm.number_of_clauses):
 
         for k in range(args.message_size * 2):
             if tm.ta_action(1, i, k):
-                if k < args.hypervector_size:
+                if k < args.message_size:
                     l.append("c%d" % (k))
                 else:
-                    l.append("NOT c%d" % (k - args.hypervector_size))
+                    l.append("NOT c%d" % (k - args.message_size))
 
         print(" AND ".join(l))
 
