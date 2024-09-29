@@ -518,9 +518,6 @@ class MultiClassGraphTsetlinMachine(CommonTsetlinMachine):
 		)
 		self.negative_clauses = 1
 
-	def debug(self):
-
-
 	def fit(self, graphs, Y, epochs=100, incremental=False):
 		self.number_of_outputs = int(np.max(Y) + 1)
 	
