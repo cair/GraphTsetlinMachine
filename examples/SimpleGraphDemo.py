@@ -18,7 +18,7 @@ def default_args(**kwargs):
     parser.add_argument("--message-bits", default=1, type=int)
     parser.add_argument("--noise", default=0.2, type=float)
     parser.add_argument("--number-of-examples", default=10000, type=int)
-    parser.add_argument("--max-sequence-length", default=1000, type=int)
+    parser.add_argument("--max-sequence-length", default=10, type=int)
     parser.add_argument("--number-of-classes", default=2, type=int)
     parser.add_argument("--max-included-literals", default=2, type=int)
 
