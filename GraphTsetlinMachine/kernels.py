@@ -626,6 +626,22 @@ code_evaluate = """
 code_prepare = """
     extern "C"
     {
+        __global__ void prepare_message_ta_state(unsigned int *global_ta_state)
+        {
+            int index = blockIdx.x * blockDim.x + threadIdx.x;
+            int stride = blockDim.x * gridDim.x;
+
+            for (unsigned long long clause = index; clause < CLAUSES; clause += stride) {
+                unsigned int *ta_state = &global_ta_state[clause*MESSAGE_CHUNKS*STATE_BITS];
+                for (int message_ta_chunk = 0; message_ta_chunk < MESSAGE_CHUNKS-1; ++message_ta_chunk) {
+                    for (int b = 0; b < STATE_BITS-1; ++b) {
+                        ta_state[message_ta_chunk*STATE_BITS + b] = ~0;
+                    }
+                    ta_state[message_ta_chunk*STATE_BITS + STATE_BITS - 1] = 0;
+                }
+            }
+        }
+
         __global__ void prepare(curandState *state, unsigned int *global_ta_state, int *clause_weights, int *class_sum)
         {
             int index = blockIdx.x * blockDim.x + threadIdx.x;

@@ -181,6 +181,8 @@ class CommonTsetlinMachine():
 		mod_prepare = SourceModule(parameters + kernels.code_header + kernels.code_prepare, no_extern_c=True)
 		self.prepare = mod_prepare.get_function("prepare")
 
+		self.prepare_message_ta_state = mod_prepare.get_function("message_ta_state")
+
 		self.allocate_gpu_memory()
 
 		mod_update = SourceModule(parameters + kernels.code_header + kernels.code_update, no_extern_c=True)
@@ -221,6 +223,10 @@ class CommonTsetlinMachine():
 		if not self.initialized:
 			self._init(graphs)
 			self.prepare(g.state, self.ta_state_gpu, self.clause_weights_gpu, self.class_sum_gpu, grid=self.grid, block=self.block)
+
+			for depth in range(self.depth-1):
+				self.prepare(self.message_ta_state_gpu[depth], grid=self.grid, block=self.block)
+
 			cuda.Context.synchronize()
 		elif incremental == False:
 			self.prepare(g.state, self.ta_state_gpu, self.clause_weights_gpu, self.class_sum_gpu, grid=self.grid, block=self.block)
@@ -511,6 +517,9 @@ class MultiClassGraphTsetlinMachine(CommonTsetlinMachine):
 			block=block
 		)
 		self.negative_clauses = 1
+
+	def debug(self):
+
 
 	def fit(self, graphs, Y, epochs=100, incremental=False):
 		self.number_of_outputs = int(np.max(Y) + 1)
