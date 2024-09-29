@@ -264,7 +264,22 @@ class CommonTsetlinMachine():
 			self.encoded_Y_gpu = cuda.mem_alloc(encoded_Y.nbytes)
 			cuda.memcpy_htod(self.encoded_Y_gpu, encoded_Y)
 
-	def _evaluate(self, graphs, number_of_graph_nodes, node_index, edge_index, current_clause_node_output, next_clause_node_output, number_of_graph_node_edges, edge, clause_X_int, clause_X, encoded_X):
+	def _evaluate(
+			self,
+			graphs,
+			number_of_graph_nodes,
+			node_index,
+			edge_index,
+			current_clause_node
+			output,
+			next_clause_node_output,
+			number_of_graph_node_edges,
+			edge,
+			clause_X_int,
+			clause_X,
+			encoded_X
+	):
+
 		class_sum = np.zeros(self.number_of_outputs).astype(np.int32)
 		cuda.memcpy_htod(self.class_sum_gpu, class_sum)
 
