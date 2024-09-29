@@ -123,7 +123,7 @@ class Graphs():
 	def add_graph_node_feature(self, graph_id, node_name, symbol):
 		self._add_graph_node_feature(self.hypervectors, self.hypervector_size, self.node_index[graph_id], self.graph_node_id[graph_id][node_name], self.symbol_id[symbol], self.X)
 
-	def print_graph(self, e):
+	def print_graph(self, graph_id):
 		for node_id in range(self.number_of_graph_nodes[e]):
 			print(self.X[self.node_index[graph_id] + node_id])
 			#for i in range(len(self.symbol_id)):
