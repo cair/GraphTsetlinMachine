@@ -381,7 +381,9 @@ code_evaluate = """
                         if (target*sign > 0 && clause_node[clause] != -1 && abs(clause_weights[class_id*CLAUSES + clause]) < INT_MAX) {
                             clause_weights[class_id*CLAUSES + clause] += sign;
                         } else if (target*sign < 0 && clause_node[clause] != -1) {
-                            clause_weights[class_id*CLAUSES + clause] -= sign;
+                            if (clause_weights[class_id*CLAUSES + clause] - sign != 0) {
+                                clause_weights[class_id*CLAUSES + clause] -= sign;
+                            }
 
                             #if NEGATIVE_CLAUSES == 0
                                 if (clause_weights[class_id*CLAUSES + clause] < 1) {
