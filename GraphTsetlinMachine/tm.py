@@ -207,7 +207,7 @@ class CommonTsetlinMachine():
 		self.calculate_messages_conditional.prepare("PiPPP")
 
 		self.prepare_messages = mod_evaluate.get_function("prepare_messages")
-        self.prepare_messages.prepare("iP")
+		self.prepare_messages.prepare("iP")
 
 		self.exchange_messages = mod_evaluate.get_function("exchange_messages")
 		self.exchange_messages.prepare("iPPiiPPP")
