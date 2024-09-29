@@ -557,7 +557,11 @@ code_evaluate = """
 
             int bit[MESSAGE_BITS];
 
-            for (int clause = index; clause < CLAUSES; clause += stride) {
+            if (index != 0) {
+                return;
+            }
+
+            for (int clause = 0; clause < CLAUSES; clause += 1) {
                 for (int bit_index = 0; bit_index < MESSAGE_BITS; ++bit_index) {
                      bit[bit_index] = hypervectors[clause*MESSAGE_BITS + bit_index];
                 }
@@ -577,6 +581,7 @@ code_evaluate = """
                     int source_node_pos = source_node % INT_SIZE;
 
                     if (global_clause_node_output[clause*NODE_CHUNKS + source_node_chunk] & (1 << source_node_pos) > 0) { 
+                        printf("N%d C%d=%d\\n", source_node, clause, global_clause_node_output[clause*NODE_CHUNKS + source_node_chunk] & (1 << source_node_pos) > 0, )
                         for (int i = 0; i < number_of_graph_node_edges[node_index + source_node]; ++i) {
                             int destination_node = edge[edge_index * 2];
                             int edge_type = edge[edge_index * 2 + 1];
