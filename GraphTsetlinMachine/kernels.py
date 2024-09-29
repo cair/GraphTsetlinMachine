@@ -443,7 +443,7 @@ code_evaluate = """
                         clause_node_output &= ~(1 << node_pos);
                     }
 
-                    printf("*N%d C%d=%d\\n", node_chunk * INT_SIZE + node_pos, clause, (clause_node_output & (1 << node_pos)) > 0);
+                    //printf("*N%d C%d=%d\\n", node_chunk * INT_SIZE + node_pos, clause, (clause_node_output & (1 << node_pos)) > 0);
                 }
 
                 if (node_chunk == number_of_node_chunks - 1) {
@@ -588,7 +588,7 @@ code_evaluate = """
                     int source_node_pos = source_node % INT_SIZE;
 
                     if ((global_clause_node_output[clause*NODE_CHUNKS + source_node_chunk] & (1 << source_node_pos)) > 0) { 
-                        printf("N%d C%d=%d\\n", source_node, clause, (global_clause_node_output[clause*NODE_CHUNKS + source_node_chunk] & (1 << source_node_pos)) > 0);
+                        //printf("N%d C%d=%d\\n", source_node, clause, (global_clause_node_output[clause*NODE_CHUNKS + source_node_chunk] & (1 << source_node_pos)) > 0);
                         for (int i = 0; i < number_of_graph_node_edges[node_index + source_node]; ++i) {
                             int destination_node = edge[edge_index * 2];
                             int edge_type = edge[edge_index * 2 + 1];
