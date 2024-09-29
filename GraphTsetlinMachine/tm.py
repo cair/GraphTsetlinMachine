@@ -181,8 +181,8 @@ class CommonTsetlinMachine():
 		self.update = mod_update.get_function("update")
 		self.update.prepare("PPiiPPP")
 
-		#self.update_message = mod_update.get_function("update_message")
-		#self.update_message.prepare("PPPiiPPPPi")
+		self.update_message = mod_update.get_function("update_message")
+		self.update_message.prepare("PPiPPP")
 
 		mod_evaluate = SourceModule(parameters + kernels.code_header + kernels.code_evaluate, no_extern_c=True)
 		self.evaluate = mod_evaluate.get_function("evaluate")
@@ -357,38 +357,17 @@ class CommonTsetlinMachine():
 				cuda.Context.synchronize()
 
 				for depth in range(self.depth-1):
-					None
-					# self.update.prepared_call(
-					# 	self.grid,
-					# 	self.block,
-					# 	g.state,
-					# 	self.message_ta_state_gpu[depth],
-					# 	self.clause_weights_dummy_gpu,
-					# 	np.int32(graphs.number_of_graph_nodes[e]),
-					# 	0,
-					# 	self.class_sum_gpu,
-					# 	self.clause_patch_gpu,
-					# 	self.clause_X_train_gpu[depth],
-					# 	self.encoded_Y_gpu,
-					# 	np.int32(e)
-					# )
-					# cuda.Context.synchronize()
-
-					# self.update.prepared_call(
-					# 	self.grid,
-					# 	self.block,
-					# 	g.state,
-					# 	self.message_ta_state_gpu[depth],
-					# 	self.clause_weights_dummy_gpu,
-					# 	np.int32(graphs.number_of_graph_nodes[e]),
-					# 	np.int32(graphs.node_index[e]),
-					# 	self.class_sum_gpu,
-					# 	self.clause_patch_gpu,
-					# 	self.clause_X_train_gpu[depth],
-					# 	self.encoded_Y_gpu,
-					# 	np.int32(e)
-					# )
-					# cuda.Context.synchronize()
+					self.update_message.prepared_call(
+						self.grid,
+						self.block,
+						g.state,
+						self.ta_state_gpu,
+						np.int32(graphs.number_of_graph_nodes[e]),
+						self.clause_patch_gpu,
+						self.encoded_X_train_gpu,
+						self.class_clause_update_gpu
+					)
+					cuda.Context.synchronize()
 
 		self.ta_state = np.array([])
 		self.clause_weights = np.array([])
