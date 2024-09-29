@@ -361,10 +361,10 @@ class CommonTsetlinMachine():
 						self.grid,
 						self.block,
 						g.state,
-						self.ta_state_gpu,
+						self.message_ta_state_gpu[depth],
 						np.int32(graphs.number_of_graph_nodes[e]),
 						self.clause_patch_gpu,
-						self.encoded_X_train_gpu,
+						self.clause_X_train_gpu[depth]
 						self.class_clause_update_gpu
 					)
 					cuda.Context.synchronize()
