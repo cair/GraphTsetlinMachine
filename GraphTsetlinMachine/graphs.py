@@ -127,7 +127,15 @@ class Graphs():
 		print(self.number_of_graph_nodes[graph_id])
 		for node_id in range(self.number_of_graph_nodes[graph_id]):
 			print(self.X[self.node_index[graph_id] + node_id])
-			#for i in range(len(self.symbol_id)):
+			for (symbol_name, symbol_id) in self.symbol_id.items():
+				for k in hypervectors[symbol_id,:]:
+					chunk = k // 32
+					pos = k % 32
+
+					if self.X[self.node_index[graph_id] + node_id][chunk] & (1 << pos):
+						print(symbol_name)
+					else:
+						print("*") 
 
 	def encode(self):
 		m = hashlib.sha256()
