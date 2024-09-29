@@ -329,6 +329,8 @@ class CommonTsetlinMachine():
 				class_sum = np.zeros(self.number_of_outputs).astype(np.int32)
 				cuda.memcpy_htod(self.class_sum_gpu, class_sum)
 
+				### Inference 
+
 				current_clause_node_output = self._evaluate(
 					graphs,
 					np.int32(graphs.number_of_graph_nodes[e]),
@@ -343,8 +345,9 @@ class CommonTsetlinMachine():
 					self.encoded_X_train_gpu
 				)
 
-				# Update Tsetlin Automata
+				### Learning
 
+				# Select one true patch per clause
 				self.select_clause_patch.prepared_call(
 					self.grid,
 					self.block,
@@ -355,6 +358,7 @@ class CommonTsetlinMachine():
 				)
 				cuda.Context.synchronize()
 
+				# Select which clauses to update and update weights
 				self.select_clause_updates.prepared_call(
 					self.grid,
 					self.block,
@@ -368,6 +372,7 @@ class CommonTsetlinMachine():
 				)
 				cuda.Context.synchronize()
 
+				# Update clause Tsetlin automata blocks for layer one
 				self.update.prepared_call(
 					self.grid,
 					self.block,
@@ -381,6 +386,7 @@ class CommonTsetlinMachine():
 				)
 				cuda.Context.synchronize()
 
+				# Update clause Tsetlin automata blocks for deeper layers
 				for depth in range(self.depth-1):
 					self.update_message.prepared_call(
 						self.grid,
@@ -429,68 +435,21 @@ class CommonTsetlinMachine():
 		for e in range(graphs.number_of_graphs):
 			cuda.memcpy_htod(self.class_sum_gpu, class_sum[e,:])
 
-			current_clause_node_output = self.current_clause_node_output_test_gpu
-			next_clause_node_output = self.next_clause_node_output_test_gpu
+			### Inference 
 
-			self.calculate_messages.prepared_call(
-				self.grid,
-				self.block,
-				self.ta_state_gpu,
+			self._evaluate(
+				graphs,
 				np.int32(graphs.number_of_graph_nodes[e]),
 				np.int32(graphs.node_index[e]),
-				current_clause_node_output,
+				np.int32(graphs.edge_index[graphs.node_index[e]]),
+				self.current_clause_node_output_test_gpu,
+				self.next_clause_node_output_test_gpu,
+				self.number_of_graph_node_edges_test_gpu,
+				self.edge_test_gpu,
+				self.clause_X_int_test_gpu,
+				self.clause_X_test_gpu,
 				self.encoded_X_test_gpu
 			)
-			cuda.Context.synchronize()
-
-			for depth in range(self.depth-1):
-				self.exchange_messages.prepared_call(
-					self.grid,
-					self.block,
-					np.int32(graphs.number_of_graph_nodes[e]),
-					self.hypervectors_gpu,
-					current_clause_node_output,
-					np.int32(graphs.node_index[e]),
-					np.int32(graphs.edge_index[graphs.node_index[e]]),
-					self.number_of_graph_node_edges_test_gpu,
-					self.edge_test_gpu,
-					self.clause_X_int_test_gpu
-				)
-				cuda.Context.synchronize()
-
-				self.encode_messages.prepared_call(
-					self.grid,
-					self.block,
-					np.int32(graphs.number_of_graph_nodes[e]),
-					self.clause_X_int_test_gpu,
-					self.clause_X_test_gpu
-				)
-				cuda.Context.synchronize()
-
-				self.calculate_messages_conditional.prepared_call(
-					self.grid,
-					self.block,
-					self.message_ta_state_gpu[depth],
-					np.int32(graphs.number_of_graph_nodes[e]),
-					current_clause_node_output,
-					next_clause_node_output,
-					self.clause_X_test_gpu
-				)
-				cuda.Context.synchronize()
-
-				tmp = current_clause_node_output
-				current_clause_node_output = next_clause_node_output
-				next_clause_node_output = tmp
-
-			self.evaluate.prepared_call(
-				self.grid,
-				self.block,
-				current_clause_node_output,
-				self.clause_weights_gpu,
-				np.int32(graphs.number_of_graph_nodes[e]),
-				self.class_sum_gpu
-			)
-			cuda.Context.synchronize()
 
 			cuda.memcpy_dtoh(class_sum[e,:], self.class_sum_gpu)
 
