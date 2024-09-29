@@ -330,7 +330,7 @@ class CommonTsetlinMachine():
 				)
 				cuda.Context.synchronize()
 
-			    self.select_clause_updates.prepared_call(
+				self.select_clause_updates.prepared_call(
 					self.grid,
 					self.block,
 					g.state,
