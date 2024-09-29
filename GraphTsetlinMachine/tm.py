@@ -324,9 +324,10 @@ class CommonTsetlinMachine():
 	def _fit(self, graphs, encoded_Y, epochs=100, incremental=False):
 		self._init_fit(graphs, encoded_Y, incremental)
 
+		class_sum = np.zeros(self.number_of_outputs).astype(np.int32)
 		for epoch in range(epochs):
 			for e in range(graphs.number_of_graphs):
-				class_sum = np.zeros(self.number_of_outputs).astype(np.int32)
+				class_sum[:] = 0
 				cuda.memcpy_htod(self.class_sum_gpu, class_sum)
 
 				### Inference 
