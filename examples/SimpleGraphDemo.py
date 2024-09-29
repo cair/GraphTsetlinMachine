@@ -99,15 +99,16 @@ for graph_id in range(args.number_of_examples):
 
         if node_id < graphs_test.number_of_graph_nodes[graph_id]-1:
             destination_node_id = node_id + 1
-            edge_type = 0
+            edge_type = 1
             graphs_test.add_graph_node_edge(graph_id, node_id, destination_node_id, edge_type)
 
     Y_test[graph_id] = np.random.randint(args.number_of_classes)
-    node_id = np.random.randint(graphs_test.number_of_graph_nodes[graph_id])
+    node_id = np.random.randint(1, graphs_test.number_of_graph_nodes[graph_id])
     if Y_test[graph_id] == 0:
         graphs_test.add_graph_node_feature(graph_id, node_id, 'A')
     else:
-        graphs_test.add_graph_node_feature(graph_id, node_id, 'B')
+        graphs_test.add_graph_node_feature(graph_id, node_id, 'A')
+        graphs_test.add_graph_node_feature(graph_id, node_id-1, 'A')
 
 graphs_test.encode()
 
