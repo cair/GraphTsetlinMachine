@@ -480,6 +480,8 @@ class CommonTsetlinMachine():
 
 			cuda.memcpy_dtoh(class_sum[e,:], self.class_sum_gpu)
 
+		graphs.print_graph(graphs.number_of_graphs-1)
+
 		return class_sum
 	
 class MultiClassGraphTsetlinMachine(CommonTsetlinMachine):
