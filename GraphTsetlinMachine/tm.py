@@ -177,7 +177,7 @@ class CommonTsetlinMachine():
 
 		self.allocate_gpu_memory()
 
-        mod_update = SourceModule(parameters + kernels.code_header + kernels.code_update, no_extern_c=True)
+		mod_update = SourceModule(parameters + kernels.code_header + kernels.code_update, no_extern_c=True)
 		self.update = mod_update.get_function("update")
 		self.update.prepare("PPiiPPP")
 
