@@ -115,7 +115,7 @@ class CommonTsetlinMachine():
 			cuda.memcpy_dtoh(self.message_ta_state, self.message_ta_state_gpu[depth-1])
 			message_ta_state = self.message_ta_state.reshape((self.number_of_clauses, self.number_of_message_chunks, self.number_of_state_bits))
 
-			return (ta_state[clause, ta // 32, self.number_of_state_bits-1] & (1 << (ta % 32))) > 0
+			return (message_ta_state[clause, ta // 32, self.number_of_state_bits-1] & (1 << (ta % 32))) > 0
 			
 	def get_state(self):
 		if np.array_equal(self.clause_weights, np.array([])):
