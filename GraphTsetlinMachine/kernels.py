@@ -598,8 +598,8 @@ code_evaluate = """
                     if ((global_clause_node_output[clause*NODE_CHUNKS + source_node_chunk] & (1 << source_node_pos)) > 0) { 
                         printf("N%d C%d=%d\\n", source_node, clause, (global_clause_node_output[clause*NODE_CHUNKS + source_node_chunk] & (1 << source_node_pos)) > 0);
                         for (int i = 0; i < number_of_graph_node_edges[node_index + source_node]; ++i) {
-                            int destination_node = edge[edge_index * 2];
-                            int edge_type = edge[edge_index * 2 + 1];
+                            int destination_node = edge[(edge_index + i) * 2];
+                            int edge_type = edge[(edge_index + i)* 2 + 1];
 
                             printf("\\t%d %d\\n", destination_node, edge_type);
 
@@ -611,10 +611,9 @@ code_evaluate = """
                             //    clause_X_int[destination_node * MESSAGE_LITERALS + shifted_bit] = 1;
                             //    clause_X_int[destination_node * MESSAGE_LITERALS + MESSAGE_SIZE + shifted_bit] = 0;
                             //}
-
-                            edge_index++;
                         }
                     }
+                    edge_index += number_of_graph_node_edges[node_index + source_node];
                 }
             }
         }
