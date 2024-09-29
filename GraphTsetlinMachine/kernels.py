@@ -474,8 +474,8 @@ code_evaluate = """
             }
 
             for (int clause_node_chunk = index; clause_node_chunk < (CLAUSES)*(NODE_CHUNKS); clause_node_chunk += stride) {
-                int clause = clause_node_chunk % CLAUSES;
-                int node_chunk = clause_node_chunk / CLAUSES;
+                int clause = clause_node_chunk / NODE_CHUNKS;
+                int node_chunk = clause_node_chunk % NODE_CHUNKS;
 
                 unsigned int *ta_state = &global_ta_state[clause*MESSAGE_CHUNKS*STATE_BITS];
 
@@ -493,7 +493,7 @@ code_evaluate = """
                         clause_node_output &= ~(1 << node_pos);
                     }
 
-                    printf("*N%d C%d=%d\\n", node_chunk * INT_SIZE + node_pos, clause, clause_node_output & (1 << node_pos));
+                    printf("*N%d C%d=%d\\n", node_chunk * INT_SIZE + node_pos, clause, (clause_node_output & (1 << node_pos)) > 0);
                 }
                 
                 if (node_chunk == number_of_node_chunks - 1) {
