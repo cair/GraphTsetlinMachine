@@ -192,7 +192,7 @@ class CommonTsetlinMachine():
 		self.select_clause_patch.prepare("PPiP")
 
 		self.select_clause_updates = mod_evaluate.get_function("select_clause_updates")
-		self.select_clause_updates.prepare("PPPiPP")
+		self.select_clause_updates.prepare("PPPPiPP")
 
 		self.calculate_messages = mod_evaluate.get_function("calculate_messages")
 		self.calculate_messages.prepare("PiiPP")
