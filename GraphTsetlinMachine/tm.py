@@ -357,21 +357,22 @@ class CommonTsetlinMachine():
 				cuda.Context.synchronize()
 
 				for depth in range(self.depth-1):
-					self.update.prepared_call(
-						self.grid,
-						self.block,
-						g.state,
-						self.message_ta_state_gpu[depth],
-						self.clause_weights_dummy_gpu,
-						np.int32(graphs.number_of_graph_nodes[e]),
-						0,
-						self.class_sum_gpu,
-						self.clause_patch_gpu,
-						self.clause_X_train_gpu[depth],
-						self.encoded_Y_gpu,
-						np.int32(e)
-					)
-					cuda.Context.synchronize()
+					None
+					# self.update.prepared_call(
+					# 	self.grid,
+					# 	self.block,
+					# 	g.state,
+					# 	self.message_ta_state_gpu[depth],
+					# 	self.clause_weights_dummy_gpu,
+					# 	np.int32(graphs.number_of_graph_nodes[e]),
+					# 	0,
+					# 	self.class_sum_gpu,
+					# 	self.clause_patch_gpu,
+					# 	self.clause_X_train_gpu[depth],
+					# 	self.encoded_Y_gpu,
+					# 	np.int32(e)
+					# )
+					# cuda.Context.synchronize()
 
 					# self.update.prepared_call(
 					# 	self.grid,
