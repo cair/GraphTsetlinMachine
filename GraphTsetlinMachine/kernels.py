@@ -169,14 +169,10 @@ code_update = """
             }
         }
 
-        __device__ inline void update_clause(curandState *localState, int target_sign, int *clause_weight, unsigned int *ta_state, int clause_output, int clause_patch, int *X)
+        __device__ inline void update_clause(curandState *localState, int target_sign, unsigned int *ta_state, int clause_output, int clause_patch, int *X)
         {
             if (target_sign > 0) {
                 int included_literals = number_of_include_actions(ta_state);
-
-                if (clause_output && abs(*clause_weight) < INT_MAX) {
-                    (*clause_weight) += sign;
-                }
 
                 // Type I Feedback
                 for (int la_chunk = 0; la_chunk < LA_CHUNKS; ++la_chunk) {
@@ -202,16 +198,6 @@ code_update = """
                 }
             } else if (target_sign < 0 && clause_output) {
                 // Type II Feedback
-
-                //if ((*clause_weight - sign) != 0) { 
-                    (*clause_weight) -= sign;
-                //}
-
-                #if NEGATIVE_CLAUSES == 0
-                    if (*clause_weight < 1) {
-                        *clause_weight = 1;
-                    }
-                #endif
 
                 for (int la_chunk = 0; la_chunk < LA_CHUNKS; ++la_chunk) {
                     inc(ta_state, la_chunk, (~X[clause_patch*LA_CHUNKS + la_chunk]) & (~ta_state[la_chunk*STATE_BITS + STATE_BITS - 1]));
@@ -258,7 +244,6 @@ code_update = """
         __global__ void update(
             curandState *state,
             unsigned int *global_ta_state,
-            int *clause_weights,
             int number_of_nodes,
             int graph_index,
             int *clause_patch,
@@ -279,7 +264,7 @@ code_update = """
                 unsigned int *ta_state = &global_ta_state[clause*LA_CHUNKS*STATE_BITS];
 
                 for (unsigned long long class_id = 0; class_id < CLASSES; ++class_id) {
-                    update_clause(&localState, class_clause_update[class_id*CLAUSES + clause], &clause_weights[class_id*CLAUSES + clause], ta_state, clause_patch[clause] != -1, clause_patch[clause], X);
+                    update_clause(&localState, class_clause_update[class_id*CLAUSES + clause], ta_state, clause_patch[clause] != -1, clause_patch[clause], X);
                 }
             }
         
@@ -374,6 +359,7 @@ code_evaluate = """
             int *class_sum,
             int *y,
             int example,
+            int *clause_patch,
             int *class_clause_update
         )
         {
@@ -381,9 +367,6 @@ code_evaluate = """
             int stride = blockDim.x * gridDim.x;
 
             curandState localState = state[index];
-
-            int clause_true_patch[MAX_NODES];
-            int clause_true_patch_len;
 
             for (int clause = index; clause < CLAUSES; clause += stride) {
                 for (int class_id = 0; class_id < CLASSES; ++class_id) {
@@ -403,7 +386,19 @@ code_evaluate = """
                         class_clause_update[class_id*CLAUSES + clause] = 0;
                     } else {
                         class_clause_update[class_id*CLAUSES + clause] = target*sign;
-                    }                
+
+                        if (target*sign > 0 && clause_patch[clause] != -1 && abs(*clause_weight) < INT_MAX) {
+                            clause_weights[class_id*CLAUSES + clause] += sign;
+                        } else if (target*sign < 0 && clause_patch[clause] != -1) {
+                            clause_weights[class_id*CLAUSES + clause] -= sign;
+
+                            #if NEGATIVE_CLAUSES == 0
+                                if (clause_weights[class_id*CLAUSES + clause] < 1) {
+                                    clause_weights[class_id*CLAUSES + clause] = 1;
+                                }
+                            #endif
+                        }
+                    }
                 }
             }
 

@@ -179,7 +179,7 @@ class CommonTsetlinMachine():
 
 		mod_update = SourceModule(parameters + kernels.code_header + kernels.code_update, no_extern_c=True)
 		self.update = mod_update.get_function("update")
-		self.update.prepare("PPPiiPPPPi")
+		self.update.prepare("PPiiPPP")
 
 		#self.update_message = mod_update.get_function("update_message")
 		#self.update_message.prepare("PPPiiPPPPi")
@@ -192,7 +192,7 @@ class CommonTsetlinMachine():
 		self.select_clause_patch.prepare("PPiP")
 
 		self.select_clause_updates = mod_evaluate.get_function("select_clause_updates")
-		self.select_clause_updates.prepare("PPPiP")
+		self.select_clause_updates.prepare("PPPiPP")
 
 		self.calculate_messages = mod_evaluate.get_function("calculate_messages")
 		self.calculate_messages.prepare("PiiPP")
@@ -338,6 +338,7 @@ class CommonTsetlinMachine():
 					self.class_sum_gpu,
 					self.encoded_Y_gpu,
 					np.int32(e),
+					self.clause_patch_gpu,
 					self.class_clause_update_gpu
 				)
 				cuda.Context.synchronize()
@@ -347,13 +348,11 @@ class CommonTsetlinMachine():
 					self.block,
 					g.state,
 					self.ta_state_gpu,
-					self.clause_weights_gpu,
 					np.int32(graphs.number_of_graph_nodes[e]),
 					np.int32(graphs.node_index[e]),
 					self.clause_patch_gpu,
 					self.encoded_X_train_gpu,
-					self.class_clause_update_gpu,
-					np.int32(e)
+					self.class_clause_update_gpu
 				)
 				cuda.Context.synchronize()
 
