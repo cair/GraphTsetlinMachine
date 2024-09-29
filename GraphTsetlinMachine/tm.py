@@ -112,7 +112,7 @@ class CommonTsetlinMachine():
 		else:
 			#if np.array_equal(self.message_ta_state, np.array([])):
 			self.message_ta_state = np.empty(self.number_of_clauses*self.number_of_message_chunks*self.number_of_state_bits, dtype=np.uint32)
-			cuda.memcpy_dtoh(self.message_ta_state, self.message_ta_state_gpu[depth])
+			cuda.memcpy_dtoh(self.message_ta_state, self.message_ta_state_gpu[depth-1])
 			message_ta_state = self.message_ta_state.reshape((self.number_of_clauses, self.number_of_message_chunks, self.number_of_state_bits))
 
 			return (ta_state[clause, ta // 32, self.number_of_state_bits-1] & (1 << (ta % 32))) > 0
