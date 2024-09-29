@@ -599,7 +599,7 @@ code_evaluate = """
                             //clause_X_int[destination_node * MESSAGE_LITERALS + MESSAGE_SIZE + clause] = 0;
 
                             for (int bit_index = 0; bit_index < MESSAGE_BITS; ++bit_index) {
-                                int shifted_bit = (bit[bit_index] + edge_type) % MESSAGE_SIZE;
+                                int shifted_bit = bit[bit_index]; //(bit[bit_index] + edge_type) % MESSAGE_SIZE;
                                 clause_X_int[destination_node * MESSAGE_LITERALS + shifted_bit] = 1;
                                 clause_X_int[destination_node * MESSAGE_LITERALS + MESSAGE_SIZE + shifted_bit] = 0;
                             }
