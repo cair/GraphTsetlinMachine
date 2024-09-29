@@ -96,7 +96,7 @@ class CommonTsetlinMachine():
 		self.clause_weights_dummy_gpu = cuda.mem_alloc(self.number_of_outputs*self.number_of_clauses*4)
 
 		self.class_sum_gpu = cuda.mem_alloc(self.number_of_outputs*4)
-		self.clause_patch_gpu = cuda.mem_alloc(int(self.number_of_clauses) * 4)
+		self.clause_node_gpu = cuda.mem_alloc(int(self.number_of_clauses) * 4)
 		self.hypervectors_gpu = cuda.mem_alloc(self.hypervectors.nbytes)
 		cuda.memcpy_htod(self.hypervectors_gpu, self.hypervectors)
 
@@ -188,8 +188,8 @@ class CommonTsetlinMachine():
 		self.evaluate = mod_evaluate.get_function("evaluate")
 		self.evaluate.prepare("PPiP")
 
-		self.select_clause_patch = mod_evaluate.get_function("select_clause_patch")
-		self.select_clause_patch.prepare("PPiP")
+		self.select_clause_node = mod_evaluate.get_function("select_clause_node")
+		self.select_clause_node.prepare("PPiP")
 
 		self.select_clause_updates = mod_evaluate.get_function("select_clause_updates")
 		self.select_clause_updates.prepare("PPPPiPP")
@@ -324,9 +324,10 @@ class CommonTsetlinMachine():
 	def _fit(self, graphs, encoded_Y, epochs=100, incremental=False):
 		self._init_fit(graphs, encoded_Y, incremental)
 
+		class_sum = np.zeros(self.number_of_outputs).astype(np.int32)
 		for epoch in range(epochs):
 			for e in range(graphs.number_of_graphs):
-				class_sum = np.zeros(self.number_of_outputs).astype(np.int32)
+				class_sum[:] = 0
 				cuda.memcpy_htod(self.class_sum_gpu, class_sum)
 
 				### Inference 
@@ -347,14 +348,14 @@ class CommonTsetlinMachine():
 
 				### Learning
 
-				# Select one true patch per clause
-				self.select_clause_patch.prepared_call(
+				# Select one true node per clause
+				self.select_clause_node.prepared_call(
 					self.grid,
 					self.block,
 					g.state,
 					current_clause_node_output,
 					int(graphs.number_of_graph_nodes[e]),
-					self.clause_patch_gpu
+					self.clause_node_gpu
 				)
 				cuda.Context.synchronize()
 
@@ -367,7 +368,7 @@ class CommonTsetlinMachine():
 					self.class_sum_gpu,
 					self.encoded_Y_gpu,
 					np.int32(e),
-					self.clause_patch_gpu,
+					self.clause_node_gpu,
 					self.class_clause_update_gpu
 				)
 				cuda.Context.synchronize()
@@ -380,7 +381,7 @@ class CommonTsetlinMachine():
 					self.ta_state_gpu,
 					np.int32(graphs.number_of_graph_nodes[e]),
 					np.int32(graphs.node_index[e]),
-					self.clause_patch_gpu,
+					self.clause_node_gpu,
 					self.encoded_X_train_gpu,
 					self.class_clause_update_gpu
 				)
@@ -394,7 +395,7 @@ class CommonTsetlinMachine():
 						g.state,
 						self.message_ta_state_gpu[depth],
 						np.int32(graphs.number_of_graph_nodes[e]),
-						self.clause_patch_gpu,
+						self.clause_node_gpu,
 						self.clause_X_train_gpu[depth],
 						self.class_clause_update_gpu
 					)
