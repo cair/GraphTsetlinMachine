@@ -443,7 +443,7 @@ code_evaluate = """
                         clause_node_output &= ~(1 << node_pos);
                     }
 
-                    //printf("*N%d C%d=%d\\n", node_chunk * INT_SIZE + node_pos, clause, (clause_node_output & (1 << node_pos)) > 0);
+                    printf("*N%d C%d=%d\\n", node_chunk * INT_SIZE + node_pos, clause, (clause_node_output & (1 << node_pos)) > 0);
                 }
 
                 if (node_chunk == number_of_node_chunks - 1) {
@@ -587,17 +587,23 @@ code_evaluate = """
                     int source_node_chunk = source_node / INT_SIZE;
                     int source_node_pos = source_node % INT_SIZE;
 
+                    for (int bit_index = 0; bit_index < MESSAGE_BITS; ++bit_index) {
+                        int shifted_bit = bit[bit_index]; //(bit[bit_index] + edge_type) % MESSAGE_SIZE;
+                        clause_X_int[source_node * MESSAGE_LITERALS + shifted_bit] = 1;
+                        clause_X_int[source_node * MESSAGE_LITERALS + MESSAGE_SIZE + shifted_bit] = 0;
+                    }
+
                     if ((global_clause_node_output[clause*NODE_CHUNKS + source_node_chunk] & (1 << source_node_pos)) > 0) { 
                         //printf("N%d C%d=%d\\n", source_node, clause, (global_clause_node_output[clause*NODE_CHUNKS + source_node_chunk] & (1 << source_node_pos)) > 0);
                         for (int i = 0; i < number_of_graph_node_edges[node_index + source_node]; ++i) {
                             int destination_node = edge[edge_index * 2];
                             int edge_type = edge[edge_index * 2 + 1];
 
-                            for (int bit_index = 0; bit_index < MESSAGE_BITS; ++bit_index) {
-                                int shifted_bit = bit[bit_index]; //(bit[bit_index] + edge_type) % MESSAGE_SIZE;
-                                clause_X_int[destination_node * MESSAGE_LITERALS + shifted_bit] = 1;
-                                clause_X_int[destination_node * MESSAGE_LITERALS + MESSAGE_SIZE + shifted_bit] = 0;
-                            }
+                            //for (int bit_index = 0; bit_index < MESSAGE_BITS; ++bit_index) {
+                            //    int shifted_bit = bit[bit_index]; //(bit[bit_index] + edge_type) % MESSAGE_SIZE;
+                            //    clause_X_int[destination_node * MESSAGE_LITERALS + shifted_bit] = 1;
+                            //    clause_X_int[destination_node * MESSAGE_LITERALS + MESSAGE_SIZE + shifted_bit] = 0;
+                            //}
 
                             edge_index++;
                         }
