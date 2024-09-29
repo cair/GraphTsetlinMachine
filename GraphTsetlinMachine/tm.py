@@ -191,6 +191,9 @@ class CommonTsetlinMachine():
 		self.select_clause_patch = mod_evaluate.get_function("select_clause_patch")
 		self.select_clause_patch.prepare("PPiP")
 
+		self.select_clause_updates = mod_evaluate.get_function("select_clause_updates")
+		self.select_clause_updates.prepare("PPPiP")
+
 		self.calculate_messages = mod_evaluate.get_function("calculate_messages")
 		self.calculate_messages.prepare("PiiPP")
 
@@ -237,6 +240,8 @@ class CommonTsetlinMachine():
 				cuda.memcpy_htod(self.edge_train_gpu, graphs.edge)
 			else:
 				self.edge_train_gpu = cuda.mem_alloc(1)
+
+			self.class_clause_update_gpu = cuda.mem_alloc(int(self.number_of_outputs * self.number_of_clauses) * 4)
 
 		if not np.array_equal(self.encoded_Y, encoded_Y):
 			self.encoded_Y = encoded_Y
@@ -325,6 +330,18 @@ class CommonTsetlinMachine():
 				)
 				cuda.Context.synchronize()
 
+			    self.select_clause_updates.prepared_call(
+					self.grid,
+					self.block,
+					g.state,
+					self.clause_weights_gpu,
+					self.class_sum_gpu,
+					self.encoded_Y_gpu,
+					np.int32(e),
+					self.class_clause_update_gpu
+				)
+				cuda.Context.synchronize()
+
 				self.update.prepared_call(
 					self.grid,
 					self.block,
@@ -333,10 +350,9 @@ class CommonTsetlinMachine():
 					self.clause_weights_gpu,
 					np.int32(graphs.number_of_graph_nodes[e]),
 					np.int32(graphs.node_index[e]),
-					self.class_sum_gpu,
 					self.clause_patch_gpu,
 					self.encoded_X_train_gpu,
-					self.encoded_Y_gpu,
+					self.class_clause_update_gpu,
 					np.int32(e)
 				)
 				cuda.Context.synchronize()
