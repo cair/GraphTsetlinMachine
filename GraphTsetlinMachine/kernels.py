@@ -409,10 +409,6 @@ code_evaluate = """
 
             unsigned int clause_node_output;
 
-            if (index != 0) {
-                return;
-            }
-
             int number_of_node_chunks = (number_of_nodes - 1)/INT_SIZE + 1;
             unsigned int node_filter;
             if ((number_of_nodes % INT_SIZE) != 0) {
@@ -423,7 +419,7 @@ code_evaluate = """
 
             unsigned int *X = &global_X[graph_index * LA_CHUNKS];
 
-            for (int clause_node_chunk = 0; clause_node_chunk < (CLAUSES)*(NODE_CHUNKS); clause_node_chunk += 1) {
+            for (int clause_node_chunk = index; clause_node_chunk < (CLAUSES)*(NODE_CHUNKS); clause_node_chunk += stride) {
                 int clause = clause_node_chunk % CLAUSES;
                 int node_chunk = clause_node_chunk / CLAUSES;
 
@@ -443,7 +439,7 @@ code_evaluate = """
                         clause_node_output &= ~(1 << node_pos);
                     }
 
-                    printf("*N%d C%d=%d\\n", node_chunk * INT_SIZE + node_pos, clause, (clause_node_output & (1 << node_pos)) > 0);
+                    //printf("*N%d C%d=%d\\n", node_chunk * INT_SIZE + node_pos, clause, (clause_node_output & (1 << node_pos)) > 0);
                 }
 
                 if (node_chunk == number_of_node_chunks - 1) {
@@ -563,11 +559,7 @@ code_evaluate = """
 
             int bit[MESSAGE_BITS];
 
-            if (index != 0) {
-                return;
-            }
-
-            for (int clause = 0; clause < CLAUSES; clause += 1) {
+            for (int clause = index; clause < CLAUSES; clause += stride) {
                 for (int bit_index = 0; bit_index < MESSAGE_BITS; ++bit_index) {
                      bit[bit_index] = hypervectors[clause*MESSAGE_BITS + bit_index];
                 }
@@ -596,12 +588,12 @@ code_evaluate = """
                     // }
 
                     if ((global_clause_node_output[clause*NODE_CHUNKS + source_node_chunk] & (1 << source_node_pos)) > 0) { 
-                        printf("N%d C%d=%d\\n", source_node, clause, (global_clause_node_output[clause*NODE_CHUNKS + source_node_chunk] & (1 << source_node_pos)) > 0);
+                        //printf("N%d C%d=%d\\n", source_node, clause, (global_clause_node_output[clause*NODE_CHUNKS + source_node_chunk] & (1 << source_node_pos)) > 0);
                         for (int i = 0; i < number_of_graph_node_edges[node_index + source_node]; ++i) {
                             int destination_node = edge[(edge_index + i) * 2];
                             int edge_type = edge[(edge_index + i)* 2 + 1];
 
-                            printf("\\t%d %d\\n", destination_node, edge_type);
+                            //printf("\\t%d %d\\n", destination_node, edge_type);
 
                             clause_X_int[destination_node * MESSAGE_LITERALS + clause] = 1;
                             clause_X_int[destination_node * MESSAGE_LITERALS + MESSAGE_SIZE + clause] = 0;
