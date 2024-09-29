@@ -127,7 +127,7 @@ code_update = """
             int target_sign,
             unsigned int *ta_state,
             int clause_output,
-            int clause_patch,
+            int clause_node,
             int *X
         )
         {
@@ -146,12 +146,12 @@ code_update = """
 
                     if (clause_output && included_literals <= MAX_INCLUDED_LITERALS) {
                         #if BOOST_TRUE_POSITIVE_FEEDBACK == 1
-                            inc(ta_state, la_chunk, X[clause_patch*MESSAGE_CHUNKS + la_chunk]);
+                            inc(ta_state, la_chunk, X[clause_node*MESSAGE_CHUNKS + la_chunk]);
                         #else
-                            inc(ta_state, la_chunk, X[clause_patch*MESSAGE_CHUNKS + la_chunk] & (~la_feedback));
+                            inc(ta_state, la_chunk, X[clause_node*MESSAGE_CHUNKS + la_chunk] & (~la_feedback));
                         #endif
 
-                        dec(ta_state, la_chunk, (~X[clause_patch*MESSAGE_CHUNKS + la_chunk]) & la_feedback);
+                        dec(ta_state, la_chunk, (~X[clause_node*MESSAGE_CHUNKS + la_chunk]) & la_feedback);
                     } else {
                         dec(ta_state, la_chunk, la_feedback);
                     }
@@ -160,7 +160,7 @@ code_update = """
                 // Type II Feedback
 
                 for (int la_chunk = 0; la_chunk < MESSAGE_CHUNKS; ++la_chunk) {
-                    inc(ta_state, la_chunk, (~X[clause_patch*MESSAGE_CHUNKS + la_chunk]) & (~ta_state[la_chunk*STATE_BITS + STATE_BITS - 1]));
+                    inc(ta_state, la_chunk, (~X[clause_node*MESSAGE_CHUNKS + la_chunk]) & (~ta_state[la_chunk*STATE_BITS + STATE_BITS - 1]));
                 }
             }
         }
@@ -170,7 +170,7 @@ code_update = """
             int target_sign,
             unsigned int *ta_state,
             int clause_output,
-            int clause_patch,
+            int clause_node,
             int *X
         )
         {
@@ -189,12 +189,12 @@ code_update = """
 
                     if (clause_output && included_literals <= MAX_INCLUDED_LITERALS) {
                         #if BOOST_TRUE_POSITIVE_FEEDBACK == 1
-                            inc(ta_state, la_chunk, X[clause_patch*LA_CHUNKS + la_chunk]);
+                            inc(ta_state, la_chunk, X[clause_node*LA_CHUNKS + la_chunk]);
                         #else
-                            inc(ta_state, la_chunk, X[clause_patch*LA_CHUNKS + la_chunk] & (~la_feedback));
+                            inc(ta_state, la_chunk, X[clause_node*LA_CHUNKS + la_chunk] & (~la_feedback));
                         #endif
 
-                        dec(ta_state, la_chunk, (~X[clause_patch*LA_CHUNKS + la_chunk]) & la_feedback);
+                        dec(ta_state, la_chunk, (~X[clause_node*LA_CHUNKS + la_chunk]) & la_feedback);
                     } else {
                         dec(ta_state, la_chunk, la_feedback);
                     }
@@ -203,7 +203,7 @@ code_update = """
                 // Type II Feedback
 
                 for (int la_chunk = 0; la_chunk < LA_CHUNKS; ++la_chunk) {
-                    inc(ta_state, la_chunk, (~X[clause_patch*LA_CHUNKS + la_chunk]) & (~ta_state[la_chunk*STATE_BITS + STATE_BITS - 1]));
+                    inc(ta_state, la_chunk, (~X[clause_node*LA_CHUNKS + la_chunk]) & (~ta_state[la_chunk*STATE_BITS + STATE_BITS - 1]));
                 }
             }
         }
@@ -212,7 +212,7 @@ code_update = """
             curandState *state,
             unsigned int *global_ta_state,
             int number_of_nodes,
-            int *clause_patch,
+            int *clause_node,
             int *X,
             int *class_clause_update
         )
@@ -227,7 +227,7 @@ code_update = """
                 unsigned int *ta_state = &global_ta_state[clause*LA_CHUNKS*STATE_BITS];
 
                 for (unsigned long long class_id = 0; class_id < CLASSES; ++class_id) {
-                    update_clause_message(&localState, class_clause_update[class_id*CLAUSES + clause], ta_state, clause_patch[clause] != -1, clause_patch[clause], X);
+                    update_clause_message(&localState, class_clause_update[class_id*CLAUSES + clause], ta_state, clause_node[clause] != -1, clause_node[clause], X);
                 }
             }
         
@@ -239,7 +239,7 @@ code_update = """
             unsigned int *global_ta_state,
             int number_of_nodes,
             int graph_index,
-            int *clause_patch,
+            int *clause_node,
             int *X,
             int *class_clause_update
         )
@@ -256,7 +256,7 @@ code_update = """
                 unsigned int *ta_state = &global_ta_state[clause*LA_CHUNKS*STATE_BITS];
 
                 for (unsigned long long class_id = 0; class_id < CLASSES; ++class_id) {
-                    update_clause(&localState, class_clause_update[class_id*CLAUSES + clause], ta_state, clause_patch[clause] != -1, clause_patch[clause], X);
+                    update_clause(&localState, class_clause_update[class_id*CLAUSES + clause], ta_state, clause_node[clause] != -1, clause_node[clause], X);
                 }
             }
         
@@ -308,11 +308,11 @@ code_evaluate = """
             }
         }
 
-        __global__ void select_clause_patch(
+        __global__ void select_clause_node(
             curandState *state,
             int *global_clause_node_output,
             int number_of_nodes,
-            int *clause_patch
+            int *clause_node
         )
         {
             int index = blockIdx.x * blockDim.x + threadIdx.x;
@@ -320,25 +320,25 @@ code_evaluate = """
 
             curandState localState = state[index];
 
-            int clause_true_patch[MAX_NODES];
-            int clause_true_patch_len;
+            int clause_true_node[MAX_NODES];
+            int clause_true_node_len;
 
             for (int clause = index; clause < CLAUSES; clause += stride) {
-                clause_true_patch_len = 0;
+                clause_true_node_len = 0;
                 for (int node = 0; node < number_of_nodes; ++node) {
                     int node_chunk = node / INT_SIZE;
                     int node_pos = node % INT_SIZE;
 
                     if (global_clause_node_output[clause*NODE_CHUNKS + node_chunk] & (1 << node_pos)) {
-                        clause_true_patch[clause_true_patch_len] = node;
-                        clause_true_patch_len++;
+                        clause_true_node[clause_true_node_len] = node;
+                        clause_true_node_len++;
                     }
                 }
 
-                if (clause_true_patch_len > 0) {
-                    clause_patch[clause] = clause_true_patch[curand(&localState) % (clause_true_patch_len)];
+                if (clause_true_node_len > 0) {
+                    clause_node[clause] = clause_true_node[curand(&localState) % (clause_true_node_len)];
                 } else {
-                    clause_patch[clause] = -1;
+                    clause_node[clause] = -1;
                 }
             }
 
@@ -351,7 +351,7 @@ code_evaluate = """
             int *class_sum,
             int *y,
             int example,
-            int *clause_patch,
+            int *clause_node,
             int *class_clause_update
         )
         {
@@ -378,9 +378,9 @@ code_evaluate = """
                     } else {
                         class_clause_update[class_id*CLAUSES + clause] = target*sign;
 
-                        if (target*sign > 0 && clause_patch[clause] != -1 && abs(clause_weights[class_id*CLAUSES + clause]) < INT_MAX) {
+                        if (target*sign > 0 && clause_node[clause] != -1 && abs(clause_weights[class_id*CLAUSES + clause]) < INT_MAX) {
                             clause_weights[class_id*CLAUSES + clause] += sign;
-                        } else if (target*sign < 0 && clause_patch[clause] != -1) {
+                        } else if (target*sign < 0 && clause_node[clause] != -1) {
                             clause_weights[class_id*CLAUSES + clause] -= sign;
 
                             #if NEGATIVE_CLAUSES == 0
@@ -421,29 +421,29 @@ code_evaluate = """
 
             for (int clause_node_chunk = index; clause_node_chunk < (CLAUSES)*(NODE_CHUNKS); clause_node_chunk += stride) {
                 int clause = clause_node_chunk % CLAUSES;
-                int patch_chunk = clause_node_chunk / CLAUSES;
+                int node_chunk = clause_node_chunk / CLAUSES;
 
                 unsigned int *ta_state = &global_ta_state[clause*LA_CHUNKS*STATE_BITS];
 
                 clause_node_output = ~0;
-                for (int patch_pos = 0; (patch_pos < INT_SIZE) && ((patch_chunk * INT_SIZE + patch_pos) < number_of_nodes); ++patch_pos) {
-                    int patch = patch_chunk * INT_SIZE + patch_pos;
+                for (int node_pos = 0; (node_pos < INT_SIZE) && ((node_chunk * INT_SIZE + node_pos) < number_of_nodes); ++node_pos) {
+                    int node = node_chunk * INT_SIZE + node_pos;
 
                     for (int la_chunk = 0; la_chunk < LA_CHUNKS-1; ++la_chunk) {
-                        if ((ta_state[la_chunk*STATE_BITS + STATE_BITS - 1] & X[patch*LA_CHUNKS + la_chunk]) != ta_state[la_chunk*STATE_BITS + STATE_BITS - 1]) {
-                            clause_node_output &= ~(1 << patch_pos);
+                        if ((ta_state[la_chunk*STATE_BITS + STATE_BITS - 1] & X[node*LA_CHUNKS + la_chunk]) != ta_state[la_chunk*STATE_BITS + STATE_BITS - 1]) {
+                            clause_node_output &= ~(1 << node_pos);
                         }
                     }
 
-                    if ((ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & X[patch*LA_CHUNKS + LA_CHUNKS-1] & FILTER) != (ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & FILTER)) {
-                        clause_node_output &= ~(1 << patch_pos);
+                    if ((ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & X[node*LA_CHUNKS + LA_CHUNKS-1] & FILTER) != (ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & FILTER)) {
+                        clause_node_output &= ~(1 << node_pos);
                     }
                 }
                 
-                if (patch_chunk == number_of_node_chunks - 1) {
-                    global_clause_node_output[clause*NODE_CHUNKS + patch_chunk] = clause_node_output & node_filter;
+                if (node_chunk == number_of_node_chunks - 1) {
+                    global_clause_node_output[clause*NODE_CHUNKS + node_chunk] = clause_node_output & node_filter;
                 } else {
-                    global_clause_node_output[clause*NODE_CHUNKS + patch_chunk] = clause_node_output;
+                    global_clause_node_output[clause*NODE_CHUNKS + node_chunk] = clause_node_output;
                 }
             }
         }
@@ -471,29 +471,29 @@ code_evaluate = """
 
             for (int clause_node_chunk = index; clause_node_chunk < (CLAUSES)*(NODE_CHUNKS); clause_node_chunk += stride) {
                 int clause = clause_node_chunk % CLAUSES;
-                int patch_chunk = clause_node_chunk / CLAUSES;
+                int node_chunk = clause_node_chunk / CLAUSES;
 
                 unsigned int *ta_state = &global_ta_state[clause*MESSAGE_CHUNKS*STATE_BITS];
 
                 clause_node_output = ~0;
-                for (int patch_pos = 0; (patch_pos < INT_SIZE) && ((patch_chunk * INT_SIZE + patch_pos) < number_of_nodes); ++patch_pos) {
-                    int patch = patch_chunk * INT_SIZE + patch_pos;
+                for (int node_pos = 0; (node_pos < INT_SIZE) && ((node_chunk * INT_SIZE + node_pos) < number_of_nodes); ++node_pos) {
+                    int node = node_chunk * INT_SIZE + node_pos;
 
                     for (int la_chunk = 0; la_chunk < MESSAGE_CHUNKS-1; ++la_chunk) {
-                        if ((ta_state[la_chunk*STATE_BITS + STATE_BITS - 1] & X[patch*MESSAGE_CHUNKS + la_chunk]) != ta_state[la_chunk*STATE_BITS + STATE_BITS - 1]) {
-                            clause_node_output &= ~(1 << patch_pos);
+                        if ((ta_state[la_chunk*STATE_BITS + STATE_BITS - 1] & X[node*MESSAGE_CHUNKS + la_chunk]) != ta_state[la_chunk*STATE_BITS + STATE_BITS - 1]) {
+                            clause_node_output &= ~(1 << node_pos);
                         }
                     }
 
-                    if ((ta_state[(MESSAGE_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & X[patch*MESSAGE_CHUNKS + MESSAGE_CHUNKS-1] & MESSAGE_FILTER) != (ta_state[(MESSAGE_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & MESSAGE_FILTER)) {
-                        clause_node_output &= ~(1 << patch_pos);
+                    if ((ta_state[(MESSAGE_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & X[node*MESSAGE_CHUNKS + MESSAGE_CHUNKS-1] & MESSAGE_FILTER) != (ta_state[(MESSAGE_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & MESSAGE_FILTER)) {
+                        clause_node_output &= ~(1 << node_pos);
                     }
                 }
                 
-                if (patch_chunk == number_of_node_chunks - 1) {
-                    global_clause_node_output[clause*NODE_CHUNKS + patch_chunk] = global_clause_node_output_condition[clause*NODE_CHUNKS + patch_chunk] & clause_node_output & node_filter;
+                if (node_chunk == number_of_node_chunks - 1) {
+                    global_clause_node_output[clause*NODE_CHUNKS + node_chunk] = global_clause_node_output_condition[clause*NODE_CHUNKS + node_chunk] & clause_node_output & node_filter;
                 } else {
-                    global_clause_node_output[clause*NODE_CHUNKS + patch_chunk] = global_clause_node_output_condition[clause*NODE_CHUNKS + patch_chunk] & clause_node_output;
+                    global_clause_node_output[clause*NODE_CHUNKS + node_chunk] = global_clause_node_output_condition[clause*NODE_CHUNKS + node_chunk] & clause_node_output;
                 }
             }
         }
