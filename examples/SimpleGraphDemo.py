@@ -137,3 +137,5 @@ for i in range(tm.number_of_clauses):
                 else:
                     l.append("NOT x%d" % (k - args.hypervector_size))
         print(" AND ".join(l))
+
+print(graphs_test.hypervectors)
