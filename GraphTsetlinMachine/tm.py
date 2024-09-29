@@ -270,8 +270,7 @@ class CommonTsetlinMachine():
 			number_of_graph_nodes,
 			node_index,
 			edge_index,
-			current_clause_node,
-			output,
+			current_clause_node_output,
 			next_clause_node_output,
 			number_of_graph_node_edges,
 			edge,
@@ -279,7 +278,6 @@ class CommonTsetlinMachine():
 			clause_X,
 			encoded_X
 	):
-
 		class_sum = np.zeros(self.number_of_outputs).astype(np.int32)
 		cuda.memcpy_htod(self.class_sum_gpu, class_sum)
 
