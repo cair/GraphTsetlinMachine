@@ -442,8 +442,10 @@ code_evaluate = """
                     if ((ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & X[node*LA_CHUNKS + LA_CHUNKS-1] & FILTER) != (ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & FILTER)) {
                         clause_node_output &= ~(1 << node_pos);
                     }
+
+                    printf("*N%d C%d=%d\\n", node_chunk * INT_SIZE + node_pos, clause, (clause_node_output & (1 << node_pos)) > 0);
                 }
-                
+
                 if (node_chunk == number_of_node_chunks - 1) {
                     global_clause_node_output[clause*NODE_CHUNKS + node_chunk] = clause_node_output & node_filter;
                 } else {
@@ -492,8 +494,6 @@ code_evaluate = """
                     if ((ta_state[(MESSAGE_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & X[node*MESSAGE_CHUNKS + MESSAGE_CHUNKS-1] & MESSAGE_FILTER) != (ta_state[(MESSAGE_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & MESSAGE_FILTER)) {
                         clause_node_output &= ~(1 << node_pos);
                     }
-
-                    printf("*N%d C%d=%d\\n", node_chunk * INT_SIZE + node_pos, clause, (clause_node_output & (1 << node_pos)) > 0);
                 }
                 
                 if (node_chunk == number_of_node_chunks - 1) {
