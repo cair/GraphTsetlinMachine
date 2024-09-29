@@ -270,7 +270,7 @@ class CommonTsetlinMachine():
 			number_of_graph_nodes,
 			node_index,
 			edge_index,
-			current_clause_node
+			current_clause_node,
 			output,
 			next_clause_node_output,
 			number_of_graph_node_edges,
