@@ -181,7 +181,7 @@ class CommonTsetlinMachine():
 		mod_prepare = SourceModule(parameters + kernels.code_header + kernels.code_prepare, no_extern_c=True)
 		self.prepare = mod_prepare.get_function("prepare")
 
-		self.prepare_message_ta_state = mod_prepare.get_function("message_ta_state")
+		self.prepare_message_ta_state = mod_prepare.get_function("prepare_message_ta_state")
 
 		self.allocate_gpu_memory()
 
@@ -225,7 +225,7 @@ class CommonTsetlinMachine():
 			self.prepare(g.state, self.ta_state_gpu, self.clause_weights_gpu, self.class_sum_gpu, grid=self.grid, block=self.block)
 
 			for depth in range(self.depth-1):
-				self.prepare(self.message_ta_state_gpu[depth], grid=self.grid, block=self.block)
+				self.prepare_message_ta_state(self.message_ta_state_gpu[depth], grid=self.grid, block=self.block)
 
 			cuda.Context.synchronize()
 		elif incremental == False:
