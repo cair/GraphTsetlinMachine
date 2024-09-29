@@ -65,7 +65,7 @@ class CommonTsetlinMachine():
 		self.boost_true_positive_feedback = boost_true_positive_feedback
 		self.depth = depth
 		self.message_size = message_size
-		self.message_bits = 3#2#message_bits
+		self.message_bits = message_bits
 		self.message_prime = prevprime(message_size//3)
 		self.message_literals = message_size*2
 		self.grid = grid
