@@ -39,7 +39,7 @@ class Graphs():
 			for symbol_name in symbol_names:
 				self.symbol_id[symbol_name] = len(self.symbol_id)
 			self.hypervector_size = hypervector_size
-			self.hypervector_bits = 2#hypervector_bits
+			self.hypervector_bits = hypervector_bits
 			self.number_of_hypervector_chunks = (self.hypervector_size*2 - 1) // 32 + 1
 
 			if self.double_hashing:
