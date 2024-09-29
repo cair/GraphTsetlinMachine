@@ -524,6 +524,23 @@ code_evaluate = """
             return hash;
         }
 
+        __global__ void prepare_messages(
+            int number_of_nodes,
+            unsigned int *clause_X_int
+        )
+        {
+            int index = blockIdx.x * blockDim.x + threadIdx.x;
+            int stride = blockDim.x * gridDim.x;
+
+            for (int node_message_bit = index; node_message_bit < number_of_nodes * MESSAGE_SIZE; node_message_bit += stride) {
+                int node = node_message_bit / MESSAGE_SIZE;
+                int message_bit = node_message_bit % MESSAGE_SIZE;
+
+                clause_X_int[node * MESSAGE_LITERALS + message_bit] = 0;
+                clause_X_int[node * MESSAGE_LITERALS + MESSAGE_SIZE + message_bit] = 1;
+            }
+        }
+
         __global__ void exchange_messages(
             int number_of_nodes,
             int *hypervectors,
@@ -566,8 +583,8 @@ code_evaluate = """
 
                             for (int bit_index = 0; bit_index < MESSAGE_BITS; ++bit_index) {
                                 int shifted_bit = (bit[bit_index] + edge_type) % MESSAGE_SIZE;
-                                clause_X_int[destination_node * MESSAGE_SIZE * 2 + shifted_bit] = 1;
-                                clause_X_int[destination_node * MESSAGE_SIZE * 2 + MESSAGE_SIZE + shifted_bit] = 0;
+                                clause_X_int[destination_node * MESSAGE_LITERALS + shifted_bit] = 1;
+                                clause_X_int[destination_node * MESSAGE_LITERALS + MESSAGE_SIZE + shifted_bit] = 0;
                             }
 
                             edge_index++;

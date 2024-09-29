@@ -206,6 +206,9 @@ class CommonTsetlinMachine():
 		self.calculate_messages_conditional = mod_evaluate.get_function("calculate_messages_conditional")
 		self.calculate_messages_conditional.prepare("PiPPP")
 
+        self.prepare_messages = mod_evaluate.get_function("prepare_messages")
+		self.prepare_messages.prepare("iP")
+
 		self.exchange_messages = mod_evaluate.get_function("exchange_messages")
 		self.exchange_messages.prepare("iPPiiPPP")
 
@@ -273,6 +276,14 @@ class CommonTsetlinMachine():
 
 		# Iterate over layers
 		for depth in range(self.depth-1):
+			# Prepare messages
+			self.prepare_messages.prepared_call(
+				self.grid,
+				self.block,
+				number_of_graph_nodes,
+				clause_X_int
+			)
+			cuda.Context.synchronize()
 
 			# Send messages to neighbors
 			self.exchange_messages.prepared_call(
