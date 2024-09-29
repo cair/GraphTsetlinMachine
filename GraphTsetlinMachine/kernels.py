@@ -601,7 +601,7 @@ code_evaluate = """
                             int destination_node = edge[edge_index * 2];
                             int edge_type = edge[edge_index * 2 + 1];
 
-                            printf("\t%d %d\\n", destination_node, edge_type);
+                            printf("\\t%d %d\\n", destination_node, edge_type);
 
                             //for (int bit_index = 0; bit_index < MESSAGE_BITS; ++bit_index) {
                             //    int shifted_bit = bit[bit_index]; //(bit[bit_index] + edge_type) % MESSAGE_SIZE;
