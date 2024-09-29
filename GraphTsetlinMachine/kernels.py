@@ -169,7 +169,14 @@ code_update = """
             }
         }
 
-        __device__ inline void update_clause(curandState *localState, int target_sign, unsigned int *ta_state, int clause_output, int clause_patch, int *X)
+        __device__ inline void update_clause(
+            curandState *localState,
+            int target_sign,
+            unsigned int *ta_state,
+            int clause_output,
+            int clause_patch,
+            int *X
+        )
         {
             if (target_sign > 0) {
                 int included_literals = number_of_include_actions(ta_state);
@@ -376,13 +383,12 @@ code_evaluate = """
                     } else if (local_class_sum < -THRESHOLD) {
                         local_class_sum = -THRESHOLD;
                     }
-                    update_clause(&localState, &clause_weights[class_id*CLAUSES + clause], ta_state, clause_patch[clause] != -1, clause_patch[clause], X, y[example*CLASSES + class_id], local_class_sum);
 
                     int target = 1 - 2*(local_class_sum > y[example*CLASSES + class_id]);
                     int sign = (*clause_weight >= 0) - (*clause_weight < 0);
                     int absolute_prediction_error = abs(y[example*CLASSES + class_id] - local_class_sum);
 
-                    if ((target == -1 && curand_uniform(localState) > 1.0*Q/max(1, CLASSES-1)) || (curand_uniform(localState) > 1.0*absolute_prediction_error/(2*THRESHOLD))) {
+                    if ((target == -1 && curand_uniform(&localState) > 1.0*Q/max(1, CLASSES-1)) || (curand_uniform(&localState) > 1.0*absolute_prediction_error/(2*THRESHOLD))) {
                         class_clause_update[class_id*CLAUSES + clause] = 0;
                     } else {
                         class_clause_update[class_id*CLAUSES + clause] = target*sign;
