@@ -409,6 +409,10 @@ code_evaluate = """
 
             unsigned int clause_node_output;
 
+            if (index != 0) {
+                return;
+            }
+
             int number_of_node_chunks = (number_of_nodes - 1)/INT_SIZE + 1;
             unsigned int node_filter;
             if ((number_of_nodes % INT_SIZE) != 0) {
@@ -419,7 +423,7 @@ code_evaluate = """
 
             unsigned int *X = &global_X[graph_index * LA_CHUNKS];
 
-            for (int clause_node_chunk = index; clause_node_chunk < (CLAUSES)*(NODE_CHUNKS); clause_node_chunk += stride) {
+            for (int clause_node_chunk = 0; clause_node_chunk < (CLAUSES)*(NODE_CHUNKS); clause_node_chunk += 1) {
                 int clause = clause_node_chunk % CLAUSES;
                 int node_chunk = clause_node_chunk / CLAUSES;
 
@@ -488,6 +492,8 @@ code_evaluate = """
                     if ((ta_state[(MESSAGE_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & X[node*MESSAGE_CHUNKS + MESSAGE_CHUNKS-1] & MESSAGE_FILTER) != (ta_state[(MESSAGE_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & MESSAGE_FILTER)) {
                         clause_node_output &= ~(1 << node_pos);
                     }
+
+                    printf("*N%d C%d=%d\\n", node_chunk * INT_SIZE + node_pos, clause, clause_node_output & (1 << node_pos));
                 }
                 
                 if (node_chunk == number_of_node_chunks - 1) {
