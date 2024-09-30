@@ -129,23 +129,27 @@ for i in range(args.epochs):
 
 weights = tm.get_state()[1].reshape(-1)
 for i in range(tm.number_of_clauses):
-        print("Clause #%d W:%d" % (i, weights[i]), end=' ')
-        l = []
-        for k in range(args.hypervector_size * 2):
-            if tm.ta_action(0, i, k):
-                if k < args.hypervector_size:
-                    l.append("x%d" % (k))
-                else:
-                    l.append("NOT x%d" % (k - args.hypervector_size))
+    if i < tm.number_of_clauses//2: 
+        print("Class 0 Clause #%d W:%d" % (i, weights[i]), end=' ')
+    else:
+        print("Class 1 Clause #%d W:%d" % (i - tm.number_of_clauses//2, weights[i]), end=' ')
 
-        for k in range(args.message_size * 2):
-            if tm.ta_action(1, i, k):
-                if k < args.message_size:
-                    l.append("c%d" % (k))
-                else:
-                    l.append("NOT c%d" % (k - args.message_size))
+    l = []
+    for k in range(args.hypervector_size * 2):
+        if tm.ta_action(0, i, k):
+            if k < args.hypervector_size:
+                l.append("x%d" % (k))
+            else:
+                l.append("NOT x%d" % (k - args.hypervector_size))
 
-        print(" AND ".join(l))
+    for k in range(args.message_size * 2):
+        if tm.ta_action(1, i, k):
+            if k < args.message_size:
+                l.append("c%d" % (k))
+            else:
+                l.append("NOT c%d" % (k - args.message_size))
+
+    print(" AND ".join(l))
 
 print(graphs_test.hypervectors)
 print(tm.hypervectors)
