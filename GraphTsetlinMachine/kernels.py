@@ -592,7 +592,7 @@ code_evaluate = """
                         //printf("N%d C%d=%d\\n", source_node, clause, (global_clause_node_output[clause*NODE_CHUNKS + source_node_chunk] & (1 << source_node_pos)) > 0);
                         for (int i = 0; i < number_of_graph_node_edges[node_index + source_node]; ++i) {
                             int destination_node = edge[(edge_index + i) * 2];
-                            int edge_type = 20*edge[(edge_index + i)* 2 + 1];
+                            int edge_type = 16*edge[(edge_index + i)* 2 + 1];
 
                             //printf("\\t%d %d\\n", destination_node, edge_type);
 
