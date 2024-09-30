@@ -34,7 +34,7 @@ print("Creating training data")
 
 # Create train data
 
-graphs_train = Graphs(args.number_of_examples, symbol_names=['A'], hypervector_size=args.hypervector_size, hypervector_bits=args.hypervector_bits)
+graphs_train = Graphs(args.number_of_examples, symbol_names=['A', 'B'], hypervector_size=args.hypervector_size, hypervector_bits=args.hypervector_bits)
 for graph_id in range(args.number_of_examples):
     graphs_train.set_number_of_graph_nodes(graph_id, np.random.randint(2, args.max_sequence_length+1))
 
@@ -65,8 +65,8 @@ for graph_id in range(args.number_of_examples):
     if Y_train[graph_id] == 0:
         graphs_train.add_graph_node_feature(graph_id, node_id, 'A')
     else:
-        graphs_train.add_graph_node_feature(graph_id, node_id, 'A')
-        graphs_train.add_graph_node_feature(graph_id, node_id-1, 'A')
+        graphs_train.add_graph_node_feature(graph_id, node_id, 'B')
+        #graphs_train.add_graph_node_feature(graph_id, node_id-1, 'A')
         
 Y_train = np.where(np.random.rand(args.number_of_examples) < args.noise, 1 - Y_train, Y_train)  # Add noise
 
