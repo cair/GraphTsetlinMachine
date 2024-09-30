@@ -9,6 +9,7 @@ def default_args(**kwargs):
     parser = argparse.ArgumentParser()
     parser.add_argument("--epochs", default=25, type=int)
     parser.add_argument("--number-of-clauses", default=20, type=int)
+    parser.add_argument("--number-of-state-bits", default=10, type=int)
     parser.add_argument("--T", default=200, type=int)
     parser.add_argument("--s", default=1.0, type=float)
     parser.add_argument("--depth", default=1, type=int)
@@ -112,7 +113,7 @@ for graph_id in range(args.number_of_examples):
 
 graphs_test.encode()
 
-tm = MultiClassGraphTsetlinMachine(args.number_of_clauses, args.T, args.s, depth=args.depth, message_size = args.message_size, message_bits = args.message_bits, max_included_literals=args.max_included_literals)
+tm = MultiClassGraphTsetlinMachine(args.number_of_clauses, args.T, args.s, number_of_state_bits=args.number_of_state_bits, depth=args.depth, message_size = args.message_size, message_bits = args.message_bits, max_included_literals=args.max_included_literals)
 
 for i in range(args.epochs):
     start_training = time()
