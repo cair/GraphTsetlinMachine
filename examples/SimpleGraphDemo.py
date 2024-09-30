@@ -127,7 +127,7 @@ for i in range(args.epochs):
 
     print("%d %.2f %.2f %.2f %.2f" % (i, result_train, result_test, stop_training-start_training, stop_testing-start_testing))
 
-weights = tm.get_state()[1].reshape(2, -1)
+weights = tm.get_state()[1].reshape(-1)
 for i in range(tm.number_of_clauses):
         print("Clause #%d W:%d" % (i, weights[i]), end=' ')
         l = []
