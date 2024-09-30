@@ -501,7 +501,8 @@ class CommonTsetlinMachine():
 
 		clause_X_test = np.empty((graphs.max_number_of_graph_nodes, self.number_of_message_chunks), dtype=np.uint32)
 		cuda.memcpy_dtoh(clause_X_test, self.clause_X_test_gpu[0])
-		print(clause_X_test)
+		for node in range graphs.max_number_of_graph_nodes:
+			print(format(clause_X_test[node], '032b'))
 
 		cuda.memcpy_dtoh(class_sum[e,:], self.class_sum_gpu)
 
