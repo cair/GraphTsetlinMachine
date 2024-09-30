@@ -562,7 +562,7 @@ code_evaluate = """
 
             for (int clause = index; clause < CLAUSES; clause += stride) {
                 for (int bit_index = 0; bit_index < MESSAGE_BITS; ++bit_index) {
-                     bit[bit_index] = clause; //hypervectors[clause*MESSAGE_BITS + bit_index];
+                     bit[bit_index] = hypervectors[clause*MESSAGE_BITS + bit_index];
                 }
 
                 // bit[0] = clause % (MESSAGE_SIZE / 3);
