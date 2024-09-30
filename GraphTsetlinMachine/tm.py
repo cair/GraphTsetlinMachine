@@ -82,7 +82,7 @@ class CommonTsetlinMachine():
 		indexes = np.arange(self.message_size, dtype=np.uint32)
 		self.hypervectors = np.zeros((self.number_of_clauses, self.message_bits), dtype=np.uint32)
 		for i in range(self.number_of_clauses):
-			self.hypervectors[i,:] = np.random.choice(indexes, size=(self.message_bits), replace=False)
+			self.hypervectors[i,:] = i #np.random.choice(indexes, size=(self.message_bits), replace=False)
 
 		self.initialized = False
 
