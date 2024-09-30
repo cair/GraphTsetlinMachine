@@ -492,17 +492,16 @@ class CommonTsetlinMachine():
 
 			cuda.memcpy_dtoh(class_sum[e,:], self.class_sum_gpu)
 
-		graphs.print_graph(graphs.number_of_graphs-1)
+		# graphs.print_graph(graphs.number_of_graphs-1)
 
-		clause_X_int_test = np.empty((graphs.max_number_of_graph_nodes, self.number_of_message_literals), dtype=np.uint32)
-		cuda.memcpy_dtoh(clause_X_int_test, self.clause_X_int_test_gpu)
-		print(clause_X_int_test)
+		# clause_X_int_test = np.empty((graphs.max_number_of_graph_nodes, self.number_of_message_literals), dtype=np.uint32)
+		# cuda.memcpy_dtoh(clause_X_int_test, self.clause_X_int_test_gpu)
+		# print(clause_X_int_test)
 
-
-		clause_X_test = np.empty((graphs.max_number_of_graph_nodes, self.number_of_message_chunks), dtype=np.uint32)
-		cuda.memcpy_dtoh(clause_X_test, self.clause_X_test_gpu[0])
-		for node in range(graphs.max_number_of_graph_nodes):
-			print(np.vectorize(np.binary_repr)(clause_X_test[node], width=32))
+		# clause_X_test = np.empty((graphs.max_number_of_graph_nodes, self.number_of_message_chunks), dtype=np.uint32)
+		# cuda.memcpy_dtoh(clause_X_test, self.clause_X_test_gpu[0])
+		# for node in range(graphs.max_number_of_graph_nodes):
+		# 	print(np.vectorize(np.binary_repr)(clause_X_test[node], width=32))
 
 		cuda.memcpy_dtoh(class_sum[e,:], self.class_sum_gpu)
 
