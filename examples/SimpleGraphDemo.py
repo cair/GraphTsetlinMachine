@@ -129,7 +129,7 @@ for i in range(args.epochs):
 
 weights = tm.get_state()[1].reshape(2, -1)
 for i in range(tm.number_of_clauses):
-        print("Clause #%d W:(%d %d)" % (i, weights[0,i], weights[1,i]), end=' ')
+        print("Clause #%d W:%d" % (i, weights[i]), end=' ')
         l = []
         for k in range(args.hypervector_size * 2):
             if tm.ta_action(0, i, k):
