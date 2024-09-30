@@ -107,8 +107,8 @@ for graph_id in range(args.number_of_examples):
     if Y_test[graph_id] == 0:
         graphs_test.add_graph_node_feature(graph_id, node_id, 'A')
     else:
-        graphs_test.add_graph_node_feature(graph_id, node_id, 'A')
-        graphs_test.add_graph_node_feature(graph_id, node_id-1, 'A')
+        graphs_test.add_graph_node_feature(graph_id, node_id, 'B')
+        #graphs_test.add_graph_node_feature(graph_id, node_id-1, 'A')
 
 graphs_test.encode()
 
