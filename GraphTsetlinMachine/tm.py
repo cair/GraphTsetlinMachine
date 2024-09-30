@@ -93,8 +93,7 @@ class CommonTsetlinMachine():
 		for depth in range(self.depth - 1):
 			self.message_ta_state_gpu.append(cuda.mem_alloc(self.number_of_clauses*self.number_of_message_chunks*self.number_of_state_bits*4))
 
-		self.clause_weights_gpu = cuda.mem_alloc(self.number_of_outputs*self.number_of_clauses*4)
-		self.clause_weights_dummy_gpu = cuda.mem_alloc(self.number_of_outputs*self.number_of_clauses*4)
+		self.clause_weights_gpu = cuda.mem_alloc(self.number_of_clauses*4)
 
 		self.class_sum_gpu = cuda.mem_alloc(self.number_of_outputs*4)
 		self.clause_node_gpu = cuda.mem_alloc(int(self.number_of_clauses) * 4)
@@ -121,7 +120,7 @@ class CommonTsetlinMachine():
 		if np.array_equal(self.clause_weights, np.array([])):
 			self.ta_state = np.empty(self.number_of_clauses*self.number_of_ta_chunks*self.number_of_state_bits, dtype=np.uint32)
 			cuda.memcpy_dtoh(self.ta_state, self.ta_state_gpu)
-			self.clause_weights = np.empty(self.number_of_outputs*self.number_of_clauses, dtype=np.int32)
+			self.clause_weights = np.empty(self.number_of_clauses, dtype=np.int32)
 			cuda.memcpy_dtoh(self.clause_weights, self.clause_weights_gpu)
 		return((self.ta_state, self.clause_weights, self.number_of_outputs, self.number_of_clauses, self.number_of_literals, self.depth, self.number_of_state_bits, self.number_of_ta_chunks, self.min_y, self.max_y))
 
@@ -136,7 +135,7 @@ class CommonTsetlinMachine():
 		self.max_y = state[9]
 		
 		self.ta_state_gpu = cuda.mem_alloc(self.depth*self.number_of_clauses*self.number_of_ta_chunks*self.number_of_state_bits*4)
-		self.clause_weights_gpu = cuda.mem_alloc(self.number_of_outputs*self.number_of_clauses*4)
+		self.clause_weights_gpu = cuda.mem_alloc(*self.number_of_clauses*4)
 		cuda.memcpy_htod(self.ta_state_gpu, state[0])
 		cuda.memcpy_htod(self.clause_weights_gpu, state[1])
 

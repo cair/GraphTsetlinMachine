@@ -257,9 +257,7 @@ code_update = """
 
                 int class_id = clause / (CLAUSES / CLASSES);
                 
-                //for (unsigned long long class_id = 0; class_id < CLASSES; ++class_id) {
                 update_clause(&localState, class_clause_update[class_id*CLAUSES + clause], ta_state, clause_node[clause] != -1, clause_node[clause], X);
-                //}
             }
         
             state[index] = localState;
@@ -302,12 +300,9 @@ code_evaluate = """
                 }
 
                 if (clause_output) {
-                    //for (int class_id = 0; class_id < CLASSES; ++class_id) {
-                        int class_id = clause / (CLAUSES / CLASSES);
-                        // int clause_weight = clause_weights[class_id*CLAUSES + clause];
-                        int clause_weight = clause_weights[clause];
-                        atomicAdd(&class_sum[class_id], clause_weight);                 
-                    //}
+                    int class_id = clause / (CLAUSES / CLASSES);
+                    int clause_weight = clause_weights[clause];
+                    atomicAdd(&class_sum[class_id], clause_weight);                 
                 }
             }
         }
@@ -375,7 +370,6 @@ code_evaluate = """
                 }
 
                 int target = 1 - 2*(local_class_sum > y[example*CLASSES + class_id]);
-                //int sign = (clause_weights[class_id*CLAUSES + clause] >= 0) - (clause_weights[class_id*CLAUSES + clause] < 0);
                 int sign = (clause_weights[clause] >= 0) - (clause_weights[clause] < 0);
                 int absolute_prediction_error = abs(y[example*CLASSES + class_id] - local_class_sum);
 
@@ -384,21 +378,20 @@ code_evaluate = """
                 } else {
                     class_clause_update[class_id*CLAUSES + clause] = target*sign;
 
-                    if (target*sign > 0 && clause_node[clause] != -1 && abs(clause_weights[class_id*CLAUSES + clause]) < INT_MAX) {
-                        clause_weights[class_id*CLAUSES + clause] += sign;
+                    if (target*sign > 0 && clause_node[clause] != -1 && abs(clause_weights[clause]) < INT_MAX) {
+                        clause_weights[clause] += sign;
                     } else if (target*sign < 0 && clause_node[clause] != -1) {
-                        if (abs(clause_weights[class_id*CLAUSES + clause]) > 1) {
-                            clause_weights[class_id*CLAUSES + clause] -= sign;
+                        if (abs(clause_weights[clause]) > 1) {
+                            clause_weights[clause] -= sign;
                         }
 
                         #if NEGATIVE_CLAUSES == 0
-                            if (clause_weights[class_id*CLAUSES + clause] < 1) {
-                                clause_weights[class_id*CLAUSES + clause] = 1;
+                            if (clause_weights[clause] < 1) {
+                                clause_weights[clause] = 1;
                             }
                         #endif
                     }
                 }
-                
             }
 
             state[index] = localState;
@@ -679,14 +672,6 @@ code_prepare = """
                 #else
                     clause_weights[clause] = 1;
                 #endif
-
-                //for (unsigned long long class_id = 0; class_id < CLASSES; ++class_id) {
-                //    #if NEGATIVE_CLAUSES == 1
-                //        // clause_weights[class_id*CLAUSES + clause] = clause_weights[clause] = 1 - 2 * (clause % 2);
-                //    #else
-                //        clause_weights[class_id*CLAUSES + clause] = 1;
-                //    #endif
-                //}
 
                 unsigned int *ta_state = &global_ta_state[clause*LA_CHUNKS*STATE_BITS];
                 for (int la_chunk = 0; la_chunk < LA_CHUNKS-1; ++la_chunk) {
