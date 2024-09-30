@@ -625,7 +625,7 @@ code_evaluate = """
 
                 int message = 0;
                 int bit_base = node*MESSAGE_CHUNKS*INT_SIZE;
-                for (int bit_pos = 0; (bit_pos < INT_SIZE) && (bit_base + bit_pos < MESSAGE_LITERALS); ++bit_pos) {
+                for (int bit_pos = 0; (bit_pos < INT_SIZE) && (bit_base + bit_pos < number_of_nodes * MESSAGE_LITERALS); ++bit_pos) {
                     if (clause_X_int[bit_base + bit_pos]) {
                         message |= (1 << bit_pos);
                     } else {
