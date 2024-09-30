@@ -9,7 +9,6 @@ def default_args(**kwargs):
     parser = argparse.ArgumentParser()
     parser.add_argument("--epochs", default=25, type=int)
     parser.add_argument("--number-of-clauses", default=20, type=int)
-    parser.add_argument("--number-of-state-bits", default=10, type=int)
     parser.add_argument("--T", default=200, type=int)
     parser.add_argument("--s", default=1.0, type=float)
     parser.add_argument("--depth", default=1, type=int)
@@ -19,8 +18,8 @@ def default_args(**kwargs):
     parser.add_argument("--message-bits", default=1, type=int)
     parser.add_argument("--noise", default=0.2, type=float)
     parser.add_argument("--number-of-examples", default=10000, type=int)
+    parser.add_argument("--number-of-classes", default=3, type=int)
     parser.add_argument("--max-sequence-length", default=10, type=int)
-    parser.add_argument("--number-of-classes", default=2, type=int)
     parser.add_argument("--max-included-literals", default=2, type=int)
 
     args = parser.parse_args()
@@ -37,7 +36,7 @@ print("Creating training data")
 
 graphs_train = Graphs(args.number_of_examples, symbol_names=['A'], hypervector_size=args.hypervector_size, hypervector_bits=args.hypervector_bits)
 for graph_id in range(args.number_of_examples):
-    graphs_train.set_number_of_graph_nodes(graph_id, np.random.randint(2, args.max_sequence_length+1))
+    graphs_train.set_number_of_graph_nodes(graph_id, np.random.randint(args.number_of_classes, args.max_sequence_length+1))
 
 graphs_train.prepare_node_configuration()
 
@@ -62,14 +61,11 @@ for graph_id in range(args.number_of_examples):
             graphs_train.add_graph_node_edge(graph_id, node_id, destination_node_id, edge_type)
 
     Y_train[graph_id] = np.random.randint(args.number_of_classes)
-    node_id = np.random.randint(1, graphs_train.number_of_graph_nodes[graph_id])
-    if Y_train[graph_id] == 0:
-        graphs_train.add_graph_node_feature(graph_id, node_id, 'A')
-    else:
-        graphs_train.add_graph_node_feature(graph_id, node_id, 'A')
-        graphs_train.add_graph_node_feature(graph_id, node_id-1, 'A')
+    node_id = np.random.randint(Y_train[graph_id], graphs_train.number_of_graph_nodes[graph_id])
+    for node_pos in range(Y_train[graph_id] + 1):
+        graphs_train.add_graph_node_feature(graph_id, node_id - node_pos, 'A')
         
-Y_train = np.where(np.random.rand(args.number_of_examples) < args.noise, 1 - Y_train, Y_train)  # Add noise
+#Y_train = np.where(np.random.rand(args.number_of_examples) < args.noise, 1 - Y_train, Y_train)  # Add noise
 
 graphs_train.encode()
 
@@ -79,7 +75,7 @@ print("Creating testing data")
 
 graphs_test = Graphs(args.number_of_examples, init_with=graphs_train)
 for graph_id in range(args.number_of_examples):
-    graphs_test.set_number_of_graph_nodes(graph_id, np.random.randint(2, args.max_sequence_length+1))
+    graphs_test.set_number_of_graph_nodes(graph_id, np.random.randint(args.number_of_classes, args.max_sequence_length+1))
 
 graphs_test.prepare_node_configuration()
 
@@ -104,16 +100,13 @@ for graph_id in range(args.number_of_examples):
             graphs_test.add_graph_node_edge(graph_id, node_id, destination_node_id, edge_type)
 
     Y_test[graph_id] = np.random.randint(args.number_of_classes)
-    node_id = np.random.randint(1, graphs_test.number_of_graph_nodes[graph_id])
-    if Y_test[graph_id] == 0:
-        graphs_test.add_graph_node_feature(graph_id, node_id, 'A')
-    else:
-        graphs_test.add_graph_node_feature(graph_id, node_id, 'A')
-        graphs_test.add_graph_node_feature(graph_id, node_id-1, 'A')
+    node_id = np.random.randint(Y_test[graph_id], graphs_test.number_of_graph_nodes[graph_id])
+    for node_pos in range(Y_test[graph_id] + 1):
+        graphs_test.add_graph_node_feature(graph_id, node_id - node_pos, 'A')
 
 graphs_test.encode()
 
-tm = MultiClassGraphTsetlinMachine(args.number_of_clauses, args.T, args.s, number_of_state_bits=args.number_of_state_bits, depth=args.depth, message_size = args.message_size, message_bits = args.message_bits, max_included_literals=args.max_included_literals)
+tm = MultiClassGraphTsetlinMachine(args.number_of_clauses, args.T, args.s, depth=args.depth, message_size = args.message_size, message_bits = args.message_bits, max_included_literals=args.max_included_literals)
 
 for i in range(args.epochs):
     start_training = time()
@@ -128,29 +121,25 @@ for i in range(args.epochs):
 
     print("%d %.2f %.2f %.2f %.2f" % (i, result_train, result_test, stop_training-start_training, stop_testing-start_testing))
 
-weights = tm.get_state()[1].reshape(-1)
+weights = tm.get_state()[1].reshape(2, -1)
 for i in range(tm.number_of_clauses):
-    if i < tm.number_of_clauses//2: 
-        print("Class 0 Clause #%d W:%d" % (i, weights[i]), end=' ')
-    else:
-        print("Class 1 Clause #%d W:%d" % (i, weights[i]), end=' ')
+        print("Clause #%d W:(%d %d)" % (i, weights[0,i], weights[1,i]), end=' ')
+        l = []
+        for k in range(args.hypervector_size * 2):
+            if tm.ta_action(0, i, k):
+                if k < args.hypervector_size:
+                    l.append("x%d" % (k))
+                else:
+                    l.append("NOT x%d" % (k - args.hypervector_size))
 
-    l = []
-    for k in range(args.hypervector_size * 2):
-        if tm.ta_action(0, i, k):
-            if k < args.hypervector_size:
-                l.append("x%d" % (k))
-            else:
-                l.append("NOT x%d" % (k - args.hypervector_size))
+        for k in range(args.message_size * 2):
+            if tm.ta_action(1, i, k):
+                if k < args.message_size:
+                    l.append("c%d" % (k))
+                else:
+                    l.append("NOT c%d" % (k - args.message_size))
 
-    for k in range(args.message_size * 2):
-        if tm.ta_action(1, i, k):
-            if k < args.message_size:
-                l.append("c%d" % (k))
-            else:
-                l.append("NOT c%d" % (k - args.message_size))
-
-    print(" AND ".join(l))
+        print(" AND ".join(l))
 
 print(graphs_test.hypervectors)
 print(tm.hypervectors)
