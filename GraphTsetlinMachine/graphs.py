@@ -39,7 +39,7 @@ class Graphs():
 			for symbol_name in symbol_names:
 				self.symbol_id[symbol_name] = len(self.symbol_id)
 			self.hypervector_size = hypervector_size
-			self.hypervector_bits = 2#hypervector_bits
+			self.hypervector_bits = hypervector_bits
 			self.number_of_hypervector_chunks = (self.hypervector_size*2 - 1) // 32 + 1
 
 			if self.double_hashing:
@@ -123,6 +123,20 @@ class Graphs():
 	def add_graph_node_feature(self, graph_id, node_name, symbol):
 		self._add_graph_node_feature(self.hypervectors, self.hypervector_size, self.node_index[graph_id], self.graph_node_id[graph_id][node_name], self.symbol_id[symbol], self.X)
 
+	def print_graph(self, graph_id):
+		#print(self.number_of_graph_nodes[graph_id])
+		for node_id in range(self.number_of_graph_nodes[graph_id]):
+			#print(self.X[self.node_index[graph_id] + node_id])
+			for (symbol_name, symbol_id) in self.symbol_id.items():
+				for k in self.hypervectors[symbol_id,:]:
+					chunk = k // 32
+					pos = k % 32
+
+					if self.X[self.node_index[graph_id] + node_id][chunk] & (1 << pos):
+						print(symbol_name, end=' ')
+					else:
+						print("*", end=' ') 
+		print()
 	def encode(self):
 		m = hashlib.sha256()
 		m.update(self.X.data)

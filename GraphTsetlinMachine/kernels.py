@@ -255,9 +255,11 @@ code_update = """
             for (unsigned long long clause = index; clause < CLAUSES; clause += stride) {
                 unsigned int *ta_state = &global_ta_state[clause*LA_CHUNKS*STATE_BITS];
 
-                for (unsigned long long class_id = 0; class_id < CLASSES; ++class_id) {
-                    update_clause(&localState, class_clause_update[class_id*CLAUSES + clause], ta_state, clause_node[clause] != -1, clause_node[clause], X);
-                }
+                int class_id = clause / (CLAUSES / CLASSES);
+                
+                //for (unsigned long long class_id = 0; class_id < CLASSES; ++class_id) {
+                update_clause(&localState, class_clause_update[class_id*CLAUSES + clause], ta_state, clause_node[clause] != -1, clause_node[clause], X);
+                //}
             }
         
             state[index] = localState;
@@ -300,10 +302,12 @@ code_evaluate = """
                 }
 
                 if (clause_output) {
-                    for (int class_id = 0; class_id < CLASSES; ++class_id) {
-                        int clause_weight = clause_weights[class_id*CLAUSES + clause];
+                    //for (int class_id = 0; class_id < CLASSES; ++class_id) {
+                        int class_id = clause / (CLAUSES / CLASSES);
+                        // int clause_weight = clause_weights[class_id*CLAUSES + clause];
+                        int clause_weight = clause_weights[clause];
                         atomicAdd(&class_sum[class_id], clause_weight);                 
-                    }
+                    //}
                 }
             }
         }
@@ -361,36 +365,40 @@ code_evaluate = """
             curandState localState = state[index];
 
             for (int clause = index; clause < CLAUSES; clause += stride) {
-                for (int class_id = 0; class_id < CLASSES; ++class_id) {
-                    int local_class_sum = class_sum[class_id];
-                    if (local_class_sum > THRESHOLD) {
-                        local_class_sum = THRESHOLD;
-                    } else if (local_class_sum < -THRESHOLD) {
-                        local_class_sum = -THRESHOLD;
-                    }
+                int class_id = clause / (CLAUSES / CLASSES);
 
-                    int target = 1 - 2*(local_class_sum > y[example*CLASSES + class_id]);
-                    int sign = (clause_weights[class_id*CLAUSES + clause] >= 0) - (clause_weights[class_id*CLAUSES + clause] < 0);
-                    int absolute_prediction_error = abs(y[example*CLASSES + class_id] - local_class_sum);
+                int local_class_sum = class_sum[class_id];
+                if (local_class_sum > THRESHOLD) {
+                    local_class_sum = THRESHOLD;
+                } else if (local_class_sum < -THRESHOLD) {
+                    local_class_sum = -THRESHOLD;
+                }
 
-                    if ((target == -1 && curand_uniform(&localState) > 1.0*Q/max(1, CLASSES-1)) || (curand_uniform(&localState) > 1.0*absolute_prediction_error/(2*THRESHOLD))) {
-                        class_clause_update[class_id*CLAUSES + clause] = 0;
-                    } else {
-                        class_clause_update[class_id*CLAUSES + clause] = target*sign;
+                int target = 1 - 2*(local_class_sum > y[example*CLASSES + class_id]);
+                //int sign = (clause_weights[class_id*CLAUSES + clause] >= 0) - (clause_weights[class_id*CLAUSES + clause] < 0);
+                int sign = (clause_weights[clause] >= 0) - (clause_weights[clause] < 0);
+                int absolute_prediction_error = abs(y[example*CLASSES + class_id] - local_class_sum);
 
-                        if (target*sign > 0 && clause_node[clause] != -1 && abs(clause_weights[class_id*CLAUSES + clause]) < INT_MAX) {
-                            clause_weights[class_id*CLAUSES + clause] += sign;
-                        } else if (target*sign < 0 && clause_node[clause] != -1) {
+                if ((target == -1 && curand_uniform(&localState) > 1.0*Q/max(1, CLASSES-1)) || (curand_uniform(&localState) > 1.0*absolute_prediction_error/(2*THRESHOLD))) {
+                    class_clause_update[class_id*CLAUSES + clause] = 0;
+                } else {
+                    class_clause_update[class_id*CLAUSES + clause] = target*sign;
+
+                    if (target*sign > 0 && clause_node[clause] != -1 && abs(clause_weights[class_id*CLAUSES + clause]) < INT_MAX) {
+                        clause_weights[class_id*CLAUSES + clause] += sign;
+                    } else if (target*sign < 0 && clause_node[clause] != -1) {
+                        if (abs(clause_weights[class_id*CLAUSES + clause]) > 1) {
                             clause_weights[class_id*CLAUSES + clause] -= sign;
-
-                            #if NEGATIVE_CLAUSES == 0
-                                if (clause_weights[class_id*CLAUSES + clause] < 1) {
-                                    clause_weights[class_id*CLAUSES + clause] = 1;
-                                }
-                            #endif
                         }
+
+                        #if NEGATIVE_CLAUSES == 0
+                            if (clause_weights[class_id*CLAUSES + clause] < 1) {
+                                clause_weights[class_id*CLAUSES + clause] = 1;
+                            }
+                        #endif
                     }
                 }
+                
             }
 
             state[index] = localState;
@@ -438,8 +446,10 @@ code_evaluate = """
                     if ((ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & X[node*LA_CHUNKS + LA_CHUNKS-1] & FILTER) != (ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & FILTER)) {
                         clause_node_output &= ~(1 << node_pos);
                     }
+
+                    //printf("*N%d C%d=%d\\n", node_chunk * INT_SIZE + node_pos, clause, (clause_node_output & (1 << node_pos)) > 0);
                 }
-                
+
                 if (node_chunk == number_of_node_chunks - 1) {
                     global_clause_node_output[clause*NODE_CHUNKS + node_chunk] = clause_node_output & node_filter;
                 } else {
@@ -470,8 +480,8 @@ code_evaluate = """
             }
 
             for (int clause_node_chunk = index; clause_node_chunk < (CLAUSES)*(NODE_CHUNKS); clause_node_chunk += stride) {
-                int clause = clause_node_chunk % CLAUSES;
-                int node_chunk = clause_node_chunk / CLAUSES;
+                int clause = clause_node_chunk / NODE_CHUNKS;
+                int node_chunk = clause_node_chunk % NODE_CHUNKS;
 
                 unsigned int *ta_state = &global_ta_state[clause*MESSAGE_CHUNKS*STATE_BITS];
 
@@ -524,12 +534,29 @@ code_evaluate = """
             return hash;
         }
 
+        __global__ void prepare_messages(
+            int number_of_nodes,
+            unsigned int *clause_X_int
+        )
+        {
+            int index = blockIdx.x * blockDim.x + threadIdx.x;
+            int stride = blockDim.x * gridDim.x;
+
+            for (int node_message_bit = index; node_message_bit < number_of_nodes * MESSAGE_SIZE; node_message_bit += stride) {
+                int node = node_message_bit / MESSAGE_SIZE;
+                int message_bit = node_message_bit % MESSAGE_SIZE;
+
+                clause_X_int[node * MESSAGE_LITERALS + message_bit] = 0;
+                clause_X_int[node * MESSAGE_LITERALS + MESSAGE_SIZE + message_bit] = 1;
+            }
+        }
+
         __global__ void exchange_messages(
             int number_of_nodes,
             int *hypervectors,
             int *global_clause_node_output,
             int node_index,
-            int edge_index,
+            int global_edge_index,
             int *number_of_graph_node_edges,
             int *edge,
             unsigned int *clause_X_int
@@ -555,24 +582,38 @@ code_evaluate = """
                 //bit[0] = murmur(clause, 0x81726354) % MESSAGE_SIZE;
                 //bit[1] = murmur(clause, 0x12345678) % MESSAGE_SIZE;
 
+                int edge_index = global_edge_index;
                 for (int source_node = 0; source_node < number_of_nodes; ++source_node) {
                     int source_node_chunk = source_node / INT_SIZE;
                     int source_node_pos = source_node % INT_SIZE;
+                    
+                    // if ((global_clause_node_output[clause*NODE_CHUNKS + source_node_chunk] & (1 << source_node_pos)) > 0) { 
+                    //     for (int bit_index = 0; bit_index < MESSAGE_BITS; ++bit_index) {
+                    //         int shifted_bit = bit[bit_index]; //(bit[bit_index] + edge_type) % MESSAGE_SIZE;
+                    //         clause_X_int[source_node * MESSAGE_LITERALS + shifted_bit] = 1;
+                    //         clause_X_int[source_node * MESSAGE_LITERALS + MESSAGE_SIZE + shifted_bit] = 0;
+                    //     }
+                    // }
 
-                    if (global_clause_node_output[clause*NODE_CHUNKS + source_node_chunk] & (1 << source_node_pos) > 0) { 
+                    if ((global_clause_node_output[clause*NODE_CHUNKS + source_node_chunk] & (1 << source_node_pos)) > 0) { 
+                        //printf("N%d C%d=%d\\n", source_node, clause, (global_clause_node_output[clause*NODE_CHUNKS + source_node_chunk] & (1 << source_node_pos)) > 0);
                         for (int i = 0; i < number_of_graph_node_edges[node_index + source_node]; ++i) {
-                            int destination_node = edge[edge_index * 2];
-                            int edge_type = edge[edge_index * 2 + 1];
+                            int destination_node = edge[(edge_index + i) * 2];
+                            int edge_type = edge[(edge_index + i)* 2 + 1];
+
+                            //printf("\\t%d %d\\n", destination_node, edge_type);
+
+                            //clause_X_int[destination_node * MESSAGE_LITERALS + clause] = 1;
+                            //clause_X_int[destination_node * MESSAGE_LITERALS + MESSAGE_SIZE + clause] = 0;
 
                             for (int bit_index = 0; bit_index < MESSAGE_BITS; ++bit_index) {
                                 int shifted_bit = (bit[bit_index] + edge_type) % MESSAGE_SIZE;
-                                clause_X_int[destination_node * MESSAGE_SIZE * 2 + shifted_bit] = 1;
-                                clause_X_int[destination_node * MESSAGE_SIZE * 2 + MESSAGE_SIZE + shifted_bit] = 0;
+                                clause_X_int[destination_node * MESSAGE_LITERALS + shifted_bit] = 1;
+                                clause_X_int[destination_node * MESSAGE_LITERALS + MESSAGE_SIZE + shifted_bit] = 0;
                             }
-
-                            edge_index++;
                         }
                     }
+                    edge_index += number_of_graph_node_edges[node_index + source_node];
                 }
             }
         }
@@ -592,7 +633,7 @@ code_evaluate = """
 
                 int message = 0;
                 int bit_base = node*MESSAGE_CHUNKS*INT_SIZE;
-                for (int bit_pos = 0; (bit_pos < INT_SIZE) && (bit_base + bit_pos < MESSAGE_SIZE); ++bit_pos) {
+                for (int bit_pos = 0; (bit_pos < INT_SIZE) && (bit_base + bit_pos < MESSAGE_LITERALS); ++bit_pos) {
                     if (clause_X_int[bit_base + bit_pos]) {
                         message |= (1 << bit_pos);
                     } else {
@@ -609,6 +650,22 @@ code_evaluate = """
 code_prepare = """
     extern "C"
     {
+        __global__ void prepare_message_ta_state(unsigned int *global_ta_state)
+        {
+            int index = blockIdx.x * blockDim.x + threadIdx.x;
+            int stride = blockDim.x * gridDim.x;
+
+            for (unsigned long long clause = index; clause < CLAUSES; clause += stride) {
+                unsigned int *ta_state = &global_ta_state[clause*MESSAGE_CHUNKS*STATE_BITS];
+                for (int message_ta_chunk = 0; message_ta_chunk < MESSAGE_CHUNKS-1; ++message_ta_chunk) {
+                    for (int b = 0; b < STATE_BITS-1; ++b) {
+                        ta_state[message_ta_chunk*STATE_BITS + b] = ~0;
+                    }
+                    ta_state[message_ta_chunk*STATE_BITS + STATE_BITS - 1] = 0;
+                }
+            }
+        }
+
         __global__ void prepare(curandState *state, unsigned int *global_ta_state, int *clause_weights, int *class_sum)
         {
             int index = blockIdx.x * blockDim.x + threadIdx.x;
@@ -617,13 +674,19 @@ code_prepare = """
             curandState localState = state[index];
 
             for (unsigned long long clause = index; clause < CLAUSES; clause += stride) {
-                for (unsigned long long class_id = 0; class_id < CLASSES; ++class_id) {
-                    #if NEGATIVE_CLAUSES == 1
-                        clause_weights[class_id*CLAUSES + clause] = 1 - 2 * (curand(&localState) % 2); // 1 - 2*(clause % CLASSES != class_id);
-                    #else
-                        clause_weights[class_id*CLAUSES + clause] = 1;
-                    #endif
-                }
+                #if NEGATIVE_CLAUSES == 1
+                    clause_weights[clause] = 1 - 2 * (clause % 2);
+                #else
+                    clause_weights[clause] = 1;
+                #endif
+
+                //for (unsigned long long class_id = 0; class_id < CLASSES; ++class_id) {
+                //    #if NEGATIVE_CLAUSES == 1
+                //        // clause_weights[class_id*CLAUSES + clause] = clause_weights[clause] = 1 - 2 * (clause % 2);
+                //    #else
+                //        clause_weights[class_id*CLAUSES + clause] = 1;
+                //    #endif
+                //}
 
                 unsigned int *ta_state = &global_ta_state[clause*LA_CHUNKS*STATE_BITS];
                 for (int la_chunk = 0; la_chunk < LA_CHUNKS-1; ++la_chunk) {
