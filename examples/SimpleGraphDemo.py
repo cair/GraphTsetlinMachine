@@ -18,8 +18,8 @@ def default_args(**kwargs):
     parser.add_argument("--message-bits", default=1, type=int)
     parser.add_argument("--noise", default=0.2, type=float)
     parser.add_argument("--number-of-examples", default=10000, type=int)
+    parser.add_argument("--number-of-classes", default=3, type=int)
     parser.add_argument("--max-sequence-length", default=10, type=int)
-    parser.add_argument("--number-of-classes", default=2, type=int)
     parser.add_argument("--max-included-literals", default=2, type=int)
 
     args = parser.parse_args()
@@ -61,12 +61,9 @@ for graph_id in range(args.number_of_examples):
             graphs_train.add_graph_node_edge(graph_id, node_id, destination_node_id, edge_type)
 
     Y_train[graph_id] = np.random.randint(args.number_of_classes)
-    node_id = np.random.randint(1, graphs_train.number_of_graph_nodes[graph_id])
-    if Y_train[graph_id] == 0:
-        graphs_train.add_graph_node_feature(graph_id, node_id, 'A')
-    else:
-        graphs_train.add_graph_node_feature(graph_id, node_id, 'A')
-        graphs_train.add_graph_node_feature(graph_id, node_id-1, 'A')
+    node_id = np.random.randint(Y_train[graph_id], graphs_train.number_of_graph_nodes[graph_id])
+    for node_pos in range(Y_train[graph_id] + 1):
+        graphs_train.add_graph_node_feature(graph_id, node_id - node_pos, 'A')
         
 Y_train = np.where(np.random.rand(args.number_of_examples) < args.noise, 1 - Y_train, Y_train)  # Add noise
 
@@ -103,12 +100,9 @@ for graph_id in range(args.number_of_examples):
             graphs_test.add_graph_node_edge(graph_id, node_id, destination_node_id, edge_type)
 
     Y_test[graph_id] = np.random.randint(args.number_of_classes)
-    node_id = np.random.randint(1, graphs_test.number_of_graph_nodes[graph_id])
-    if Y_test[graph_id] == 0:
-        graphs_test.add_graph_node_feature(graph_id, node_id, 'A')
-    else:
-        graphs_test.add_graph_node_feature(graph_id, node_id, 'A')
-        graphs_test.add_graph_node_feature(graph_id, node_id-1, 'A')
+    node_id = np.random.randint(Y_test[graph_id], graphs_test.number_of_graph_nodes[graph_id])
+    for node_pos in range(Y_test[graph_id] + 1):
+        graphs_test.add_graph_node_feature(graph_id, node_id - node_pos, 'A')
 
 graphs_test.encode()
 
