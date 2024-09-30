@@ -132,7 +132,7 @@ for i in range(tm.number_of_clauses):
     if i < tm.number_of_clauses//2: 
         print("Class 0 Clause #%d W:%d" % (i, weights[i]), end=' ')
     else:
-        print("Class 1 Clause #%d W:%d" % (i - tm.number_of_clauses//2, weights[i]), end=' ')
+        print("Class 1 Clause #%d W:%d" % (i, weights[i]), end=' ')
 
     l = []
     for k in range(args.hypervector_size * 2):
