@@ -10,8 +10,8 @@ from numba import jit
 
 (X_train, Y_train), (X_test, Y_test) = mnist.load_data()
 
-X_train = X_train.astype(np.uint32)
-X_test = X_test.astype(np.uint32)
+X_train = X_train.astype(np.uint32) // 25
+X_test = X_test.astype(np.uint32) // 25
 Y_train = Y_train.astype(np.uint32)
 Y_test = Y_test.astype(np.uint32)
 
