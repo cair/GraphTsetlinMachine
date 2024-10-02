@@ -26,6 +26,7 @@ def default_args(**kwargs):
     parser.add_argument("--hypervector-bits", default=2, type=int)
     parser.add_argument("--message-size", default=256, type=int)
     parser.add_argument("--message-bits", default=2, type=int)
+    parser.add_argument("--patch-size", default=128, type=int)
     parser.add_argument("--max-included-literals", default=32, type=int)
 
     args = parser.parse_args()
@@ -36,8 +37,7 @@ def default_args(**kwargs):
 
 args = default_args()
 
-patch_size = 4
-dim = 28 - patch_size + 1
+dim = 28 - args.patch_size + 1
 
 number_of_nodes = dim * dim
 
@@ -49,7 +49,7 @@ for i in range(dim):
     symbol_names.append("R:%d" % (i))
 
 # Patch pixel symbols
-for i in range(patch_size*patch_size):
+for i in range(args.patch_size*args.patch_size):
     for j in range(256):
         symbol_names.append(str(i) + ":" + str(j))
 
@@ -69,7 +69,7 @@ for graph_id in range(X_train.shape[0]):
     if graph_id % 1000 == 0:
         print(graph_id, X_train.shape[0])
      
-    windows = view_as_windows(X_train[graph_id,:,:], (patch_size, patch_size))
+    windows = view_as_windows(X_train[graph_id,:,:], (args.patch_size, args.patch_size))
     for q in range(windows.shape[0]):
             for r in range(windows.shape[1]):
                 node_id = q*dim + r
