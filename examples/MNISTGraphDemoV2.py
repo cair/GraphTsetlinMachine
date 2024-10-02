@@ -26,7 +26,7 @@ def default_args(**kwargs):
     parser.add_argument("--hypervector-bits", default=2, type=int)
     parser.add_argument("--message-size", default=256, type=int)
     parser.add_argument("--message-bits", default=2, type=int)
-    parser.add_argument("--patch-size", default=128, type=int)
+    parser.add_argument("--patch-size", default=4, type=int)
     parser.add_argument("--max-included-literals", default=32, type=int)
 
     args = parser.parse_args()
@@ -101,7 +101,7 @@ for graph_id in range(X_test.shape[0]):
     if graph_id % 1000 == 0:
         print(graph_id, X_test.shape[0])
      
-    windows = view_as_windows(X_test[graph_id,:,:], (10, 10))
+    windows = view_as_windows(X_test[graph_id,:,:], (args.patch_size, args.patch_size))
     for q in range(windows.shape[0]):
             for r in range(windows.shape[1]):
                 node_id = q*dim + r
