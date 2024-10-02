@@ -108,7 +108,7 @@ for graph_id in range(X_test.shape[0]):
 
                 patch = windows[q,r].reshape(-1).astype(np.uint32)
                 for k in patch.nonzero()[0]:
-                    graphs_test.add_graph_node_feature(graph_id, node_id, k)
+                    graphs_test.add_graph_node_feature(graph_id, node_id, str(k) + ":" + str(patch[k]))
 
                 graphs_test.add_graph_node_feature(graph_id, node_id, "C:%d" % (q))
                 graphs_test.add_graph_node_feature(graph_id, node_id, "R:%d" % (r))
