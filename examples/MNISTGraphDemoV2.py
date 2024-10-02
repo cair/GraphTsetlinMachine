@@ -50,8 +50,8 @@ for i in range(dim):
 
 # Patch pixel symbols
 for i in range(patch_size*patch_size):
-    for j in range(256)
-    symbol_names.append(str(i) + ":" + str(256))
+    for j in range(256):
+        symbol_names.append(str(i) + ":" + str(256))
 
 graphs_train = Graphs(X_train.shape[0], symbol_names=symbol_names, hypervector_size=args.hypervector_size, hypervector_bits=args.hypervector_bits)
 for graph_id in range(X_train.shape[0]):
