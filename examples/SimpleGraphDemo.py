@@ -64,8 +64,9 @@ for graph_id in range(args.number_of_examples):
     node_id = np.random.randint(Y_train[graph_id], graphs_train.number_of_graph_nodes[graph_id])
     for node_pos in range(Y_train[graph_id] + 1):
         graphs_train.add_graph_node_feature(graph_id, node_id - node_pos, 'A')
-        
-#Y_train = np.where(np.random.rand(args.number_of_examples) < args.noise, 1 - Y_train, Y_train)  # Add noise
+
+    if np.random.rand() <= args.noise:
+        Y_train[i] = np.random.choice(np.setdiff1d(np.arange(args.number_of_classes), [Y_train[i]]))
 
 graphs_train.encode()
 
