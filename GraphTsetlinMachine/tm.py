@@ -65,7 +65,7 @@ class CommonTsetlinMachine():
 		self.boost_true_positive_feedback = boost_true_positive_feedback
 		self.depth = depth
 		self.message_size = message_size
-		self.message_bits = 3#2#message_bits
+		self.message_bits = message_bits
 		self.message_prime = prevprime(message_size//3)
 		self.message_literals = message_size*2
 		self.grid = grid
@@ -76,6 +76,7 @@ class CommonTsetlinMachine():
 		self.encoded_Y = np.array([])
 		
 		self.ta_state = np.array([])
+		self.message_ta_state = np.array([])
 		self.clause_weights = np.array([])
 
 		indexes = np.arange(self.message_size, dtype=np.uint32)
@@ -109,8 +110,13 @@ class CommonTsetlinMachine():
 
 			return (ta_state[clause, ta // 32, self.number_of_state_bits-1] & (1 << (ta % 32))) > 0
 		else:
-			print("Not implemented yet")
+			#if np.array_equal(self.message_ta_state, np.array([])):
+			self.message_ta_state = np.empty(self.number_of_clauses*self.number_of_message_chunks*self.number_of_state_bits, dtype=np.uint32)
+			cuda.memcpy_dtoh(self.message_ta_state, self.message_ta_state_gpu[depth-1])
+			message_ta_state = self.message_ta_state.reshape((self.number_of_clauses, self.number_of_message_chunks, self.number_of_state_bits))
 
+			return (message_ta_state[clause, ta // 32, self.number_of_state_bits-1] & (1 << (ta % 32))) > 0
+			
 	def get_state(self):
 		if np.array_equal(self.clause_weights, np.array([])):
 			self.ta_state = np.empty(self.number_of_clauses*self.number_of_ta_chunks*self.number_of_state_bits, dtype=np.uint32)
@@ -175,6 +181,8 @@ class CommonTsetlinMachine():
 		mod_prepare = SourceModule(parameters + kernels.code_header + kernels.code_prepare, no_extern_c=True)
 		self.prepare = mod_prepare.get_function("prepare")
 
+		self.prepare_message_ta_state = mod_prepare.get_function("prepare_message_ta_state")
+
 		self.allocate_gpu_memory()
 
 		mod_update = SourceModule(parameters + kernels.code_header + kernels.code_update, no_extern_c=True)
@@ -200,6 +208,9 @@ class CommonTsetlinMachine():
 		self.calculate_messages_conditional = mod_evaluate.get_function("calculate_messages_conditional")
 		self.calculate_messages_conditional.prepare("PiPPP")
 
+		self.prepare_messages = mod_evaluate.get_function("prepare_messages")
+		self.prepare_messages.prepare("iP")
+
 		self.exchange_messages = mod_evaluate.get_function("exchange_messages")
 		self.exchange_messages.prepare("iPPiiPPP")
 
@@ -212,6 +223,10 @@ class CommonTsetlinMachine():
 		if not self.initialized:
 			self._init(graphs)
 			self.prepare(g.state, self.ta_state_gpu, self.clause_weights_gpu, self.class_sum_gpu, grid=self.grid, block=self.block)
+
+			for depth in range(self.depth-1):
+				self.prepare_message_ta_state(self.message_ta_state_gpu[depth], grid=self.grid, block=self.block)
+
 			cuda.Context.synchronize()
 		elif incremental == False:
 			self.prepare(g.state, self.ta_state_gpu, self.clause_weights_gpu, self.class_sum_gpu, grid=self.grid, block=self.block)
@@ -249,7 +264,20 @@ class CommonTsetlinMachine():
 			self.encoded_Y_gpu = cuda.mem_alloc(encoded_Y.nbytes)
 			cuda.memcpy_htod(self.encoded_Y_gpu, encoded_Y)
 
-	def _evaluate(self, graphs, number_of_graph_nodes, node_index, edge_index, current_clause_node_output, next_clause_node_output, number_of_graph_node_edges, edge, clause_X_int, clause_X, encoded_X):
+	def _evaluate(
+			self,
+			graphs,
+			number_of_graph_nodes,
+			node_index,
+			edge_index,
+			current_clause_node_output,
+			next_clause_node_output,
+			number_of_graph_node_edges,
+			edge,
+			clause_X_int,
+			clause_X,
+			encoded_X
+	):
 		class_sum = np.zeros(self.number_of_outputs).astype(np.int32)
 		cuda.memcpy_htod(self.class_sum_gpu, class_sum)
 
@@ -267,6 +295,14 @@ class CommonTsetlinMachine():
 
 		# Iterate over layers
 		for depth in range(self.depth-1):
+			# Prepare messages
+			self.prepare_messages.prepared_call(
+				self.grid,
+				self.block,
+				number_of_graph_nodes,
+				clause_X_int
+			)
+			cuda.Context.synchronize()
 
 			# Send messages to neighbors
 			self.exchange_messages.prepared_call(

@@ -14,12 +14,12 @@ def default_args(**kwargs):
     parser.add_argument("--depth", default=1, type=int)
     parser.add_argument("--hypervector-size", default=16, type=int)
     parser.add_argument("--hypervector-bits", default=1, type=int)
-    parser.add_argument("--message-size", default=256, type=int)
-    parser.add_argument("--message-bits", default=2, type=int)
+    parser.add_argument("--message-size", default=16, type=int)
+    parser.add_argument("--message-bits", default=1, type=int)
     parser.add_argument("--noise", default=0.2, type=float)
     parser.add_argument("--number-of-examples", default=10000, type=int)
-    parser.add_argument("--max-sequence-length", default=1000, type=int)
-    parser.add_argument("--number-of-classes", default=2, type=int)
+    parser.add_argument("--number-of-classes", default=3, type=int)
+    parser.add_argument("--max-sequence-length", default=10, type=int)
     parser.add_argument("--max-included-literals", default=2, type=int)
 
     args = parser.parse_args()
@@ -34,9 +34,9 @@ print("Creating training data")
 
 # Create train data
 
-graphs_train = Graphs(args.number_of_examples, symbol_names=['A', 'B'], hypervector_size=args.hypervector_size, hypervector_bits=args.hypervector_bits)
+graphs_train = Graphs(args.number_of_examples, symbol_names=['A'], hypervector_size=args.hypervector_size, hypervector_bits=args.hypervector_bits)
 for graph_id in range(args.number_of_examples):
-    graphs_train.set_number_of_graph_nodes(graph_id, np.random.randint(2, args.max_sequence_length))
+    graphs_train.set_number_of_graph_nodes(graph_id, np.random.randint(args.number_of_classes, args.max_sequence_length+1))
 
 graphs_train.prepare_node_configuration()
 
@@ -57,17 +57,16 @@ for graph_id in range(args.number_of_examples):
 
         if node_id < graphs_train.number_of_graph_nodes[graph_id]-1:
             destination_node_id = node_id + 1
-            edge_type = 0
+            edge_type = 1
             graphs_train.add_graph_node_edge(graph_id, node_id, destination_node_id, edge_type)
 
     Y_train[graph_id] = np.random.randint(args.number_of_classes)
-    node_id = np.random.randint(graphs_train.number_of_graph_nodes[graph_id])
-    if Y_train[graph_id] == 0:
-        graphs_train.add_graph_node_feature(graph_id, node_id, 'A')
-    else:
-        graphs_train.add_graph_node_feature(graph_id, node_id, 'B')
-        
-Y_train = np.where(np.random.rand(args.number_of_examples) < args.noise, 1 - Y_train, Y_train)  # Add noise
+    node_id = np.random.randint(Y_train[graph_id], graphs_train.number_of_graph_nodes[graph_id])
+    for node_pos in range(Y_train[graph_id] + 1):
+        graphs_train.add_graph_node_feature(graph_id, node_id - node_pos, 'A')
+
+    if np.random.rand() <= args.noise:
+        Y_train[graph_id] = np.random.choice(np.setdiff1d(np.arange(args.number_of_classes), [Y_train[graph_id]]))
 
 graphs_train.encode()
 
@@ -77,7 +76,7 @@ print("Creating testing data")
 
 graphs_test = Graphs(args.number_of_examples, init_with=graphs_train)
 for graph_id in range(args.number_of_examples):
-    graphs_test.set_number_of_graph_nodes(graph_id, np.random.randint(2, args.max_sequence_length))
+    graphs_test.set_number_of_graph_nodes(graph_id, np.random.randint(args.number_of_classes, args.max_sequence_length+1))
 
 graphs_test.prepare_node_configuration()
 
@@ -98,15 +97,13 @@ for graph_id in range(args.number_of_examples):
 
         if node_id < graphs_test.number_of_graph_nodes[graph_id]-1:
             destination_node_id = node_id + 1
-            edge_type = 0
+            edge_type = 1
             graphs_test.add_graph_node_edge(graph_id, node_id, destination_node_id, edge_type)
 
     Y_test[graph_id] = np.random.randint(args.number_of_classes)
-    node_id = np.random.randint(graphs_test.number_of_graph_nodes[graph_id])
-    if Y_test[graph_id] == 0:
-        graphs_test.add_graph_node_feature(graph_id, node_id, 'A')
-    else:
-        graphs_test.add_graph_node_feature(graph_id, node_id, 'B')
+    node_id = np.random.randint(Y_test[graph_id], graphs_test.number_of_graph_nodes[graph_id])
+    for node_pos in range(Y_test[graph_id] + 1):
+        graphs_test.add_graph_node_feature(graph_id, node_id - node_pos, 'A')
 
 graphs_test.encode()
 
@@ -135,4 +132,15 @@ for i in range(tm.number_of_clauses):
                     l.append("x%d" % (k))
                 else:
                     l.append("NOT x%d" % (k - args.hypervector_size))
+
+        for k in range(args.message_size * 2):
+            if tm.ta_action(1, i, k):
+                if k < args.message_size:
+                    l.append("c%d" % (k))
+                else:
+                    l.append("NOT c%d" % (k - args.message_size))
+
         print(" AND ".join(l))
+
+print(graphs_test.hypervectors)
+print(tm.hypervectors)
