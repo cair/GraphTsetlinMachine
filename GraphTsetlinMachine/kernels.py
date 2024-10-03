@@ -224,7 +224,7 @@ code_update = """
 
             // Calculate clause output first
             for (unsigned long long clause = index; clause < CLAUSES; clause += stride) {
-                unsigned int *ta_state = &global_ta_state[clause*LA_CHUNKS*STATE_BITS];
+                unsigned int *ta_state = &global_ta_state[clause*MESAGE_CHUNKS*STATE_BITS];
 
                 for (unsigned long long class_id = 0; class_id < CLASSES; ++class_id) {
                     update_clause_message(&localState, class_clause_update[class_id*CLAUSES + clause], ta_state, clause_node[clause] != -1, clause_node[clause], X);
