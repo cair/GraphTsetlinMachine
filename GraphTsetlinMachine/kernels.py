@@ -110,6 +110,7 @@ code_update = """
             for (int b = 0; b < STATE_BITS; ++b) {
                 if (carry == 0)
                     break;
+                    
                 carry_next = (~ta_state[id + b]) & carry; // Sets carry bits (overflow) passing on to next bit
                 ta_state[id + b] = ta_state[id + b] ^ carry; // Performs increments with XOR
                 carry = carry_next;
