@@ -132,7 +132,7 @@ class Graphs():
 					chunk = k // 32
 					pos = k % 32
 
-					if !(self.X[self.node_index[graph_id] + node_id][chunk] & (1 << pos)):
+					if (self.X[self.node_index[graph_id] + node_id][chunk] & (1 << pos)) == 0:
 						match = False
 
 				if match:
