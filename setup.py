@@ -5,7 +5,7 @@ setup(
    version='0.2.0',
    author='Ole-Christoffer Granmo',
    author_email='ole.granmo@uia.no',
-   url='https://github.com/cair/PySparseCoalescedTsetlinMachineCUDA/',
+   url='https://github.com/cair/GraphTsetlinMachine/',
    license='MIT',
    description='Graph Tsetlin Machine',
    long_description='Graph Tsetlin Machine for Deep Logical Learning and Reasoning',
