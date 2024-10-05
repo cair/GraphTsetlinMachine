@@ -31,8 +31,6 @@ def default_args(**kwargs):
 
 args = default_args()
 
-print(args.double_hashing)
-
 print("Creating training data")
 
 # Create train data
