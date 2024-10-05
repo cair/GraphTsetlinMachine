@@ -26,7 +26,7 @@ def default_args(**kwargs):
     parser.add_argument("--hypervector-bits", default=2, type=int)
     parser.add_argument("--message-size", default=256, type=int)
     parser.add_argument("--message-bits", default=2, type=int)
-    parser.add_argument("--double-hashing", default=False, type=bool)
+    parser.add_argument('--double-hashing', dest='double_hashing', default=False, action='store_true')
     parser.add_argument("--max-included-literals", default=32, type=int)
 
     args = parser.parse_args()
