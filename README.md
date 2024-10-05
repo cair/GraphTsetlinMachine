@@ -16,6 +16,13 @@ Implementation of the Graph Tsetlin Machine.
   <img width="100%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/DeepLogicalLearningAndReasoning.png">
 </p>
 
+## Installation
+
+```bash
+python ./setup.py sdist
+pip3 install dist/GraphTsetlinMachine-0.2.0.tar.gz
+```
+
 ## Examples
 
 Demos coming soon.
