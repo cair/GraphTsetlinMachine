@@ -53,7 +53,14 @@ for i in range(dim):
 for i in range(patch_size*patch_size):
     symbol_names.append(i)
 
-graphs_train = Graphs(X_train.shape[0], symbol_names=symbol_names, hypervector_size=args.hypervector_size, hypervector_bits=args.hypervector_bits)
+graphs_train = Graphs(
+    X_train.shape[0],
+    symbol_names=symbol_names,
+    hypervector_size=args.hypervector_size,
+    hypervector_bits=args.hypervector_bits,
+    double_hashing = args.double_hashing
+)
+
 for graph_id in range(X_train.shape[0]):
     graphs_train.set_number_of_graph_nodes(graph_id, number_of_nodes)
 
@@ -118,15 +125,14 @@ graphs_test.encode()
 print("Testing data produced")
 
 tm = MultiClassGraphTsetlinMachine(
-        args.number_of_clauses,
-        args.T,
-        args.s,
-        depth=args.depth,
-        message_size=args.message_size,
-        message_bits=args.message_bits,
-        max_included_literals=args.max_included_literals,
-        double_hashing = args.double_hashing
-    )
+    args.number_of_clauses,
+    args.T,
+    args.s,
+    depth=args.depth,
+    message_size=args.message_size,
+    message_bits=args.message_bits,
+    max_included_literals=args.max_included_literals
+)
 
 for i in range(args.epochs):
     start_training = time()

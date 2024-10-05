@@ -35,7 +35,14 @@ print("Creating training data")
 
 # Create train data
 
-graphs_train = Graphs(args.number_of_examples, symbol_names=['A'], hypervector_size=args.hypervector_size, hypervector_bits=args.hypervector_bits)
+graphs_train = Graphs(
+    args.number_of_examples,
+    symbol_names=['A'],
+    hypervector_size=args.hypervector_size,
+    hypervector_bits=args.hypervector_bits,
+    double_hashing = args.double_hashing
+)
+
 for graph_id in range(args.number_of_examples):
     graphs_train.set_number_of_graph_nodes(graph_id, np.random.randint(args.number_of_classes, args.max_sequence_length+1))
 
@@ -115,8 +122,7 @@ tm = MultiClassGraphTsetlinMachine(
     depth = args.depth,
     message_size = args.message_size,
     message_bits = args.message_bits,
-    max_included_literals = args.max_included_literals,
-    double_hashing = args.double_hashing
+    max_included_literals = args.max_included_literals
 )
 
 for i in range(args.epochs):
