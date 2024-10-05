@@ -86,6 +86,9 @@ code_update = """
             int id = chunk*STATE_BITS;
             carry = active;
             for (int b = 0; b < STATE_BITS; ++b) {
+                if (carry == 0)
+                    break;
+
                 carry_next = ta_state[id + b] & carry; // Sets carry bits (overflow) passing on to next bit
                 ta_state[id + b] = ta_state[id + b] ^ carry; // Performs increments with XOR
                 carry = carry_next;
@@ -105,6 +108,9 @@ code_update = """
             int id = chunk*STATE_BITS;
             carry = active;
             for (int b = 0; b < STATE_BITS; ++b) {
+                if (carry == 0)
+                    break;
+                    
                 carry_next = (~ta_state[id + b]) & carry; // Sets carry bits (overflow) passing on to next bit
                 ta_state[id + b] = ta_state[id + b] ^ carry; // Performs increments with XOR
                 carry = carry_next;
