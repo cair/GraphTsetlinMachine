@@ -16,6 +16,7 @@ def default_args(**kwargs):
     parser.add_argument("--hypervector-bits", default=1, type=int)
     parser.add_argument("--message-size", default=256, type=int)
     parser.add_argument("--message-bits", default=2, type=int)
+    parser.add_argument("--double-hashing", default=False, type=bool)
     parser.add_argument("--noise", default=0.01, type=float)
     parser.add_argument("--number-of-examples", default=40000, type=int)
     parser.add_argument("--number-of-classes", default=3, type=int)
@@ -107,7 +108,16 @@ for graph_id in range(args.number_of_examples):
 
 graphs_test.encode()
 
-tm = MultiClassGraphTsetlinMachine(args.number_of_clauses, args.T, args.s, depth=args.depth, message_size = args.message_size, message_bits = args.message_bits, max_included_literals=args.max_included_literals)
+tm = MultiClassGraphTsetlinMachine(
+    args.number_of_clauses,
+    args.T,
+    args.s,
+    depth = args.depth,
+    message_size = args.message_size,
+    message_bits = args.message_bits,
+    max_included_literals = args.max_included_literals,
+    double_hashing = args.double_hashing
+)
 
 for i in range(args.epochs):
     start_training = time()
