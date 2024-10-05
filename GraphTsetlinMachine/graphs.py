@@ -145,8 +145,7 @@ class Graphs():
 		edges_missing = False
 		for graph_id in range(self.number_of_graphs):
 			for (node_name, node_id) in self.graph_node_id[graph_id]:
-				if self.graph_node_edge_counter[self.node_index[graph_id] + node_id] <
-					self.number_of_graph_node_edges[self.node_index[graph_id] + node_id]:
+				if self.graph_node_edge_counter[self.node_index[graph_id] + node_id] < self.number_of_graph_node_edges[self.node_index[graph_id] + node_id]:
 					edges_missing = True
 					print("Node '%s' misses edges.")
 
