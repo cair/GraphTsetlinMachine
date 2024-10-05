@@ -16,7 +16,7 @@ def default_args(**kwargs):
     parser.add_argument("--hypervector-bits", default=1, type=int)
     parser.add_argument("--message-size", default=256, type=int)
     parser.add_argument("--message-bits", default=2, type=int)
-    parser.add_argument("--double-hashing", default=False, type=bool)
+    parser.add_argument('--double-hashing', dest='double-hashing', default=False, action='store_true')
     parser.add_argument("--noise", default=0.01, type=float)
     parser.add_argument("--number-of-examples", default=40000, type=int)
     parser.add_argument("--number-of-classes", default=3, type=int)
@@ -30,6 +30,8 @@ def default_args(**kwargs):
     return args
 
 args = default_args()
+
+print(args.double_hashing)
 
 print("Creating training data")
 
