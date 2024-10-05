@@ -52,12 +52,12 @@ for graph_id in range(args.number_of_examples):
     for node_id in range(graphs_train.number_of_graph_nodes[graph_id]):
         if node_id > 0:
             destination_node_id = node_id - 1
-            edge_type = 0
+            edge_type = "Left"
             graphs_train.add_graph_node_edge(graph_id, node_id, destination_node_id, edge_type)
 
         if node_id < graphs_train.number_of_graph_nodes[graph_id]-1:
             destination_node_id = node_id + 1
-            edge_type = 1
+            edge_type = "Right"
             #graphs_train.add_graph_node_edge(graph_id, node_id, destination_node_id, edge_type)
 
     Y_train[graph_id] = np.random.randint(args.number_of_classes)
