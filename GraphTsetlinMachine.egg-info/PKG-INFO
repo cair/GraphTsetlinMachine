@@ -1,0 +1,12 @@
+Metadata-Version: 2.1
+Name: GraphTsetlinMachine
+Version: 0.2.0
+Summary: Graph Tsetlin Machine
+Home-page: https://github.com/cair/GraphTsetlinMachine/
+Author: Ole-Christoffer Granmo
+Author-email: ole.granmo@uia.no
+License: MIT
+Keywords: pattern-recognition cuda machine-learning interpretable-machine-learning rule-based-machine-learning propositional-logic graph tsetlin-machine regression convolution classification multi-layer
+License-File: LICENSE
+
+Graph Tsetlin Machine for Deep Logical Learning and Reasoning

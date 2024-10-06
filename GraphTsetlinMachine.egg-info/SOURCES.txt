@@ -1,0 +1,11 @@
+LICENSE
+README.md
+setup.py
+GraphTsetlinMachine/__init__.py
+GraphTsetlinMachine/graphs.py
+GraphTsetlinMachine/kernels.py
+GraphTsetlinMachine/tm.py
+GraphTsetlinMachine.egg-info/PKG-INFO
+GraphTsetlinMachine.egg-info/SOURCES.txt
+GraphTsetlinMachine.egg-info/dependency_links.txt
+GraphTsetlinMachine.egg-info/top_level.txt

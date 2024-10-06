@@ -132,7 +132,7 @@ code_update = """
         )
         {
             if (target_sign > 0) {
-                int included_literals = number_of_include_actions(ta_state);
+                int included_literals = number_of_include_actions_message(ta_state);
 
                 // Type I Feedback
                 for (int la_chunk = 0; la_chunk < MESSAGE_CHUNKS; ++la_chunk) {
@@ -224,7 +224,7 @@ code_update = """
 
             // Calculate clause output first
             for (unsigned long long clause = index; clause < CLAUSES; clause += stride) {
-                unsigned int *ta_state = &global_ta_state[clause*LA_CHUNKS*STATE_BITS];
+                unsigned int *ta_state = &global_ta_state[clause*MESSAGE_CHUNKS*STATE_BITS];
 
                 for (unsigned long long class_id = 0; class_id < CLASSES; ++class_id) {
                     update_clause_message(&localState, class_clause_update[class_id*CLAUSES + clause], ta_state, clause_node[clause] != -1, clause_node[clause], X);
