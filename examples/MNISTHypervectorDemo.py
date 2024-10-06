@@ -10,19 +10,19 @@ from numba import jit
 
 (X_train, Y_train), (X_test, Y_test) = mnist.load_data()
 
-X_train = np.where(X_train > 75, 1, 0)
-X_test = np.where(X_test > 75, 1, 0)
+X_train = np.where(X_train > 75, 1, 0).astype(np.uint32)
+X_test = np.where(X_test > 75, 1, 0).astype(np.uint32)
 Y_train = Y_train.astype(np.uint32)
 Y_test = Y_test.astype(np.uint32)
 
 def default_args(**kwargs):
     parser = argparse.ArgumentParser()
     parser.add_argument("--epochs", default=250, type=int)
-    parser.add_argument("--number-of-clauses", default=1000, type=int)
-    parser.add_argument("--T", default=1000, type=int)
-    parser.add_argument("--s", default=1.0, type=float)
-    parser.add_argument("--depth", default=2, type=int)
-    parser.add_argument("--hypervector-size", default=256, type=int)
+    parser.add_argument("--number-of-clauses", default=20000, type=int)
+    parser.add_argument("--T", default=25000, type=int)
+    parser.add_argument("--s", default=10.0, type=float)
+    parser.add_argument("--depth", default=1, type=int)
+    parser.add_argument("--hypervector-size", default=128, type=int)
     parser.add_argument("--hypervector-bits", default=2, type=int)
     parser.add_argument("--message-size", default=256, type=int)
     parser.add_argument("--message-bits", default=2, type=int)
@@ -37,7 +37,7 @@ def default_args(**kwargs):
 
 args = default_args()
 
-patch_size = 3
+patch_size = 10
 dim = 28 - patch_size + 1
 
 number_of_nodes = dim * dim
@@ -67,18 +67,8 @@ for graph_id in range(X_train.shape[0]):
 graphs_train.prepare_node_configuration()
 
 for graph_id in range(X_train.shape[0]):
-    for q in range(dim):
-        for r in range(dim):
-            node_id = q*dim + r
-
-            number_of_edges = 2
-            if q > 0 and q < dim-1:
-                number_of_edges += 1
-
-            if r > 0 and r < dim-1:
-                number_of_edges += 1
-
-            graphs_train.add_graph_node(graph_id, node_id, number_of_edges)
+    for node_id in range(graphs_train.number_of_graph_nodes[graph_id]):
+        graphs_train.add_graph_node(graph_id, node_id, 0)
 
 graphs_train.prepare_edge_configuration()
 
@@ -87,53 +77,30 @@ for graph_id in range(X_train.shape[0]):
         print(graph_id, X_train.shape[0])
      
     windows = view_as_windows(X_train[graph_id,:,:], (patch_size, patch_size))
-    for q in range(dim):
-            for r in range(dim):
+    for q in range(windows.shape[0]):
+            for r in range(windows.shape[1]):
                 node_id = q*dim + r
 
                 patch = windows[q,r].reshape(-1).astype(np.uint32)
                 for k in patch.nonzero()[0]:
                     graphs_train.add_graph_node_feature(graph_id, node_id, k)
 
-                #graphs_train.add_graph_node_feature(graph_id, node_id, "C:%d" % (q))
-                #graphs_train.add_graph_node_feature(graph_id, node_id, "R:%d" % (r))
-
-                if q > 0:
-                    graphs_train.add_graph_node_edge(graph_id, node_id, node_id - dim, "Above")
-
-                if q < dim-1:
-                    graphs_train.add_graph_node_edge(graph_id, node_id, node_id + dim, "Below")
-
-                if r > 0:
-                    graphs_train.add_graph_node_edge(graph_id, node_id, node_id - 1, "Left")
-
-                if r < dim-1:
-                    graphs_train.add_graph_node_edge(graph_id, node_id, node_id + 1, "Right")
+                graphs_train.add_graph_node_feature(graph_id, node_id, "C:%d" % (q))
+                graphs_train.add_graph_node_feature(graph_id, node_id, "R:%d" % (r))
 
 graphs_train.encode()
 
 print("Training data produced")
 
 graphs_test = Graphs(X_test.shape[0], init_with=graphs_train)
-
 for graph_id in range(X_test.shape[0]):
     graphs_test.set_number_of_graph_nodes(graph_id, number_of_nodes)
 
 graphs_test.prepare_node_configuration()
 
 for graph_id in range(X_test.shape[0]):
-    for q in range(dim):
-        for r in range(dim):
-            node_id = q*dim + r
-
-            number_of_edges = 2
-            if q > 0 and q < dim-1:
-                number_of_edges += 1
-
-            if r > 0 and r < dim-1:
-                number_of_edges += 1
-
-            graphs_test.add_graph_node(graph_id, node_id, number_of_edges)
+    for node_id in range(graphs_test.number_of_graph_nodes[graph_id]):
+        graphs_test.add_graph_node(graph_id, node_id, 0)
 
 graphs_test.prepare_edge_configuration()
 
@@ -141,29 +108,17 @@ for graph_id in range(X_test.shape[0]):
     if graph_id % 1000 == 0:
         print(graph_id, X_test.shape[0])
      
-    windows = view_as_windows(X_test[graph_id,:,:], (patch_size, patch_size))
-    for q in range(dim):
-            for r in range(dim):
+    windows = view_as_windows(X_test[graph_id,:,:], (10, 10))
+    for q in range(windows.shape[0]):
+            for r in range(windows.shape[1]):
                 node_id = q*dim + r
 
                 patch = windows[q,r].reshape(-1).astype(np.uint32)
                 for k in patch.nonzero()[0]:
                     graphs_test.add_graph_node_feature(graph_id, node_id, k)
 
-                #graphs_test.add_graph_node_feature(graph_id, node_id, "C:%d" % (q))
-                #graphs_test.add_graph_node_feature(graph_id, node_id, "R:%d" % (r))
-
-                if q > 0:
-                    graphs_test.add_graph_node_edge(graph_id, node_id, node_id - dim, "Above")
-
-                if q < dim-1:
-                    graphs_test.add_graph_node_edge(graph_id, node_id, node_id + dim, "Below")
-
-                if r > 0:
-                    graphs_test.add_graph_node_edge(graph_id, node_id, node_id - 1, "Left")
-
-                if r < dim-1:
-                    graphs_test.add_graph_node_edge(graph_id, node_id, node_id + 1, "Right")
+                graphs_test.add_graph_node_feature(graph_id, node_id, "C:%d" % (q))
+                graphs_test.add_graph_node_feature(graph_id, node_id, "R:%d" % (r))
 
 graphs_test.encode()
 
