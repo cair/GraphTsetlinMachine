@@ -133,7 +133,7 @@ code_update = """
         )
         {
             if (target_sign > 0) {
-                int included_literals = number_of_include_actions(ta_state);
+                int included_literals = number_of_include_actions_message(ta_state);
 
                 // Type I Feedback
                 for (int la_chunk = 0; la_chunk < MESSAGE_CHUNKS; ++la_chunk) {
