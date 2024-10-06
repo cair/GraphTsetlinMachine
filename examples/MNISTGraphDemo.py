@@ -99,16 +99,16 @@ for graph_id in range(X_train.shape[0]):
                 #graphs_train.add_graph_node_feature(graph_id, node_id, "R:%d" % (r))
 
                 if q > 0:
-                    graphs_train.add_graph_node_edge(graph_id, node_id, node_id - dim, "Above")
+                    graphs_train.add_graph_node_edge(graph_id, node_id, node_id - dim, 0)
 
                 if q < dim-1:
-                    graphs_train.add_graph_node_edge(graph_id, node_id, node_id + dim, "Below")
+                    graphs_train.add_graph_node_edge(graph_id, node_id, node_id + dim, 1)
 
                 if r > 0:
-                    graphs_train.add_graph_node_edge(graph_id, node_id, node_id - 1, "Left")
+                    graphs_train.add_graph_node_edge(graph_id, node_id, node_id - 1, 2)
 
                 if r < dim-1:
-                    graphs_train.add_graph_node_edge(graph_id, node_id, node_id + 1, "Right")
+                    graphs_train.add_graph_node_edge(graph_id, node_id, node_id + 1, 3)
 
 graphs_train.encode()
 
