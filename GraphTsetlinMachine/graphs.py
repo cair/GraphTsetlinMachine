@@ -49,6 +49,7 @@ class Graphs():
 			if len(self.symbol_id) < self.hypervector_size:
 				self.hypervector_size = len(self.symbol_id)
 				self.hypervector_bits = 1
+				self.number_of_hypervector_chunks = (self.hypervector_size*2 - 1) // 32 + 1
 
 				self.hypervectors = np.zeros((self.hypervector_size, self.hypervector_bits), dtype=np.uint32)
 				for i in range(len(self.symbol_id)):
