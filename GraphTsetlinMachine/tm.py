@@ -599,5 +599,4 @@ class GraphTsetlinMachine(CommonTsetlinMachine):
 
 	def predict(self, X):
 		score = self.score(X)
-		print(score)
 		return score >= 0
