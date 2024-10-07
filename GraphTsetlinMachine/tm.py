@@ -576,6 +576,7 @@ class MultiClassGraphTsetlinMachine(CommonTsetlinMachine):
 		self.q = q
 		self.max_included_literals = max_included_literals
 		self.boost_true_positive_feedback = boost_true_positive_feedback
+		self.number_of_state_bits = number_of_state_bits
 		self.depth = depth
 		self.message_size = message_size
 		self.message_bits = message_bits
