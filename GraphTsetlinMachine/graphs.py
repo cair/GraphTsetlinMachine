@@ -45,7 +45,17 @@ class Graphs():
 			self.hypervector_bits = hypervector_bits
 			self.number_of_hypervector_chunks = (self.hypervector_size*2 - 1) // 32 + 1
 
-			if self.double_hashing:
+
+			if len(self.symbol_id) < self.hypervector_size:
+				print("Compressed")
+				self.hypervector_size = len(self.symbol_id)
+				self.hypervector_bits = 1
+
+				self.hypervectors = np.zeros((self.hypervector_size, self.hypervector_bits), dtype=np.uint32)
+				for i in range(len(self.symbol_id)):
+					self.hypervectors[i, 0] = i
+
+			else if self.double_hashing:
 				self.hypervector_bits = 2
 				self.hypervectors = np.zeros((len(self.symbol_id), self.hypervector_bits), dtype=np.uint32)
 				prime = prevprime(self.hypervector_size)
