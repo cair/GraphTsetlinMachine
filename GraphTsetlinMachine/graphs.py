@@ -44,16 +44,7 @@ class Graphs():
 			self.hypervector_size = hypervector_size
 			self.hypervector_bits = hypervector_bits
 
-			if len(self.symbol_id) <= self.hypervector_size:
-				print("Compress")
-				self.hypervector_size = len(self.symbol_id)
-				self.hypervector_bits = 1
-
-				self.hypervectors = np.zeros((self.hypervector_size, self.hypervector_bits), dtype=np.uint32)
-				for i in range(len(self.symbol_id)):
-					self.hypervectors[i, 0] = i
-
-			elif self.double_hashing:
+			if self.double_hashing:
 				self.hypervector_bits = 2
 				self.hypervectors = np.zeros((len(self.symbol_id), self.hypervector_bits), dtype=np.uint32)
 				prime = prevprime(self.hypervector_size)
