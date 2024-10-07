@@ -43,13 +43,10 @@ class Graphs():
 				self.symbol_id[symbol_name] = len(self.symbol_id)
 			self.hypervector_size = hypervector_size
 			self.hypervector_bits = hypervector_bits
-			self.number_of_hypervector_chunks = (self.hypervector_size*2 - 1) // 32 + 1
 
-
-			if len(self.symbol_id) < self.hypervector_size:
+			if False and len(self.symbol_id) < self.hypervector_size:
 				self.hypervector_size = len(self.symbol_id)
 				self.hypervector_bits = 1
-				self.number_of_hypervector_chunks = (self.hypervector_size*2 - 1) // 32 + 1
 
 				self.hypervectors = np.zeros((self.hypervector_size, self.hypervector_bits), dtype=np.uint32)
 				for i in range(len(self.symbol_id)):
@@ -70,6 +67,8 @@ class Graphs():
 				indexes = np.arange(self.hypervector_size)
 				for i in range(len(self.symbol_id)):
 					self.hypervectors[i,:] = np.random.choice(indexes, size=(self.hypervector_bits), replace=False)
+
+			self.number_of_hypervector_chunks = (self.hypervector_size*2 - 1) // 32 + 1
 		else:
 			self.edge_type_id = self.init_with.edge_type_id
 			self.symbol_id = self.init_with.symbol_id
