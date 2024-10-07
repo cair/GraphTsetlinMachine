@@ -44,7 +44,7 @@ class Graphs():
 			self.hypervector_size = hypervector_size
 			self.hypervector_bits = hypervector_bits
 
-			if False and len(self.symbol_id) < self.hypervector_size:
+			if len(self.symbol_id) <= self.hypervector_size:
 				self.hypervector_size = len(self.symbol_id)
 				self.hypervector_bits = 1
 
