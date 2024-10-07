@@ -1,4 +1,4 @@
-# Graph Tsetlin Machine for Deep Logical Learning and Reasoning (Work in Progress)
+# Tsetlin Machine for Logical Learning and Reasoning With Graphs (Work in Progress)
 
 ![License](https://img.shields.io/github/license/microsoft/interpret.svg?style=flat-square) ![Python Version](https://img.shields.io/pypi/pyversions/interpret.svg?style=flat-square)![Maintenance](https://img.shields.io/maintenance/yes/2024?style=flat-square)
 
@@ -10,7 +10,7 @@ Implementation of the Graph Tsetlin Machine.
   <img width="75%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/MessagePassing.png">
 </p>
 
-## Deep Logical Learning and Reasoning
+## Learning and Reasoning With Nested Clauses
 
 <p align="center">
   <img width="100%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/DeepLogicalLearningAndReasoning.png">
