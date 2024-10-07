@@ -8,8 +8,8 @@ import argparse
 def default_args(**kwargs):
     parser = argparse.ArgumentParser()
     parser.add_argument("--epochs", default=25, type=int)
-    parser.add_argument("--number-of-clauses", default=60, type=int)
-    parser.add_argument("--T", default=600, type=int)
+    parser.add_argument("--number-of-clauses", default=40, type=int)
+    parser.add_argument("--T", default=400, type=int)
     parser.add_argument("--s", default=1.0, type=float)
     parser.add_argument("--depth", default=2, type=int)
     parser.add_argument("--hypervector-size", default=16, type=int)
