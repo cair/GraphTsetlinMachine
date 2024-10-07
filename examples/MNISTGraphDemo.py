@@ -19,7 +19,7 @@ def default_args(**kwargs):
     parser = argparse.ArgumentParser()
     parser.add_argument("--epochs", default=250, type=int)
     parser.add_argument("--number-of-clauses", default=1000, type=int)
-    parser.add_argument("--T", default=1000, type=int)
+    parser.add_argument("--T", default=10000, type=int)
     parser.add_argument("--s", default=1.0, type=float)
     parser.add_argument("--depth", default=1, type=int)
     parser.add_argument("--hypervector-size", default=128, type=int)
