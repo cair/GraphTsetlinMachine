@@ -374,7 +374,7 @@ code_evaluate = """
                     int sign = (clause_weights[class_id*CLAUSES + clause] >= 0) - (clause_weights[class_id*CLAUSES + clause] < 0);
                     int absolute_prediction_error = abs(y[example*CLASSES + class_id] - local_class_sum);
 
-                    if ((y[example*CLASSES + class_id] == -1 && y[example*CLASSES + class_id] > 0 && curand_uniform(&localState) > 1.0/9.0) || (curand_uniform(&localState) > 1.0*absolute_prediction_error/(2*THRESHOLD))) {
+                    if ((y[example*CLASSES + class_id] == -1 && y[example*CLASSES + class_id] > 0 && curand_uniform(&localState) > 1.0/2.0) || (curand_uniform(&localState) > 1.0*absolute_prediction_error/(2*THRESHOLD))) {
                         class_clause_update[class_id*CLAUSES + clause] = 0;
                     } else {
                         class_clause_update[class_id*CLAUSES + clause] = target*sign;
