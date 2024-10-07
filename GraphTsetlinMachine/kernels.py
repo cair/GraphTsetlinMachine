@@ -188,8 +188,6 @@ code_update = """
                                 la_feedback |= (1 << b);
                             }
                         }
-                    #else
-                        printf("Deterministic\\n");
                     #endif
 
                     if (clause_output && included_literals <= MAX_INCLUDED_LITERALS) {
