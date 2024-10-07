@@ -47,7 +47,6 @@ class Graphs():
 
 
 			if len(self.symbol_id) < self.hypervector_size:
-				print("Compressed")
 				self.hypervector_size = len(self.symbol_id)
 				self.hypervector_bits = 1
 
