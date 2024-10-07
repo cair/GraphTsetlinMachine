@@ -180,7 +180,7 @@ code_update = """
 
                 // Type I Feedback
                 for (int la_chunk = 0; la_chunk < LA_CHUNKS; ++la_chunk) {
-                    #if S > 1.0
+                    #if S > 1
                         // Generate random bit values
                         unsigned int la_feedback = 0;
                         for (int b = 0; b < INT_SIZE; ++b) {
@@ -197,14 +197,14 @@ code_update = """
                             inc(ta_state, la_chunk, X[clause_node*LA_CHUNKS + la_chunk] & (~la_feedback));
                         #endif
 
-                        #if S > 1.0
+                        #if S > 1
                             dec(ta_state, la_chunk, (~X[clause_node*LA_CHUNKS + la_chunk]) & la_feedback);
                         #else
                             dec(ta_state, la_chunk, (~X[clause_node*LA_CHUNKS + la_chunk]));
                         #endif
 
                     } else {
-                        #if S > 1.0
+                        #if S > 1
                             dec(ta_state, la_chunk, la_feedback);
                         #else
                             dec(ta_state, la_chunk, ~0);
