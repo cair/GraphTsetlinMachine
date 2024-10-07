@@ -582,7 +582,7 @@ class MultiClassGraphTsetlinMachine(CommonTsetlinMachine):
 		self.grid = grid
 		self.block = block
 
-		self.tsetlin_machines = []
+		self.tms = []
 
 	def fit(self, graphs, Y, epochs=100, incremental=False):
 		self.number_of_outputs = int(np.max(Y) + 1)
