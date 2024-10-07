@@ -599,7 +599,7 @@ class GraphTsetlinMachine(CommonTsetlinMachine):
 	def score(self, graphs):
 		score = self._score(graphs)
 		print(score)
-		return score[:,0]
+		return score[:,0].transpose()
 
 	def predict(self, X):
 		return int(self.score(X) >= 0)
