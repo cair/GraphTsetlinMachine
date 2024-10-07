@@ -582,24 +582,20 @@ class GraphTsetlinMachine(CommonTsetlinMachine):
 		)
 		self.negative_clauses = 1
 
-	def fit(self, X, Y, epochs=100, incremental=False):
-		X = X.reshape(X.shape[0], X.shape[1], 1)
-
+	def fit(self, graphs, Y, epochs=100, incremental=False):
 		self.number_of_outputs = 1
-		self.patch_dim = (X.shape[1], 1, 1)
 		
 		self.max_y = None
 		self.min_y = None
 		
 		encoded_Y = np.where(Y == 1, self.T, -self.T).astype(np.int32)
 
-		self._fit(X, encoded_Y, epochs = epochs, incremental = incremental)
+		self._fit(graphs, encoded_Y, epochs = epochs, incremental = incremental)
 
 		return
 
-	def score(self, X):
-		X = X.reshape(X.shape[0], X.shape[1], 1)
-		return self._score(X)[0,:]
+	def score(self, graphs):
+		return self._score(graphs)[0,:]
 
 	def predict(self, X):
 		return int(self.score(X) >= 0)
