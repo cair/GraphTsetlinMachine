@@ -22,7 +22,7 @@ def default_args(**kwargs):
     parser.add_argument("--T", default=25000, type=int)
     parser.add_argument("--s", default=10.0, type=float)
     parser.add_argument("--depth", default=1, type=int)
-    parser.add_argument("--hypervector-size", default=1024, type=int)
+    parser.add_argument("--hypervector-size", default=128, type=int)
     parser.add_argument("--hypervector-bits", default=2, type=int)
     parser.add_argument("--message-size", default=256, type=int)
     parser.add_argument("--message-bits", default=2, type=int)
@@ -131,18 +131,5 @@ for i in range(tm.number_of_clauses):
                 else:
                     l.append("NOT x%d" % (k - args.hypervector_size))
         print(" AND ".join(l))
-
-
-start_training = time()
-tm.fit(graphs_train, Y_train, epochs=1, incremental=True)
-stop_training = time()
-
-start_testing = time()
-result_test = 100*(tm.predict(graphs_test) == Y_test).mean()
-stop_testing = time()
-
-result_train = 100*(tm.predict(graphs_train) == Y_train).mean()
-
-print("%.2f %.2f %.2f %.2f" % (result_train, result_test, stop_training-start_training, stop_testing-start_testing))
 
 print(graphs_train.hypervectors)
