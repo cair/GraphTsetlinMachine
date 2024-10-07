@@ -45,7 +45,16 @@ class Graphs():
 			self.hypervector_bits = hypervector_bits
 			self.number_of_hypervector_chunks = (self.hypervector_size*2 - 1) // 32 + 1
 
-			if self.double_hashing:
+
+			if len(self.symbol_id) < self.hypervector_size:
+				self.hypervector_size = len(self.symbol_id)
+				self.hypervector_bits = 1
+
+				self.hypervectors = np.zeros((self.hypervector_size, self.hypervector_bits), dtype=np.uint32)
+				for i in range(len(self.symbol_id)):
+					self.hypervectors[i, 0] = i
+
+			elif self.double_hashing:
 				self.hypervector_bits = 2
 				self.hypervectors = np.zeros((len(self.symbol_id), self.hypervector_bits), dtype=np.uint32)
 				prime = prevprime(self.hypervector_size)
@@ -105,6 +114,11 @@ class Graphs():
 
 	def add_graph_node_edge(self, graph_id, source_node_name, destination_node_name, edge_type_name):
 		source_node_id = self.graph_node_id[graph_id][source_node_name]
+
+		if self.graph_node_edge_counter[self.node_index[graph_id] + source_node_id] >= self.number_of_graph_node_edges[self.node_index[graph_id] + source_node_id]:
+			print("Too many edges added to node '%s' of graph %d." % (source_node_name, graph_id))
+			sys.exit(-1)
+
 		destination_node_id = self.graph_node_id[graph_id][destination_node_name]
 		if edge_type_name not in self.edge_type_id:
 			self.edge_type_id[edge_type_name] = len(self.edge_type_id)
