@@ -496,7 +496,7 @@ class CommonTsetlinMachine():
 
 		return class_sum
 	
-class MultiClassGraphTsetlinMachine(CommonTsetlinMachine):
+class MultiClassGraphTsetlinMachineOld(CommonTsetlinMachine):
 	"""
 	This class ...
 	"""
@@ -550,7 +550,7 @@ class MultiClassGraphTsetlinMachine(CommonTsetlinMachine):
 	def predict(self, graphs):
 		return np.argmax(self.score(graphs), axis=1)
 
-class MultiClassGraphTsetlinMachineExp(CommonTsetlinMachine):
+class MultiClassGraphTsetlinMachine(CommonTsetlinMachine):
 	"""
 	This class ...
 	"""
