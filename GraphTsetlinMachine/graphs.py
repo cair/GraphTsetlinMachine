@@ -55,7 +55,7 @@ class Graphs():
 				for i in range(len(self.symbol_id)):
 					self.hypervectors[i, 0] = i
 
-			else if self.double_hashing:
+			elif self.double_hashing:
 				self.hypervector_bits = 2
 				self.hypervectors = np.zeros((len(self.symbol_id), self.hypervector_bits), dtype=np.uint32)
 				prime = prevprime(self.hypervector_size)
