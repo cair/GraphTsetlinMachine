@@ -21,6 +21,7 @@ def default_args(**kwargs):
     parser.add_argument("--number-of-examples", default=40000, type=int)
     parser.add_argument("--max-sequence-length", default=10, type=int)
     parser.add_argument("--max-included-literals", default=2, type=int)
+    parser.add_argument("--number-of-state-bits", default=10, type=int)
 
     args = parser.parse_args()
     for key, value in kwargs.items():
@@ -118,6 +119,7 @@ tm = GraphTsetlinMachine(
     args.number_of_clauses,
     args.T,
     args.s,
+    number_of_state_bits=args.number_of_state_bits,
     depth = args.depth,
     message_size = args.message_size,
     message_bits = args.message_bits,
