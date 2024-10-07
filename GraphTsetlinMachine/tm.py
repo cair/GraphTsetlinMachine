@@ -607,7 +607,7 @@ class MultiClassGraphTsetlinMachine(CommonTsetlinMachine):
 				)
 
 		for i in range(self.number_of_outputs):
-			self.tms[i].fit(graphs, encoded_Y == i, epochs=epochs, incremental=incremental)
+			self.tms[i].fit(graphs, Y == i, epochs=epochs, incremental=incremental)
 
 	def score(self, graphs):
 		return self._score(graphs)
