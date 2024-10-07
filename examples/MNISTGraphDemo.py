@@ -69,8 +69,18 @@ for graph_id in range(X_train.shape[0]):
 graphs_train.prepare_node_configuration()
 
 for graph_id in range(X_train.shape[0]):
-    for node_id in range(graphs_train.number_of_graph_nodes[graph_id]):
-        graphs_train.add_graph_node(graph_id, node_id, 0)
+    for q in range(dim):
+        for r in range(dim):
+            node_id = q*dim + r
+
+            number_of_edges = 2
+            if q > 0 and q < dim-1:
+                number_of_edges += 1
+
+            if r > 0 and r < dim-1:
+                number_of_edges += 1
+
+            graphs_train.add_graph_node(graph_id, node_id, number_of_edges)
 
 graphs_train.prepare_edge_configuration()
 
@@ -80,12 +90,24 @@ for graph_id in range(X_train.shape[0]):
      
     windows = view_as_windows(X_train[graph_id,:,:], (patch_size, patch_size))
     for q in range(windows.shape[0]):
-            for r in range(windows.shape[1]):
-                node_id = q*dim + r
+        for r in range(windows.shape[1]):
+            node_id = q*dim + r
 
-                patch = windows[q,r].reshape(-1).astype(np.uint32)
-                for k in patch.nonzero()[0]:
-                    graphs_train.add_graph_node_feature(graph_id, node_id, k)
+            patch = windows[q,r].reshape(-1).astype(np.uint32)
+            for k in patch.nonzero()[0]:
+                graphs_train.add_graph_node_feature(graph_id, node_id, k)
+
+            if q > 0:
+                graphs_train.add_graph_node_edge(graph_id, node_id, node_id - dim, "Above")
+
+            if q < dim-1:
+                graphs_train.add_graph_node_edge(graph_id, node_id, node_id + dim, "Below")
+
+            if r > 0:
+                graphs_train.add_graph_node_edge(graph_id, node_id, node_id - 1, "Left")
+
+            if r < dim-1:
+                graphs_train.add_graph_node_edge(graph_id, node_id, node_id + 1, "Right")
 
 #                graphs_train.add_graph_node_feature(graph_id, node_id, "C:%d" % (q))
 #                graphs_train.add_graph_node_feature(graph_id, node_id, "R:%d" % (r))
@@ -96,7 +118,18 @@ print("Training data produced")
 
 graphs_test = Graphs(X_test.shape[0], init_with=graphs_train)
 for graph_id in range(X_test.shape[0]):
-    graphs_test.set_number_of_graph_nodes(graph_id, number_of_nodes)
+    for q in range(dim):
+        for r in range(dim):
+            node_id = q*dim + r
+
+            number_of_edges = 2
+            if q > 0 and q < dim-1:
+                number_of_edges += 1
+
+            if r > 0 and r < dim-1:
+                number_of_edges += 1
+
+            graphs_test.add_graph_node(graph_id, node_id, number_of_edges)
 
 graphs_test.prepare_node_configuration()
 
@@ -118,6 +151,18 @@ for graph_id in range(X_test.shape[0]):
                 patch = windows[q,r].reshape(-1).astype(np.uint32)
                 for k in patch.nonzero()[0]:
                     graphs_test.add_graph_node_feature(graph_id, node_id, k)
+
+                if q > 0:
+                    graphs_train.add_graph_node_edge(graph_id, node_id, node_id - dim, "Above")
+
+                if q < dim-1:
+                    graphs_train.add_graph_node_edge(graph_id, node_id, node_id + dim, "Below")
+
+                if r > 0:
+                    graphs_train.add_graph_node_edge(graph_id, node_id, node_id - 1, "Left")
+
+                if r < dim-1:  
+                    graphs_train.add_graph_node_edge(graph_id, node_id, node_id + 1, "Right")
 
 #                graphs_test.add_graph_node_feature(graph_id, node_id, "C:%d" % (q))
 #                graphs_test.add_graph_node_feature(graph_id, node_id, "R:%d" % (r))
