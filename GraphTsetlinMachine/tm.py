@@ -362,7 +362,7 @@ class CommonTsetlinMachine():
 		self._init_fit(graphs, encoded_Y, incremental)
 
 		print(self.depth)
-		
+
 		class_sum = np.zeros(self.number_of_outputs).astype(np.int32)
 		for epoch in range(epochs):
 			for e in range(graphs.number_of_graphs):
@@ -597,7 +597,7 @@ class GraphTsetlinMachine(CommonTsetlinMachine):
 		return
 
 	def score(self, graphs):
-		return self._score(graphs)[0,:]
+		return self._score(graphs)
 
 	def predict(self, X):
 		return int(self.score(X) >= 0)
