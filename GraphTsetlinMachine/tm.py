@@ -610,6 +610,11 @@ class MultiClassGraphTsetlinMachine(CommonTsetlinMachine):
 			self.tms[i].fit(graphs, Y == i, epochs=epochs, incremental=incremental)
 
 	def score(self, graphs):
+		scores = np.empty((graphs.number_of_graphs, self.number_of_outputs), dtype = np.int32)
+
+		for i in range(self.number_of_outputs):
+			score[:, i] = self.tms[i].score(graphs)
+
 		return self._score(graphs)
 
 	def predict(self, graphs):
