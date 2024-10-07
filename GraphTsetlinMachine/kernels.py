@@ -640,7 +640,7 @@ code_prepare = """
             for (unsigned long long clause = index; clause < CLAUSES; clause += stride) {
                 for (unsigned long long class_id = 0; class_id < CLASSES; ++class_id) {
                     #if NEGATIVE_CLAUSES == 1
-                        clause_weights[class_id*CLAUSES + clause] = 1 - 2 * (clause % 2) //1 - 2 * (curand(&localState) % 2); // 1 - 2*(clause % CLASSES != class_id);
+                        clause_weights[class_id*CLAUSES + clause] = 1 - 2 * (clause % 2); //1 - 2 * (curand(&localState) % 2); // 1 - 2*(clause % CLASSES != class_id);
                     #else
                         clause_weights[class_id*CLAUSES + clause] = 1;
                     #endif
