@@ -105,6 +105,11 @@ class Graphs():
 
 	def add_graph_node_edge(self, graph_id, source_node_name, destination_node_name, edge_type_name):
 		source_node_id = self.graph_node_id[graph_id][source_node_name]
+
+		if self.graph_node_edge_counter[self.node_index[graph_id] + source_node_id] >= self.number_of_graph_node_edges[self.node_index[graph_id] + source_node_id]:
+			print("Too many edges added to node '%s' of graph %d." % (source_node_name, graph_id))
+			sys.exit(-1)
+
 		destination_node_id = self.graph_node_id[graph_id][destination_node_name]
 		if edge_type_name not in self.edge_type_id:
 			self.edge_type_id[edge_type_name] = len(self.edge_type_id)
