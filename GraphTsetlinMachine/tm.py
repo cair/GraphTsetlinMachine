@@ -496,7 +496,7 @@ class CommonTsetlinMachine():
 
 		return class_sum
 	
-class MultiClassGraphTsetlinMachine(CommonTsetlinMachine):
+class MultiClassGraphTsetlinMachineOld(CommonTsetlinMachine):
 	"""
 	This class ...
 	"""
@@ -543,6 +543,70 @@ class MultiClassGraphTsetlinMachine(CommonTsetlinMachine):
 			encoded_Y[:,i] = np.where(Y == i, self.T, -self.T)
 
 		self._fit(graphs, encoded_Y, epochs=epochs, incremental=incremental)
+
+	def score(self, graphs):
+		return self._score(graphs)
+
+	def predict(self, graphs):
+		return np.argmax(self.score(graphs), axis=1)
+
+class MultiClassGraphTsetlinMachine(CommonTsetlinMachine):
+	"""
+	This class ...
+	"""
+	
+	def __init__(
+			self,
+			number_of_clauses,
+			T,
+			s,
+			q=1.0,
+			max_included_literals=None,
+			boost_true_positive_feedback=1,
+			number_of_state_bits=8,
+			depth=1,
+			message_size=256,
+			message_bits=2,
+			grid=(16*13*4,1,1),
+			block=(128,1,1)
+	):
+		self.number_of_clauses = number_of_clauses
+		self.T = T
+		self.s = s
+		self.q = q
+		self.max_included_literals = max_included_literals
+		self.boost_true_positive_feedback = boost_true_positive_feedback
+		self.depth = depth
+		self.message_size = message_size
+		self.message_bits = message_bits
+		self.grid = grid
+		self.block = block
+
+		self.tsetlin_machines = []
+
+	def fit(self, graphs, Y, epochs=100, incremental=False):
+		self.number_of_outputs = int(np.max(Y) + 1)
+
+		if self.tms == []:
+			for i in range(self.number_of_outputs):
+				self.tms.append(GraphTsetlinMachine(
+						self.number_of_clauses,
+						self.T,
+						self.s,
+						q = self.q,
+						max_included_literals = self.max_included_literals,
+						boost_true_positive_feedback = self.boost_true_positive_feedback,
+						number_of_state_bits = self.number_of_state_bits,
+						depth = self.depth,
+						message_size = self.message_size,
+						message_bits = self.message_bits,
+						grid = self.grid,
+						block = self.block
+					)
+				)
+
+		for i in range(self.number_of_outputs):
+			self.tms[i].fit(graphs, encoded_Y == i, epochs=epochs, incremental=incremental)
 
 	def score(self, graphs):
 		return self._score(graphs)
