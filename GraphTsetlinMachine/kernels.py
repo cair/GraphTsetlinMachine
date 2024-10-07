@@ -180,13 +180,15 @@ code_update = """
 
                 // Type I Feedback
                 for (int la_chunk = 0; la_chunk < LA_CHUNKS; ++la_chunk) {
-                    // Generate random bit values
-                    unsigned int la_feedback = 0;
-                    for (int b = 0; b < INT_SIZE; ++b) {
-                        if (curand_uniform(localState) <= 1.0/S) {
-                            la_feedback |= (1 << b);
+                    #if S > 1.0
+                        // Generate random bit values
+                        unsigned int la_feedback = 0;
+                        for (int b = 0; b < INT_SIZE; ++b) {
+                            if (curand_uniform(localState) <= 1.0/S) {
+                                la_feedback |= (1 << b);
+                            }
                         }
-                    }
+                    #endif                    
 
                     if (clause_output && included_literals <= MAX_INCLUDED_LITERALS) {
                         #if BOOST_TRUE_POSITIVE_FEEDBACK == 1
@@ -195,9 +197,18 @@ code_update = """
                             inc(ta_state, la_chunk, X[clause_node*LA_CHUNKS + la_chunk] & (~la_feedback));
                         #endif
 
-                        dec(ta_state, la_chunk, (~X[clause_node*LA_CHUNKS + la_chunk]) & la_feedback);
+                        #if S > 1.0
+                            dec(ta_state, la_chunk, (~X[clause_node*LA_CHUNKS + la_chunk]) & la_feedback);
+                        #else
+                            dec(ta_state, la_chunk, (~X[clause_node*LA_CHUNKS + la_chunk]));
+                        #endif
+
                     } else {
-                        dec(ta_state, la_chunk, la_feedback);
+                        #if S > 1.0
+                            dec(ta_state, la_chunk, la_feedback);
+                        #else
+                            dec(ta_state, la_chunk, ~0);
+                        #endif
                     }
                 }
             } else if (target_sign < 0 && clause_output) {
