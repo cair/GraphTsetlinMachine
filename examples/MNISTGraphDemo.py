@@ -152,16 +152,16 @@ for graph_id in range(X_test.shape[0]):
                     graphs_test.add_graph_node_feature(graph_id, node_id, k)
 
                 if q > 0:
-                    graphs_train.add_graph_node_edge(graph_id, node_id, node_id - dim, "Above")
+                    graphs_test.add_graph_node_edge(graph_id, node_id, node_id - dim, "Above")
 
                 if q < dim-1:
-                    graphs_train.add_graph_node_edge(graph_id, node_id, node_id + dim, "Below")
+                    graphs_test.add_graph_node_edge(graph_id, node_id, node_id + dim, "Below")
 
                 if r > 0:
-                    graphs_train.add_graph_node_edge(graph_id, node_id, node_id - 1, "Left")
+                    graphs_test.add_graph_node_edge(graph_id, node_id, node_id - 1, "Left")
 
                 if r < dim-1:  
-                    graphs_train.add_graph_node_edge(graph_id, node_id, node_id + 1, "Right")
+                    graphs_test.add_graph_node_edge(graph_id, node_id, node_id + 1, "Right")
 
 #                graphs_test.add_graph_node_feature(graph_id, node_id, "C:%d" % (q))
 #                graphs_test.add_graph_node_feature(graph_id, node_id, "R:%d" % (r))
