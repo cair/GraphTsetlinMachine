@@ -269,6 +269,36 @@ code_update = """
 code_evaluate = """
     extern "C"
     {
+
+        // Counts number of include actions for a given clause
+        __device__ inline int number_of_include_actions_message(unsigned int *ta_state)
+        {
+            int number_of_include_actions = 0;
+            for (int k = 0; k < MESSAGE_CHUNKS-1; ++k) {
+                unsigned int ta_pos = k*STATE_BITS + STATE_BITS-1;
+                number_of_include_actions += __popc(ta_state[ta_pos]);
+            }
+            unsigned int ta_pos = (MESSAGE_CHUNKS-1)*STATE_BITS + STATE_BITS-1;
+            number_of_include_actions += __popc(ta_state[ta_pos] & MESSAGE_FILTER);
+
+            return(number_of_include_actions);
+        }
+
+
+        // Counts number of include actions for a given clause
+        __device__ inline int number_of_include_actions(unsigned int *ta_state)
+        {
+            int number_of_include_actions = 0;
+            for (int k = 0; k < LA_CHUNKS-1; ++k) {
+                unsigned int ta_pos = k*STATE_BITS + STATE_BITS-1;
+                number_of_include_actions += __popc(ta_state[ta_pos]);
+            }
+            unsigned int ta_pos = (LA_CHUNKS-1)*STATE_BITS + STATE_BITS-1;
+            number_of_include_actions += __popc(ta_state[ta_pos] & FILTER);
+
+            return(number_of_include_actions);
+        }
+
         __global__ void evaluate(
             int *global_clause_node_output,
             int *clause_weights,
@@ -482,7 +512,7 @@ code_evaluate = """
 
                 unsigned int *ta_state = &global_ta_state[clause*MESSAGE_CHUNKS*STATE_BITS];
 
-                number_of_includes[clause] += number_of_include_actions(ta_state);
+                number_of_includes[clause] += number_of_include_actions_message(ta_state);
 
                 clause_node_output = ~0;
                 for (int node_pos = 0; (node_pos < INT_SIZE) && ((node_chunk * INT_SIZE + node_pos) < number_of_nodes); ++node_pos) {
@@ -620,21 +650,6 @@ code_evaluate = """
 code_prepare = """
     extern "C"
     {
-
-        // Counts number of include actions for a given clause
-        __device__ inline int number_of_include_actions_message(unsigned int *ta_state)
-        {
-            int number_of_include_actions = 0;
-            for (int k = 0; k < MESSAGE_CHUNKS-1; ++k) {
-                unsigned int ta_pos = k*STATE_BITS + STATE_BITS-1;
-                number_of_include_actions += __popc(ta_state[ta_pos]);
-            }
-            unsigned int ta_pos = (MESSAGE_CHUNKS-1)*STATE_BITS + STATE_BITS-1;
-            number_of_include_actions += __popc(ta_state[ta_pos] & MESSAGE_FILTER);
-
-            return(number_of_include_actions);
-        }
-
         __global__ void prepare_message_ta_state(unsigned int *global_ta_state)
         {
             int index = blockIdx.x * blockDim.x + threadIdx.x;
