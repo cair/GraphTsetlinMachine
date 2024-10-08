@@ -457,7 +457,9 @@ code_evaluate = """
 
                 unsigned int *ta_state = &global_ta_state[clause*LA_CHUNKS*STATE_BITS];
 
-                number_of_includes[clause] = number_of_include_actions(ta_state);
+                if (node_chunk == 0) {
+                    number_of_includes[clause] = number_of_include_actions(ta_state);
+                }
 
                 clause_node_output = ~0;
                 for (int node_pos = 0; (node_pos < INT_SIZE) && ((node_chunk * INT_SIZE + node_pos) < number_of_nodes); ++node_pos) {
@@ -512,7 +514,9 @@ code_evaluate = """
 
                 unsigned int *ta_state = &global_ta_state[clause*MESSAGE_CHUNKS*STATE_BITS];
 
-                number_of_includes[clause] += number_of_include_actions_message(ta_state);
+                if (node_chunk == 0) {
+                    number_of_includes[clause] += number_of_include_actions_message(ta_state);
+                }
 
                 clause_node_output = ~0;
                 for (int node_pos = 0; (node_pos < INT_SIZE) && ((node_chunk * INT_SIZE + node_pos) < number_of_nodes); ++node_pos) {
