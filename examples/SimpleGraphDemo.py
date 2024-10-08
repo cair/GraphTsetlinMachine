@@ -131,7 +131,7 @@ tm = MultiClassGraphTsetlinMachine(
 
 for i in range(args.epochs):
     start_training = time()
-    tm.fit(graphs_train, Y_train, epochs=1)
+    tm.fit(graphs_train, Y_train)
     stop_training = time()
 
     start_testing = time()
