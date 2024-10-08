@@ -365,7 +365,7 @@ class CommonTsetlinMachine():
 		for epoch in range(epochs):
 			previous_target = -self.T
 			indexes = np.arange(graphs.number_of_graphs)
-			np.shuffle(indexes)
+			np.random.shuffle(indexes)
 			for i in range(graphs.number_of_graphs):
 				#e = np.random.randint(graphs.number_of_graphs)
 				#while encoded_Y[e] == previous_target:
