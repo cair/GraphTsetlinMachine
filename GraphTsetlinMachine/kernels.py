@@ -350,7 +350,7 @@ code_evaluate = """
             curandState *state,
             int *clause_weights,
             int *class_sum,
-            int target,
+            int prediction_target,
             int example,
             int *clause_node,
             int *class_clause_update
@@ -370,11 +370,11 @@ code_evaluate = """
                         local_class_sum = -THRESHOLD;
                     }
 
-                    int target = 1 - 2*(local_class_sum > target);
+                    int target = 1 - 2*(local_class_sum > prediction_target);
                     int sign = (clause_weights[class_id*CLAUSES + clause] >= 0) - (clause_weights[class_id*CLAUSES + clause] < 0);
-                    int absolute_prediction_error = abs(target - local_class_sum);
+                    int absolute_prediction_error = abs(prediction_target - local_class_sum);
 
-                    if ((target == -1 && target > 0 && curand_uniform(&localState) > 1.0/Q) || (curand_uniform(&localState) > 1.0*absolute_prediction_error/(2*THRESHOLD))) {
+                    if ((prediction_target == -1 && prediction_target > 0 && curand_uniform(&localState) > 1.0/Q) || (curand_uniform(&localState) > 1.0*absolute_prediction_error/(2*THRESHOLD))) {
                         class_clause_update[class_id*CLAUSES + clause] = 0;
                     } else {
                         class_clause_update[class_id*CLAUSES + clause] = target*sign;
