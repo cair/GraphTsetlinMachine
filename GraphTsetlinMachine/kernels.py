@@ -402,7 +402,8 @@ code_evaluate = """
             int number_of_nodes,
             int graph_index,
             int *global_clause_node_output,
-            unsigned int *global_X
+            unsigned int *global_X,
+            int *number_of_includes
         )
         {
             int index = blockIdx.x * blockDim.x + threadIdx.x;
@@ -456,7 +457,8 @@ code_evaluate = """
             int number_of_nodes,
             int *global_clause_node_output_condition,
             int *global_clause_node_output,
-            unsigned int *X
+            unsigned int *X,
+            int *number_of_includes
         )
         {
             int index = blockIdx.x * blockDim.x + threadIdx.x;

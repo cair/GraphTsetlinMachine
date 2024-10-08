@@ -98,6 +98,7 @@ class CommonTsetlinMachine():
 
 		self.class_sum_gpu = cuda.mem_alloc(self.number_of_outputs*4)
 		self.clause_node_gpu = cuda.mem_alloc(int(self.number_of_clauses) * 4)
+		self.number_of_includes_gpu = cuda.mem_alloc(int(self.number_of_clauses) * 4)
 		self.hypervectors_gpu = cuda.mem_alloc(self.hypervectors.nbytes)
 		cuda.memcpy_htod(self.hypervectors_gpu, self.hypervectors)
 
@@ -204,10 +205,10 @@ class CommonTsetlinMachine():
 		self.select_clause_updates.prepare("PPPiiPP")
 
 		self.calculate_messages = mod_evaluate.get_function("calculate_messages")
-		self.calculate_messages.prepare("PiiPP")
+		self.calculate_messages.prepare("PiiPPP")
 
 		self.calculate_messages_conditional = mod_evaluate.get_function("calculate_messages_conditional")
-		self.calculate_messages_conditional.prepare("PiPPP")
+		self.calculate_messages_conditional.prepare("PiPPPP")
 
 		self.prepare_messages = mod_evaluate.get_function("prepare_messages")
 		self.prepare_messages.prepare("iP")
@@ -281,7 +282,8 @@ class CommonTsetlinMachine():
 			np.int32(number_of_graph_nodes),
 			np.int32(node_index),
 			current_clause_node_output,
-			encoded_X
+			encoded_X,
+			self.number_of_includes_gpu
 		)
 		cuda.Context.synchronize()
 
@@ -329,7 +331,8 @@ class CommonTsetlinMachine():
 				number_of_graph_nodes,
 				current_clause_node_output,
 				next_clause_node_output,
-				clause_X[depth]
+				clause_X[depth],
+				self.number_of_includes_gpu
 			)
 			cuda.Context.synchronize()
 
@@ -596,7 +599,7 @@ class MultiClassGraphTsetlinMachine(CommonTsetlinMachine):
 				self.tms[-1].number_of_outputs = 1
 				self.tms[-1].max_y = None
 				self.tms[-1].min_y = None
-				
+
 		for e in range(graphs.number_of_graphs):
 			target = Y[e]
 			self.tms[target]._fit(graphs, self.T, e)
