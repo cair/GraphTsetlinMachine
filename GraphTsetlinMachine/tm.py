@@ -593,7 +593,10 @@ class MultiClassGraphTsetlinMachine(CommonTsetlinMachine):
 						block = self.block
 					)
 				)
-
+				self.tms[-1].number_of_outputs = 1
+				self.tms[-1].max_y = None
+				self.tms[-1].min_y = None
+				
 		for e in range(graphs.number_of_graphs):
 			target = Y[e]
 			self.tms[target]._fit(graphs, self.T, e)
