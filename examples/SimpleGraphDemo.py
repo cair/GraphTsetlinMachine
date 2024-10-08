@@ -8,7 +8,7 @@ import argparse
 def default_args(**kwargs):
     parser = argparse.ArgumentParser()
     parser.add_argument("--epochs", default=25, type=int)
-    parser.add_argument("--number-of-clauses", default=20, type=int)
+    parser.add_argument("--number-of-clauses", default=60, type=int)
     parser.add_argument("--T", default=200, type=int)
     parser.add_argument("--s", default=1.0, type=float)
     parser.add_argument("--depth", default=3, type=int)
@@ -21,7 +21,7 @@ def default_args(**kwargs):
     parser.add_argument("--number-of-examples", default=40000, type=int)
     parser.add_argument("--number-of-classes", default=3, type=int)
     parser.add_argument("--max-sequence-length", default=10, type=int)
-    parser.add_argument("--max-included-literals", default=2, type=int)
+    parser.add_argument("--max-included-literals", default=16, type=int)
 
     args = parser.parse_args()
     for key, value in kwargs.items():
