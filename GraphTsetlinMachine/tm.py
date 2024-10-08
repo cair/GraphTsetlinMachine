@@ -366,8 +366,9 @@ class CommonTsetlinMachine():
 			previous_target = -self.T
 			for i in range(graphs.number_of_graphs):
 				e = np.random.randint(graphs.number_of_graphs)
-				while encoded_Y[e , 0] == previous_target:
+				while encoded_Y[e] == previous_target:
 					e = np.random.randint(graphs.number_of_graphs)
+				previous_target = encoded_Y[e]
 
 				class_sum[:] = 0
 				cuda.memcpy_htod(self.class_sum_gpu, class_sum)
