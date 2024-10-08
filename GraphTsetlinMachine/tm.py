@@ -201,7 +201,7 @@ class CommonTsetlinMachine():
 		self.select_clause_node.prepare("PPiP")
 
 		self.select_clause_updates = mod_evaluate.get_function("select_clause_updates")
-		self.select_clause_updates.prepare("PPPPiPP")
+		self.select_clause_updates.prepare("PPPiiPP")
 
 		self.calculate_messages = mod_evaluate.get_function("calculate_messages")
 		self.calculate_messages.prepare("PiiPP")
@@ -220,7 +220,7 @@ class CommonTsetlinMachine():
 
 		self.initialized = True
 
-	def _init_fit(self, graphs, encoded_Y, incremental):
+	def _init_fit(self, graphs, incremental):
 		if not self.initialized:
 			self._init(graphs)
 			self.prepare(g.state, self.ta_state_gpu, self.clause_weights_gpu, self.class_sum_gpu, grid=self.grid, block=self.block)
@@ -258,12 +258,6 @@ class CommonTsetlinMachine():
 				self.edge_train_gpu = cuda.mem_alloc(1)
 
 			self.class_clause_update_gpu = cuda.mem_alloc(int(self.number_of_outputs * self.number_of_clauses) * 4)
-
-		if not np.array_equal(self.encoded_Y, encoded_Y):
-			self.encoded_Y = encoded_Y
-
-			self.encoded_Y_gpu = cuda.mem_alloc(encoded_Y.nbytes)
-			cuda.memcpy_htod(self.encoded_Y_gpu, encoded_Y)
 
 	def _evaluate(
 			self,
@@ -358,95 +352,82 @@ class CommonTsetlinMachine():
 
 		return current_clause_node_output
 
-	def _fit(self, graphs, encoded_Y, epochs=100, incremental=False):
-		self._init_fit(graphs, encoded_Y, incremental)
+	def _fit(self, graphs, target, e):
+		self._init_fit(graphs, incremental)
 
 		class_sum = np.zeros(self.number_of_outputs).astype(np.int32)
-		for epoch in range(epochs):
-			previous_target = -self.T
-			indexes = np.arange(graphs.number_of_graphs)
-			np.random.shuffle(indexes)
-			for i in range(graphs.number_of_graphs):
-				#e = np.random.randint(graphs.number_of_graphs)
-				#while encoded_Y[e] == previous_target:
-				#	e = np.random.randint(graphs.number_of_graphs)
-				#previous_target = encoded_Y[e]
+		cuda.memcpy_htod(self.class_sum_gpu, class_sum)
 
-				e = indexes[i]
+		### Inference 
 
-				class_sum[:] = 0
-				cuda.memcpy_htod(self.class_sum_gpu, class_sum)
+		current_clause_node_output = self._evaluate(
+			graphs,
+			np.int32(graphs.number_of_graph_nodes[e]),
+			np.int32(graphs.node_index[e]),
+			np.int32(graphs.edge_index[graphs.node_index[e]]),
+			self.current_clause_node_output_train_gpu,
+			self.next_clause_node_output_train_gpu,
+			self.number_of_graph_node_edges_train_gpu,
+			self.edge_train_gpu,
+			self.clause_X_int_train_gpu,
+			self.clause_X_train_gpu,
+			self.encoded_X_train_gpu
+		)
 
-				### Inference 
+		### Learning
 
-				current_clause_node_output = self._evaluate(
-					graphs,
-					np.int32(graphs.number_of_graph_nodes[e]),
-					np.int32(graphs.node_index[e]),
-					np.int32(graphs.edge_index[graphs.node_index[e]]),
-					self.current_clause_node_output_train_gpu,
-					self.next_clause_node_output_train_gpu,
-					self.number_of_graph_node_edges_train_gpu,
-					self.edge_train_gpu,
-					self.clause_X_int_train_gpu,
-					self.clause_X_train_gpu,
-					self.encoded_X_train_gpu
-				)
+		# Select one true node per clause
+		self.select_clause_node.prepared_call(
+			self.grid,
+			self.block,
+			g.state,
+			current_clause_node_output,
+			int(graphs.number_of_graph_nodes[e]),
+			self.clause_node_gpu
+		)
+		cuda.Context.synchronize()
 
-				### Learning
+		# Select which clauses to update and update weights
+		self.select_clause_updates.prepared_call(
+			self.grid,
+			self.block,
+			g.state,
+			self.clause_weights_gpu,
+			self.class_sum_gpu,
+			target,
+			np.int32(e),
+			self.clause_node_gpu,
+			self.class_clause_update_gpu
+		)
+		cuda.Context.synchronize()
 
-				# Select one true node per clause
-				self.select_clause_node.prepared_call(
-					self.grid,
-					self.block,
-					g.state,
-					current_clause_node_output,
-					int(graphs.number_of_graph_nodes[e]),
-					self.clause_node_gpu
-				)
-				cuda.Context.synchronize()
+		# Update clause Tsetlin automata blocks for layer one
+		self.update.prepared_call(
+			self.grid,
+			self.block,
+			g.state,
+			self.ta_state_gpu,
+			np.int32(graphs.number_of_graph_nodes[e]),
+			np.int32(graphs.node_index[e]),
+			self.clause_node_gpu,
+			self.encoded_X_train_gpu,
+			self.class_clause_update_gpu
+		)
+		cuda.Context.synchronize()
 
-				# Select which clauses to update and update weights
-				self.select_clause_updates.prepared_call(
-					self.grid,
-					self.block,
-					g.state,
-					self.clause_weights_gpu,
-					self.class_sum_gpu,
-					self.encoded_Y_gpu,
-					np.int32(e),
-					self.clause_node_gpu,
-					self.class_clause_update_gpu
-				)
-				cuda.Context.synchronize()
-
-				# Update clause Tsetlin automata blocks for layer one
-				self.update.prepared_call(
-					self.grid,
-					self.block,
-					g.state,
-					self.ta_state_gpu,
-					np.int32(graphs.number_of_graph_nodes[e]),
-					np.int32(graphs.node_index[e]),
-					self.clause_node_gpu,
-					self.encoded_X_train_gpu,
-					self.class_clause_update_gpu
-				)
-				cuda.Context.synchronize()
-
-				# Update clause Tsetlin automata blocks for deeper layers
-				for depth in range(self.depth-1):
-					self.update_message.prepared_call(
-						self.grid,
-						self.block,
-						g.state,
-						self.message_ta_state_gpu[depth],
-						np.int32(graphs.number_of_graph_nodes[e]),
-						self.clause_node_gpu,
-						self.clause_X_train_gpu[depth],
-						self.class_clause_update_gpu
-					)
-					cuda.Context.synchronize()
+		# Update clause Tsetlin automata blocks for deeper layers
+		for depth in range(self.depth-1):
+			self.update_message.prepared_call(
+				self.grid,
+				self.block,
+				g.state,
+				self.message_ta_state_gpu[depth],
+				np.int32(graphs.number_of_graph_nodes[e]),
+				self.clause_node_gpu,
+				self.clause_X_train_gpu[depth],
+				self.class_clause_update_gpu
+			)
+			cuda.Context.synchronize()
 
 		self.ta_state = np.array([])
 		self.clause_weights = np.array([])
@@ -616,8 +597,15 @@ class MultiClassGraphTsetlinMachine(CommonTsetlinMachine):
 					)
 				)
 
-		for i in range(self.number_of_outputs):
-			self.tms[i].fit(graphs, Y == i, epochs=epochs, incremental=incremental)
+		for e in range(graphs.number_of_graphs):
+			target = Y[e]
+			self.tms[target]._fit(graphs, self.T, e)
+
+			non_target = np.random.randint(self.number_of_outputs)
+			while non_target == target:
+				non_target = np.random.randint(self.number_of_outputs)
+
+			self.tms[non_target]._fit(graphs, -1*self.T, e)
 
 	def score(self, graphs):
 		scores = np.empty((graphs.number_of_graphs, self.number_of_outputs), dtype = np.int32)
