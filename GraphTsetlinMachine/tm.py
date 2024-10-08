@@ -220,7 +220,7 @@ class CommonTsetlinMachine():
 
 		self.initialized = True
 
-	def _init_fit(self, graphs, incremental):
+	def _init_fit(self, graphs):
 		if not self.initialized:
 			self._init(graphs)
 			self.prepare(g.state, self.ta_state_gpu, self.clause_weights_gpu, self.class_sum_gpu, grid=self.grid, block=self.block)
@@ -229,10 +229,7 @@ class CommonTsetlinMachine():
 				self.prepare_message_ta_state(self.message_ta_state_gpu[depth], grid=self.grid, block=self.block)
 
 			cuda.Context.synchronize()
-		elif incremental == False:
-			self.prepare(g.state, self.ta_state_gpu, self.clause_weights_gpu, self.class_sum_gpu, grid=self.grid, block=self.block)
-			cuda.Context.synchronize()
-
+		
 		if not np.array_equal(self.graphs_signature_train, graphs.signature):
 			self.graphs_signature_train = graphs.signature
 
@@ -353,7 +350,7 @@ class CommonTsetlinMachine():
 		return current_clause_node_output
 
 	def _fit(self, graphs, target, e):
-		self._init_fit(graphs, incremental)
+		self._init_fit(graphs)
 
 		class_sum = np.zeros(self.number_of_outputs).astype(np.int32)
 		cuda.memcpy_htod(self.class_sum_gpu, class_sum)
@@ -523,7 +520,7 @@ class MultiClassGraphTsetlinMachineOld(CommonTsetlinMachine):
 		)
 		self.negative_clauses = 1
 
-	def fit(self, graphs, Y, epochs=100, incremental=False):
+	def fit(self, graphs, Y):
 		self.number_of_outputs = int(np.max(Y) + 1)
 	
 		self.max_y = None
@@ -533,7 +530,7 @@ class MultiClassGraphTsetlinMachineOld(CommonTsetlinMachine):
 		for i in range(self.number_of_outputs):
 			encoded_Y[:,i] = np.where(Y == i, self.T, -self.T)
 
-		self._fit(graphs, encoded_Y, epochs=epochs, incremental=incremental)
+		self._fit(graphs, encoded_Y)
 
 	def score(self, graphs):
 		return self._score(graphs)
@@ -576,7 +573,7 @@ class MultiClassGraphTsetlinMachine(CommonTsetlinMachine):
 
 		self.tms = []
 
-	def fit(self, graphs, Y, epochs=100, incremental=False):
+	def fit(self, graphs, Y):
 		self.number_of_outputs = int(np.max(Y) + 1)
 
 		if self.tms == []:
@@ -650,7 +647,7 @@ class GraphTsetlinMachine(CommonTsetlinMachine):
 		)
 		self.negative_clauses = 1
 
-	def fit(self, graphs, Y, epochs=100, incremental=False):
+	def fit(self, graphs, Y):
 		self.number_of_outputs = 1
 		
 		self.max_y = None
@@ -658,7 +655,7 @@ class GraphTsetlinMachine(CommonTsetlinMachine):
 		
 		encoded_Y = np.where(Y == 1, self.T, -self.T).astype(np.int32)
 
-		self._fit(graphs, encoded_Y, epochs = epochs, incremental = incremental)
+		self._fit(graphs, encoded_Y)
 
 		return
 
