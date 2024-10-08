@@ -374,7 +374,7 @@ code_evaluate = """
                     int sign = (clause_weights[class_id*CLAUSES + clause] >= 0) - (clause_weights[class_id*CLAUSES + clause] < 0);
                     int absolute_prediction_error = abs(prediction_target - local_class_sum);
 
-                    if ((prediction_target == -1 && prediction_target > 0 && curand_uniform(&localState) > 1.0/Q) || (curand_uniform(&localState) > 1.0*absolute_prediction_error/(2*THRESHOLD))) {
+                    if ((curand_uniform(&localState) > 1.0*absolute_prediction_error/(2*THRESHOLD))) {
                         class_clause_update[class_id*CLAUSES + clause] = 0;
                     } else {
                         class_clause_update[class_id*CLAUSES + clause] = target*sign;
