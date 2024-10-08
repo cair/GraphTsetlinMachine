@@ -363,7 +363,12 @@ class CommonTsetlinMachine():
 
 		class_sum = np.zeros(self.number_of_outputs).astype(np.int32)
 		for epoch in range(epochs):
-			for e in range(graphs.number_of_graphs):
+			previous_target = -self.T
+			for i in range(graphs.number_of_graphs):
+				e = np.random.randint(graphs.number_of_graphs)
+				while encoded_Y[e , 0] == previous_target:
+					e = np.random.randint(graphs.number_of_graphs)
+
 				class_sum[:] = 0
 				cuda.memcpy_htod(self.class_sum_gpu, class_sum)
 
