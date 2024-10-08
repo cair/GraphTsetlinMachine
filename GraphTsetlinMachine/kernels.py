@@ -129,12 +129,11 @@ code_update = """
             unsigned int *ta_state,
             int clause_output,
             int clause_node,
-            int *X
+            int *X,
+            int included_literals
         )
         {
             if (target_sign > 0) {
-                int included_literals = number_of_include_actions_message(ta_state);
-
                 // Type I Feedback
                 for (int la_chunk = 0; la_chunk < MESSAGE_CHUNKS; ++la_chunk) {
                     // Generate random bit values
@@ -172,12 +171,11 @@ code_update = """
             unsigned int *ta_state,
             int clause_output,
             int clause_node,
-            int *X
+            int *X,
+            int included_literals
         )
         {
             if (target_sign > 0) {
-                int included_literals = number_of_include_actions(ta_state);
-
                 // Type I Feedback
                 for (int la_chunk = 0; la_chunk < LA_CHUNKS; ++la_chunk) {
                     // Generate random bit values
@@ -215,7 +213,8 @@ code_update = """
             int number_of_nodes,
             int *clause_node,
             int *X,
-            int *class_clause_update
+            int *class_clause_update,
+            int *number_of_includes
         )
         {
             int index = blockIdx.x * blockDim.x + threadIdx.x;
@@ -228,7 +227,7 @@ code_update = """
                 unsigned int *ta_state = &global_ta_state[clause*MESSAGE_CHUNKS*STATE_BITS];
 
                 for (unsigned long long class_id = 0; class_id < CLASSES; ++class_id) {
-                    update_clause_message(&localState, class_clause_update[class_id*CLAUSES + clause], ta_state, clause_node[clause] != -1, clause_node[clause], X);
+                    update_clause_message(&localState, class_clause_update[class_id*CLAUSES + clause], ta_state, clause_node[clause] != -1, clause_node[clause], X, number_of_includes[clause]);
                 }
             }
         
@@ -242,7 +241,8 @@ code_update = """
             int graph_index,
             int *clause_node,
             int *X,
-            int *class_clause_update
+            int *class_clause_update,
+            int *number_of_includes
         )
         {
             int index = blockIdx.x * blockDim.x + threadIdx.x;
@@ -257,7 +257,7 @@ code_update = """
                 unsigned int *ta_state = &global_ta_state[clause*LA_CHUNKS*STATE_BITS];
 
                 for (unsigned long long class_id = 0; class_id < CLASSES; ++class_id) {
-                    update_clause(&localState, class_clause_update[class_id*CLAUSES + clause], ta_state, clause_node[clause] != -1, clause_node[clause], X);
+                    update_clause(&localState, class_clause_update[class_id*CLAUSES + clause], ta_state, clause_node[clause] != -1, clause_node[clause], X, number_of_includes[clause]);
                 }
             }
         
@@ -427,6 +427,8 @@ code_evaluate = """
 
                 unsigned int *ta_state = &global_ta_state[clause*LA_CHUNKS*STATE_BITS];
 
+                number_of_includes[clause] = number_of_include_actions(ta_state);
+
                 clause_node_output = ~0;
                 for (int node_pos = 0; (node_pos < INT_SIZE) && ((node_chunk * INT_SIZE + node_pos) < number_of_nodes); ++node_pos) {
                     int node = node_chunk * INT_SIZE + node_pos;
@@ -479,6 +481,8 @@ code_evaluate = """
                 int node_chunk = clause_node_chunk % NODE_CHUNKS;
 
                 unsigned int *ta_state = &global_ta_state[clause*MESSAGE_CHUNKS*STATE_BITS];
+
+                number_of_includes[clause] += number_of_include_actions(ta_state);
 
                 clause_node_output = ~0;
                 for (int node_pos = 0; (node_pos < INT_SIZE) && ((node_chunk * INT_SIZE + node_pos) < number_of_nodes); ++node_pos) {
@@ -616,6 +620,21 @@ code_evaluate = """
 code_prepare = """
     extern "C"
     {
+
+        // Counts number of include actions for a given clause
+        __device__ inline int number_of_include_actions_message(unsigned int *ta_state)
+        {
+            int number_of_include_actions = 0;
+            for (int k = 0; k < MESSAGE_CHUNKS-1; ++k) {
+                unsigned int ta_pos = k*STATE_BITS + STATE_BITS-1;
+                number_of_include_actions += __popc(ta_state[ta_pos]);
+            }
+            unsigned int ta_pos = (MESSAGE_CHUNKS-1)*STATE_BITS + STATE_BITS-1;
+            number_of_include_actions += __popc(ta_state[ta_pos] & MESSAGE_FILTER);
+
+            return(number_of_include_actions);
+        }
+
         __global__ void prepare_message_ta_state(unsigned int *global_ta_state)
         {
             int index = blockIdx.x * blockDim.x + threadIdx.x;
