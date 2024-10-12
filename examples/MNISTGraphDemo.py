@@ -21,6 +21,7 @@ def default_args(**kwargs):
     parser.add_argument("--number-of-clauses", default=1000, type=int)
     parser.add_argument("--T", default=10000, type=int)
     parser.add_argument("--s", default=1.0, type=float)
+    parser.add_argument("--q", default=1.0, type=float)
     parser.add_argument("--depth", default=1, type=int)
     parser.add_argument("--hypervector-size", default=128, type=int)
     parser.add_argument("--hypervector-bits", default=2, type=int)
@@ -175,6 +176,7 @@ tm = MultiClassGraphTsetlinMachine(
     args.number_of_clauses,
     args.T,
     args.s,
+    q=args.q,
     depth=args.depth,
     message_size=args.message_size,
     message_bits=args.message_bits,
