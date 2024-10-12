@@ -138,12 +138,7 @@ code_update = """
                 // Type I Feedback
                 for (int la_chunk = 0; la_chunk < MESSAGE_CHUNKS; ++la_chunk) {
                     // Generate random bit values
-                    unsigned int la_feedback = 0;
-                    for (int b = 0; b < INT_SIZE; ++b) {
-                        if (curand_uniform(localState) <= 1.0/S) {
-                            la_feedback |= (1 << b);
-                        }
-                    }
+                    unsigned int la_feedback = ~0;
 
                     if (clause_output && included_literals <= MAX_INCLUDED_LITERALS) {
                         #if BOOST_TRUE_POSITIVE_FEEDBACK == 1
