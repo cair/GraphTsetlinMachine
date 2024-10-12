@@ -621,7 +621,7 @@ code_prepare = """
 
             for (unsigned long long clause = index; clause < CLAUSES; clause += stride) {
                 unsigned int *ta_state = &global_ta_state[clause*MESSAGE_CHUNKS*STATE_BITS];
-                for (int message_ta_chunk = 0; message_ta_chunk < MESSAGE_CHUNKS-1; ++message_ta_chunk) {
+                for (int message_ta_chunk = 0; message_ta_chunk < MESSAGE_CHUNKS; ++message_ta_chunk) {
                     for (int b = 0; b < STATE_BITS-1; ++b) {
                         ta_state[message_ta_chunk*STATE_BITS + b] = ~0;
                     }
@@ -647,7 +647,7 @@ code_prepare = """
                 }
 
                 unsigned int *ta_state = &global_ta_state[clause*LA_CHUNKS*STATE_BITS];
-                for (int la_chunk = 0; la_chunk < LA_CHUNKS-1; ++la_chunk) {
+                for (int la_chunk = 0; la_chunk < LA_CHUNKS; ++la_chunk) {
                     for (int b = 0; b < STATE_BITS-1; ++b) {
                         ta_state[la_chunk*STATE_BITS + b] = ~0;
                     }
