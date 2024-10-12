@@ -20,7 +20,7 @@ Implementation of the Graph Tsetlin Machine.
 
 ```bash
 python ./setup.py sdist
-pip3 install dist/GraphTsetlinMachine-0.2.0.tar.gz
+pip3 install dist/GraphTsetlinMachine-0.2.4.tar.gz
 ```
 
 ## Examples
