@@ -549,3 +549,54 @@ class MultiClassGraphTsetlinMachine(CommonTsetlinMachine):
 
 	def predict(self, graphs):
 		return np.argmax(self.score(graphs), axis=1)
+
+class GraphTsetlinMachine(CommonTsetlinMachine):
+	def __init__(
+			self,
+			number_of_clauses,
+			T,
+			s,
+			q=1.0,
+			max_included_literals=None,
+			boost_true_positive_feedback=1,
+			number_of_state_bits=8,
+			depth=1,
+			message_size=256,
+			message_bits=2,
+			grid=(16*13*4,1,1),
+			block=(128,1,1)
+	):
+		super().__init__(
+			number_of_clauses,
+			T,
+			s,
+			q=q,
+			max_included_literals=max_included_literals,
+			boost_true_positive_feedback=boost_true_positive_feedback,
+			number_of_state_bits=number_of_state_bits,
+			depth=depth,
+			message_size=message_size,
+			message_bits=message_bits,
+			grid=grid,
+			block=block
+		)
+		self.negative_clauses = 1
+
+	def fit(self, graphs, Y):
+		self.number_of_outputs = 1
+		
+		self.max_y = None
+		self.min_y = None
+		
+		encoded_Y = np.where(Y == 1, self.T, -self.T).astype(np.int32)
+
+		self._fit(graphs, encoded_Y)
+
+		return
+
+	def score(self, graphs):
+		return self._score(graphs)[:,0]
+
+	def predict(self, X):
+		score = self.score(X)
+		return score >= 0
