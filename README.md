@@ -37,8 +37,8 @@ In this tutorial, we will create graphs for the Noisy XOR problem and then train
 graphs_train = Graphs(
     10000,
     symbol_names=['A', 'B'],
-    hypervector_size=args.hypervector_size,
-    hypervector_bits=args.hypervector_bits,
+    hypervector_size=32,
+    hypervector_bits=2,
     double_hashing = args.double_hashing
 )
 ```
