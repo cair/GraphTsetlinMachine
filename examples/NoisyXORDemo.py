@@ -8,20 +8,18 @@ import random
 
 def default_args(**kwargs):
     parser = argparse.ArgumentParser()
-    parser.add_argument("--epochs", default=25, type=int)
-    parser.add_argument("--number-of-clauses", default=60, type=int)
-    parser.add_argument("--T", default=600, type=int)
+    parser.add_argument("--epochs", default=10, type=int)
+    parser.add_argument("--number-of-clauses", default=10, type=int)
+    parser.add_argument("--T", default=100, type=int)
     parser.add_argument("--s", default=1.0, type=float)
-    parser.add_argument("--depth", default=3, type=int)
+    parser.add_argument("--depth", default=2, type=int)
     parser.add_argument("--hypervector-size", default=256, type=int)
     parser.add_argument("--hypervector-bits", default=2, type=int)
     parser.add_argument("--message-size", default=256, type=int)
     parser.add_argument("--message-bits", default=2, type=int)
     parser.add_argument('--double-hashing', dest='double_hashing', default=False, action='store_true')
     parser.add_argument("--noise", default=0.01, type=float)
-    parser.add_argument("--number-of-examples", default=40000, type=int)
-    parser.add_argument("--number-of-classes", default=3, type=int)
-    parser.add_argument("--max-sequence-length", default=10, type=int)
+    parser.add_argument("--number-of-examples", default=10000, type=int)
     parser.add_argument("--max-included-literals", default=4, type=int)
 
     args = parser.parse_args()
@@ -120,9 +118,6 @@ for graph_id in range(args.number_of_examples):
 
     graphs_test.add_graph_node_feature(graph_id, 0, x1)
     graphs_test.add_graph_node_feature(graph_id, 1, x2)
-
-    if np.random.rand() <= args.noise:
-        Y_test[graph_id] = 1 - Y_test[graph_id]
 
 graphs_test.encode()
 
