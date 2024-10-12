@@ -116,6 +116,7 @@ for graph_id in range(args.number_of_examples):
     else:
         Y_test[graph_id] = 1
 
+    print(x1, x2)
     graphs_test.add_graph_node_feature(graph_id, 0, x1)
     graphs_test.add_graph_node_feature(graph_id, 1, x2)
 
