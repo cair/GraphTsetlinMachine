@@ -29,7 +29,7 @@ def default_args(**kwargs):
     parser.add_argument("--message-bits", default=2, type=int)
     parser.add_argument('--double-hashing', dest='double_hashing', default=False, action='store_true')
     parser.add_argument("--max-included-literals", default=32, type=int)
-    parser.add_argument("--number-of-state-bits", default=12, type=int)
+    parser.add_argument("--number-of-state-bits", default=11, type=int)
 
     args = parser.parse_args()
     for key, value in kwargs.items():
