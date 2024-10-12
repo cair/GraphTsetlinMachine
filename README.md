@@ -32,6 +32,17 @@ pip3 install dist/GraphTsetlinMachine-0.2.4.tar.gz
 
 ## Tutorial 
 
+In this tutorial, we will create graphs for the Noisy XOR problem and then train the Graph Tsetlin Machine on these graphs. Start by creating the training graphs:
+```bash
+graphs_train = Graphs(
+    args.number_of_examples,
+    symbol_names=['A', 'B'],
+    hypervector_size=args.hypervector_size,
+    hypervector_bits=args.hypervector_bits,
+    double_hashing = args.double_hashing
+)
+```
+...
 ### Clause-Driven Message Passing
 
 <p align="center">
