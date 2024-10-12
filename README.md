@@ -16,7 +16,7 @@ Implementation of the Graph Tsetlin Machine.
 
 ## Features
 
-- Multigraphs
+- Processes multigraphs
 - Vector symbolic node properties and edge types
 - Nested (deep) clauses
 - Arbitrarily sized inputs
