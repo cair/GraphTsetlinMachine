@@ -16,6 +16,13 @@ Implementation of the Graph Tsetlin Machine.
 
 ## Features
 
+- Multigraphs
+- Vector symbolic node properties and edge types
+- Nested (deep) clauses
+- Arbitrarily sized inputs
+- Incorporates Vanilla, Multiclass, Convolutional, and Coalesced Tsetlin Machine (Regression and auto-encoding supported soon)
+- Rewritten faster CUDA kernels 
+
 ## Installation
 
 ```bash
