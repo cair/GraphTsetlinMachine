@@ -4,17 +4,17 @@
 
 Implementation of the Graph Tsetlin Machine.
 
-## Clause-Driven Message Passing
+## Contents
 
-<p align="center">
-  <img width="75%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/MessagePassing.png">
-</p>
+- [Features](#features)
+- [Installation](#installation)
+- [Tutorial](#tutorial)
+  - [Clause-Driven Message Passing](#)
+  - [Learning and Reasoning With Nested Clauses](#nestedclauses)
+- [Demos](#demos)
+- [Licence](#licence)
 
-## Learning and Reasoning With Nested Clauses
-
-<p align="center">
-  <img width="100%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/DeepLogicalLearningAndReasoning.png">
-</p>
+## Features
 
 ## Installation
 
@@ -23,7 +23,21 @@ python ./setup.py sdist
 pip3 install dist/GraphTsetlinMachine-0.2.4.tar.gz
 ```
 
-## Examples
+## Tutorial 
+
+### Clause-Driven Message Passing
+
+<p align="center">
+  <img width="75%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/MessagePassing.png">
+</p>
+
+### Learning and Reasoning With Nested Clauses
+
+<p align="center">
+  <img width="100%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/DeepLogicalLearningAndReasoning.png">
+</p>
+
+## Demos
 
 Demos coming soon.
 
