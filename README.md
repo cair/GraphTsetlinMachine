@@ -38,8 +38,7 @@ graphs_train = Graphs(
     10000,
     symbol_names=['A', 'B'],
     hypervector_size=32,
-    hypervector_bits=2,
-    double_hashing = args.double_hashing
+    hypervector_bits=2
 )
 ```
 The first number is how many graphs you are going to create. Here, we will create 10 000 graphs. Next, you find the symbols 'A' and 'B'. You use these symbols to assign properties to the nodes of each graph. You can define as many symbols as you like. We here only need two to capture the XOR problem.
