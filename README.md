@@ -9,7 +9,12 @@ Implementation of the Graph Tsetlin Machine.
 - [Features](#features)
 - [Installation](#installation)
 - [Tutorial](#tutorial)
-  - [Clause-Driven Message Passing](#)
+  - [Initialization](#initialization)
+  - [Adding the Nodes](#addingnodes)
+  - [Adding the Node Edges](#addingedges)
+  - [Adding the Node Properties and Graph Labels](#addingproperties)
+- [Graph Tsetlin Machine Basics](#basics)
+  - [Clause-Driven Message Passing](#messagepassing)
   - [Learning and Reasoning With Nested Clauses](#nestedclauses)
 - [Demos](#demos)
 - [Paper](#paper)
@@ -22,19 +27,33 @@ Implementation of the Graph Tsetlin Machine.
 - [Vector symbolic](https://link.springer.com/article/10.1007/s10462-021-10110-3) node properties and edge types
 - Nested (deep) clauses
 - Arbitrarily sized inputs
-- Incorporates [Vanilla](https://tsetlinmachine.org/wp-content/uploads/2022/11/Tsetlin_Machine_Book_Chapter_One_Revised.pdf), Multiclass, [Convolutional](https://tsetlinmachine.org/wp-content/uploads/2023/12/Tsetlin_Machine_Book_Chapter_4_Convolution.pdf), and [Coalesced](https://arxiv.org/abs/2108.07594) [Tsetlin Machines](https://tsetlinmachine.org) (regression and auto-encoding supported soon)
+- Incorporates [Vanilla](https://tsetlinmachine.org/wp-content/uploads/2022/11/Tsetlin_Machine_Book_Chapter_One_Revised.pdf), Multiclass, [Convolutional](https://tsetlinmachine.org/wp-content/uploads/2023/12/Tsetlin_Machine_Book_Chapter_4_Convolution.pdf), and [Coalesced](https://arxiv.org/abs/2108.07594) [Tsetlin Machines](https://tsetlinmachine.org)
 - Rewritten faster CUDA kernels 
 
 ## Installation
 
 ```bash
+pip3 install graphtsetlinmachine
+```
+or
+```bash
 python ./setup.py sdist
-pip3 install dist/GraphTsetlinMachine-0.2.4.tar.gz
+pip3 install dist/GraphTsetlinMachine-0.2.6.tar.gz
 ```
 
 ## Tutorial 
 
-In this tutorial, you create graphs for the Noisy XOR problem and then train the Graph Tsetlin Machine on these. Start by creating the training graphs using the _Graphs_ class:
+In this tutorial, you create graphs for the Noisy XOR problem and then train and test the Graph Tsetlin Machine on these. You have four kinds of graphs, shown below:
+
+<p align="center">
+  <img width="60%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/NoisyXOR.png">
+</p>
+
+Each node has one of two properties: _'A'_ or _'B'_. If both of the nodes in a graph have the same property, the graph is labeled _Y=0_. Otherwise, it is labeled _Y=1_. The task of the Graph Tsetlin Machine is to assign the correct label to each type of graph, when the labels used for training are noisy.
+
+### Initialization
+
+Start by creating the training graphs using the _Graphs_ class:
 ```bash
 graphs_train = Graphs(
     10000,
@@ -51,6 +70,58 @@ You initialize the class as follows:
 - *Vector Symbolic Representation (Hypervectors).* You also decide how large hypervectors you would like to use to store the symbols. Larger hypervectors room more symbols. Since you only have two symbols, set the size to _32_. Finally, you decide how many bits to use for representing each symbol. Use _2_ bits for this tutorial. You then get _32*31/2 = 496_ unique bit pairs - plenty of space for two symbols!
   
 - *Generation and Compilation.* The generation and compilation of hypervectors happen automatically during initialization of your _Graphs_ object,  using [sparse distributed codes](https://ieeexplore.ieee.org/document/917565).
+
+### Adding the Nodes
+
+The next step is to set how many nodes you want in each of the _10,000_ graphs you are building. For the NoisyXOR problem, each graph has two nodes:
+```bash
+for graph_id in range(10000):
+    graphs_train.set_number_of_graph_nodes(graph_id, 2)
+```
+After doing that, you prepare for adding the nodes:
+```bash
+graphs_train.prepare_node_configuration()
+```
+You add the two nodes to the graphs as follows, giving them one outgoing edge each:
+```bash
+for graph_id in range(10000):
+  number_of_outgoing_edges = 1
+
+  graphs_train.add_graph_node(graph_id, 'Node 1', number_of_outgoing_edges)
+
+  graphs_train.add_graph_node(graph_id, 'Node 2', number_of_outgoing_edges)
+```
+
+### Adding the Node Edges
+
+```bash
+for graph_id in range(10000):
+    edge_type = "Plain"
+    graphs_train.add_graph_node_edge(graph_id, 'Node 1', 'Node 2', edge_type)
+    graphs_train.add_graph_node_edge(graph_id, 'Node 2', 'Node 1', edge_type)
+```
+
+### Adding the Node Properties and Graph Labels
+
+```bash
+Y_train = np.empty(10000, dtype=np.uint32)
+for graph_id in range(10000):
+    x1 = random.choice(['A', 'B'])
+    x2 = random.choice(['A', 'B'])
+
+    graphs_train.add_graph_node_property(graph_id, 'Node 1', x1)
+    graphs_train.add_graph_node_property(graph_id, 'Node 2', x2)
+
+    if x1 == x2:
+        Y_train[graph_id] = 0
+    else:
+        Y_train[graph_id] = 1
+
+    if np.random.rand() <= args.noise:
+        Y_train[graph_id] = 1 - Y_train[graph_id]
+```
+
+## Graph Tsetlin Machine Basics
 
 ### Clause-Driven Message Passing
 
@@ -70,7 +141,7 @@ Demos coming soon.
 
 ## Paper
 
-_A Tsetlin Machine for Logical Learning and Reasoning With Graphs_. Ole-Christoffer Granmo, et al., 2024. (Coming soon)
+_A Tsetlin Machine for Logical Learning and Reasoning With Graphs_. Ole-Christoffer Granmo, et al., 2024. (Forthcoming)
 
 ## Roadmap
 
