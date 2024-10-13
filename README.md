@@ -43,11 +43,11 @@ graphs_train = Graphs(
 )
 ```
 You initialize the class as follows:
-- *Number of Graphs.* The first number sets how many graphs you are going to create. Here, we will create _10,000_ graphs.
+- *Number of Graphs.* The first number sets how many graphs you are going to create. Here, you create _10,000_ graphs.
 
-- *Symbols.* Next, you find the symbols 'A' and 'B'. You use these symbols to assign properties to the nodes of each graph. You can define as many symbols as you like. For the XOR problem, we only need two.
+- *Symbols.* Next, you find the symbols 'A' and 'B'. You use these symbols to assign properties to the nodes of each graph. You can define as many symbols as you like. For the XOR problem, you only need two.
 
-- *Vector Symbolic Representation (Hypervectors).* You also decide how large hypervectors you would like to use to store the symbols. Larger hypervectors room more symbols. Since you only have two symbols, set the size to 32. Finally, you decide how many bits to use for representing each symbol. You can use 2 bits here. The hypervector can then represent up to _32*31/2 = 496_ unique symbols. The generation and compilation of hypervectors happen automatically during initialization of your _Graphs_ object,  using [sparse distributed codes](https://ieeexplore.ieee.org/document/917565). 
+- *Vector Symbolic Representation (Hypervectors).* You also decide how large hypervectors you would like to use to store the symbols. Larger hypervectors room more symbols. Since you only have two symbols, set the size to _32_. Finally, you decide how many bits to use for representing each symbol. Use _2_ bits for this tutorial. The hypervector can then represent up to _32*31/2 = 496_ unique symbols. The generation and compilation of hypervectors happen automatically during initialization of your _Graphs_ object,  using [sparse distributed codes](https://ieeexplore.ieee.org/document/917565). 
 
 ### Clause-Driven Message Passing
 
