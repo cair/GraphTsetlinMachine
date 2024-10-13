@@ -78,16 +78,14 @@ After doing that, you prepare for adding the nodes:
 ```bash
 graphs_train.prepare_node_configuration()
 ```
-The two nodes of each graph are automatically named _0_ and _1_, respectively. You add them to the graphs as follows, giving them one outgoing edge each:
+You add the two nodes to the graphs as follows, giving them one outgoing edge each:
 ```bash
 for graph_id in range(10000):
   number_of_outgoing_edges = 1
 
-  node_id = 0
-  graphs_train.add_graph_node(graph_id, node_id, number_of_outgoing_edges)
+  graphs_train.add_graph_node(graph_id, 'Node 1', number_of_outgoing_edges)
 
-  node_id = 1
-  graphs_train.add_graph_node(graph_id, node_id, number_of_outgoing_edges)
+  graphs_train.add_graph_node(graph_id, 'Node 2', number_of_outgoing_edges)
 ```
 
 ### Clause-Driven Message Passing
