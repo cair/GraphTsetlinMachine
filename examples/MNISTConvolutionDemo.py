@@ -42,20 +42,20 @@ dim = 28 - patch_size + 1
 
 number_of_nodes = dim * dim
 
-symbol_names = []
+symbols = []
 
 # Column and row symbols
 for i in range(dim):
-    symbol_names.append("C:%d" % (i))
-    symbol_names.append("R:%d" % (i))
+    symbols.append("C:%d" % (i))
+    symbols.append("R:%d" % (i))
 
 # Patch pixel symbols
 for i in range(patch_size*patch_size):
-    symbol_names.append(i)
+    symbols.append(i)
 
 graphs_train = Graphs(
     X_train.shape[0],
-    symbol_names=symbol_names,
+    symbols=symbols,
     hypervector_size=args.hypervector_size,
     hypervector_bits=args.hypervector_bits,
     double_hashing = args.double_hashing
