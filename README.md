@@ -47,7 +47,7 @@ You initialize the class as follows:
 
 - *Symbols.* Next, you find the symbols 'A' and 'B'. You use these symbols to assign properties to the nodes of the graphs. You can define as many symbols as you like. For the XOR problem, you only need two.
 
-- *Vector Symbolic Representation (Hypervectors).* You also decide how large hypervectors you would like to use to store the symbols. Larger hypervectors room more symbols. Since you only have two symbols, set the size to _32_. Finally, you decide how many bits to use for representing each symbol. Use _2_ bits for this tutorial. You can then actually represent up to _32*31/2 = 496_ unique symbols because there are _496_ unique bit pairs.
+- *Vector Symbolic Representation (Hypervectors).* You also decide how large hypervectors you would like to use to store the symbols. Larger hypervectors room more symbols. Since you only have two symbols, set the size to _32_. Finally, you decide how many bits to use for representing each symbol. Use _2_ bits for this tutorial. You then get _32*31/2 = 496_ unique bit pairs for representing symbols.
   
 - *Generation and Compilation.* The generation and compilation of hypervectors happen automatically during initialization of your _Graphs_ object,  using [sparse distributed codes](https://ieeexplore.ieee.org/document/917565).
 
