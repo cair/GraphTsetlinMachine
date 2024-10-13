@@ -12,6 +12,7 @@ Implementation of the Graph Tsetlin Machine.
   - [Initialization](#initialization)
   - [Adding the Nodes](#addingnodes)
   - [Adding the Edges](#addingedges)
+- [Graph Tsetlin Machine Basics](#basics)
   - [Clause-Driven Message Passing](#messagepassing)
   - [Learning and Reasoning With Nested Clauses](#nestedclauses)
 - [Demos](#demos)
@@ -91,6 +92,8 @@ for graph_id in range(10000):
 ```
 
 ### Adding the Edges
+
+## Graph Tsetlin Machine Basics
 
 ### Clause-Driven Message Passing
 
