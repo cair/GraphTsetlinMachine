@@ -13,7 +13,7 @@ def default_args(**kwargs):
     parser.add_argument("--T", default=100, type=int)
     parser.add_argument("--s", default=1.0, type=float)
     parser.add_argument("--depth", default=2, type=int)
-    parser.add_argument("--hypervector-size", default=256, type=int)
+    parser.add_argument("--hypervector-size", default=32, type=int)
     parser.add_argument("--hypervector-bits", default=2, type=int)
     parser.add_argument("--message-size", default=256, type=int)
     parser.add_argument("--message-bits", default=2, type=int)
@@ -36,10 +36,9 @@ print("Creating training data")
 
 graphs_train = Graphs(
     args.number_of_examples,
-    symbol_names=['A', 'B'],
+    symbols=['A', 'B'],
     hypervector_size=args.hypervector_size,
     hypervector_bits=args.hypervector_bits,
-    double_hashing = args.double_hashing
 )
 
 for graph_id in range(args.number_of_examples):
