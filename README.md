@@ -12,6 +12,7 @@ Implementation of the Graph Tsetlin Machine.
   - [Initialization](#initialization)
   - [Adding the Nodes](#addingnodes)
   - [Adding the Edges](#addingedges)
+  - [Adding the Node Properties](#addingproperties)
 - [Graph Tsetlin Machine Basics](#basics)
   - [Clause-Driven Message Passing](#messagepassing)
   - [Learning and Reasoning With Nested Clauses](#nestedclauses)
@@ -98,6 +99,26 @@ for graph_id in range(10000):
     edge_type = "Plain"
     graphs_train.add_graph_node_edge(graph_id, 'Node 1', 'Node 2', edge_type)
     graphs_train.add_graph_node_edge(graph_id, 'Node 2', 'Node 1', edge_type)
+```
+
+### Adding the Node Properties
+
+```bash
+Y_train = np.empty(10000, dtype=np.uint32)
+for graph_id in range(10000):
+    x1 = random.choice(['A', 'B'])
+    x2 = random.choice(['A', 'B'])
+
+    graphs_train.add_graph_node_property(graph_id, 'Node 1', x1)
+    graphs_train.add_graph_node_property(graph_id, 'Node 2', x2)
+
+    if x1 == x2:
+        Y_train[graph_id] = 0
+    else:
+        Y_train[graph_id] = 1
+
+    if np.random.rand() <= args.noise:
+        Y_train[graph_id] = 1 - Y_train[graph_id]
 ```
 
 ## Graph Tsetlin Machine Basics
