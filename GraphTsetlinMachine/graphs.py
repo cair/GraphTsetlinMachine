@@ -123,7 +123,7 @@ class Graphs():
 
 	@staticmethod
 	@jit(nopython=True)
-	def _add_graph_node_feature(hypervectors, hypervector_size, graph_index, node, symbol, X):
+	def _add_graph_node_property(hypervectors, hypervector_size, graph_index, node, symbol, X):
 		for k in hypervectors[symbol,:]:
 			chunk = k // 32
 			pos = k % 32
@@ -134,8 +134,8 @@ class Graphs():
 			pos = (k + hypervector_size)  % 32
 			X[graph_index + node, chunk] &= ~(1 << pos)
 
-	def add_graph_node_feature(self, graph_id, node_name, symbol):
-		self._add_graph_node_feature(self.hypervectors, self.hypervector_size, self.node_index[graph_id], self.graph_node_id[graph_id][node_name], self.symbol_id[symbol], self.X)
+	def add_graph_node_property(self, graph_id, node_name, symbol):
+		self._add_graph_node_property(self.hypervectors, self.hypervector_size, self.node_index[graph_id], self.graph_node_id[graph_id][node_name], self.symbol_id[symbol], self.X)
 
 	def print_graph(self, graph_id):
 		for node_id in range(self.number_of_graph_nodes[graph_id]):

@@ -68,7 +68,7 @@ for graph_id in range(X_train.shape[0]):
         print(graph_id, X_train.shape[0])
     
     for k in X_train[graph_id].nonzero()[0]:
-        graphs_train.add_graph_node_feature(graph_id, 0, k)
+        graphs_train.add_graph_node_property(graph_id, 0, k)
 
 graphs_train.encode()
 
@@ -91,7 +91,7 @@ for graph_id in range(X_test.shape[0]):
         print(graph_id, X_test.shape[0])
     
     for k in X_test[graph_id].nonzero()[0]:
-        graphs_test.add_graph_node_feature(graph_id, 0, k)
+        graphs_test.add_graph_node_property(graph_id, 0, k)
 
 graphs_test.encode()
 

@@ -10,8 +10,8 @@ from numba import jit
 
 (X_train, Y_train), (X_test, Y_test) = mnist.load_data()
 
-X_train = np.where(X_train > 75, 1, 0)
-X_test = np.where(X_test > 75, 1, 0)
+X_train = np.where(X_train > 75, 1, 0).reshape(X_train.shape[0], -1).astype(np.uint32)
+X_test = np.where(X_test > 75, 1, 0).reshape(X_test.shape[0], -1).astype(np.uint32)
 Y_train = Y_train.astype(np.uint32)
 Y_test = Y_test.astype(np.uint32)
 
@@ -21,10 +21,10 @@ def default_args(**kwargs):
     parser.add_argument("--number-of-clauses", default=20000, type=int)
     parser.add_argument("--T", default=25000, type=int)
     parser.add_argument("--s", default=10.0, type=float)
-    parser.add_argument("--depth", default=1, type=int)
-    parser.add_argument("--hypervector-size", default=128, type=int)
+    parser.add_argument("--depth", default=2, type=int)
+    parser.add_argument("--hypervector-size", default=1024, type=int)
     parser.add_argument("--hypervector-bits", default=2, type=int)
-    parser.add_argument("--message-size", default=256, type=int)
+    parser.add_argument("--message-size", default=1024, type=int)
     parser.add_argument("--message-bits", default=2, type=int)
     parser.add_argument('--double-hashing', dest='double_hashing', default=False, action='store_true')
     parser.add_argument("--max-included-literals", default=32, type=int)
@@ -37,25 +37,17 @@ def default_args(**kwargs):
 
 args = default_args()
 
-patch_size = 10
-dim = 28 - patch_size + 1
+number_of_nodes = 2
 
-number_of_nodes = dim * dim
-
-symbols = []
-
-# Column and row symbols
-for i in range(dim):
-    symbols.append("C:%d" % (i))
-    symbols.append("R:%d" % (i))
+symbol_names = []
 
 # Patch pixel symbols
-for i in range(patch_size*patch_size):
-    symbols.append(i)
+for i in range(28*28):
+    symbol_names.append(i)
 
 graphs_train = Graphs(
     X_train.shape[0],
-    symbols=symbols,
+    symbol_names=symbol_names,
     hypervector_size=args.hypervector_size,
     hypervector_bits=args.hypervector_bits,
     double_hashing = args.double_hashing
@@ -67,62 +59,53 @@ for graph_id in range(X_train.shape[0]):
 graphs_train.prepare_node_configuration()
 
 for graph_id in range(X_train.shape[0]):
-    for node_id in range(graphs_train.number_of_graph_nodes[graph_id]):
-        graphs_train.add_graph_node(graph_id, node_id, 0)
+    graphs_train.add_graph_node(graph_id, 0, 1)
+    graphs_train.add_graph_node(graph_id, 1, 1)
 
 graphs_train.prepare_edge_configuration()
 
 for graph_id in range(X_train.shape[0]):
+    graphs_train.add_graph_node_edge(graph_id, 0, 1, 0)
+    graphs_train.add_graph_node_edge(graph_id, 1, 0, 0)
+
+for graph_id in range(X_train.shape[0]):
     if graph_id % 1000 == 0:
         print(graph_id, X_train.shape[0])
-     
-    windows = view_as_windows(X_train[graph_id,:,:], (patch_size, patch_size))
-    for q in range(windows.shape[0]):
-            for r in range(windows.shape[1]):
-                node_id = q*dim + r
-
-                patch = windows[q,r].reshape(-1).astype(np.uint32)
-                for k in patch.nonzero()[0]:
-                    graphs_train.add_graph_node_property(graph_id, node_id, k)
-
-                graphs_train.add_graph_node_property(graph_id, node_id, "C:%d" % (q))
-                graphs_train.add_graph_node_property(graph_id, node_id, "R:%d" % (r))
+    
+    for k in X_train[graph_id].nonzero()[0]:
+        graphs_train.add_graph_node_feature(graph_id, 0, k)
 
 graphs_train.encode()
 
 print("Training data produced")
 
 graphs_test = Graphs(X_test.shape[0], init_with=graphs_train)
+
 for graph_id in range(X_test.shape[0]):
     graphs_test.set_number_of_graph_nodes(graph_id, number_of_nodes)
 
 graphs_test.prepare_node_configuration()
 
 for graph_id in range(X_test.shape[0]):
-    for node_id in range(graphs_test.number_of_graph_nodes[graph_id]):
-        graphs_test.add_graph_node(graph_id, node_id, 0)
+    graphs_test.add_graph_node(graph_id, 0, 1)
+    graphs_test.add_graph_node(graph_id, 1, 1)
 
 graphs_test.prepare_edge_configuration()
 
 for graph_id in range(X_test.shape[0]):
+    graphs_test.add_graph_node_edge(graph_id, 0, 1, 0)
+    graphs_test.add_graph_node_edge(graph_id, 1, 0, 0)
+
+for graph_id in range(X_test.shape[0]):
     if graph_id % 1000 == 0:
         print(graph_id, X_test.shape[0])
-     
-    windows = view_as_windows(X_test[graph_id,:,:], (10, 10))
-    for q in range(windows.shape[0]):
-            for r in range(windows.shape[1]):
-                node_id = q*dim + r
-
-                patch = windows[q,r].reshape(-1).astype(np.uint32)
-                for k in patch.nonzero()[0]:
-                    graphs_test.add_graph_node_property(graph_id, node_id, k)
-
-                graphs_test.add_graph_node_property(graph_id, node_id, "C:%d" % (q))
-                graphs_test.add_graph_node_property(graph_id, node_id, "R:%d" % (r))
+    
+    for k in X_test[graph_id].nonzero()[0]:
+        graphs_test.add_graph_node_feature(graph_id, 0, k)
 
 graphs_test.encode()
 
-print("Testing data produced")
+print("Training data produced")
 
 tm = MultiClassGraphTsetlinMachine(
     args.number_of_clauses,
@@ -158,18 +141,5 @@ for i in range(tm.number_of_clauses):
                 else:
                     l.append("NOT x%d" % (k - args.hypervector_size))
         print(" AND ".join(l))
-
-
-start_training = time()
-tm.fit(graphs_train, Y_train, epochs=1, incremental=True)
-stop_training = time()
-
-start_testing = time()
-result_test = 100*(tm.predict(graphs_test) == Y_test).mean()
-stop_testing = time()
-
-result_train = 100*(tm.predict(graphs_train) == Y_train).mean()
-
-print("%.2f %.2f %.2f %.2f" % (result_train, result_test, stop_training-start_training, stop_testing-start_testing))
 
 print(graphs_train.hypervectors)

@@ -53,17 +53,13 @@ for graph_id in range(args.number_of_examples):
 
 graphs_train.prepare_edge_configuration()
 
-Y_train = np.empty(args.number_of_examples, dtype=np.uint32)
 for graph_id in range(args.number_of_examples):
     edge_type = "Plain"
-    source_node_id = 'Node 1'
-    destination_node_id = 'Node 2'
-    graphs_train.add_graph_node_edge(graph_id, source_node_id, destination_node_id, edge_type)
+    graphs_train.add_graph_node_edge(graph_id, 'Node 1', 'Node 2', edge_type)
+    graphs_train.add_graph_node_edge(graph_id, 'Node 2', 'Node 1', edge_type)
 
-    source_node_id = 'Node 2'
-    destination_node_id = 'Node 1'
-    graphs_train.add_graph_node_edge(graph_id, source_node_id, destination_node_id, edge_type)
-
+Y_train = np.empty(args.number_of_examples, dtype=np.uint32)
+for graph_id in range(args.number_of_examples):
     x1 = random.choice(['A', 'B'])
     x2 = random.choice(['A', 'B'])
     if x1 == x2:
@@ -71,8 +67,8 @@ for graph_id in range(args.number_of_examples):
     else:
         Y_train[graph_id] = 1
 
-    graphs_train.add_graph_node_feature(graph_id, 0, x1)
-    graphs_train.add_graph_node_feature(graph_id, 1, x2)
+    graphs_train.add_graph_node_property(graph_id, 'Node 1', x1)
+    graphs_train.add_graph_node_property(graph_id, 'Node 2', x2)
 
     if np.random.rand() <= args.noise:
         Y_train[graph_id] = 1 - Y_train[graph_id]
@@ -97,17 +93,13 @@ for graph_id in range(args.number_of_examples):
 
 graphs_test.prepare_edge_configuration()
 
-Y_test = np.empty(args.number_of_examples, dtype=np.uint32)
 for graph_id in range(args.number_of_examples):
     edge_type = "Plain"
-    source_node_id = 'Node 1'
-    destination_node_id = 'Node 2'
-    graphs_test.add_graph_node_edge(graph_id, source_node_id, destination_node_id, edge_type)
+    graphs_test.add_graph_node_edge(graph_id, 'Node 1', 'Node 2', edge_type)
+    graphs_test.add_graph_node_edge(graph_id, 'Node 2', 'Node 1', edge_type)
 
-    source_node_id = 'Node 2'
-    destination_node_id = 'Node 1'
-    graphs_test.add_graph_node_edge(graph_id, source_node_id, destination_node_id, edge_type)
-
+Y_test = np.empty(args.number_of_examples, dtype=np.uint32)
+for graph_id in range(args.number_of_examples):
     x1 = random.choice(['A', 'B'])
     x2 = random.choice(['A', 'B'])
     if x1 == x2:
@@ -115,8 +107,8 @@ for graph_id in range(args.number_of_examples):
     else:
         Y_test[graph_id] = 1
 
-    graphs_test.add_graph_node_feature(graph_id, 0, x1)
-    graphs_test.add_graph_node_feature(graph_id, 1, x2)
+    graphs_test.add_graph_node_property(graph_id, 'Node 1', x1)
+    graphs_test.add_graph_node_property(graph_id, 'Node 2', x2)
 
 graphs_test.encode()
 
