@@ -37,15 +37,15 @@ print("Creating training data")
 
 # Create symbols
 
-symbol_names = []
+symbols = []
 for value in range(args.number_of_values):
-    symbol_names.append(value)
+    symbols.append(value)
 
 # Create training data
 
 graphs_train = Graphs(
     args.number_of_examples,
-    symbol_names=symbol_names,
+    symbols=symbols,
     hypervector_size=args.hypervector_size,
     hypervector_bits=args.hypervector_bits,
     double_hashing = args.double_hashing
@@ -74,8 +74,8 @@ for graph_id in range(args.number_of_examples):
     destination_node_id = 0
     graphs_train.add_graph_node_edge(graph_id, source_node_id, destination_node_id, edge_type)
 
-    x1 = random.choice(symbol_names)
-    x2 = random.choice(symbol_names)
+    x1 = random.choice(symbols)
+    x2 = random.choice(symbols)
     if (x1 % 2) == (x2 % 2):
         Y_train[graph_id] = 0
     else:
@@ -118,8 +118,8 @@ for graph_id in range(args.number_of_examples):
     destination_node_id = 0
     graphs_test.add_graph_node_edge(graph_id, source_node_id, destination_node_id, edge_type)
 
-    x1 = random.choice(symbol_names)
-    x2 = random.choice(symbol_names)
+    x1 = random.choice(symbols)
+    x2 = random.choice(symbols)
     if (x1 % 2) == (x2 % 2):
         Y_test[graph_id] = 0
     else:
