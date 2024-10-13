@@ -107,8 +107,8 @@ for graph_id in range(args.number_of_examples):
     else:
         Y_test[graph_id] = 1
 
-    graphs_test.add_graph_node_property(graph_id, 0, x1)
-    graphs_test.add_graph_node_property(graph_id, 1, x2)
+    graphs_test.add_graph_node_property(graph_id, 'Node 1', x1)
+    graphs_test.add_graph_node_property(graph_id, 'Node 2', x2)
 
 graphs_test.encode()
 
