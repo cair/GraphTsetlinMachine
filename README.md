@@ -43,6 +43,7 @@ In this tutorial, you create graphs for the Noisy XOR problem and then train and
 <p align="center">
   <img width="50%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/NoisyXOR.png">
 </p>
+
 ### Initialization
 
 Start by creating the training graphs using the _Graphs_ class:
