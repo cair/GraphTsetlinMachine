@@ -12,15 +12,17 @@ Implementation of the Graph Tsetlin Machine.
   - [Clause-Driven Message Passing](#)
   - [Learning and Reasoning With Nested Clauses](#nestedclauses)
 - [Demos](#demos)
+- [Paper](#paper)
+- [Roadmap](#roadmap)
 - [Licence](#licence)
 
 ## Features
 
-- Processes multigraphs
-- Vector symbolic node properties and edge types
+- Processes directed and labeled [multigraphs](https://en.wikipedia.org/wiki/Multigraph)
+- [Vector symbolic](https://link.springer.com/article/10.1007/s10462-021-10110-3) node properties and edge types
 - Nested (deep) clauses
 - Arbitrarily sized inputs
-- Incorporates Vanilla, Multiclass, Convolutional, and Coalesced Tsetlin Machine (Regression and auto-encoding supported soon)
+- Incorporates [Vanilla](https://tsetlinmachine.org/wp-content/uploads/2022/11/Tsetlin_Machine_Book_Chapter_One_Revised.pdf), Multiclass, [Convolutional](https://tsetlinmachine.org/wp-content/uploads/2023/12/Tsetlin_Machine_Book_Chapter_4_Convolution.pdf), and [Coalesced](https://arxiv.org/abs/2108.07594) [Tsetlin Machines](https://tsetlinmachine.org) (regression and auto-encoding supported soon)
 - Rewritten faster CUDA kernels 
 
 ## Installation
@@ -31,6 +33,24 @@ pip3 install dist/GraphTsetlinMachine-0.2.4.tar.gz
 ```
 
 ## Tutorial 
+
+In this tutorial, you create graphs for the Noisy XOR problem and then train the Graph Tsetlin Machine on these. Start by creating the training graphs using the _Graphs_ class:
+```bash
+graphs_train = Graphs(
+    10000,
+    symbols = ['A', 'B'],
+    hypervector_size = 32,
+    hypervector_bits = 2
+)
+```
+You initialize the class as follows:
+- *Number of Graphs.* The first number sets how many graphs you are going to create. Here, you prepare for creating _10,000_ graphs.
+
+- *Symbols.* Next, you find the symbols 'A' and 'B'. You use these symbols to assign properties to the nodes of the graphs. You can define as many symbols as you like. For the XOR problem, you only need two.
+
+- *Vector Symbolic Representation (Hypervectors).* You also decide how large hypervectors you would like to use to store the symbols. Larger hypervectors room more symbols. Since you only have two symbols, set the size to _32_. Finally, you decide how many bits to use for representing each symbol. Use _2_ bits for this tutorial. You then get _32*31/2 = 496_ unique bit pairs - plenty of space for two symbols!
+  
+- *Generation and Compilation.* The generation and compilation of hypervectors happen automatically during initialization of your _Graphs_ object,  using [sparse distributed codes](https://ieeexplore.ieee.org/document/917565).
 
 ### Clause-Driven Message Passing
 
@@ -47,6 +67,16 @@ pip3 install dist/GraphTsetlinMachine-0.2.4.tar.gz
 ## Demos
 
 Demos coming soon.
+
+## Paper
+
+_A Tsetlin Machine for Logical Learning and Reasoning With Graphs_. Ole-Christoffer Granmo, et al., 2024. (Coming soon)
+
+## Roadmap
+
+- Rewrite graphs.py in C or numba for much faster construction of graphs
+- Add Tsetlin Machine Autoencoder
+- Add Tsetlin Machine Regression
 
 ## Licence
 
