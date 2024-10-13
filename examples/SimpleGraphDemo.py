@@ -37,7 +37,7 @@ print("Creating training data")
 
 graphs_train = Graphs(
     args.number_of_examples,
-    symbol_names=['A'],
+    symbol=['A'],
     hypervector_size=args.hypervector_size,
     hypervector_bits=args.hypervector_bits,
     double_hashing = args.double_hashing
@@ -71,7 +71,7 @@ for graph_id in range(args.number_of_examples):
     Y_train[graph_id] = np.random.randint(args.number_of_classes)
     node_id = np.random.randint(Y_train[graph_id], graphs_train.number_of_graph_nodes[graph_id])
     for node_pos in range(Y_train[graph_id] + 1):
-        graphs_train.add_graph_node_feature(graph_id, node_id - node_pos, 'A')
+        graphs_train.add_graph_node_property(graph_id, node_id - node_pos, 'A')
 
     if np.random.rand() <= args.noise:
         Y_train[graph_id] = np.random.choice(np.setdiff1d(np.arange(args.number_of_classes), [Y_train[graph_id]]))
@@ -111,7 +111,7 @@ for graph_id in range(args.number_of_examples):
     Y_test[graph_id] = np.random.randint(args.number_of_classes)
     node_id = np.random.randint(Y_test[graph_id], graphs_test.number_of_graph_nodes[graph_id])
     for node_pos in range(Y_test[graph_id] + 1):
-        graphs_test.add_graph_node_feature(graph_id, node_id - node_pos, 'A')
+        graphs_test.add_graph_node_property(graph_id, node_id - node_pos, 'A')
 
 graphs_test.encode()
 

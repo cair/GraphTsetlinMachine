@@ -83,10 +83,10 @@ for graph_id in range(X_train.shape[0]):
 
                 patch = windows[q,r].reshape(-1).astype(np.uint32)
                 for k in patch.nonzero()[0]:
-                    graphs_train.add_graph_node_feature(graph_id, node_id, k)
+                    graphs_train.add_graph_node_property(graph_id, node_id, k)
 
-                graphs_train.add_graph_node_feature(graph_id, node_id, "C:%d" % (q))
-                graphs_train.add_graph_node_feature(graph_id, node_id, "R:%d" % (r))
+                graphs_train.add_graph_node_property(graph_id, node_id, "C:%d" % (q))
+                graphs_train.add_graph_node_property(graph_id, node_id, "R:%d" % (r))
 
 graphs_train.encode()
 
@@ -115,10 +115,10 @@ for graph_id in range(X_test.shape[0]):
 
                 patch = windows[q,r].reshape(-1).astype(np.uint32)
                 for k in patch.nonzero()[0]:
-                    graphs_test.add_graph_node_feature(graph_id, node_id, k)
+                    graphs_test.add_graph_node_property(graph_id, node_id, k)
 
-                graphs_test.add_graph_node_feature(graph_id, node_id, "C:%d" % (q))
-                graphs_test.add_graph_node_feature(graph_id, node_id, "R:%d" % (r))
+                graphs_test.add_graph_node_property(graph_id, node_id, "C:%d" % (q))
+                graphs_test.add_graph_node_property(graph_id, node_id, "R:%d" % (r))
 
 graphs_test.encode()
 

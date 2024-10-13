@@ -21,10 +21,10 @@ def default_args(**kwargs):
     parser.add_argument("--number-of-clauses", default=20000, type=int)
     parser.add_argument("--T", default=25000, type=int)
     parser.add_argument("--s", default=10.0, type=float)
-    parser.add_argument("--depth", default=1, type=int)
+    parser.add_argument("--depth", default=2, type=int)
     parser.add_argument("--hypervector-size", default=1024, type=int)
     parser.add_argument("--hypervector-bits", default=2, type=int)
-    parser.add_argument("--message-size", default=256, type=int)
+    parser.add_argument("--message-size", default=1024, type=int)
     parser.add_argument("--message-bits", default=2, type=int)
     parser.add_argument('--double-hashing', dest='double_hashing', default=False, action='store_true')
     parser.add_argument("--max-included-literals", default=32, type=int)
@@ -37,7 +37,7 @@ def default_args(**kwargs):
 
 args = default_args()
 
-number_of_nodes = 1
+number_of_nodes = 2
 
 symbol_names = []
 
@@ -59,16 +59,21 @@ for graph_id in range(X_train.shape[0]):
 graphs_train.prepare_node_configuration()
 
 for graph_id in range(X_train.shape[0]):
-    graphs_train.add_graph_node(graph_id, 0, 0)
+    graphs_train.add_graph_node(graph_id, 0, 1)
+    graphs_train.add_graph_node(graph_id, 1, 1)
 
 graphs_train.prepare_edge_configuration()
+
+for graph_id in range(X_train.shape[0]):
+    graphs_train.add_graph_node_edge(graph_id, 0, 1, 0)
+    graphs_train.add_graph_node_edge(graph_id, 1, 0, 0)
 
 for graph_id in range(X_train.shape[0]):
     if graph_id % 1000 == 0:
         print(graph_id, X_train.shape[0])
     
     for k in X_train[graph_id].nonzero()[0]:
-        graphs_train.add_graph_node_property(graph_id, 0, k)
+        graphs_train.add_graph_node_feature(graph_id, 0, k)
 
 graphs_train.encode()
 
@@ -82,20 +87,25 @@ for graph_id in range(X_test.shape[0]):
 graphs_test.prepare_node_configuration()
 
 for graph_id in range(X_test.shape[0]):
-    graphs_test.add_graph_node(graph_id, 0, 0)
+    graphs_test.add_graph_node(graph_id, 0, 1)
+    graphs_test.add_graph_node(graph_id, 1, 1)
 
 graphs_test.prepare_edge_configuration()
+
+for graph_id in range(X_test.shape[0]):
+    graphs_test.add_graph_node_edge(graph_id, 0, 1, 0)
+    graphs_test.add_graph_node_edge(graph_id, 1, 0, 0)
 
 for graph_id in range(X_test.shape[0]):
     if graph_id % 1000 == 0:
         print(graph_id, X_test.shape[0])
     
     for k in X_test[graph_id].nonzero()[0]:
-        graphs_test.add_graph_node_property(graph_id, 0, k)
+        graphs_test.add_graph_node_feature(graph_id, 0, k)
 
 graphs_test.encode()
 
-print("Testing data produced")
+print("Training data produced")
 
 tm = MultiClassGraphTsetlinMachine(
     args.number_of_clauses,
