@@ -40,7 +40,9 @@ pip3 install dist/GraphTsetlinMachine-0.2.5.tar.gz
 ## Tutorial 
 
 In this tutorial, you create graphs for the Noisy XOR problem and then train and test the Graph Tsetlin Machine on these. 
-
+<p align="center">
+  <img width="75%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/NoisyXOR.png">
+</p>
 ### Initialization
 
 Start by creating the training graphs using the _Graphs_ class:
