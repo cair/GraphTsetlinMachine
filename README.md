@@ -94,12 +94,19 @@ for graph_id in range(10000):
 
 ### Adding the Node Edges
 
+You are now ready to prepare your graphs structure for adding edges:
+```bash
+graphs_train.prepare_edge_configuration()
+```
+
+After that, you connect the two nodes of each graph with two edges:
 ```bash
 for graph_id in range(10000):
     edge_type = "Plain"
     graphs_train.add_graph_node_edge(graph_id, 'Node 1', 'Node 2', edge_type)
     graphs_train.add_graph_node_edge(graph_id, 'Node 2', 'Node 1', edge_type)
 ```
+You need two edges because you build directed graphs, and then you cover both directions.
 
 ### Adding the Node Properties and Graph Labels
 
@@ -117,7 +124,7 @@ for graph_id in range(10000):
     else:
         Y_train[graph_id] = 1
 
-    if np.random.rand() <= args.noise:
+    if np.random.rand() <= 0.01:
         Y_train[graph_id] = 1 - Y_train[graph_id]
 ```
 
