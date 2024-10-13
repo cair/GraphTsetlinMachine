@@ -69,7 +69,7 @@ You initialize the class as follows:
 
 ### Adding the Nodes
 
-The next step is to set how many nodes you want in each of the _10,000_ graphs you are building. 
+The next step is to set how many nodes you want in each of the _10,000_ graphs you are building. For the NoisyXOR problem, each graph has two nodes:
 ```bash
 for graph_id in range(10000):
     graphs_train.set_number_of_graph_nodes(graph_id, 2)
