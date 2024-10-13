@@ -61,6 +61,24 @@ You initialize the class as follows:
   
 - *Generation and Compilation.* The generation and compilation of hypervectors happen automatically during initialization of your _Graphs_ object,  using [sparse distributed codes](https://ieeexplore.ieee.org/document/917565).
 
+### Adding the Nodes
+
+```bash
+for graph_id in range(args.number_of_examples):
+    graphs_train.set_number_of_graph_nodes(graph_id, 2)
+```
+
+```bash
+graphs_train.prepare_node_configuration()
+```
+
+```bash
+for graph_id in range(args.number_of_examples):
+    for node_id in range(graphs_train.number_of_graph_nodes[graph_id]):
+        number_of_edges = 1
+        graphs_train.add_graph_node(graph_id, node_id, number_of_edges)
+```
+
 ### Clause-Driven Message Passing
 
 <p align="center">
