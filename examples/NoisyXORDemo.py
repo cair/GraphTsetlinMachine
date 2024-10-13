@@ -54,6 +54,12 @@ for graph_id in range(args.number_of_examples):
 graphs_train.prepare_edge_configuration()
 
 for graph_id in range(args.number_of_examples):
+    edge_type = "Plain"
+    graphs_train.add_graph_node_edge(graph_id, 'Node 1', 'Node 2', edge_type)
+    graphs_train.add_graph_node_edge(graph_id, 'Node 2', 'Node 1', edge_type)
+
+Y_train = np.empty(args.number_of_examples, dtype=np.uint32)
+for graph_id in range(args.number_of_examples):
     x1 = random.choice(['A', 'B'])
     x2 = random.choice(['A', 'B'])
     if x1 == x2:
@@ -66,12 +72,6 @@ for graph_id in range(args.number_of_examples):
 
     if np.random.rand() <= args.noise:
         Y_train[graph_id] = 1 - Y_train[graph_id]
-
-Y_train = np.empty(args.number_of_examples, dtype=np.uint32)
-for graph_id in range(args.number_of_examples):
-    edge_type = "Plain"
-    graphs_train.add_graph_node_edge(graph_id, 'Node 1', 'Node 2', edge_type)
-    graphs_train.add_graph_node_edge(graph_id, 'Node 2', 'Node 1', edge_type)
 
 graphs_train.encode()
 
@@ -94,6 +94,12 @@ for graph_id in range(args.number_of_examples):
 graphs_test.prepare_edge_configuration()
 
 for graph_id in range(args.number_of_examples):
+    edge_type = "Plain"
+    graphs_test.add_graph_node_edge(graph_id, 'Node 1', 'Node 2', edge_type)
+    graphs_test.add_graph_node_edge(graph_id, 'Node 2', 'Node 1', edge_type)
+
+Y_test = np.empty(args.number_of_examples, dtype=np.uint32)
+for graph_id in range(args.number_of_examples):
     x1 = random.choice(['A', 'B'])
     x2 = random.choice(['A', 'B'])
     if x1 == x2:
@@ -103,12 +109,6 @@ for graph_id in range(args.number_of_examples):
 
     graphs_test.add_graph_node_property(graph_id, 0, x1)
     graphs_test.add_graph_node_property(graph_id, 1, x2)
-
-Y_test = np.empty(args.number_of_examples, dtype=np.uint32)
-for graph_id in range(args.number_of_examples):
-    edge_type = "Plain"
-    graphs_test.add_graph_node_edge(graph_id, 'Node 1', 'Node 2', edge_type)
-    graphs_test.add_graph_node_edge(graph_id, 'Node 2', 'Node 1', edge_type)
 
 graphs_test.encode()
 
