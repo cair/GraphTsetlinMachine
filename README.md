@@ -9,7 +9,8 @@ Implementation of the Graph Tsetlin Machine.
 - [Features](#features)
 - [Installation](#installation)
 - [Tutorial](#tutorial)
-  - [Clause-Driven Message Passing](#)
+  - [Initialization](#initialization)
+  - [Clause-Driven Message Passing](#messagepassing)
   - [Learning and Reasoning With Nested Clauses](#nestedclauses)
 - [Demos](#demos)
 - [Paper](#paper)
@@ -37,6 +38,8 @@ pip3 install dist/GraphTsetlinMachine-0.2.5.tar.gz
 ```
 
 ## Tutorial 
+
+### Initialization
 
 In this tutorial, you create graphs for the Noisy XOR problem and then train the Graph Tsetlin Machine on these. Start by creating the training graphs using the _Graphs_ class:
 ```bash
