@@ -49,7 +49,7 @@ In this tutorial, you create graphs for the Noisy XOR problem and then train and
   <img width="60%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/NoisyXOR.png">
 </p>
 
-Observe how each node in a graph has one of two properties: **A** or **B**. If both of the graph's nodes have the same property, the graph is given the class label _Y=0_. Otherwise, it is given the class label _Y=1_. The task of the Graph Tsetlin Machine is to assign the correct class label to each graph, when the labels used for training are noisy.
+Observe how each node in a graph has one of two properties: **A** or **B**. If both of the graph's nodes have the same property, the graph is given the class label _Y=0_. Otherwise, it is given the class label _Y=1_. The task of the Graph Tsetlin Machine is to assign the correct class label to each graph when the labels used for training are noisy.
 
 ### Initialization
 
@@ -69,7 +69,7 @@ You initialize the graphs as follows:
 
 - *Vector Symbolic Representation (Hypervectors).* You also decide how large hypervectors you would like to use to store the symbols. Larger hypervectors room more symbols. Since you only have two symbols, set the size to _32_. Finally, you decide how many bits to use for representing each symbol. Use _2_ bits for this tutorial. You then get _32*31/2 = 496_ unique bit pairs - plenty of space for two symbols!
   
-- *Generation and Compilation.* The generation and compilation of hypervectors happen automatically during initialization of your _Graphs_ object,  using [sparse distributed codes](https://ieeexplore.ieee.org/document/917565).
+- *Generation and Compilation.* The generation and compilation of hypervectors happen automatically during initialization, using [sparse distributed codes](https://ieeexplore.ieee.org/document/917565).
 
 ### Adding the Nodes
 
