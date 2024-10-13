@@ -126,12 +126,12 @@ Based on this assignment, you set the class label of the graph. If both nodes ge
         Y_train[graph_id] = 0
     else:
         Y_train[graph_id] = 1
-
+```
+The class label is finally randomly inverted to introduce noise.
+```bash
     if np.random.rand() <= 0.01:
         Y_train[graph_id] = 1 - Y_train[graph_id]
 ```
-The class label is finally randomly inverted to introduce noise.
-
 ## Graph Tsetlin Machine Basics
 
 ### Clause-Driven Message Passing
