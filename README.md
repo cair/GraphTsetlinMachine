@@ -159,7 +159,7 @@ _A Tsetlin Machine for Logical Learning and Reasoning With Graphs_. Ole-Christof
 - Rewrite graphs.py in C or numba for much faster construction of graphs
 - Add autoencoder
 - Add regression
-- Add multi-Output
+- Add multi-output
 
 ## Licence
 
