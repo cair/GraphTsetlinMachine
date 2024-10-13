@@ -20,7 +20,7 @@ Implementation of the Graph Tsetlin Machine.
 - [Vector symbolic](https://link.springer.com/article/10.1007/s10462-021-10110-3) node properties and edge types using [sparse distributed codes](https://ieeexplore.ieee.org/document/917565)
 - Nested (deep) clauses
 - Arbitrarily sized inputs
-- Incorporates [Vanilla](https://tsetlinmachine.org/wp-content/uploads/2022/11/Tsetlin_Machine_Book_Chapter_One_Revised.pdf), Multiclass, [Convolutional](https://tsetlinmachine.org/wp-content/uploads/2023/12/Tsetlin_Machine_Book_Chapter_4_Convolution.pdf), and [Coalesced](https://arxiv.org/abs/2108.07594) Tsetlin Machine (regression and auto-encoding supported soon)
+- Incorporates [Vanilla](https://tsetlinmachine.org/wp-content/uploads/2022/11/Tsetlin_Machine_Book_Chapter_One_Revised.pdf), Multiclass, [Convolutional](https://tsetlinmachine.org/wp-content/uploads/2023/12/Tsetlin_Machine_Book_Chapter_4_Convolution.pdf), and [Coalesced](https://arxiv.org/abs/2108.07594) [Tsetlin Machines](https://tsetlinmachine.org) (regression and auto-encoding supported soon)
 - Rewritten faster CUDA kernels 
 
 ## Installation
