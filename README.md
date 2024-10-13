@@ -80,7 +80,7 @@ graphs_train.prepare_node_configuration()
 ```
 The two nodes of each graph are automatically named _0_ and _1_, respectively. You add them to the graphs as follows, giving them one outgoing edge each:
 ```bash
-for graph_id in range(args.number_of_examples):
+for graph_id in range(10000):
   number_of_outgoing_edges = 1
 
   node_id = 0
