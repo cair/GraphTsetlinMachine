@@ -67,7 +67,7 @@ Demos coming soon.
 
 ## Paper
 
-A Tsetlin Machine for Logical Learning and Reasoning With Graphs. Ole-Christoffer Granmo, et al., 2024. (Coming soon).
+_A Tsetlin Machine for Logical Learning and Reasoning With Graphs_. Ole-Christoffer Granmo, et al., 2024. (Coming soon)
 
 ## Licence
 
