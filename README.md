@@ -32,7 +32,7 @@ pip3 install dist/GraphTsetlinMachine-0.2.4.tar.gz
 
 ## Tutorial 
 
-In this tutorial, we will create graphs for the Noisy XOR problem and then train the Graph Tsetlin Machine on these graphs. Start by creating the training graphs using the _Graphs_ class:
+In this tutorial, you create graphs for the Noisy XOR problem and then train the Graph Tsetlin Machine on these. Start by creating the training graphs using the _Graphs_ class:
 ```bash
 graphs_train = Graphs(
     10000,
@@ -41,7 +41,7 @@ graphs_train = Graphs(
     hypervector_bits = 2
 )
 ```
-You initialize your _Graphs_ object as follows:
+You initialize your graphs as follows:
 - *Number of Graphs.* The first number is how many graphs you are going to create. Here, we will create _10,000_ graphs.
 
 - *Symbols.* Next, you find the symbols 'A' and 'B'. You use these symbols to assign properties to the nodes of each graph. You can define as many symbols as you like. For the XOR problem, we only need two.
