@@ -17,7 +17,7 @@ Implementation of the Graph Tsetlin Machine.
 ## Features
 
 - Processes labeled directed [multigraphs](https://en.wikipedia.org/wiki/Multigraph)
-- [Vector symbolic](https://link.springer.com/article/10.1007/s10462-021-10110-3) node properties and edge types
+- [Vector symbolic](https://link.springer.com/article/10.1007/s10462-021-10110-3) node properties and edge types, using [sparse distributed codes](https://ieeexplore.ieee.org/document/917565).
 - Nested (deep) clauses
 - Arbitrarily sized inputs
 - Incorporates [Vanilla](https://tsetlinmachine.org/wp-content/uploads/2022/11/Tsetlin_Machine_Book_Chapter_One_Revised.pdf), Multiclass, [Convolutional](https://tsetlinmachine.org/wp-content/uploads/2023/12/Tsetlin_Machine_Book_Chapter_4_Convolution.pdf), and [Coalesced](https://arxiv.org/abs/2108.07594) Tsetlin Machine (Regression and auto-encoding supported soon)
@@ -32,7 +32,7 @@ pip3 install dist/GraphTsetlinMachine-0.2.4.tar.gz
 
 ## Tutorial 
 
-In this tutorial, we will create graphs for the Noisy XOR problem and then train the Graph Tsetlin Machine on these graphs. Start by creating the training graphs:
+In this tutorial, we will create graphs for the Noisy XOR problem and then train the Graph Tsetlin Machine on these graphs. Start by creating the training graphs using the _Graphs_ class:
 ```bash
 graphs_train = Graphs(
     10000,
@@ -48,7 +48,7 @@ The first number is how many graphs you are going to create. Here, we will creat
 
 ### Vector Symbolic Representation (Hypervectors)
 
-You also decide how large hypervectors you would like to use to store the symbols. Larger hypervectors room more symbols. Finally, you set how many bits used for representing each symbol. The generation and compilation of hypervectors happen automatically after you have set these two parameters.
+You also decide how large hypervectors you would like to use to store the symbols. Larger hypervectors room more symbols. Since you only have two symbols, set the size to 32. Finally, you decide how many bits to use for representing each symbol. You can use 2 bits here. The hypervector can then represent up to _32*31/2 = 496_ unique symbols. The generation and compilation of hypervectors happen automatically during initialization of your _Graphs_ object. 
 
 ### Clause-Driven Message Passing
 
