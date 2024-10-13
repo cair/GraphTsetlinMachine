@@ -120,7 +120,7 @@ for graph_id in range(10000):
     graphs_train.add_graph_node_property(graph_id, 'Node 1', x1)
     graphs_train.add_graph_node_property(graph_id, 'Node 2', x2)
 ```
-Based on this assignment, you set the class label. If both nodes get the same property, the class label is _0_. Otherwise, it is _1_.
+Based on this assignment, you set the class label of the graph. If both nodes get the same property, the class label is _0_. Otherwise, it is _1_.
 ```bash
     if x1 == x2:
         Y_train[graph_id] = 0
