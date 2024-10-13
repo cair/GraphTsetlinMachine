@@ -13,6 +13,7 @@ Implementation of the Graph Tsetlin Machine.
   - [Learning and Reasoning With Nested Clauses](#nestedclauses)
 - [Demos](#demos)
 - [Paper](#paper)
+- [Roadmap](#roadmap)
 - [Licence](#licence)
 
 ## Features
@@ -70,6 +71,12 @@ Demos coming soon.
 ## Paper
 
 _A Tsetlin Machine for Logical Learning and Reasoning With Graphs_. Ole-Christoffer Granmo, et al., 2024. (Coming soon)
+
+## Roadmap
+
+- Rewrite graphs.py in C or numba for much faster construction of graphs
+- Add Tsetlin Machine Autoencoder
+- Add Tsetlin Machine Regression
 
 ## Licence
 
