@@ -85,7 +85,7 @@ for graph_id in range(args.number_of_examples):
 ### Clause-Driven Message Passing
 
 <p align="center">
-  <img width="75%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/MessagePassing.png">
+  <img width="25%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/MessagePassing.png">
 </p>
 
 ### Learning and Reasoning With Nested Clauses
