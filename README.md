@@ -106,7 +106,7 @@ for graph_id in range(10000):
     graphs_train.add_graph_node_edge(graph_id, 'Node 1', 'Node 2', edge_type)
     graphs_train.add_graph_node_edge(graph_id, 'Node 2', 'Node 1', edge_type)
 ```
-You need two edges because you build directed graphs, and with two edges you cover both directions. We use only one type of edges for this, which we name _'Plain'_.
+You need two edges because you build directed graphs, and with two edges you cover both directions. We use only one type of edges for this, which we name _Plain_.
 
 ### Adding the Node Properties and Class Labels
 
@@ -157,8 +157,9 @@ _A Tsetlin Machine for Logical Learning and Reasoning With Graphs_. Ole-Christof
 ## Roadmap
 
 - Rewrite graphs.py in C or numba for much faster construction of graphs
-- Add Tsetlin Machine Autoencoder
-- Add Tsetlin Machine Regression
+- Add autoencoder
+- Add regression
+- Add multi-Output
 
 ## Licence
 
