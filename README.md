@@ -65,7 +65,7 @@ graphs_train = Graphs(
 You initialize the graphs as follows:
 - *Number of Graphs.* The first number sets how many graphs you are going to create. Here, you prepare for creating _10,000_ graphs.
 
-- *Symbols.* Next, you find the symbols **A** and **B**. You use these symbols to assign properties to the nodes of the graphs. You can define as many symbols as you like. For the XOR problem, you only need two.
+- *Symbols.* Next, you find the symbols **A** and **B**. You use these symbols to assign properties to the nodes of the graphs. You can define as many symbols as you like. For the Noisy XOR problem, you only need two.
 
 - *Vector Symbolic Representation (Hypervectors).* You also decide how large hypervectors you would like to use to store the symbols. Larger hypervectors room more symbols. Since you only have two symbols, set the size to _32_. Finally, you decide how many bits to use for representing each symbol. Use _2_ bits for this tutorial. You then get _32*31/2 = 496_ unique bit pairs - plenty of space for two symbols!
   
@@ -73,7 +73,7 @@ You initialize the graphs as follows:
 
 ### Adding the Nodes
 
-The next step is to set how many nodes you want in each of the _10,000_ graphs you are building. For the NoisyXOR problem, each graph has two nodes:
+The next step is to set how many nodes you want in each of the _10,000_ graphs you are building. For the Noisy XOR problem, each graph has two nodes:
 ```bash
 for graph_id in range(10000):
     graphs_train.set_number_of_graph_nodes(graph_id, 2)
