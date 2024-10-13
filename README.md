@@ -49,7 +49,7 @@ In this tutorial, you create graphs for the Noisy XOR problem and then train and
   <img width="60%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/NoisyXOR.png">
 </p>
 
-Each node has one of two properties: *A* or *B*. If both of the nodes in a graph have the same property, the graph is given the class label _Y=0_. Otherwise, it is given the class label _Y=1_. The task of the Graph Tsetlin Machine is to assign the correct class label to each type of graph, when the labels used for training are noisy.
+Each node has one of two properties: **A** or **B**. If both of the nodes in a graph have the same property, the graph is given the class label _Y=0_. Otherwise, it is given the class label _Y=1_. The task of the Graph Tsetlin Machine is to assign the correct class label to each type of graph, when the labels used for training are noisy.
 
 ### Initialization
 
@@ -65,7 +65,7 @@ graphs_train = Graphs(
 You initialize the class as follows:
 - *Number of Graphs.* The first number sets how many graphs you are going to create. Here, you prepare for creating _10,000_ graphs.
 
-- *Symbols.* Next, you find the symbols *A* and *B*. You use these symbols to assign properties to the nodes of the graphs. You can define as many symbols as you like. For the XOR problem, you only need two.
+- *Symbols.* Next, you find the symbols **A** and **B**. You use these symbols to assign properties to the nodes of the graphs. You can define as many symbols as you like. For the XOR problem, you only need two.
 
 - *Vector Symbolic Representation (Hypervectors).* You also decide how large hypervectors you would like to use to store the symbols. Larger hypervectors room more symbols. Since you only have two symbols, set the size to _32_. Finally, you decide how many bits to use for representing each symbol. Use _2_ bits for this tutorial. You then get _32*31/2 = 496_ unique bit pairs - plenty of space for two symbols!
   
