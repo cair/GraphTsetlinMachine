@@ -93,6 +93,13 @@ for graph_id in range(10000):
 
 ### Adding the Edges
 
+```bash
+for graph_id in range(10000):
+    edge_type = "Plain"
+    graphs_train.add_graph_node_edge(graph_id, 'Node 1', 'Node 2', edge_type)
+    graphs_train.add_graph_node_edge(graph_id, 'Node 2', 'Node 1', edge_type)
+```
+
 ## Graph Tsetlin Machine Basics
 
 ### Clause-Driven Message Passing
