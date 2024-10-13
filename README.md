@@ -43,7 +43,7 @@ graphs_train = Graphs(
 )
 ```
 You initialize the class as follows:
-- *Number of Graphs.* The first number sets how many graphs you are going to create. Here, you create _10,000_ graphs.
+- *Number of Graphs.* The first number sets how many graphs you are going to create. Here, you prepare for creating _10,000_ graphs.
 
 - *Symbols.* Next, you find the symbols 'A' and 'B'. You use these symbols to assign properties to the nodes of each graph. You can define as many symbols as you like. For the XOR problem, you only need two.
 
