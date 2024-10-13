@@ -12,7 +12,7 @@ Implementation of the Graph Tsetlin Machine.
   - [Initialization](#initialization)
   - [Adding the Nodes](#addingnodes)
   - [Adding the Node Edges](#addingedges)
-  - [Adding the Node Properties and Graph Labels](#addingproperties)
+  - [Adding the Node Properties and Class Labels](#addingproperties)
 - [Graph Tsetlin Machine Basics](#basics)
   - [Clause-Driven Message Passing](#messagepassing)
   - [Learning and Reasoning With Nested Clauses](#nestedclauses)
@@ -49,11 +49,11 @@ In this tutorial, you create graphs for the Noisy XOR problem and then train and
   <img width="60%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/NoisyXOR.png">
 </p>
 
-Each node has one of two properties: _'A'_ or _'B'_. If both of the nodes in a graph have the same property, the graph is labeled _Y=0_. Otherwise, it is labeled _Y=1_. The task of the Graph Tsetlin Machine is to assign the correct label to each type of graph, when the labels used for training are noisy.
+Each node has one of two properties: *A* or *B*. If both of the nodes in a graph have the same property, the graph is given the class label _Y=0_. Otherwise, it is given the class label _Y=1_. The task of the Graph Tsetlin Machine is to assign the correct class label to each type of graph, when the labels used for training are noisy.
 
 ### Initialization
 
-Start by creating the training graphs using the _Graphs_ class:
+Start by creating the training graphs using _Graphs_:
 ```bash
 graphs_train = Graphs(
     10000,
@@ -108,8 +108,9 @@ for graph_id in range(10000):
 ```
 You need two edges because you build directed graphs, and then you cover both directions.
 
-### Adding the Node Properties and Graph Labels
+### Adding the Node Properties and Class Labels
 
+In the last step, you randomly assign property *A* or *B* to each node.
 ```bash
 Y_train = np.empty(10000, dtype=np.uint32)
 for graph_id in range(10000):
@@ -118,7 +119,9 @@ for graph_id in range(10000):
 
     graphs_train.add_graph_node_property(graph_id, 'Node 1', x1)
     graphs_train.add_graph_node_property(graph_id, 'Node 2', x2)
-
+```
+Based on this assignment, you set the class label. If both nodes get the same property, the class label is _0_. Otherwise, it is _1_.
+```bash
     if x1 == x2:
         Y_train[graph_id] = 0
     else:
@@ -127,6 +130,7 @@ for graph_id in range(10000):
     if np.random.rand() <= 0.01:
         Y_train[graph_id] = 1 - Y_train[graph_id]
 ```
+The class label is finally randomly inverted to introduce noise.
 
 ## Graph Tsetlin Machine Basics
 
