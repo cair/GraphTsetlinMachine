@@ -36,12 +36,19 @@ In this tutorial, we will create graphs for the Noisy XOR problem and then train
 ```bash
 graphs_train = Graphs(
     10000,
-    symbol_names=['A', 'B'],
-    hypervector_size=32,
-    hypervector_bits=2
+    symbol_names = ['A', 'B'],
+    hypervector_size = 32,
+    hypervector_bits = 2
 )
 ```
-The first number is how many graphs you are going to create. Here, we will create 10 000 graphs. Next, you find the symbols 'A' and 'B'. You use these symbols to assign properties to the nodes of each graph. You can define as many symbols as you like. We here only need two to capture the XOR problem.
+
+### Symbols
+
+The first number is how many graphs you are going to create. Here, we will create 10 000 graphs. Next, you find the symbols 'A' and 'B'. You use these symbols to assign properties to the nodes of each graph. You can define as many symbols as you like. For the XOR problem, we only need two.
+
+### Vector Symbolic Representation (Hypervectors)
+
+You also decide how large hypervectors you would like to use to store the symbols. Larger hypervectors room more symbols. Finally, you set how many bits used for representing each symbol. The generation and compilation of hypervectors happen automatically after you have set these two parameters.
 
 ### Clause-Driven Message Passing
 
