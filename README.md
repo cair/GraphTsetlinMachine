@@ -11,8 +11,8 @@ Implementation of the Graph Tsetlin Machine.
 - [Tutorial](#tutorial)
   - [Initialization](#initialization)
   - [Adding the Nodes](#addingnodes)
-  - [Adding the Edges](#addingedges)
-  - [Adding the Node Properties](#addingproperties)
+  - [Adding the Node Edges](#addingedges)
+  - [Adding the Node Properties and Graph Labels](#addingproperties)
 - [Graph Tsetlin Machine Basics](#basics)
   - [Clause-Driven Message Passing](#messagepassing)
   - [Learning and Reasoning With Nested Clauses](#nestedclauses)
@@ -92,7 +92,7 @@ for graph_id in range(10000):
   graphs_train.add_graph_node(graph_id, 'Node 2', number_of_outgoing_edges)
 ```
 
-### Adding the Edges
+### Adding the Node Edges
 
 ```bash
 for graph_id in range(10000):
@@ -101,7 +101,7 @@ for graph_id in range(10000):
     graphs_train.add_graph_node_edge(graph_id, 'Node 2', 'Node 1', edge_type)
 ```
 
-### Adding the Node Properties
+### Adding the Node Properties and Graph Labels
 
 ```bash
 Y_train = np.empty(10000, dtype=np.uint32)
