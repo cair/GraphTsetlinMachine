@@ -39,10 +39,11 @@ pip3 install dist/GraphTsetlinMachine-0.2.5.tar.gz
 
 ## Tutorial 
 
-In this tutorial, you create graphs for the Noisy XOR problem and then train and test the Graph Tsetlin Machine on these. 
+In this tutorial, you create graphs for the Noisy XOR problem and then train and test the Graph Tsetlin Machine on these. You have four kinds of graphs, shown below:
 <p align="center">
   <img width="50%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/NoisyXOR.png">
 </p>
+Each node either has the property _'A'_ or _'B'. If a graph has the same symbol in both nodes, it is labeled _Y=0_. Otherwise, it is labeled _Y=1_. The task of the Graph Tsetlin Machine is to assign the correct label to each type of graph, when the labels used for training are noisy.
 
 ### Initialization
 
