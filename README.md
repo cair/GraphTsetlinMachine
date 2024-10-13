@@ -16,7 +16,7 @@ Implementation of the Graph Tsetlin Machine.
 
 ## Features
 
-- Processes multigraphs
+- Processes labeled directed [multigraphs](https://en.wikipedia.org/wiki/Multigraph)
 - [Vector symbolic](https://link.springer.com/article/10.1007/s10462-021-10110-3) node properties and edge types
 - Nested (deep) clauses
 - Arbitrarily sized inputs
