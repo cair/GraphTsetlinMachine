@@ -39,15 +39,15 @@ args = default_args()
 
 number_of_nodes = 1
 
-symbol_names = []
+symbols = []
 
 # Patch pixel symbols
 for i in range(28*28):
-    symbol_names.append(i)
+    symbols.append(i)
 
 graphs_train = Graphs(
     X_train.shape[0],
-    symbol_names=symbol_names,
+    symbols=symbols,
     hypervector_size=args.hypervector_size,
     hypervector_bits=args.hypervector_bits,
     double_hashing = args.double_hashing
