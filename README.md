@@ -49,7 +49,9 @@ In this tutorial, you create graphs for the Noisy XOR problem and then train and
   <img width="60%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/NoisyXOR.png">
 </p>
 
-Observe how each node in a graph has one of two properties: **A** or **B**. If both of the graph's nodes have the same property, the graph is given the class label _Y=0_. Otherwise, it is given the class label _Y=1_. The task of the Graph Tsetlin Machine is to assign the correct class label to each graph when the labels used for training are noisy.
+Observe how each node in a graph has one of two properties: **A** or **B**. If both of the graph's nodes have the same property, the graph is given the class label _Y=0_. Otherwise, it is given the class label _Y=1_.
+
+The task of the Graph Tsetlin Machine is to assign the correct class label to each graph when the labels used for training are noisy.
 
 ### Initialization
 
