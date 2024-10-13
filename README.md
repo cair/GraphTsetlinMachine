@@ -38,7 +38,7 @@ In this tutorial, you create graphs for the Noisy XOR problem and then train the
 ```bash
 graphs_train = Graphs(
     10000,
-    symbol_names = ['A', 'B'],
+    symbols = ['A', 'B'],
     hypervector_size = 32,
     hypervector_bits = 2
 )
