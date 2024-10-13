@@ -42,7 +42,7 @@ graphs_train = Graphs(
     hypervector_bits = 2
 )
 ```
-You initialize your graphs as follows:
+You initialize the class as follows:
 - *Number of Graphs.* The first number is how many graphs you are going to create. Here, we will create _10,000_ graphs.
 
 - *Symbols.* Next, you find the symbols 'A' and 'B'. You use these symbols to assign properties to the nodes of each graph. You can define as many symbols as you like. For the XOR problem, we only need two.
