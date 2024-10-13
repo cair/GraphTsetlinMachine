@@ -82,6 +82,7 @@ The two nodes of each graph are automatically named _0_ and _1_, respectively. Y
 ```bash
 for graph_id in range(args.number_of_examples):
   number_of_outgoing_edges = 1
+
   node_id = 0
   graphs_train.add_graph_node(graph_id, node_id, number_of_outgoing_edges)
 
