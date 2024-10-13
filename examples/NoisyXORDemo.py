@@ -47,21 +47,21 @@ for graph_id in range(args.number_of_examples):
 graphs_train.prepare_node_configuration()
 
 for graph_id in range(args.number_of_examples):
-    for node_id in range(graphs_train.number_of_graph_nodes[graph_id]):
-        number_of_edges = 1
-        graphs_train.add_graph_node(graph_id, node_id, number_of_edges)
+    number_of_outgoing_edges = 1
+    graphs_train.add_graph_node(graph_id, 'Node 1', number_of_outgoing_edges)
+    graphs_train.add_graph_node(graph_id, 'Node 2', number_of_outgoing_edges)
 
 graphs_train.prepare_edge_configuration()
 
 Y_train = np.empty(args.number_of_examples, dtype=np.uint32)
 for graph_id in range(args.number_of_examples):
     edge_type = "Plain"
-    source_node_id = 0
-    destination_node_id = 1
+    source_node_id = 'Node 1'
+    destination_node_id = 'Node 2'
     graphs_train.add_graph_node_edge(graph_id, source_node_id, destination_node_id, edge_type)
 
-    source_node_id = 1
-    destination_node_id = 0
+    source_node_id = 'Node 2'
+    destination_node_id = 'Node 1'
     graphs_train.add_graph_node_edge(graph_id, source_node_id, destination_node_id, edge_type)
 
     x1 = random.choice(['A', 'B'])
@@ -91,21 +91,21 @@ for graph_id in range(args.number_of_examples):
 graphs_test.prepare_node_configuration()
 
 for graph_id in range(args.number_of_examples):
-    for node_id in range(graphs_test.number_of_graph_nodes[graph_id]):
-        number_of_edges = 1
-        graphs_test.add_graph_node(graph_id, node_id, number_of_edges)
+    number_of_outgoing_edges = 1
+    graphs_test.add_graph_node(graph_id, 'Node 1', number_of_outgoing_edges)
+    graphs_test.add_graph_node(graph_id, 'Node 2', number_of_outgoing_edges)
 
 graphs_test.prepare_edge_configuration()
 
 Y_test = np.empty(args.number_of_examples, dtype=np.uint32)
 for graph_id in range(args.number_of_examples):
     edge_type = "Plain"
-    source_node_id = 0
-    destination_node_id = 1
+    source_node_id = 'Node 1'
+    destination_node_id = 'Node 2'
     graphs_test.add_graph_node_edge(graph_id, source_node_id, destination_node_id, edge_type)
 
-    source_node_id = 1
-    destination_node_id = 0
+    source_node_id = 'Node 2'
+    destination_node_id = 'Node 1'
     graphs_test.add_graph_node_edge(graph_id, source_node_id, destination_node_id, edge_type)
 
     x1 = random.choice(['A', 'B'])
