@@ -41,7 +41,7 @@ pip3 install dist/GraphTsetlinMachine-0.2.5.tar.gz
 
 In this tutorial, you create graphs for the Noisy XOR problem and then train and test the Graph Tsetlin Machine on these. 
 <p align="center">
-  <img width="75%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/NoisyXOR.png">
+  <img width="25%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/NoisyXOR.png">
 </p>
 ### Initialization
 
@@ -85,7 +85,7 @@ for graph_id in range(args.number_of_examples):
 ### Clause-Driven Message Passing
 
 <p align="center">
-  <img width="25%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/MessagePassing.png">
+  <img width="75%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/MessagePassing.png">
 </p>
 
 ### Learning and Reasoning With Nested Clauses
