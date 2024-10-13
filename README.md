@@ -74,16 +74,19 @@ The next step is to set how many nodes you want in each of the _10,000_ graphs y
 for graph_id in range(10000):
     graphs_train.set_number_of_graph_nodes(graph_id, 2)
 ```
-
+After doing that, you prepare for adding the nodes:
 ```bash
 graphs_train.prepare_node_configuration()
 ```
-
+The two nodes of each graph are automatically named _0_ and _1_, respectively. You add them to the graphs as follows, giving them one outgoing edge each:
 ```bash
 for graph_id in range(args.number_of_examples):
-    for node_id in range(graphs_train.number_of_graph_nodes[graph_id]):
-        number_of_edges = 1
-        graphs_train.add_graph_node(graph_id, node_id, number_of_edges)
+  number_of_outgoing_edges = 1
+  node_id = 0
+  graphs_train.add_graph_node(graph_id, node_id, number_of_outgoing_edges)
+
+  node_id = 1
+  graphs_train.add_graph_node(graph_id, node_id, number_of_outgoing_edges)
 ```
 
 ### Clause-Driven Message Passing
