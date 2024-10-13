@@ -45,7 +45,7 @@ In this tutorial, you create graphs for the Noisy XOR problem and then train and
   <img width="50%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/NoisyXOR.png">
 </p>
 
-Each node has one of two properties: _'A'_ or _'B'_. If both of the nodes in the graph have the same property, it is labeled _Y=0_. Otherwise, it is labeled _Y=1_. The task of the Graph Tsetlin Machine is to assign the correct label to each type of graph, when the labels used for training are noisy.
+Each node has one of two properties: _'A'_ or _'B'_. If both of the nodes in a graph have the same property, the graph is labeled _Y=0_. Otherwise, it is labeled _Y=1_. The task of the Graph Tsetlin Machine is to assign the correct label to each type of graph, when the labels used for training are noisy.
 
 ### Initialization
 
