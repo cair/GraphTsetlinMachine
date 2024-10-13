@@ -53,7 +53,7 @@ Observe how each node in a graph has one of two properties: **A** or **B**. If b
 
 ### Initialization
 
-Start by creating the training graphs using _Graphs_:
+Start by creating the training graphs using the _Graphs_ construct:
 ```bash
 graphs_train = Graphs(
     10000,
