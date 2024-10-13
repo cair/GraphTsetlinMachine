@@ -28,6 +28,10 @@ Implementation of the Graph Tsetlin Machine.
 ## Installation
 
 ```bash
+pip3 install graphtsetlinmachine
+```
+or
+```bash
 python ./setup.py sdist
 pip3 install dist/GraphTsetlinMachine-0.2.4.tar.gz
 ```
