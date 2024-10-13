@@ -65,6 +65,10 @@ You initialize your graphs as follows:
 
 Demos coming soon.
 
+## Paper
+
+
+
 ## Licence
 
 Copyright (c) 2024 Ole-Christoffer Granmo
