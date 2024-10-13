@@ -10,7 +10,7 @@ Implementation of the Graph Tsetlin Machine.
 - [Installation](#installation)
 - [Tutorial](#tutorial)
   - [Initialization](#initialization)
-  - [Adding the Nodes](#addingthenodes)
+  - [Adding the Nodes](#adding th enodes)
   - [Adding the Node Edges](#addingedges)
   - [Adding the Node Properties and Graph Labels](#addingproperties)
 - [Graph Tsetlin Machine Basics](#basics)
