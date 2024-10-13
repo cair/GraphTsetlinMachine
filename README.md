@@ -12,6 +12,7 @@ Implementation of the Graph Tsetlin Machine.
   - [Clause-Driven Message Passing](#)
   - [Learning and Reasoning With Nested Clauses](#nestedclauses)
 - [Demos](#demos)
+- [Paper](#paper)
 - [Licence](#licence)
 
 ## Features
