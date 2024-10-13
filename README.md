@@ -10,6 +10,8 @@ Implementation of the Graph Tsetlin Machine.
 - [Installation](#installation)
 - [Tutorial](#tutorial)
   - [Initialization](#initialization)
+  - [Adding the Nodes](#addingnodes)
+  - [Adding the Edges](#addingedges)
   - [Clause-Driven Message Passing](#messagepassing)
   - [Learning and Reasoning With Nested Clauses](#nestedclauses)
 - [Demos](#demos)
@@ -87,6 +89,8 @@ for graph_id in range(10000):
 
   graphs_train.add_graph_node(graph_id, 'Node 2', number_of_outgoing_edges)
 ```
+
+### Adding the Edges
 
 ### Clause-Driven Message Passing
 
