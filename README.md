@@ -12,7 +12,7 @@ Implementation of the Graph Tsetlin Machine.
   - [Initialization](#initialization)
   - [Adding the Nodes](#addingnodes)
   - [Adding the Node Edges](#addingedges)
-  - [Adding the Node Properties and Graph Labels](#addingproperties)
+  - [Adding the Node Properties and Class Labels](#addingproperties)
 - [Graph Tsetlin Machine Basics](#basics)
   - [Clause-Driven Message Passing](#messagepassing)
   - [Learning and Reasoning With Nested Clauses](#nestedclauses)
@@ -43,17 +43,21 @@ pip3 install dist/GraphTsetlinMachine-0.2.6.tar.gz
 
 ## Tutorial 
 
-In this tutorial, you create graphs for the Noisy XOR problem and then train and test the Graph Tsetlin Machine on these. You have four kinds of graphs, shown below:
+In this tutorial, you create graphs for the Noisy XOR problem and then train and test the Graph Tsetlin Machine on these.
+
+Noisy XOR gives four kinds of graphs, shown below:
 
 <p align="center">
   <img width="60%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/NoisyXOR.png">
 </p>
 
-Each node has one of two properties: _'A'_ or _'B'_. If both of the nodes in a graph have the same property, the graph is labeled _Y=0_. Otherwise, it is labeled _Y=1_. The task of the Graph Tsetlin Machine is to assign the correct label to each type of graph, when the labels used for training are noisy.
+Observe how each node in a graph has one of two properties: **A** or **B**. If both of the graph's nodes have the same property, the graph is given the class label _Y=0_. Otherwise, it is given the class label _Y=1_.
+
+The task of the Graph Tsetlin Machine is to assign the correct class label to each graph when the labels used for training are noisy.
 
 ### Initialization
 
-Start by creating the training graphs using the _Graphs_ class:
+Start by creating the training graphs using the _Graphs_ construct:
 ```bash
 graphs_train = Graphs(
     10000,
@@ -62,18 +66,18 @@ graphs_train = Graphs(
     hypervector_bits = 2
 )
 ```
-You initialize the class as follows:
+You initialize the graphs as follows:
 - *Number of Graphs.* The first number sets how many graphs you are going to create. Here, you prepare for creating _10,000_ graphs.
 
-- *Symbols.* Next, you find the symbols 'A' and 'B'. You use these symbols to assign properties to the nodes of the graphs. You can define as many symbols as you like. For the XOR problem, you only need two.
+- *Symbols.* Next, you find the symbols **A** and **B**. You use these symbols to assign properties to the nodes of the graphs. You can define as many symbols as you like. For the Noisy XOR problem, you only need two.
 
 - *Vector Symbolic Representation (Hypervectors).* You also decide how large hypervectors you would like to use to store the symbols. Larger hypervectors room more symbols. Since you only have two symbols, set the size to _32_. Finally, you decide how many bits to use for representing each symbol. Use _2_ bits for this tutorial. You then get _32*31/2 = 496_ unique bit pairs - plenty of space for two symbols!
   
-- *Generation and Compilation.* The generation and compilation of hypervectors happen automatically during initialization of your _Graphs_ object,  using [sparse distributed codes](https://ieeexplore.ieee.org/document/917565).
+- *Generation and Compilation.* The generation and compilation of hypervectors happen automatically during initialization, using [sparse distributed codes](https://ieeexplore.ieee.org/document/917565).
 
 ### Adding the Nodes
 
-The next step is to set how many nodes you want in each of the _10,000_ graphs you are building. For the NoisyXOR problem, each graph has two nodes:
+The next step is to set how many nodes you want in each of the _10,000_ graphs you are building. For the Noisy XOR problem, each graph has two nodes:
 ```bash
 for graph_id in range(10000):
     graphs_train.set_number_of_graph_nodes(graph_id, 2)
@@ -94,15 +98,23 @@ for graph_id in range(10000):
 
 ### Adding the Node Edges
 
+You are now ready to prepare your graphs structure for adding edges:
+```bash
+graphs_train.prepare_edge_configuration()
+```
+
+After that, you connect the two nodes of each graph with two edges:
 ```bash
 for graph_id in range(10000):
     edge_type = "Plain"
     graphs_train.add_graph_node_edge(graph_id, 'Node 1', 'Node 2', edge_type)
     graphs_train.add_graph_node_edge(graph_id, 'Node 2', 'Node 1', edge_type)
 ```
+You need two edges because you build directed graphs, and with two edges you cover both directions. We use only one type of edges for this, which we name _Plain_.
 
-### Adding the Node Properties and Graph Labels
+### Adding the Node Properties and Class Labels
 
+In the last step, you randomly assign property *A* or *B* to each node.
 ```bash
 Y_train = np.empty(10000, dtype=np.uint32)
 for graph_id in range(10000):
@@ -111,16 +123,19 @@ for graph_id in range(10000):
 
     graphs_train.add_graph_node_property(graph_id, 'Node 1', x1)
     graphs_train.add_graph_node_property(graph_id, 'Node 2', x2)
-
+```
+Based on this assignment, you set the class label of the graph. If both nodes get the same property, the class label is _0_. Otherwise, it is _1_.
+```bash
     if x1 == x2:
         Y_train[graph_id] = 0
     else:
         Y_train[graph_id] = 1
-
-    if np.random.rand() <= args.noise:
+```
+The class label is finally randomly inverted to introduce noise.
+```bash
+    if np.random.rand() <= 0.01:
         Y_train[graph_id] = 1 - Y_train[graph_id]
 ```
-
 ## Graph Tsetlin Machine Basics
 
 ### Clause-Driven Message Passing
@@ -137,7 +152,11 @@ for graph_id in range(10000):
 
 ## Demos
 
-Demos coming soon.
+### Vanilla MNIST
+
+<p align="center">
+  <img width="40%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/VanillaMNIST.png">
+</p>
 
 ## Paper
 
@@ -146,8 +165,10 @@ _A Tsetlin Machine for Logical Learning and Reasoning With Graphs_. Ole-Christof
 ## Roadmap
 
 - Rewrite graphs.py in C or numba for much faster construction of graphs
-- Add Tsetlin Machine Autoencoder
-- Add Tsetlin Machine Regression
+- Add autoencoder
+- Add regression
+- Add multi-output
+- Graph initialization with adjacency matrix
 
 ## Licence
 
