@@ -1,4 +1,4 @@
-# Tsetlin Machine for Logical Learning and Reasoning With Graphs (Work in Progress)
+# Tsetlin Machine for Logical Learning and Reasoning With Graphs
 
 ![License](https://img.shields.io/github/license/microsoft/interpret.svg?style=flat-square) ![Python Version](https://img.shields.io/pypi/pyversions/interpret.svg?style=flat-square)![Maintenance](https://img.shields.io/maintenance/yes/2024?style=flat-square)
 
@@ -10,13 +10,15 @@ Implementation of the Graph Tsetlin Machine.
 - [Installation](#installation)
 - [Tutorial](#tutorial)
   - [Initialization](#initialization)
-  - [Adding the Nodes](#addingnodes)
-  - [Adding the Node Edges](#addingedges)
-  - [Adding the Node Properties and Class Labels](#addingproperties)
-- [Graph Tsetlin Machine Basics](#basics)
-  - [Clause-Driven Message Passing](#messagepassing)
-  - [Learning and Reasoning With Nested Clauses](#nestedclauses)
+  - [Adding the Nodes](#adding-the-nodes)
+  - [Adding the Node Edges](#adding-the-node-edges)
+  - [Adding the Node Properties and Class Labels](#adding-the-node-properties-and-class-labels)
+- [Graph Tsetlin Machine Basics](#graph-tsetlin-machine-basics)
+  - [Clause-Driven Message Passing](#clause-driven-message-passing)
+  - [Learning and Reasoning With Nested Clauses](#learning-and-reasoning-with-nested-clauses)
 - [Demos](#demos)
+  - [Vanilla MNIST](#Vanilla-MNIST)
+  - [Convolutional MNIST](#Convolutional-MNIST)
 - [Paper](#paper)
 - [Roadmap](#roadmap)
 - [Licence](#licence)
@@ -156,6 +158,12 @@ The class label is finally randomly inverted to introduce noise.
 
 <p align="center">
   <img width="40%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/VanillaMNIST.png">
+</p>
+
+### Convolutional MNIST
+
+<p align="center">
+  <img width="60%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/ConvolutionalMNIST.png">
 </p>
 
 ## Paper
