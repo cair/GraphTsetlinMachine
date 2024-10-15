@@ -70,6 +70,7 @@ for graph_id in range(X_train.shape[0]):
     
     for k in X_train[graph_id].nonzero()[0]:
         graphs_train.add_graph_node_property(graph_id, 'Image Node', "W%d,%d" % (k // 28, k % 28))
+        print(graph_id, "W%d,%d" % (k // 28, k % 28))
 
 graphs_train.encode()
 
