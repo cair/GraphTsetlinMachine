@@ -10,8 +10,8 @@ from numba import jit
 
 (X_train, Y_train), (X_test, Y_test) = mnist.load_data()
 
-X_train = np.where(X_train > 75, 1, 0).reshape(X_train.shape[0], -1).astype(np.uint32)
-X_test = np.where(X_test > 75, 1, 0).reshape(X_test.shape[0], -1).astype(np.uint32)
+X_train = np.where(X_train > 75, 1, 0).astype(np.uint32)
+X_test = np.where(X_test > 75, 1, 0).astype(np.uint32)
 Y_train = Y_train.astype(np.uint32)
 Y_test = Y_test.astype(np.uint32)
 
@@ -42,8 +42,9 @@ number_of_nodes = 1
 symbols = []
 
 # 784 white pixel symbols
-for i in range(28*28):
-    symbols.append("W%d" % (i))
+for i in range(28):
+    for j in range(28):
+        symbols.append("W%d,%d" % (i, j))
 
 graphs_train = Graphs(
     X_train.shape[0],
@@ -68,8 +69,9 @@ for graph_id in range(X_train.shape[0]):
     if graph_id % 1000 == 0:
         print(graph_id, X_train.shape[0])
     
-    for k in X_train[graph_id].nonzero()[0]:
-        graphs_train.add_graph_node_property(graph_id, 'Image Node', "W%d" % (k))
+    for i in X_train[graph_id].nonzero()[0]:
+        for j in X_train[graph_id].nonzero()[1]:
+            graphs_train.add_graph_node_property(graph_id, 'Image Node', "W%d,%d" % (i, j))
 
 graphs_train.encode()
 
@@ -92,8 +94,9 @@ for graph_id in range(X_test.shape[0]):
     if graph_id % 1000 == 0:
         print(graph_id, X_test.shape[0])
     
-    for k in X_test[graph_id].nonzero()[0]:
-        graphs_test.add_graph_node_property(graph_id, 'Image Node', "W%d" % (k))
+    for i in X_test[graph_id].nonzero()[0]:
+        for j in X_test[graph_id].nonzero()[1]:
+            graphs_test.add_graph_node_property(graph_id, 'Image Node', "W%d,%d" % (i, j))
 
 graphs_test.encode()
 
