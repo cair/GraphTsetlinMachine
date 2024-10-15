@@ -20,6 +20,7 @@ Implementation of the Graph Tsetlin Machine.
   - [Vanilla MNIST](#Vanilla-MNIST)
   - [Convolutional MNIST](#Convolutional-MNIST)
 - [Paper](#paper)
+- [CUDA Configurations](cuda-configurations)
 - [Roadmap](#roadmap)
 - [Licence](#licence)
 
