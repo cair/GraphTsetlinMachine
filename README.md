@@ -152,7 +152,11 @@ The class label is finally randomly inverted to introduce noise.
 
 ## Demos
 
-Demos coming soon.
+### Vanilla MNIST
+
+<p align="center">
+  <img width="75%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/VanillaMNIST.png">
+</p>
 
 ## Paper
 
