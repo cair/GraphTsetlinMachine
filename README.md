@@ -158,6 +158,12 @@ The class label is finally randomly inverted to introduce noise.
   <img width="40%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/VanillaMNIST.png">
 </p>
 
+### Convolutional MNIST
+
+<p align="center">
+  <img width="75%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/ConvolutionalMNIST.png">
+</p>
+
 ## Paper
 
 _A Tsetlin Machine for Logical Learning and Reasoning With Graphs_. Ole-Christoffer Granmo, et al., 2024. (Forthcoming)
