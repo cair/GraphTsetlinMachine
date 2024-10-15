@@ -41,9 +41,9 @@ number_of_nodes = 1
 
 symbols = []
 
-# Patch pixel symbols
+# 784 white pixel symbols
 for i in range(28*28):
-    symbols.append(i)
+    symbols.append("W%d" % (i))
 
 graphs_train = Graphs(
     X_train.shape[0],
@@ -59,7 +59,8 @@ for graph_id in range(X_train.shape[0]):
 graphs_train.prepare_node_configuration()
 
 for graph_id in range(X_train.shape[0]):
-    graphs_train.add_graph_node(graph_id, 0, 0)
+    number_of_outgoing_edges = 0
+    graphs_train.add_graph_node(graph_id, 'Image Node', number_of_outgoing_edges)
 
 graphs_train.prepare_edge_configuration()
 
@@ -68,7 +69,7 @@ for graph_id in range(X_train.shape[0]):
         print(graph_id, X_train.shape[0])
     
     for k in X_train[graph_id].nonzero()[0]:
-        graphs_train.add_graph_node_property(graph_id, 0, k)
+        graphs_train.add_graph_node_property(graph_id, 'Image Node', "W%d" % (k))
 
 graphs_train.encode()
 
@@ -82,7 +83,8 @@ for graph_id in range(X_test.shape[0]):
 graphs_test.prepare_node_configuration()
 
 for graph_id in range(X_test.shape[0]):
-    graphs_test.add_graph_node(graph_id, 0, 0)
+    number_of_outgoing_edges = 0
+    graphs_test.add_graph_node(graph_id, 'Image Node', number_of_outgoing_edges)
 
 graphs_test.prepare_edge_configuration()
 
@@ -91,7 +93,7 @@ for graph_id in range(X_test.shape[0]):
         print(graph_id, X_test.shape[0])
     
     for k in X_test[graph_id].nonzero()[0]:
-        graphs_test.add_graph_node_property(graph_id, 0, k)
+        graphs_test.add_graph_node_property(graph_id, 'Image Node', "W%d" % (k))
 
 graphs_test.encode()
 
@@ -127,9 +129,9 @@ for i in range(tm.number_of_clauses):
         for k in range(args.hypervector_size * 2):
             if tm.ta_action(0, i, k):
                 if k < args.hypervector_size:
-                    l.append("x%d" % (k))
+                    l.append("W%d" % (k))
                 else:
-                    l.append("NOT x%d" % (k - args.hypervector_size))
+                    l.append("NOT W%d" % (k - args.hypervector_size))
         print(" AND ".join(l))
 
 print(graphs_train.hypervectors)
