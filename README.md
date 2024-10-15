@@ -161,7 +161,7 @@ The class label is finally randomly inverted to introduce noise.
 ### Convolutional MNIST
 
 <p align="center">
-  <img width="50%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/ConvolutionalMNIST.png">
+  <img width="60%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/ConvolutionalMNIST.png">
 </p>
 
 ## Paper
