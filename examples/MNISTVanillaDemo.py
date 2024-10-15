@@ -93,7 +93,7 @@ for graph_id in range(X_test.shape[0]):
         print(graph_id, X_test.shape[0])
     
     for k in X_test[graph_id].nonzero()[0]:
-        graphs_test.add_graph_node_property(graph_id, 'Image Node', "W%d" % (k))
+        graphs_test.add_graph_node_property(graph_id, 'Image Node', "W%d,%d" % (k // 28, k % 28))
 
 graphs_test.encode()
 
@@ -124,7 +124,7 @@ for i in range(args.epochs):
 
 weights = tm.get_state()[1].reshape(2, -1)
 for i in range(tm.number_of_clauses):
-        print("Clause #%d W:(%d %d)" % (i, weights[0,i], weights[1,i]), end=' ')
+        print("Clause #%d Weights:(%d %d)" % (i, weights[0,i], weights[1,i]), end=' ')
         l = []
         for k in range(args.hypervector_size * 2):
             if tm.ta_action(0, i, k):
