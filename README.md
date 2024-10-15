@@ -18,6 +18,7 @@ Implementation of the Graph Tsetlin Machine.
   - [Learning and Reasoning With Nested Clauses](#nestedclauses)
 - [Demos](#demos)
   - [Vanilla MNIST](<#Vanilla MNIST>)
+  - [Convolutional MNIST](<#Convolutional MNIST>)
 - [Paper](#paper)
 - [Roadmap](#roadmap)
 - [Licence](#licence)
