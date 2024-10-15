@@ -164,6 +164,7 @@ _A Tsetlin Machine for Logical Learning and Reasoning With Graphs_. Ole-Christof
 - Add autoencoder
 - Add regression
 - Add multi-output
+- Graph initialization with adjacency matrix
 
 ## Licence
 
