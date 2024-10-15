@@ -42,7 +42,7 @@ number_of_nodes = 1
 symbols = []
 
 # 784 white pixel symbols
-for i in range(28):
+for i in range(28*28):
     for j in range(28):
         symbols.append("W%d,%d" % (i, j))
 
@@ -69,8 +69,9 @@ for graph_id in range(X_train.shape[0]):
     if graph_id % 1000 == 0:
         print(graph_id, X_train.shape[0])
     
-    for i in X_train[graph_id].nonzero()[0]:
-        for j in X_train[graph_id].nonzero()[1]:
+    white_pixels = X_train[graph_id].nonzero()
+    for i in white_pixels[0]:
+        for j in white_pixels[1]:
             graphs_train.add_graph_node_property(graph_id, 'Image Node', "W%d,%d" % (i, j))
 
 graphs_train.encode()
@@ -136,5 +137,3 @@ for i in range(tm.number_of_clauses):
                 else:
                     l.append("NOT x%d" % (k - args.hypervector_size))
         print(" AND ".join(l))
-
-print(graphs_train.hypervectors)
