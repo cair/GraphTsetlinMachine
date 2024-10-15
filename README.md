@@ -1,4 +1,4 @@
-# Tsetlin Machine for Logical Learning and Reasoning With Graphs (Work in Progress)
+# Tsetlin Machine for Logical Learning and Reasoning With Graphs
 
 ![License](https://img.shields.io/github/license/microsoft/interpret.svg?style=flat-square) ![Python Version](https://img.shields.io/pypi/pyversions/interpret.svg?style=flat-square)![Maintenance](https://img.shields.io/maintenance/yes/2024?style=flat-square)
 
