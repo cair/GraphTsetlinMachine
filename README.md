@@ -17,6 +17,7 @@ Implementation of the Graph Tsetlin Machine.
   - [Clause-Driven Message Passing](#messagepassing)
   - [Learning and Reasoning With Nested Clauses](#nestedclauses)
 - [Demos](#demos)
+  - [Vanilla MNIST](<#Vanilla MNIST>
 - [Paper](#paper)
 - [Roadmap](#roadmap)
 - [Licence](#licence)
