@@ -42,8 +42,8 @@ number_of_nodes = 1
 symbols = []
 
 # 784 white pixel symbols
-for i in range(28*28):
-    symbols.append("W%d" % (i))
+for k in range(28*28):
+    symbols.append("W%d,%d" % (k // 28, k % 28))
 
 graphs_train = Graphs(
     X_train.shape[0],
@@ -69,7 +69,7 @@ for graph_id in range(X_train.shape[0]):
         print(graph_id, X_train.shape[0])
     
     for k in X_train[graph_id].nonzero()[0]:
-        graphs_train.add_graph_node_property(graph_id, 'Image Node', "W%d" % (k))
+        graphs_train.add_graph_node_property(graph_id, 'Image Node', "W%d,%d" % (k // 28, k % 28))
 
 graphs_train.encode()
 
