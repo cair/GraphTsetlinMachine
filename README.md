@@ -170,6 +170,28 @@ The class label is finally randomly inverted to introduce noise.
 
 _A Tsetlin Machine for Logical Learning and Reasoning With Graphs_. Ole-Christoffer Granmo, et al., 2024. (Forthcoming)
 
+## CUDA Configurations
+
+### DGX-2 and A100
+
+```bash
+tm = MultiClassGraphTsetlinMachine(
+  ...
+  grid=(16*13,1,1),
+  block=(128,1,1)
+)
+```
+
+### DGX H100
+
+```bash
+tm = MultiClassGraphTsetlinMachine(
+  ...
+  grid=(16*13*4,1,1),
+  block=(128,1,1)
+)
+```
+
 ## Roadmap
 
 - Rewrite graphs.py in C or numba for much faster construction of graphs
