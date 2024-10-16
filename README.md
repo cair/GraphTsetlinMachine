@@ -148,7 +148,7 @@ The Graph Tsetlin Machine is based on message passing. As illustrated below, a p
 <p align="center">
   <img width="75%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/MessagePassing.png">
 </p>
-These messages supplment the node properties. That is, when a node receives a message, it adds the message to its properties. This enables learning and reasoning with nested clauses, explained below. 
+When a node receives a message, it adds the message to its properties. In this manner, the messages supplement the node properties with contextual information. This enables learning and reasoning with nested clauses, explained below. 
 
 ### Learning and Reasoning With Nested Clauses
 
