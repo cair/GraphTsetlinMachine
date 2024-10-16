@@ -186,7 +186,7 @@ By using many nodes to capture rich data, you can exploit inherent structure in 
   <img width="60%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/ConvolutionalMNIST.png">
 </p>
 
-Again, white pixel symbols W<sub>x,y</sub> define the image content. However, this example also show how you can enhance the representation by adding the location of each node inside the image. You do this by introducing row R<sub>x</sub> and column C<sub>y</sub> symbols. These symbols allow the Graph Tsetlin Machine to learn and reason about pixel patterns as well as their location inside the image. Without adding any edges, the result is a Coalesced Convolutional Tsetlin Machine. See the Convolutional MNIST Demo in the example folder for further details.
+Again, white pixel symbols W<sub>x,y</sub> define the image content. However, this example also shows how you can add the location of each node inside the image to enhance the representation. You do this by introducing row R<sub>x</sub> and column C<sub>y</sub> symbols. These symbols allow the Graph Tsetlin Machine to learn and reason about pixel patterns as well as their location inside the image. Without adding any edges, the result is a Coalesced Convolutional Tsetlin Machine. See the Convolutional MNIST Demo in the example folder for further details.
 
 ## Paper
 
