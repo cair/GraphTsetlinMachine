@@ -180,7 +180,7 @@ Here, each white pixel in the grid of <i>28x28</i> pixels gets its own symbol: W
 
 ### Convolutional MNIST
 
-By using many nodes to capture rich data, you can exploit inherent structure in the data. Below, each MNIST image is broken down into a grid of _19x19_ image patches, each patch containing _10x10_ pixels.
+By using many nodes to capture rich data, you can exploit inherent structure in the data. Below, each MNIST image is broken down into a grid of _19x19_ image patches, each patch containing _10x10_ pixels:
 
 <p align="center">
   <img width="60%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/ConvolutionalMNIST.png">
