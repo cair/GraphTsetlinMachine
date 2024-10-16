@@ -162,9 +162,9 @@ Initially, the clauses only consider the nodes' properties (the properties marke
 * In the first round of message passing, matching clauses send out their messages. These messages supplement the receiving node's properties (marked in red).
 * In the second round, the clauses examine the nodes again, now taking into account the first round of messages. Based on this revisit, the clauses produce the second round of messages, marked in blue.
   
-This process continues until reaching the desired depth of reasoning, in this case depth three.
+This process continues until reaching the desired depth of reasoning, in this case depth three. Finally, the Tsetlin Automata Teams update their states based on how the clauses handled the classification task.
 
-Finally, the Tsetlin Automata Teams update their states based on how the clauses handled the classification task. Notice how each Tsetlin Automata Team operates across the initial node properties as well as the incorporated messages. Accordingly, each team builds a nested clause, where a clause can draw upon the outcomes of other clause matches.
+Notice how each team operates across the initial node properties as well as the incorporated messages.  In this manner, they are able to build nested clauses. That is, a clause can draw upon the outcomes of other clause matches to create hierarchical clause structures.
 
 ## Demos
 
