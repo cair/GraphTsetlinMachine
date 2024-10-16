@@ -11,8 +11,8 @@ Implementation of the Graph Tsetlin Machine.
 - [Tutorial](#tutorial)
   - [Initialization](#initialization)
   - [Adding the Nodes](#adding-the-nodes)
-  - [Adding the Node Edges](#adding-the-node-edges)
-  - [Adding the Node Properties and Class Labels](#adding-the-node-properties-and-class-labels)
+  - [Adding the Edges](#adding-the-edges)
+  - [Adding the Properties and Class Labels](#adding-the-properties-and-class-labels)
 - [Graph Tsetlin Machine Basics](#graph-tsetlin-machine-basics)
   - [Clause-Driven Message Passing](#clause-driven-message-passing)
   - [Logical Learning and Reasoning With Nested Clauses](#logical-learning-and-reasoning-with-nested-clauses)
@@ -99,7 +99,7 @@ for graph_id in range(10000):
   graphs_train.add_graph_node(graph_id, 'Node 2', number_of_outgoing_edges)
 ```
 
-### Adding the Node Edges
+### Adding the Edges
 
 You are now ready to prepare your graphs structure for adding edges:
 ```bash
@@ -115,7 +115,7 @@ for graph_id in range(10000):
 ```
 You need two edges because you build directed graphs, and with two edges you cover both directions. We use only one type of edges for this, which we name _Plain_.
 
-### Adding the Node Properties and Class Labels
+### Adding the Properties and Class Labels
 
 In the last step, you randomly assign property *A* or *B* to each node.
 ```bash
@@ -158,7 +158,7 @@ The number of message rounds decides the depth of the reasoning. Three layers of
   <img width="100%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/DeepLogicalLearningAndReasoning.png">
 </p>
 
-Initially, the clauses only consider the nodes' properties (the properties marked in black).
+Initially, the clauses only consider the nodes' properties (marked in black).
 * In the first round of message passing, matching clauses send out their messages. These messages supplement the receiving node's properties (marked in red).
 * In the second round, the clauses examine the nodes again, now taking into account the first round of messages. Based on this revisit, the clauses produce the second round of messages, marked in blue.
   
