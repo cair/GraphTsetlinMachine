@@ -176,7 +176,7 @@ The Graph Tsetlin Machine supports rich data (images, video, text, spectrograms,
   <img width="40%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/VanillaMNIST.png">
 </p>
 
-In brief, you define an image by adding its white pixels as properties to the graph node. Each white pixel in the grid of <i>28x28</i> pixels gets its own symbol: W<sub>x,y</sub>.
+Here, you define an image by adding its white pixels as properties to the graph node. Each white pixel in the grid of <i>28x28</i> pixels gets its own symbol W<sub>x,y</sub>.
 
 Note that with only a single node, you obtain a Coalesced Vanilla Tsetlin Machine. See the Vanilla MNIST Demo in the example folder for further details.
 
