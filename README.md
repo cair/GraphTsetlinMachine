@@ -10,9 +10,9 @@ Implementation of the Graph Tsetlin Machine.
 - [Installation](#installation)
 - [Tutorial](#tutorial)
   - [Initialization](#initialization)
-  - [Adding the Nodes](#adding-the-nodes)
-  - [Adding the Edges](#adding-the-edges)
-  - [Adding the Properties and Class Labels](#adding-the-properties-and-class-labels)
+  - [Adding Nodes](#adding-nodes)
+  - [Adding Edges](#adding-edges)
+  - [Adding Properties and Class Labels](#adding-properties-and-class-labels)
 - [Graph Tsetlin Machine Basics](#graph-tsetlin-machine-basics)
   - [Clause-Driven Message Passing](#clause-driven-message-passing)
   - [Logical Learning and Reasoning With Nested Clauses](#logical-learning-and-reasoning-with-nested-clauses)
@@ -78,7 +78,7 @@ You initialize the graphs as follows:
   
 - *Generation and Compilation.* The generation and compilation of hypervectors happen automatically during initialization, using [sparse distributed codes](https://ieeexplore.ieee.org/document/917565).
 
-### Adding the Nodes
+### Adding Nodes
 
 The next step is to set how many nodes you want in each of the _10,000_ graphs you are building. For the Noisy XOR problem, each graph has two nodes:
 ```bash
@@ -99,7 +99,7 @@ for graph_id in range(10000):
   graphs_train.add_graph_node(graph_id, 'Node 2', number_of_outgoing_edges)
 ```
 
-### Adding the Edges
+### Adding Edges
 
 You are now ready to prepare for adding edges:
 ```bash
@@ -115,7 +115,7 @@ for graph_id in range(10000):
 ```
 You need two edges because you build directed graphs, and with two edges you cover both directions. Use only one type of edges, named _Plain_.
 
-### Adding the Properties and Class Labels
+### Adding Properties and Class Labels
 
 In the last step, you randomly assign property **A** or **B** to each node.
 ```bash
