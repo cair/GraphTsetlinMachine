@@ -101,7 +101,7 @@ for graph_id in range(10000):
 
 ### Adding the Edges
 
-You are now ready to prepare your graphs structure for adding edges:
+You are now ready to prepare for adding edges:
 ```bash
 graphs_train.prepare_edge_configuration()
 ```
