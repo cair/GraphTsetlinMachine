@@ -15,7 +15,7 @@ Implementation of the Graph Tsetlin Machine.
   - [Adding the Node Properties and Class Labels](#adding-the-node-properties-and-class-labels)
 - [Graph Tsetlin Machine Basics](#graph-tsetlin-machine-basics)
   - [Clause-Driven Message Passing](#clause-driven-message-passing)
-  - [Learning and Reasoning With Nested Clauses](#learning-and-reasoning-with-nested-clauses)
+  - [Logical Learning and Reasoning With Nested Clauses](#logical-learning-and-reasoning-with-nested-clauses)
 - [Demos](#demos)
   - [Vanilla MNIST](#Vanilla-MNIST)
   - [Convolutional MNIST](#Convolutional-MNIST)
@@ -148,9 +148,9 @@ The Graph Tsetlin Machine is based on message passing. As illustrated below, a p
 <p align="center">
   <img width="75%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/MessagePassing.png">
 </p>
-When a node receives a message, it adds the message to its properties. In this manner, the messages supplement the node properties with contextual information. This enables learning and reasoning with nested clauses, explained below. 
+When a node receives a message, it adds the message to its properties. In this manner, the messages supplement the node properties with contextual information. This enables logical learning and reasoning with nested clauses, explained below. 
 
-### Learning and Reasoning With Nested Clauses
+### Logical Learning and Reasoning With Nested Clauses
 
 <p align="center">
   <img width="100%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/DeepLogicalLearningAndReasoning.png">
