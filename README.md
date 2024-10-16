@@ -143,6 +143,8 @@ The class label is finally randomly inverted to introduce noise.
 
 ### Clause-Driven Message Passing
 
+The Graph Tsetlin Machine is based on message passing. As illustrated below, a pool of clauses examines each node the graph. Whenever a clause matches the properties of a node, it sends a message about its finding through the node's outgoing edges.
+
 <p align="center">
   <img width="75%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/MessagePassing.png">
 </p>
