@@ -174,7 +174,7 @@ The Graph Tsetlin Machine supports rich data. One can, for example, add an entir
 <p align="center">
   <img width="40%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/VanillaMNIST.png">
 </p>
-Here, the white pixels in the image represents the image. That is, each white pixel in the grid of _28x28_ pixels gets its own symbol: W<sub>x,y</sub>. You define the image by adding its white pixels as properties. 
+Here, the white pixels in the image represents the image. That is, each white pixel in the grid of <i>28x28</i> pixels gets its own symbol: W<sub>x,y</sub>. You define the image by adding its white pixels as properties. Note that with only a single graph node, you obtain a standard Coalesced Vanilla Tsetlin Machine.
 
 ### Convolutional MNIST
 
