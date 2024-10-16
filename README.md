@@ -170,7 +170,7 @@ Notice how each team operates across the initial node properties as well as the 
 
 ### Vanilla MNIST
 
-The Graph Tsetlin Machine supports rich data. One can, for example, add an entire image to a node, illustrated below:
+The Graph Tsetlin Machine supports rich data (images, video, text, spectrograms, sound, etc.). One can, for example, add an entire image to a node, illustrated below:
 <p align="center">
   <img width="40%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/VanillaMNIST.png">
 </p>
@@ -178,6 +178,7 @@ Here, each white pixel in the grid of <i>28x28</i> pixels gets its own symbol: W
 
 ### Convolutional MNIST
 
+By dividing the image into patches, one can 
 <p align="center">
   <img width="60%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/ConvolutionalMNIST.png">
 </p>
