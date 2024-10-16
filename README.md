@@ -117,7 +117,7 @@ You need two edges because you build directed graphs, and with two edges you cov
 
 ### Adding the Properties and Class Labels
 
-In the last step, you randomly assign property *A* or *B* to each node.
+In the last step, you randomly assign property **A** or **B** to each node.
 ```bash
 Y_train = np.empty(10000, dtype=np.uint32)
 for graph_id in range(10000):
