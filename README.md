@@ -171,17 +171,22 @@ Notice how each team operates across the initial node properties as well as the 
 ### Vanilla MNIST
 
 The Graph Tsetlin Machine supports rich data (images, video, text, spectrograms, sound, etc.). One can, for example, add an entire image to a node, illustrated for MNIST images below:
+
 <p align="center">
   <img width="40%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/VanillaMNIST.png">
 </p>
+
 Here, each white pixel in the grid of <i>28x28</i> pixels gets its own symbol: W<sub>x,y</sub>. You define an image by adding its white pixels as properties to the graph node. Note that with only a single node, you obtain a standard Coalesced Vanilla Tsetlin Machine. See the Vanilla MNIST Demo in the example folder for further details.
 
 ### Convolutional MNIST
 
-By dividing the image into patches, one can 
+Using many nodes to capture rich data makes it possible to exploit inherent structure in the data. Below, each MNIST image is broken down into a grid of _19x19_ image patches, each patch containing _10x10_ pixels.
+
 <p align="center">
   <img width="60%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/ConvolutionalMNIST.png">
 </p>
+
+Again, white pixel symbols W<sub>x,y</sub> define the image content. However, this example also show how you can enhance the representation by adding the location of each node inside the patch grid. This allows the Graph Tsetlin Machine to learn and reason about pixel patterns as well as their location inside the image.
 
 ## Paper
 
