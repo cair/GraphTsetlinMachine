@@ -164,7 +164,7 @@ Initially, the clauses only consider the nodes' properties (the properties marke
   
 This process continues until reaching the desired depth of reasoning, in this case depth three.
 
-Finally, the Tsetlin Automata Teams update their states based on how the clauses handled the classification task. Notice how the Tseltin Automata operate across the initial node properties as well as the incorporated messages. Accordingly, each team builds a nested clause, where a clause can draw upon the outcomes of other clause matches.
+Finally, the Tsetlin Automata Teams update their states based on how the clauses handled the classification task. Notice how a Tseltin Automata Team operates across the initial node properties as well as the incorporated messages. Accordingly, each team builds a nested clause, where a clause can draw upon the outcomes of other clause matches.
 
 ## Demos
 
