@@ -106,7 +106,7 @@ You are now ready to prepare for adding edges:
 graphs_train.prepare_edge_configuration()
 ```
 
-After that, you connect the two nodes of each graph:
+Next, you connect the two nodes of each graph:
 ```bash
 for graph_id in range(10000):
     edge_type = "Plain"
