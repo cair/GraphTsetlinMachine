@@ -164,7 +164,7 @@ Initially, the clauses only consider the nodes' properties (the properties marke
   
 This process continues until reaching the desired depth of reasoning, in this case depth three. Finally, the Tsetlin Automata Teams update their states based on how the clauses handled the classification task.
 
-Notice how each team operates across the initial node properties as well as the incorporated messages.  In this manner, they are able to build nested clauses. That is, a clause can draw upon the outcomes of other clause matches to create hierarchical clause structures.
+Notice how each team operates across the initial node properties as well as the incorporated messages.  In this manner, they are able to build nested clauses. That is, a clause can draw upon the outcomes of other clause matches to create hierarchical clause structures, centered around the various nodes. Hence, the power of the scheme!
 
 ## Demos
 
