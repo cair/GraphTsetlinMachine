@@ -163,7 +163,7 @@ The number of message rounds decides the depth of the reasoning. Three layers of
 * In the second round, the clauses examine the nodes again, now taking into account the first round of messages. Based on this revisit, the clauses produce the second round of messages, marked in blue. 
 * This process continues until reaching the desired depth of reasoning, in this case depth three.
 
-Finally, the Tsetlin Automata Teams update their states. Notice how the Tseltin Automata operates across the initial node properties as well as the incorporated messages. In this manner, each team builds a nested clause to solve the learning task.
+Finally, the Tsetlin Automata Teams update their states based on how the clauses handled the classification task. Notice how the Tseltin Automata operate across the initial node properties as well as the incorporated messages. Accordingly, each team builds a nested clause, where a clause can draw upon the outcomes of other clause matches.
 
 ## Demos
 
