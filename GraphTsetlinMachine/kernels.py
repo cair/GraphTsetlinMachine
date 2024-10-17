@@ -185,7 +185,7 @@ code_update = """
             unsigned int *global_ta_state,
             int number_of_nodes,
             int *clause_node,
-            int *number_of_incude_actions,
+            int *number_of_include_actions,
             int *X,
             int *class_clause_update
         )
