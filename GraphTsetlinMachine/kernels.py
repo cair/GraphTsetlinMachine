@@ -561,12 +561,12 @@ code_evaluate = """
             int bit[MESSAGE_BITS];
 
             for (int clause = index; clause < CLAUSES; clause += stride) {
-                //for (int bit_index = 0; bit_index < MESSAGE_BITS; ++bit_index) {
-                //     bit[bit_index] = hypervectors[clause*MESSAGE_BITS + bit_index];
-                //}
+                for (int bit_index = 0; bit_index < MESSAGE_BITS; ++bit_index) {
+                     bit[bit_index] = hypervectors[clause*MESSAGE_BITS + bit_index];
+                }
 
-                bit[0] = clause % MESSAGE_SIZE;
-                bit[1] = MESSAGE_SIZE + MESSAGE_PRIME - (clause % MESSAGE_PRIME);
+                // bit[0] = clause % MESSAGE_SIZE;
+                // bit[1] = MESSAGE_SIZE + MESSAGE_PRIME - (clause % MESSAGE_PRIME);
 
                 int edge_index = global_edge_index;
                 for (int source_node = 0; source_node < number_of_nodes; ++source_node) {
