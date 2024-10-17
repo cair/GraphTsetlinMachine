@@ -123,7 +123,8 @@ tm = MultiClassGraphTsetlinMachine(
     depth = args.depth,
     message_size = args.message_size,
     message_bits = args.message_bits,
-    max_included_literals = args.max_included_literals
+    max_included_literals = args.max_included_literals,
+    double_hashing = args.double_hashing
 )
 
 for i in range(args.epochs):
