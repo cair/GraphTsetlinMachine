@@ -70,6 +70,9 @@ class CommonTsetlinMachine():
 		self.message_size = message_size
 		self.message_bits = message_bits
 		self.message_literals = message_size*2
+
+		self.double_hashing = double_hashing
+
 		self.grid = grid
 		self.block = block
 
@@ -577,6 +580,7 @@ class GraphTsetlinMachine(CommonTsetlinMachine):
 			depth=1,
 			message_size=256,
 			message_bits=2,
+			double_hashing=False,
 			grid=(16*13*4,1,1),
 			block=(128,1,1)
 	):
@@ -591,6 +595,7 @@ class GraphTsetlinMachine(CommonTsetlinMachine):
 			depth=depth,
 			message_size=message_size,
 			message_bits=message_bits,
+			double_hashing=double_hashing,
 			grid=grid,
 			block=block
 		)
