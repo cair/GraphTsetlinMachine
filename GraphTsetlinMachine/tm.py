@@ -61,6 +61,8 @@ class CommonTsetlinMachine():
 		self.depth = depth
 		if type(s) != tuple:
 			self.s = (s,) * self.depth
+		else:
+			self.s = s
 
 		self.q = q
 		self.max_included_literals = max_included_literals
