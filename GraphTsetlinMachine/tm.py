@@ -31,8 +31,6 @@ import pycuda.autoinit
 from pycuda.compiler import SourceModule
 from scipy.sparse import csr_matrix
 import sys
-from sympy import prevprime
-
 from time import time
 
 g = curandom.XORWOWRandomNumberGenerator() 
@@ -50,6 +48,7 @@ class CommonTsetlinMachine():
 			depth=1,
 			message_size=256,
 			message_bits=2,
+			double_hashing=False,
 			grid=(16*13*4,1,1),
 			block=(128,1,1)
 	):
@@ -70,8 +69,10 @@ class CommonTsetlinMachine():
 		self.number_of_state_bits = number_of_state_bits
 		self.message_size = message_size
 		self.message_bits = message_bits
-		self.message_prime = prevprime(message_size//3)
 		self.message_literals = message_size*2
+
+		self.double_hashing = double_hashing
+
 		self.grid = grid
 		self.block = block
 
@@ -83,10 +84,19 @@ class CommonTsetlinMachine():
 		self.message_ta_state = np.array([])
 		self.clause_weights = np.array([])
 
-		indexes = np.arange(self.message_size, dtype=np.uint32)
-		self.hypervectors = np.zeros((self.number_of_clauses, self.message_bits), dtype=np.uint32)
-		for i in range(self.number_of_clauses):
-			self.hypervectors[i,:] = np.random.choice(indexes, size=(self.message_bits), replace=False)
+		if self.double_hashing:
+			from sympy import prevprime
+			self.message_bits = 2
+			self.hypervectors = np.zeros((self.number_of_clauses, self.message_bits), dtype=np.uint32)
+			prime = prevprime(self.message_size)
+			for i in range(self.number_of_clauses):
+				self.hypervectors[i, 0] = i % (self.hypervector_size)
+				self.hypervectors[i, 1] = (self.hypervector_size) + prime - (i % prime)
+		else:
+			indexes = np.arange(self.message_size, dtype=np.uint32)
+			self.hypervectors = np.zeros((self.number_of_clauses, self.message_bits), dtype=np.uint32)
+			for i in range(self.number_of_clauses):
+				self.hypervectors[i,:] = np.random.choice(indexes, size=(self.message_bits), replace=False)
 
 		self.initialized = False
 
@@ -178,8 +188,7 @@ class CommonTsetlinMachine():
 #define MAX_NODES %d
 #define MESSAGE_SIZE %d
 #define MESSAGE_BITS %d
-#define MESSAGE_PRIME %d
-""" % (self.number_of_outputs, self.number_of_clauses, self.number_of_literals, self.number_of_state_bits, self.boost_true_positive_feedback, self.T, self.q, self.max_included_literals, self.negative_clauses, graphs.max_number_of_graph_nodes, self.message_size, self.message_bits, self.message_prime)
+""" % (self.number_of_outputs, self.number_of_clauses, self.number_of_literals, self.number_of_state_bits, self.boost_true_positive_feedback, self.T, self.q, self.max_included_literals, self.negative_clauses, graphs.max_number_of_graph_nodes, self.message_size, self.message_bits)
 
 		mod_prepare = SourceModule(parameters + kernels.code_header + kernels.code_prepare, no_extern_c=True)
 		self.prepare = mod_prepare.get_function("prepare")
@@ -571,6 +580,7 @@ class GraphTsetlinMachine(CommonTsetlinMachine):
 			depth=1,
 			message_size=256,
 			message_bits=2,
+			double_hashing=False,
 			grid=(16*13*4,1,1),
 			block=(128,1,1)
 	):
@@ -585,6 +595,7 @@ class GraphTsetlinMachine(CommonTsetlinMachine):
 			depth=depth,
 			message_size=message_size,
 			message_bits=message_bits,
+			double_hashing=double_hashing,
 			grid=grid,
 			block=block
 		)
