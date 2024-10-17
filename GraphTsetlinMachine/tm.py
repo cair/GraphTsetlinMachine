@@ -57,13 +57,17 @@ class CommonTsetlinMachine():
 
 		self.number_of_clauses = number_of_clauses
 		self.number_of_clause_chunks = (number_of_clauses-1)//32 + 1
-		self.number_of_state_bits = number_of_state_bits
 		self.T = int(T)
-		self.s = s
+
+		self.depth = depth
+		if type(s) != tuple:
+			self.s = (s,) * self.depth
+
 		self.q = q
 		self.max_included_literals = max_included_literals
 		self.boost_true_positive_feedback = boost_true_positive_feedback
-		self.depth = depth
+
+		self.number_of_state_bits = number_of_state_bits
 		self.message_size = message_size
 		self.message_bits = message_bits
 		self.message_prime = prevprime(message_size//3)
@@ -98,6 +102,7 @@ class CommonTsetlinMachine():
 
 		self.class_sum_gpu = cuda.mem_alloc(self.number_of_outputs*4)
 		self.clause_node_gpu = cuda.mem_alloc(int(self.number_of_clauses) * 4)
+		self.number_of_include_actions = cuda.mem_alloc(int(self.number_of_clauses) * 4)
 		self.hypervectors_gpu = cuda.mem_alloc(self.hypervectors.nbytes)
 		cuda.memcpy_htod(self.hypervectors_gpu, self.hypervectors)
 
@@ -166,7 +171,6 @@ class CommonTsetlinMachine():
 #define LITERALS %d
 #define STATE_BITS %d
 #define BOOST_TRUE_POSITIVE_FEEDBACK %d
-#define S %f
 #define THRESHOLD %d
 #define Q %f
 #define MAX_INCLUDED_LITERALS %d
@@ -175,9 +179,7 @@ class CommonTsetlinMachine():
 #define MESSAGE_SIZE %d
 #define MESSAGE_BITS %d
 #define MESSAGE_PRIME %d
-#define DETERMINISTIC %d
-#define NUMBER_OF_EXAMPLES %d
-""" % (self.number_of_outputs, self.number_of_clauses, self.number_of_literals, self.number_of_state_bits, self.boost_true_positive_feedback, self.s, self.T, self.q, self.max_included_literals, self.negative_clauses, graphs.max_number_of_graph_nodes, self.message_size, self.message_bits, self.message_prime, int(not (self.s > 1.0)), graphs.number_of_graphs)
+""" % (self.number_of_outputs, self.number_of_clauses, self.number_of_literals, self.number_of_state_bits, self.boost_true_positive_feedback, self.T, self.q, self.max_included_literals, self.negative_clauses, graphs.max_number_of_graph_nodes, self.message_size, self.message_bits, self.message_prime)
 
 		mod_prepare = SourceModule(parameters + kernels.code_header + kernels.code_prepare, no_extern_c=True)
 		self.prepare = mod_prepare.get_function("prepare")
@@ -188,10 +190,10 @@ class CommonTsetlinMachine():
 
 		mod_update = SourceModule(parameters + kernels.code_header + kernels.code_update, no_extern_c=True)
 		self.update = mod_update.get_function("update")
-		self.update.prepare("PPiiPPP")
+		self.update.prepare("PfPiiPPPP")
 
 		self.update_message = mod_update.get_function("update_message")
-		self.update_message.prepare("PPiPPP")
+		self.update_message.prepare("PfPiPPPP")
 
 		mod_evaluate = SourceModule(parameters + kernels.code_header + kernels.code_evaluate, no_extern_c=True)
 		self.evaluate = mod_evaluate.get_function("evaluate")
@@ -204,10 +206,10 @@ class CommonTsetlinMachine():
 		self.select_clause_updates.prepare("PPPPiPP")
 
 		self.calculate_messages = mod_evaluate.get_function("calculate_messages")
-		self.calculate_messages.prepare("PiiPP")
+		self.calculate_messages.prepare("PiiPPP")
 
 		self.calculate_messages_conditional = mod_evaluate.get_function("calculate_messages_conditional")
-		self.calculate_messages_conditional.prepare("PiPPP")
+		self.calculate_messages_conditional.prepare("PiPPPP")
 
 		self.prepare_messages = mod_evaluate.get_function("prepare_messages")
 		self.prepare_messages.prepare("iP")
@@ -290,6 +292,7 @@ class CommonTsetlinMachine():
 			np.int32(number_of_graph_nodes),
 			np.int32(node_index),
 			current_clause_node_output,
+			self.number_of_include_actions,
 			encoded_X
 		)
 		cuda.Context.synchronize()
@@ -338,6 +341,7 @@ class CommonTsetlinMachine():
 				number_of_graph_nodes,
 				current_clause_node_output,
 				next_clause_node_output,
+				self.number_of_include_actions,
 				clause_X[depth]
 			)
 			cuda.Context.synchronize()
@@ -415,10 +419,12 @@ class CommonTsetlinMachine():
 					self.grid,
 					self.block,
 					g.state,
+					self.s[0],
 					self.ta_state_gpu,
 					np.int32(graphs.number_of_graph_nodes[e]),
 					np.int32(graphs.node_index[e]),
 					self.clause_node_gpu,
+					self.number_of_include_actions,
 					self.encoded_X_train_gpu,
 					self.class_clause_update_gpu
 				)
@@ -430,9 +436,11 @@ class CommonTsetlinMachine():
 						self.grid,
 						self.block,
 						g.state,
+						self.s[depth+1],
 						self.message_ta_state_gpu[depth],
 						np.int32(graphs.number_of_graph_nodes[e]),
 						self.clause_node_gpu,
+						self.number_of_include_actions,
 						self.clause_X_train_gpu[depth],
 						self.class_clause_update_gpu
 					)

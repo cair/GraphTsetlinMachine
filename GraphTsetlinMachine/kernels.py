@@ -50,34 +50,6 @@ code_header = """
 code_update = """
     extern "C"
     {
-        // Counts number of include actions for a given clause
-        __device__ inline int number_of_include_actions_message(unsigned int *ta_state)
-        {
-            int number_of_include_actions = 0;
-            for (int k = 0; k < MESSAGE_CHUNKS-1; ++k) {
-                unsigned int ta_pos = k*STATE_BITS + STATE_BITS-1;
-                number_of_include_actions += __popc(ta_state[ta_pos]);
-            }
-            unsigned int ta_pos = (MESSAGE_CHUNKS-1)*STATE_BITS + STATE_BITS-1;
-            number_of_include_actions += __popc(ta_state[ta_pos] & MESSAGE_FILTER);
-
-            return(number_of_include_actions);
-        }
-
-
-        // Counts number of include actions for a given clause
-        __device__ inline int number_of_include_actions(unsigned int *ta_state)
-        {
-            int number_of_include_actions = 0;
-            for (int k = 0; k < LA_CHUNKS-1; ++k) {
-                unsigned int ta_pos = k*STATE_BITS + STATE_BITS-1;
-                number_of_include_actions += __popc(ta_state[ta_pos]);
-            }
-            unsigned int ta_pos = (LA_CHUNKS-1)*STATE_BITS + STATE_BITS-1;
-            number_of_include_actions += __popc(ta_state[ta_pos] & FILTER);
-
-            return(number_of_include_actions);
-        }
 
         // Increment the states of each of those 32 Tsetlin Automata flagged in the active bit vector.
         __device__ inline void inc(unsigned int *ta_state, int chunk, unsigned int active)
@@ -125,27 +97,27 @@ code_update = """
 
         __device__ inline void update_clause_message(
             curandState *localState,
+            float s,
             int target_sign,
             unsigned int *ta_state,
             int clause_output,
             int clause_node,
+            int number_of_include_actions,
             int *X
         )
         {
             if (target_sign > 0) {
-                int included_literals = number_of_include_actions_message(ta_state);
-
                 // Type I Feedback
                 for (int la_chunk = 0; la_chunk < MESSAGE_CHUNKS; ++la_chunk) {
                     // Generate random bit values
                     unsigned int la_feedback = 0;
                     for (int b = 0; b < INT_SIZE; ++b) {
-                        if (curand_uniform(localState) <= 1.0/S) {
+                        if (curand_uniform(localState) <= 1.0/s) {
                             la_feedback |= (1 << b);
                         }
                     }
 
-                    if (clause_output && included_literals <= MAX_INCLUDED_LITERALS) {
+                    if (clause_output && number_of_include_actions <= MAX_INCLUDED_LITERALS) {
                         #if BOOST_TRUE_POSITIVE_FEEDBACK == 1
                             inc(ta_state, la_chunk, X[clause_node*MESSAGE_CHUNKS + la_chunk]);
                         #else
@@ -168,27 +140,28 @@ code_update = """
 
         __device__ inline void update_clause(
             curandState *localState,
+            float s,
             int target_sign,
             unsigned int *ta_state,
             int clause_output,
             int clause_node,
+            int number_of_include_actions,
             int *X
         )
         {
             if (target_sign > 0) {
-                int included_literals = number_of_include_actions(ta_state);
 
                 // Type I Feedback
                 for (int la_chunk = 0; la_chunk < LA_CHUNKS; ++la_chunk) {
                     // Generate random bit values
                     unsigned int la_feedback = 0;
                     for (int b = 0; b < INT_SIZE; ++b) {
-                        if (curand_uniform(localState) <= 1.0/S) {
+                        if (curand_uniform(localState) <= 1.0/s) {
                             la_feedback |= (1 << b);
                         }
                     }
 
-                    if (clause_output && included_literals <= MAX_INCLUDED_LITERALS) {
+                    if (clause_output && number_of_include_actions <= MAX_INCLUDED_LITERALS) {
                         #if BOOST_TRUE_POSITIVE_FEEDBACK == 1
                             inc(ta_state, la_chunk, X[clause_node*LA_CHUNKS + la_chunk]);
                         #else
@@ -211,9 +184,11 @@ code_update = """
 
        __global__ void update_message(
             curandState *state,
+            float s,
             unsigned int *global_ta_state,
             int number_of_nodes,
             int *clause_node,
+            int *number_of_include_actions,
             int *X,
             int *class_clause_update
         )
@@ -228,7 +203,7 @@ code_update = """
                 unsigned int *ta_state = &global_ta_state[clause*MESSAGE_CHUNKS*STATE_BITS];
 
                 for (unsigned long long class_id = 0; class_id < CLASSES; ++class_id) {
-                    update_clause_message(&localState, class_clause_update[class_id*CLAUSES + clause], ta_state, clause_node[clause] != -1, clause_node[clause], X);
+                    update_clause_message(&localState, s, class_clause_update[class_id*CLAUSES + clause], ta_state, clause_node[clause] != -1, clause_node[clause], number_of_include_actions[clause], X);
                 }
             }
         
@@ -237,10 +212,12 @@ code_update = """
 
         __global__ void update(
             curandState *state,
+            float s,
             unsigned int *global_ta_state,
             int number_of_nodes,
             int graph_index,
             int *clause_node,
+            int *number_of_include_actions,
             int *X,
             int *class_clause_update
         )
@@ -257,7 +234,7 @@ code_update = """
                 unsigned int *ta_state = &global_ta_state[clause*LA_CHUNKS*STATE_BITS];
 
                 for (unsigned long long class_id = 0; class_id < CLASSES; ++class_id) {
-                    update_clause(&localState, class_clause_update[class_id*CLAUSES + clause], ta_state, clause_node[clause] != -1, clause_node[clause], X);
+                    update_clause(&localState, s, class_clause_update[class_id*CLAUSES + clause], ta_state, clause_node[clause] != -1, clause_node[clause], number_of_include_actions[clause], X);
                 }
             }
         
@@ -269,6 +246,36 @@ code_update = """
 code_evaluate = """
     extern "C"
     {
+
+        // Counts number of include actions for a given clause
+        __device__ inline int count_number_of_include_actions_message(unsigned int *ta_state)
+        {
+            int number_of_include_actions = 0;
+            for (int k = 0; k < MESSAGE_CHUNKS-1; ++k) {
+                unsigned int ta_pos = k*STATE_BITS + STATE_BITS-1;
+                number_of_include_actions += __popc(ta_state[ta_pos]);
+            }
+            unsigned int ta_pos = (MESSAGE_CHUNKS-1)*STATE_BITS + STATE_BITS-1;
+            number_of_include_actions += __popc(ta_state[ta_pos] & MESSAGE_FILTER);
+
+            return(number_of_include_actions);
+        }
+
+
+        // Counts number of include actions for a given clause
+        __device__ inline int count_number_of_include_actions(unsigned int *ta_state)
+        {
+            int number_of_include_actions = 0;
+            for (int k = 0; k < LA_CHUNKS-1; ++k) {
+                unsigned int ta_pos = k*STATE_BITS + STATE_BITS-1;
+                number_of_include_actions += __popc(ta_state[ta_pos]);
+            }
+            unsigned int ta_pos = (LA_CHUNKS-1)*STATE_BITS + STATE_BITS-1;
+            number_of_include_actions += __popc(ta_state[ta_pos] & FILTER);
+
+            return(number_of_include_actions);
+        }
+
         __global__ void evaluate(
             int *global_clause_node_output,
             int *clause_weights,
@@ -402,6 +409,7 @@ code_evaluate = """
             int number_of_nodes,
             int graph_index,
             int *global_clause_node_output,
+            int *number_of_include_actions,
             unsigned int *global_X
         )
         {
@@ -426,6 +434,10 @@ code_evaluate = """
 
                 unsigned int *ta_state = &global_ta_state[clause*LA_CHUNKS*STATE_BITS];
 
+                if (node_chunk == 0) {
+                   number_of_include_actions[clause] = count_number_of_include_actions(ta_state);
+                }
+
                 clause_node_output = ~0;
                 for (int node_pos = 0; (node_pos < INT_SIZE) && ((node_chunk * INT_SIZE + node_pos) < number_of_nodes); ++node_pos) {
                     int node = node_chunk * INT_SIZE + node_pos;
@@ -439,8 +451,6 @@ code_evaluate = """
                     if ((ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & X[node*LA_CHUNKS + LA_CHUNKS-1] & FILTER) != (ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & FILTER)) {
                         clause_node_output &= ~(1 << node_pos);
                     }
-
-                    //printf("*N%d C%d=%d\\n", node_chunk * INT_SIZE + node_pos, clause, (clause_node_output & (1 << node_pos)) > 0);
                 }
 
                 if (node_chunk == number_of_node_chunks - 1) {
@@ -456,6 +466,7 @@ code_evaluate = """
             int number_of_nodes,
             int *global_clause_node_output_condition,
             int *global_clause_node_output,
+            int *number_of_include_actions,
             unsigned int *X
         )
         {
@@ -477,6 +488,10 @@ code_evaluate = """
                 int node_chunk = clause_node_chunk % NODE_CHUNKS;
 
                 unsigned int *ta_state = &global_ta_state[clause*MESSAGE_CHUNKS*STATE_BITS];
+
+                if (node_chunk == 0) {
+                   number_of_include_actions[clause] += count_number_of_include_actions_message(ta_state);
+                }
 
                 clause_node_output = ~0;
                 for (int node_pos = 0; (node_pos < INT_SIZE) && ((node_chunk * INT_SIZE + node_pos) < number_of_nodes); ++node_pos) {
@@ -550,12 +565,8 @@ code_evaluate = """
                      bit[bit_index] = hypervectors[clause*MESSAGE_BITS + bit_index];
                 }
 
-                // bit[0] = clause % (MESSAGE_SIZE / 3);
-                // bit[1] = (MESSAGE_SIZE / 3) + MESSAGE_PRIME - (clause % MESSAGE_PRIME);
-                // bit[2] = (2 * MESSAGE_SIZE / 3) + (clause / 27) % (MESSAGE_SIZE / 3);
-
-                //bit[0] = murmur(clause, 0x81726354) % MESSAGE_SIZE;
-                //bit[1] = murmur(clause, 0x12345678) % MESSAGE_SIZE;
+                // bit[0] = clause % MESSAGE_SIZE;
+                // bit[1] = MESSAGE_SIZE + MESSAGE_PRIME - (clause % MESSAGE_PRIME);
 
                 int edge_index = global_edge_index;
                 for (int source_node = 0; source_node < number_of_nodes; ++source_node) {
@@ -563,12 +574,9 @@ code_evaluate = """
                     int source_node_pos = source_node % INT_SIZE;
                     
                     if ((global_clause_node_output[clause*NODE_CHUNKS + source_node_chunk] & (1 << source_node_pos)) > 0) { 
-                        //printf("N%d C%d=%d\\n", source_node, clause, (global_clause_node_output[clause*NODE_CHUNKS + source_node_chunk] & (1 << source_node_pos)) > 0);
                         for (int i = 0; i < number_of_graph_node_edges[node_index + source_node]; ++i) {
                             int destination_node = edge[(edge_index + i) * 2];
                             int edge_type = edge[(edge_index + i)* 2 + 1];
-
-                            //printf("\\t%d %d\\n", destination_node, edge_type);
 
                             for (int bit_index = 0; bit_index < MESSAGE_BITS; ++bit_index) {
                                 int shifted_bit = (bit[bit_index] + edge_type) % MESSAGE_SIZE;
