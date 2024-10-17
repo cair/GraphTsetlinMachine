@@ -532,6 +532,7 @@ class MultiClassGraphTsetlinMachine(CommonTsetlinMachine):
 			depth=1,
 			message_size=256,
 			message_bits=2,
+			double_hashing=False,
 			grid=(16*13*4,1,1),
 			block=(128,1,1)
 	):
@@ -546,6 +547,7 @@ class MultiClassGraphTsetlinMachine(CommonTsetlinMachine):
 			depth=depth,
 			message_size=message_size,
 			message_bits=message_bits,
+			double_hashing=double_hashing,
 			grid=grid,
 			block=block
 		)
