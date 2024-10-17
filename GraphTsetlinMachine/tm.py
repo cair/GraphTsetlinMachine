@@ -31,8 +31,6 @@ import pycuda.autoinit
 from pycuda.compiler import SourceModule
 from scipy.sparse import csr_matrix
 import sys
-from sympy import prevprime
-
 from time import time
 
 g = curandom.XORWOWRandomNumberGenerator() 
@@ -50,6 +48,7 @@ class CommonTsetlinMachine():
 			depth=1,
 			message_size=256,
 			message_bits=2,
+			double_hashing=False,
 			grid=(16*13*4,1,1),
 			block=(128,1,1)
 	):
@@ -70,7 +69,6 @@ class CommonTsetlinMachine():
 		self.number_of_state_bits = number_of_state_bits
 		self.message_size = message_size
 		self.message_bits = message_bits
-		self.message_prime = prevprime(message_size)
 		self.message_literals = message_size*2
 		self.grid = grid
 		self.block = block
@@ -83,10 +81,19 @@ class CommonTsetlinMachine():
 		self.message_ta_state = np.array([])
 		self.clause_weights = np.array([])
 
-		indexes = np.arange(self.message_size, dtype=np.uint32)
-		self.hypervectors = np.zeros((self.number_of_clauses, self.message_bits), dtype=np.uint32)
-		for i in range(self.number_of_clauses):
-			self.hypervectors[i,:] = np.random.choice(indexes, size=(self.message_bits), replace=False)
+		if self.double_hashing:
+			from sympy import prevprime
+			self.message_bits = 2
+			self.hypervectors = np.zeros((self.number_of_clauses, self.message_bits), dtype=np.uint32)
+			prime = prevprime(self.message_size)
+			for i in range(self.number_of_clauses):
+				self.hypervectors[i, 0] = i % (self.hypervector_size)
+				self.hypervectors[i, 1] = (self.hypervector_size) + prime - (i % prime)
+		else:
+			indexes = np.arange(self.message_size, dtype=np.uint32)
+			self.hypervectors = np.zeros((self.number_of_clauses, self.message_bits), dtype=np.uint32)
+			for i in range(self.number_of_clauses):
+				self.hypervectors[i,:] = np.random.choice(indexes, size=(self.message_bits), replace=False)
 
 		self.initialized = False
 

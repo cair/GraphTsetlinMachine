@@ -21,7 +21,6 @@
 import numpy as np
 import hashlib
 from numba import jit
-from sympy import prevprime
 import sys
 
 class Graphs():
@@ -45,6 +44,7 @@ class Graphs():
 			self.hypervector_bits = hypervector_bits
 
 			if self.double_hashing:
+				from sympy import prevprime
 				self.hypervector_bits = 2
 				self.hypervectors = np.zeros((len(self.symbol_id), self.hypervector_bits), dtype=np.uint32)
 				prime = prevprime(self.hypervector_size)
