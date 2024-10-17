@@ -98,6 +98,7 @@ class CommonTsetlinMachine():
 
 		self.class_sum_gpu = cuda.mem_alloc(self.number_of_outputs*4)
 		self.clause_node_gpu = cuda.mem_alloc(int(self.number_of_clauses) * 4)
+		self.number_of_include_actions = cuda.mem_alloc(int(self.number_of_clauses) * 4)
 		self.hypervectors_gpu = cuda.mem_alloc(self.hypervectors.nbytes)
 		cuda.memcpy_htod(self.hypervectors_gpu, self.hypervectors)
 
@@ -188,10 +189,10 @@ class CommonTsetlinMachine():
 
 		mod_update = SourceModule(parameters + kernels.code_header + kernels.code_update, no_extern_c=True)
 		self.update = mod_update.get_function("update")
-		self.update.prepare("PPiiPPP")
+		self.update.prepare("PPiiPPPP")
 
 		self.update_message = mod_update.get_function("update_message")
-		self.update_message.prepare("PPiPPP")
+		self.update_message.prepare("PPiPPPP")
 
 		mod_evaluate = SourceModule(parameters + kernels.code_header + kernels.code_evaluate, no_extern_c=True)
 		self.evaluate = mod_evaluate.get_function("evaluate")
@@ -204,10 +205,10 @@ class CommonTsetlinMachine():
 		self.select_clause_updates.prepare("PPPPiPP")
 
 		self.calculate_messages = mod_evaluate.get_function("calculate_messages")
-		self.calculate_messages.prepare("PiiPP")
+		self.calculate_messages.prepare("PiiPPP")
 
 		self.calculate_messages_conditional = mod_evaluate.get_function("calculate_messages_conditional")
-		self.calculate_messages_conditional.prepare("PiPPP")
+		self.calculate_messages_conditional.prepare("PiPPPP")
 
 		self.prepare_messages = mod_evaluate.get_function("prepare_messages")
 		self.prepare_messages.prepare("iP")
@@ -290,6 +291,7 @@ class CommonTsetlinMachine():
 			np.int32(number_of_graph_nodes),
 			np.int32(node_index),
 			current_clause_node_output,
+			self.number_of_include_actions,
 			encoded_X
 		)
 		cuda.Context.synchronize()
@@ -338,6 +340,7 @@ class CommonTsetlinMachine():
 				number_of_graph_nodes,
 				current_clause_node_output,
 				next_clause_node_output,
+				self.number_of_include_actions,
 				clause_X[depth]
 			)
 			cuda.Context.synchronize()
@@ -419,6 +422,7 @@ class CommonTsetlinMachine():
 					np.int32(graphs.number_of_graph_nodes[e]),
 					np.int32(graphs.node_index[e]),
 					self.clause_node_gpu,
+					self.number_of_include_actions,
 					self.encoded_X_train_gpu,
 					self.class_clause_update_gpu
 				)
@@ -433,6 +437,7 @@ class CommonTsetlinMachine():
 						self.message_ta_state_gpu[depth],
 						np.int32(graphs.number_of_graph_nodes[e]),
 						self.clause_node_gpu,
+						self.number_of_include_actions,
 						self.clause_X_train_gpu[depth],
 						self.class_clause_update_gpu
 					)
