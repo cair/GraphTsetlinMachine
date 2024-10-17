@@ -59,7 +59,10 @@ class CommonTsetlinMachine():
 		self.number_of_clause_chunks = (number_of_clauses-1)//32 + 1
 		self.number_of_state_bits = number_of_state_bits
 		self.T = int(T)
-		self.s = s
+
+		if type(s) != tuple:
+			self.s = (s,) * self.depth
+
 		self.q = q
 		self.max_included_literals = max_included_literals
 		self.boost_true_positive_feedback = boost_true_positive_feedback
@@ -189,10 +192,10 @@ class CommonTsetlinMachine():
 
 		mod_update = SourceModule(parameters + kernels.code_header + kernels.code_update, no_extern_c=True)
 		self.update = mod_update.get_function("update")
-		self.update.prepare("PPiiPPPP")
+		self.update.prepare("PiPiiPPPP")
 
 		self.update_message = mod_update.get_function("update_message")
-		self.update_message.prepare("PPiPPPP")
+		self.update_message.prepare("PiPiPPPP")
 
 		mod_evaluate = SourceModule(parameters + kernels.code_header + kernels.code_evaluate, no_extern_c=True)
 		self.evaluate = mod_evaluate.get_function("evaluate")
@@ -418,6 +421,7 @@ class CommonTsetlinMachine():
 					self.grid,
 					self.block,
 					g.state,
+					self.s[0],
 					self.ta_state_gpu,
 					np.int32(graphs.number_of_graph_nodes[e]),
 					np.int32(graphs.node_index[e]),
@@ -434,6 +438,7 @@ class CommonTsetlinMachine():
 						self.grid,
 						self.block,
 						g.state,
+						self.s[depth+1],
 						self.message_ta_state_gpu[depth],
 						np.int32(graphs.number_of_graph_nodes[e]),
 						self.clause_node_gpu,

@@ -97,6 +97,7 @@ code_update = """
 
         __device__ inline void update_clause_message(
             curandState *localState,
+            float s,
             int target_sign,
             unsigned int *ta_state,
             int clause_output,
@@ -111,7 +112,7 @@ code_update = """
                     // Generate random bit values
                     unsigned int la_feedback = 0;
                     for (int b = 0; b < INT_SIZE; ++b) {
-                        if (curand_uniform(localState) <= 1.0/S) {
+                        if (curand_uniform(localState) <= 1.0/s) {
                             la_feedback |= (1 << b);
                         }
                     }
@@ -139,6 +140,7 @@ code_update = """
 
         __device__ inline void update_clause(
             curandState *localState,
+            float s,
             int target_sign,
             unsigned int *ta_state,
             int clause_output,
@@ -154,7 +156,7 @@ code_update = """
                     // Generate random bit values
                     unsigned int la_feedback = 0;
                     for (int b = 0; b < INT_SIZE; ++b) {
-                        if (curand_uniform(localState) <= 1.0/S) {
+                        if (curand_uniform(localState) <= 1.0/s) {
                             la_feedback |= (1 << b);
                         }
                     }
@@ -182,6 +184,7 @@ code_update = """
 
        __global__ void update_message(
             curandState *state,
+            float s,
             unsigned int *global_ta_state,
             int number_of_nodes,
             int *clause_node,
@@ -200,7 +203,7 @@ code_update = """
                 unsigned int *ta_state = &global_ta_state[clause*MESSAGE_CHUNKS*STATE_BITS];
 
                 for (unsigned long long class_id = 0; class_id < CLASSES; ++class_id) {
-                    update_clause_message(&localState, class_clause_update[class_id*CLAUSES + clause], ta_state, clause_node[clause] != -1, clause_node[clause], number_of_include_actions[clause], X);
+                    update_clause_message(s, &localState, class_clause_update[class_id*CLAUSES + clause], ta_state, clause_node[clause] != -1, clause_node[clause], number_of_include_actions[clause], X);
                 }
             }
         
@@ -209,6 +212,7 @@ code_update = """
 
         __global__ void update(
             curandState *state,
+            float s,
             unsigned int *global_ta_state,
             int number_of_nodes,
             int graph_index,
@@ -230,7 +234,7 @@ code_update = """
                 unsigned int *ta_state = &global_ta_state[clause*LA_CHUNKS*STATE_BITS];
 
                 for (unsigned long long class_id = 0; class_id < CLASSES; ++class_id) {
-                    update_clause(&localState, class_clause_update[class_id*CLAUSES + clause], ta_state, clause_node[clause] != -1, clause_node[clause], number_of_include_actions[clause], X);
+                    update_clause(s, &localState, class_clause_update[class_id*CLAUSES + clause], ta_state, clause_node[clause] != -1, clause_node[clause], number_of_include_actions[clause], X);
                 }
             }
         
