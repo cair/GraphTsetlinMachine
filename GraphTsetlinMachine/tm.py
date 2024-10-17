@@ -92,8 +92,8 @@ class CommonTsetlinMachine():
 			self.hypervectors = np.zeros((self.number_of_clauses, self.message_bits), dtype=np.uint32)
 			prime = prevprime(self.message_size)
 			for i in range(self.number_of_clauses):
-				self.hypervectors[i, 0] = i % (self.hypervector_size)
-				self.hypervectors[i, 1] = (self.hypervector_size) + prime - (i % prime)
+				self.hypervectors[i, 0] = i % (self.message_size)
+				self.hypervectors[i, 1] = (self.message_size) + prime - (i % prime)
 		else:
 			indexes = np.arange(self.message_size, dtype=np.uint32)
 			self.hypervectors = np.zeros((self.number_of_clauses, self.message_bits), dtype=np.uint32)

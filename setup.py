@@ -2,7 +2,7 @@ from setuptools import *
 
 setup(
    name='GraphTsetlinMachine',
-   version='0.3.0',
+   version='0.3.1',
    author='Ole-Christoffer Granmo',
    author_email='ole.granmo@uia.no',
    url='https://github.com/cair/GraphTsetlinMachine/',
