@@ -565,9 +565,6 @@ code_evaluate = """
                      bit[bit_index] = hypervectors[clause*MESSAGE_BITS + bit_index];
                 }
 
-                // bit[0] = clause % MESSAGE_SIZE;
-                // bit[1] = MESSAGE_SIZE + MESSAGE_PRIME - (clause % MESSAGE_PRIME);
-
                 int edge_index = global_edge_index;
                 for (int source_node = 0; source_node < number_of_nodes; ++source_node) {
                     int source_node_chunk = source_node / INT_SIZE;
