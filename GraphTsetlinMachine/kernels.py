@@ -203,7 +203,7 @@ code_update = """
                 unsigned int *ta_state = &global_ta_state[clause*MESSAGE_CHUNKS*STATE_BITS];
 
                 for (unsigned long long class_id = 0; class_id < CLASSES; ++class_id) {
-                    update_clause_message(s, &localState, class_clause_update[class_id*CLAUSES + clause], ta_state, clause_node[clause] != -1, clause_node[clause], number_of_include_actions[clause], X);
+                    update_clause_message(&localState, s, class_clause_update[class_id*CLAUSES + clause], ta_state, clause_node[clause] != -1, clause_node[clause], number_of_include_actions[clause], X);
                 }
             }
         
@@ -234,7 +234,7 @@ code_update = """
                 unsigned int *ta_state = &global_ta_state[clause*LA_CHUNKS*STATE_BITS];
 
                 for (unsigned long long class_id = 0; class_id < CLASSES; ++class_id) {
-                    update_clause(s, &localState, class_clause_update[class_id*CLAUSES + clause], ta_state, clause_node[clause] != -1, clause_node[clause], number_of_include_actions[clause], X);
+                    update_clause(&localState, s, class_clause_update[class_id*CLAUSES + clause], ta_state, clause_node[clause] != -1, clause_node[clause], number_of_include_actions[clause], X);
                 }
             }
         
