@@ -57,16 +57,17 @@ class CommonTsetlinMachine():
 
 		self.number_of_clauses = number_of_clauses
 		self.number_of_clause_chunks = (number_of_clauses-1)//32 + 1
-		self.number_of_state_bits = number_of_state_bits
 		self.T = int(T)
 
+		self.depth = depth
 		if type(s) != tuple:
 			self.s = (s,) * self.depth
 
 		self.q = q
 		self.max_included_literals = max_included_literals
 		self.boost_true_positive_feedback = boost_true_positive_feedback
-		self.depth = depth
+
+		self.number_of_state_bits = number_of_state_bits
 		self.message_size = message_size
 		self.message_bits = message_bits
 		self.message_prime = prevprime(message_size//3)
