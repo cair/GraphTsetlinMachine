@@ -565,12 +565,8 @@ code_evaluate = """
                      bit[bit_index] = hypervectors[clause*MESSAGE_BITS + bit_index];
                 }
 
-                // bit[0] = clause % (MESSAGE_SIZE / 3);
-                // bit[1] = (MESSAGE_SIZE / 3) + MESSAGE_PRIME - (clause % MESSAGE_PRIME);
-                // bit[2] = (2 * MESSAGE_SIZE / 3) + (clause / 27) % (MESSAGE_SIZE / 3);
-
-                //bit[0] = murmur(clause, 0x81726354) % MESSAGE_SIZE;
-                //bit[1] = murmur(clause, 0x12345678) % MESSAGE_SIZE;
+                // bit[0] = clause % MESSAGE_SIZE;
+                // bit[1] = MESSAGE_SIZE + MESSAGE_PRIME - (clause % MESSAGE_PRIME);
 
                 int edge_index = global_edge_index;
                 for (int source_node = 0; source_node < number_of_nodes; ++source_node) {
@@ -578,12 +574,9 @@ code_evaluate = """
                     int source_node_pos = source_node % INT_SIZE;
                     
                     if ((global_clause_node_output[clause*NODE_CHUNKS + source_node_chunk] & (1 << source_node_pos)) > 0) { 
-                        //printf("N%d C%d=%d\\n", source_node, clause, (global_clause_node_output[clause*NODE_CHUNKS + source_node_chunk] & (1 << source_node_pos)) > 0);
                         for (int i = 0; i < number_of_graph_node_edges[node_index + source_node]; ++i) {
                             int destination_node = edge[(edge_index + i) * 2];
                             int edge_type = edge[(edge_index + i)* 2 + 1];
-
-                            //printf("\\t%d %d\\n", destination_node, edge_type);
 
                             for (int bit_index = 0; bit_index < MESSAGE_BITS; ++bit_index) {
                                 int shifted_bit = (bit[bit_index] + edge_type) % MESSAGE_SIZE;
