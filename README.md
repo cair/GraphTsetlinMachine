@@ -41,7 +41,7 @@ pip3 install graphtsetlinmachine
 or
 ```bash
 python ./setup.py sdist
-pip3 install dist/GraphTsetlinMachine-0.2.9.tar.gz
+pip3 install dist/GraphTsetlinMachine-0.3.1.tar.gz
 ```
 
 ## Tutorial 
