@@ -70,7 +70,7 @@ class CommonTsetlinMachine():
 		self.number_of_state_bits = number_of_state_bits
 		self.message_size = message_size
 		self.message_bits = message_bits
-		self.message_prime = prevprime(message_size//3)
+		self.message_prime = prevprime(message_size)
 		self.message_literals = message_size*2
 		self.grid = grid
 		self.block = block
