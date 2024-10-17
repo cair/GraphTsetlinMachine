@@ -171,7 +171,6 @@ class CommonTsetlinMachine():
 #define LITERALS %d
 #define STATE_BITS %d
 #define BOOST_TRUE_POSITIVE_FEEDBACK %d
-#define S %f
 #define THRESHOLD %d
 #define Q %f
 #define MAX_INCLUDED_LITERALS %d
@@ -180,9 +179,7 @@ class CommonTsetlinMachine():
 #define MESSAGE_SIZE %d
 #define MESSAGE_BITS %d
 #define MESSAGE_PRIME %d
-#define DETERMINISTIC %d
-#define NUMBER_OF_EXAMPLES %d
-""" % (self.number_of_outputs, self.number_of_clauses, self.number_of_literals, self.number_of_state_bits, self.boost_true_positive_feedback, self.s, self.T, self.q, self.max_included_literals, self.negative_clauses, graphs.max_number_of_graph_nodes, self.message_size, self.message_bits, self.message_prime, int(not (self.s > 1.0)), graphs.number_of_graphs)
+""" % (self.number_of_outputs, self.number_of_clauses, self.number_of_literals, self.number_of_state_bits, self.boost_true_positive_feedback, self.T, self.q, self.max_included_literals, self.negative_clauses, graphs.max_number_of_graph_nodes, self.message_size, self.message_bits, self.message_prime)
 
 		mod_prepare = SourceModule(parameters + kernels.code_header + kernels.code_prepare, no_extern_c=True)
 		self.prepare = mod_prepare.get_function("prepare")
