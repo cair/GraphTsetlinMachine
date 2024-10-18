@@ -17,8 +17,9 @@ Implementation of the Graph Tsetlin Machine.
   - [Clause-Driven Message Passing](#clause-driven-message-passing)
   - [Logical Learning and Reasoning With Nested Clauses](#logical-learning-and-reasoning-with-nested-clauses)
 - [Demos](#demos)
-  - [Vanilla MNIST](#Vanilla-MNIST)
-  - [Convolutional MNIST](#Convolutional-MNIST)
+  - [Vanilla MNIST](#vanilla-mnist)
+  - [Convolutional MNIST](#convolutional-mnist)
+  - [Simple Sequence Problem](#simple-sequence-problem)
 - [Paper](#paper)
 - [CUDA Configurations](#cuda-configurations)
 - [Roadmap](#roadmap)
@@ -193,6 +194,12 @@ Again, white pixel symbols W<sub>x,y</sub> define the image content. However, th
 These symbols allow the Graph Tsetlin Machine to learn and reason about pixel patterns as well as their location inside the image.
 
 Without adding any edges, the result is a Coalesced Convolutional Tsetlin Machine. See the Convolutional MNIST Demo in the example folder for further details.
+
+### Simple Sequence Problem
+
+<p align="center">
+  <img width="60%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/SimpleSequenceProblem.png">
+</p>
 
 ## Paper
 
