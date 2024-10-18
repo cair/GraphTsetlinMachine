@@ -19,7 +19,7 @@ Implementation of the Graph Tsetlin Machine.
 - [Demos](#demos)
   - [Vanilla MNIST](#vanilla-mnist)
   - [Convolutional MNIST](#convolutional-mnist)
-  - [Simple Sequence Problem](#simple-sequence-problem)
+  - [Sequence Classification](#sequence-classification)
 - [Paper](#paper)
 - [CUDA Configurations](#cuda-configurations)
 - [Roadmap](#roadmap)
@@ -195,7 +195,7 @@ These symbols allow the Graph Tsetlin Machine to learn and reason about pixel pa
 
 Without adding any edges, the result is a Coalesced Convolutional Tsetlin Machine. See the Convolutional MNIST Demo in the example folder for further details.
 
-### Simple Sequence Problem
+### Sequence Classification
 
 <p align="center">
   <img width="60%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/SimpleSequenceProblem.png">
