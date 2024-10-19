@@ -203,9 +203,9 @@ The above two examples did not require edges. Here is an example where the edges
   <img width="60%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/SimpleSequenceProblem.png">
 </p>
 
-From the perspective of a single node, the three classes _Y=0_ (one 'A'), _Y=1_ (two 'A's), and _Y=2_ (three 'A's) all look the same. Only by considering the nodes to its _Left_ and to its _Right_, a node can start gathering information about the number of 'A's in the sequence.
+From the perspective of a single node, the three classes _Y=0_ (one 'A'), _Y=1_ (two 'A's), and _Y=2_ (three 'A's) all look the same. Each node only sees an 'A' or a space ' '. Only by considering the nodes to its _Left_ and to its _Right_, a node can start gathering information about how many 'A's appear in the sequence.
 
-If there never are more than three 'A's in a sequence, you only need one round of message passing to determine the the correct class. With longer sequences of 'A' additional rounds of message passing give each node a wider perspective, allowing the resulting clauses to capture the sequences.  
+**Remark 1.** If three 'A's is the maximum, you only need one round of message passing to determine the correct class. More 'A's require additional rounds. The reason is that the message passing increases the perspective of each node by incorporating the perspective of the node's neighbors. Since every node widens their perspective in this manner, the effect is cascading. 
 
 ## Paper
 
