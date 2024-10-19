@@ -171,13 +171,13 @@ Notice how each team operates across a node's properties as well as the incorpor
 
 ### Vanilla MNIST
 
-The Graph Tsetlin Machine supports rich data (images, video, text, spectrograms, sound, etc.). One can, for example, add an entire image to a node, illustrated for MNIST images below:
+The Graph Tsetlin Machine supports rich data (images, video, text, spectrograms, sound, etc.). One can, for example, add an entire image to a graph node, illustrated for MNIST images below:
 
 <p align="center">
   <img width="40%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/VanillaMNIST.png">
 </p>
 
-Here, you define an image by adding its white pixels as properties to the graph node. Each white pixel in the grid of <i>28x28</i> pixels gets its own symbol W<sub>x,y</sub>.
+Here, you define an image by adding its white pixels as properties to the node. Each white pixel in the grid of <i>28x28</i> pixels gets its own symbol W<sub>x,y</sub>.
 
 Note that with only a single node, you obtain a Coalesced Vanilla Tsetlin Machine. See the Vanilla MNIST Demo in the example folder for further details.
 
