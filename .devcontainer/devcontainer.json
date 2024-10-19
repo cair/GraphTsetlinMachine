@@ -1,0 +1,25 @@
+{
+  "name": "TM Graph Devcontainer",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "tm-graph-development",
+  "workspaceFolder": "/app",
+  "forwardPorts": [],
+  "postCreateCommand": "echo 'Devcontainer is ready'",
+  "remoteUser": "root",
+  "customizations": {
+    "jetbrains": {
+      "plugins" : [
+        "com.github.copilot",
+        "Pythonid"
+      ],
+
+    },
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.debugpy",
+        "donjayamanne.python-extension-pack",
+        "donjayamanne.python-environment-manager"
+      ]
+    }
+  },}
