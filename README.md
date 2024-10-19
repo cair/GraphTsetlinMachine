@@ -197,7 +197,9 @@ Without adding any edges, the result is a Coalesced Convolutional Tsetlin Machin
 
 ### Sequence Classification
 
-The above two examples did not require edges. Here is an example where the edges are essential. The task is to decide how many 'A's occur in sequence. The 'A's can appear at any time, preceded and followed by spaces. The below graphs model the task: 
+The above two examples did not require edges. Here is an example where the edges are essential.
+
+The task is to decide how many 'A's occur in sequence. The 'A's can appear at any time, preceded and followed by spaces. The below graphs model the task: 
 
 <p align="center">
   <img width="60%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/SimpleSequenceProblem.png">
