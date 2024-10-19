@@ -209,6 +209,8 @@ From the perspective of a single node, the three classes _Y=0_ (one 'A'), _Y=1_ 
 
 **Remark 2.** Notice the two types of edges: _Left_ and _Right_. With only a single edge type, a node would not be able distinguish between an 'A' to its left and an 'A' to its right, making the task more difficult. Hence, using two types of edges is beneficial.
 
+See the Sequence Classification Demo in the example folder for further details.
+
 ## Paper
 
 _A Tsetlin Machine for Logical Learning and Reasoning With Graphs_. Ole-Christoffer Granmo, et al., 2024. (Forthcoming)
