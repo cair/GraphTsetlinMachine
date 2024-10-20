@@ -4,10 +4,6 @@
 
 *"The Tsetlin machine is a new universal artificial intelligence (AI) method that learns simple logical rules to understand complex things, similar to how an infant uses logic to learn about the world. Being logical, the rules become understandable to humans. Yet, unlike all other intrinsically explainable techniques, Tsetlin machines are drop-in replacements for neural networks by supporting classification, convolution, regression, reinforcement learning, auto-encoding, language models, and natural language processing. They are further ideally suited for cutting-edge hardware solutions of low cost, enabling nanoscale intelligence, ultralow energy consumption, energy harvesting, unrivaled inference speed, and competitive accuracy."*
 
-<p align="center">
-  <img width="70%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/GraphTM.png">
-</p>
-
 This project implements the Graph Tsetlin Machine.
 
 ## Contents
@@ -26,6 +22,7 @@ This project implements the Graph Tsetlin Machine.
   - [Vanilla MNIST](#vanilla-mnist)
   - [Convolutional MNIST](#convolutional-mnist)
   - [Sequence Classification](#sequence-classification)
+- [Example Use Case](#example-use-case)
 - [Paper](#paper)
 - [CUDA Configurations](#cuda-configurations)
 - [Roadmap](#roadmap)
@@ -218,6 +215,12 @@ From the perspective of a single node, the three classes _Y=0_ (one 'A'), _Y=1_ 
 **Remark 2.** Notice the two types of edges: _Left_ and _Right_. With only a single edge type, a node would not be able distinguish between an 'A' to its left and an 'A' to its right, making the task more difficult. Hence, using two types of edges is beneficial.
 
 See the Sequence Classification Demo in the example folder for further details.
+
+## Example Use Case
+
+<p align="center">
+  <img width="70%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/GraphTM.png">
+</p>
 
 ## Paper
 
