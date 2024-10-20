@@ -4,6 +4,10 @@
 
 *"The Tsetlin machine is a new universal artificial intelligence (AI) method that learns simple logical rules to understand complex things, similar to how an infant uses logic to learn about the world. Being logical, the rules become understandable to humans. Yet, unlike all other intrinsically explainable techniques, Tsetlin machines are drop-in replacements for neural networks by supporting classification, convolution, regression, reinforcement learning, auto-encoding, language models, and natural language processing. They are further ideally suited for cutting-edge hardware solutions of low cost, enabling nanoscale intelligence, ultralow energy consumption, energy harvesting, unrivaled inference speed, and competitive accuracy."*
 
+<p align="center">
+  <img width="60%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/GraphTM.png">
+</p>
+
 This project implements the Graph Tsetlin Machine.
 
 ## Contents
