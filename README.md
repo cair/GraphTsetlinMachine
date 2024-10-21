@@ -224,7 +224,7 @@ Graph Tsetlin Machines process multimodal data in complex structures. Here is an
   <img width="70%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/GraphTM.png">
 </p>
 
-The nodes capture various kinds of health data, such as [ECG](https://arxiv.org/abs/2301.10181) and [medical narratives](https://ieeexplore.ieee.org/document/8798633). The different types of edges specify the relationships between the data. Masurement edges relate medical tests to a patient, condition edges relate diseases to patients, and so on.  Example machine learning tasks in this setting include: forecasting, alerting, decision-making, situation assessment, risk mitigation, knowledge discovery, and optimization.
+The nodes capture various kinds of health data, such as [ECG](https://arxiv.org/abs/2301.10181) and the medical narrative in [Electronic Health Records](https://ieeexplore.ieee.org/document/8798633). The different types of edges specify the relationships between the data. Masurement edges relate medical tests to a patient, condition edges relate diseases to patients, and so on.  Example machine learning tasks in this setting include: forecasting, alerting, decision-making, situation assessment, risk mitigation, knowledge discovery, and optimization.
 
 ## Paper
 
