@@ -218,7 +218,7 @@ See the Sequence Classification Demo in the example folder for further details.
 
 ## Example Use Case
 
-Graph Tsetlin Machines processes multimodal data in complex structures. Here is an envisioned example use case from a hospital:
+Graph Tsetlin Machines process multimodal data in complex structures. Here is an envisioned example use case from a hospital:
 
 <p align="center">
   <img width="70%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/GraphTM.png">
