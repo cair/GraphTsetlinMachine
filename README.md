@@ -228,7 +228,7 @@ The nodes in the figure capture various kinds of health data, such as [ECG](http
 
 ## Paper
 
-_A Tsetlin Machine for Logical Learning and Reasoning With Graphs_. Ole-Christoffer Granmo, et al., 2024. (Forthcoming)
+_A Tsetlin Machine for Logical Learning and Reasoning With Graphs_. Ole-Christoffer Granmo, Youmna Abdelwahab, Per-Arne Andersen, Paul F. A. Clarke, Kunal Dumbre, Ylva Grønninsæter, Vojtech Halenka, Runar Helin, Lei Jiao, Ahmed Khalid, Rebekka Omslandseter, Rupsa Saha, Mayur Shende, and Xuan Zhang, 2024. (Forthcoming)
 
 ## CUDA Configurations
 
