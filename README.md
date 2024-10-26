@@ -154,9 +154,15 @@ The Graph Tsetlin Machine is based on message passing. As illustrated below, a p
 </p>
 When a node receives a message, it adds the message to its properties. In this manner, the messages supplement the node properties with contextual information.
 
-### Logical Reasoning With Nested Clauses
+### Logical Reasoning and Learning With Nested Clauses
 
-The above message passing enable logical reasoning with nested (deep) clauses. The number of message rounds decides the depth of the reasoning. Three layers of reasoning, for instance, consist of local reasoning, followed by two rounds of message passing, illustrated below:
+The above message passing enable logical reasoning with nested (deep) clauses. The below diagram shows reasoning with one round of message passing:
+<p align="center">
+  <img width="90%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/SequenceClassificationInference.png">
+</p>
+The task is to recognize graphs with the property $$A$$ in three neighboring nodes.
+
+The number of message rounds decides the depth of the reasoning. Three layers of reasoning, for instance, consist of local reasoning, followed by two rounds of message passing, illustrated below:
 
 <p align="center">
   <img width="100%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/DeepLogicalLearningAndReasoning.png">
@@ -167,13 +173,6 @@ Initially, the clauses only consider the nodes' properties (marked in black).
 * In the second round, the clauses examine the nodes again, now taking into account the first round of messages. Based on this revisit, the clauses produce the second round of messages, marked in blue.
   
 This process continues until reaching the desired depth of reasoning, in this case depth three. Finally, the Tsetlin Automata Teams update their states based on how the clauses handled the classification task at hand.
-
-The below diagram shows a step-by-step example of reasoning with nested clauses. The task is to recognize the property $$A$$ in three consecutive nodes:
-<p align="center">
-  <img width="90%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/SequenceClassificationInference.png">
-</p>
-
-### Logical Learning With Nested Clauses
 
 Notice how each team operates across a node's properties as well as the incorporated messages.  In this manner, they are able to build nested clauses. That is, a clause can draw upon the outcomes of other clauses to create hierarchical clause structures, centered around the various nodes. Hence, the power of the scheme!
 
