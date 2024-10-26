@@ -143,39 +143,6 @@ The class label is finally randomly inverted to introduce noise.
     if np.random.rand() <= 0.01:
         Y_train[graph_id] = 1 - Y_train[graph_id]
 ```
-## Graph Tsetlin Machine Basics
-
-### Clause-Driven Message Passing
-
-The Graph Tsetlin Machine is based on message passing. As illustrated below, a pool of clauses examines each node in the graph. Whenever a clause matches the properties of a node, it sends a message about its finding through the node's outgoing edges.
-
-<p align="center">
-  <img width="75%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/MessagePassing.png">
-</p>
-When a node receives a message, it adds the message to its properties. In this manner, the messages supplement the node properties with contextual information.
-
-### Logical Reasoning and Learning With Nested Clauses
-
-The above message passing enable logical reasoning with nested (deep) clauses. The below diagram shows reasoning with one round of message passing:
-<p align="center">
-  <img width="90%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/SequenceClassificationInference.png">
-</p>
-
-The task is to recognize graphs with the property **A** in three neighboring nodes.
-
-The number of message rounds decides the depth of the reasoning. Three layers of reasoning, for instance, consist of local reasoning, followed by two rounds of message passing, illustrated below:
-
-<p align="center">
-  <img width="100%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/DeepLogicalLearningAndReasoning.png">
-</p>
-
-Initially, the clauses only consider the nodes' properties (marked in black).
-* In the first round of message passing, matching clauses send out their messages. These messages supplement the receiving node's properties (marked in red).
-* In the second round, the clauses examine the nodes again, now taking into account the first round of messages. Based on this revisit, the clauses produce the second round of messages, marked in blue.
-  
-This process continues until reaching the desired depth of reasoning, in this case depth three. Finally, the Tsetlin Automata Teams update their states based on how the clauses handled the classification task at hand.
-
-Notice how each team operates across a node's properties as well as the incorporated messages.  In this manner, they are able to build nested clauses. That is, a clause can draw upon the outcomes of other clauses to create hierarchical clause structures, centered around the various nodes. Hence, the power of the scheme!
 
 ## Demos
 
@@ -222,6 +189,41 @@ From the perspective of a single node, the three classes _Y=0_ (one 'A'), _Y=1_ 
 **Remark 2.** Notice the two types of edges: _Left_ and _Right_. With only a single edge type, a node would not be able distinguish between an 'A' to its left and an 'A' to its right, making the task more difficult. Hence, using two types of edges is beneficial.
 
 See the Sequence Classification Demo in the example folder for further details.
+
+## Graph Tsetlin Machine Basics
+
+### Clause-Driven Message Passing
+
+The Graph Tsetlin Machine is based on message passing. As illustrated below, a pool of clauses examines each node in the graph. Whenever a clause matches the properties of a node, it sends a message about its finding through the node's outgoing edges.
+
+<p align="center">
+  <img width="75%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/MessagePassing.png">
+</p>
+When a node receives a message, it adds the message to its properties. In this manner, the messages supplement the node properties with contextual information.
+
+### Logical Reasoning and Learning With Nested Clauses
+
+The above message passing enable logical reasoning with nested (deep) clauses. Reasoning with one round of message passing happens as follows:
+
+<p align="center">
+  <img width="90%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/SequenceClassificationInference.png">
+</p>
+
+The task is to recognize graphs with the property **A** in three neighboring nodes.
+
+The number of message rounds decides the depth of the reasoning. Three layers of reasoning, for instance, consist of local reasoning, followed by two rounds of message passing, illustrated below:
+
+<p align="center">
+  <img width="100%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/DeepLogicalLearningAndReasoning.png">
+</p>
+
+Initially, the clauses only consider the nodes' properties (marked in black).
+* In the first round of message passing, matching clauses send out their messages. These messages supplement the receiving node's properties (marked in red).
+* In the second round, the clauses examine the nodes again, now taking into account the first round of messages. Based on this revisit, the clauses produce the second round of messages, marked in blue.
+  
+This process continues until reaching the desired depth of reasoning, in this case depth three. Finally, the Tsetlin Automata Teams update their states based on how the clauses handled the classification task at hand.
+
+Notice how each team operates across a node's properties as well as the incorporated messages.  In this manner, they are able to build nested clauses. That is, a clause can draw upon the outcomes of other clauses to create hierarchical clause structures, centered around the various nodes. Hence, the power of the scheme!
 
 ## Example Use Case
 
