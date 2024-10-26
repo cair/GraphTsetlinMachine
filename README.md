@@ -154,9 +154,15 @@ The Graph Tsetlin Machine is based on message passing. As illustrated below, a p
 </p>
 When a node receives a message, it adds the message to its properties. In this manner, the messages supplement the node properties with contextual information.
 
+### Reasoning With Nested Clauses Step-by-Step
+
+<p align="center">
+  <img width="100%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/SequenceClassificationInference.png">
+</p>
+
 ### Logical Reasoning and Learning With Nested Clauses
 
-The above message passing enables logical learning and reasoning with nested (deep) clauses. The number of message rounds decides the depth of the reasoning. Three layers of reasoning, for instance, consist of local reasoning, followed by two rounds of message passing, illustrated below:
+The above message passing and reasoning enable logical learning with nested (deep) clauses. The number of message rounds decides the depth of the reasoning. Three layers of reasoning, for instance, consist of local reasoning, followed by two rounds of message passing, illustrated below:
 
 <p align="center">
   <img width="100%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/DeepLogicalLearningAndReasoning.png">
@@ -169,12 +175,6 @@ Initially, the clauses only consider the nodes' properties (marked in black).
 This process continues until reaching the desired depth of reasoning, in this case depth three. Finally, the Tsetlin Automata Teams update their states based on how the clauses handled the classification task at hand.
 
 Notice how each team operates across a node's properties as well as the incorporated messages.  In this manner, they are able to build nested clauses. That is, a clause can draw upon the outcomes of other clauses to create hierarchical clause structures, centered around the various nodes. Hence, the power of the scheme!
-
-### Step-by-step Example of Reasoning With Nested Clauses
-
-<p align="center">
-  <img width="100%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/SequenceClassificationInference.png">
-</p>
 
 ## Demos
 
