@@ -160,6 +160,7 @@ The above message passing enable logical reasoning with nested (deep) clauses. T
 <p align="center">
   <img width="90%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/SequenceClassificationInference.png">
 </p>
+
 The task is to recognize graphs with the property $$A$$ in three neighboring nodes.
 
 The number of message rounds decides the depth of the reasoning. Three layers of reasoning, for instance, consist of local reasoning, followed by two rounds of message passing, illustrated below:
