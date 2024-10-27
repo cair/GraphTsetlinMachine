@@ -19,7 +19,7 @@ This project implements the Graph Tsetlin Machine.
   - [Vanilla MNIST](#vanilla-mnist)
   - [Convolutional MNIST](#convolutional-mnist)
   - [Sequence Classification](#sequence-classification)
-  - [Noisy XOR MNIST](#noisy-xor-mnist)
+  - [Noisy XOR With MNIST Images](#noisy-xor-with-mnist-images)
 - [Example Use Case](#example-use-case)
 - [Graph Tsetlin Machine Basics](#graph-tsetlin-machine-basics)
   - [Clause-Driven Message Passing](#clause-driven-message-passing)
@@ -189,7 +189,7 @@ From the perspective of a single node, the three classes _Y=0_ (one 'A'), _Y=1_ 
 
 See the Sequence Classification Demo in the example folder for further details.
 
-### Noisy XOR MNIST
+### Noisy XOR With MNIST Images
 
 <p align="center">
   <img width="60%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/NoisyXORMNIST.png">
