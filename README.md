@@ -141,6 +141,7 @@ The class label is finally randomly inverted to introduce noise.
     if np.random.rand() <= 0.01:
         Y_train[graph_id] = 1 - Y_train[graph_id]
 ```
+See the Noisy XOR Demo in the example folder for further details.
 
 ## Demos
 
