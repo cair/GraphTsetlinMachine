@@ -244,9 +244,7 @@ The reason is that the clause truth value to the _Left_ and _Right_ is not yet c
   <img width="90%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/PartialMatchingAndMessagePassingSequenceClassification.png">
 </p>
 
-**7) Full Clause With Message Literals; 8)Full Clause Matching; 9) Evaluation; 10) Classification..**
-
-$$C = \textbf{A} \textcolor{red}{\land \Big(\mathit{Left} \otimes C\Big) \land \Big(\mathit{Right} \otimes C\Big)}$$
+**7) Full Clause With Message Literals; 8)Full Clause Matching; 9) Evaluation; 10) Classification.**
 
 <p align="center">
   <img width="90%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/FullClauseMatchingAndEvaluationSequenceClassification.png">
