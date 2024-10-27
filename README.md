@@ -201,19 +201,19 @@ When a node receives a message, it adds the message to its properties. In this m
 
 ### Logical Reasoning and Learning With Nested Clauses
 
-The above message passing enable logical learning and reasoning with nested (deep) clauses. Let us use the Sequence Classification Demo to study this procedure step-by-step using a single clause $C:$
+The above message passing enables logical learning and reasoning with nested (deep) clauses. Let us use the Sequence Classification Demo to study this procedure step-by-step using a single clause $C:$
 
 <p align="center">
   <img width="90%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/SequenceClassificationInference.png">
 </p>
 
-**Input Graph.** Use a graph with three consecutive nodes with property $A$ as input:
+**Input Graph.** Use a graph with three consecutive nodes with property $\mathbf{A}$ as input:
 
 <p align="center">
-  <img width="70%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/InputGraphSequenceClassification.png">
+  <img width="50%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/InputGraphSequenceClassification.png">
 </p>
 
-**Features.** The first step is to describe each node in the input graph using Boolean features:
+**Features.** The Graph Tsetlin Machine next describes each node in the input graph using Boolean features:
 
 $[A, \mathit{Left} \otimes C, \mathit{Right} \otimes C]$
 
