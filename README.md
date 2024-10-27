@@ -230,7 +230,7 @@ The above message passing enables logical reasoning with nested (deep) clauses. 
   <img width="65%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/FeaturesSequenceClassification.png">
 </p>
 
-Feature $\mathbf{A}$ tells whether the node has property $\mathbf{A}$. Feature $Left \otimes C$ introduces the truth value of clause $C$ to the *Left*. The operator $\otimes$ is the vector symbolic way of saying that you bind two symbols together into a new unit, in this case the edge type $Left$ and the clause $C$. Correspondingly, feature $Right \otimes C$ gives the truth value of clause $C$ to the *Right*.
+Feature $\mathbf{A}$ tells whether the node has property $\mathbf{A}$. Feature $Left \otimes C$ is a placeholder for the truth value of clause $C$ to the *Left*. The operator $\otimes$ is the vector symbolic way of saying that you bind two symbols together into a new unit, in this case the edge type $Left$ and the clause $C$. Correspondingly, feature $Right \otimes C$ gives the truth value of clause $C$ to the *Right*. We initialize both of these latter features to _False_, to be updated by any arriving messages. 
 
 **3) Clause Without Message Literals.** To produce the first round of messages, clause $C$ only considers the node properties:
 
@@ -238,7 +238,7 @@ $$C = \textbf{A} \textcolor{lightgray}{\land \Big(Left \otimes C\Big) \land \Big
 
 The reason is that the truth values of $C$ to the _Left_ and to the _Right_ are not yet calculated.
 
-**4) Partial Clause Matching; 5) Message Passing; 6) Updated Features.** In these steps, the Graph Tsetlin Machine matches the partial clause against the nodes. This matching gives one truth value per node. _True_ values passes along the outgoing edges, updating the features of each node:
+**4) Partial Clause Matching; 5) Message Passing; 6) Updated Features.** In these steps, the Graph Tsetlin Machine matches the partial clause against the nodes. This matching gives one truth value per node. _True_ values then passes along the outgoing edges, updating the features of each node:
 
 <p align="center">
   <img width="90%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/PartialMatchingAndMessagePassingSequenceClassification.png">
