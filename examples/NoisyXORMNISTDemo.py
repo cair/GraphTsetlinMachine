@@ -5,6 +5,20 @@ from GraphTsetlinMachine.tm import MultiClassGraphTsetlinMachine
 from time import time
 import argparse
 import random
+from keras.datasets import mnist
+
+(X_train, Y_train), (X_test, Y_test) = mnist.load_data()
+
+X_train = np.where(X_train > 75, 1, 0).reshape(X_train.shape[0], -1).astype(np.uint32)
+X_test = np.where(X_test > 75, 1, 0).reshape(X_test.shape[0], -1).astype(np.uint32)
+Y_train = Y_train.astype(np.uint32)
+Y_test = Y_test.astype(np.uint32)
+
+X_zeros_train = X_train[Y_train == 0]
+X_ones_train = X_train[Y_train == 1]
+
+X_zeros_test = X_test[Y_test == 0]
+X_ones_test = X_test[Y_test == 1]
 
 def default_args(**kwargs):
     parser = argparse.ArgumentParser()
