@@ -1,0 +1,12 @@
+services:
+  tm-graph-development:
+    build:
+      context: ../
+      dockerfile: .devcontainer/Dockerfile
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              capabilities: [gpu]
+              count: 1 # Assign number of GPUs or use 'all' to assign all available GPUs

@@ -1,8 +1,10 @@
 # Tsetlin Machine for Logical Learning and Reasoning With Graphs
 
-![License](https://img.shields.io/github/license/microsoft/interpret.svg?style=flat-square) ![Python Version](https://img.shields.io/pypi/pyversions/interpret.svg?style=flat-square)![Maintenance](https://img.shields.io/maintenance/yes/2024?style=flat-square)
+![License](https://img.shields.io/github/license/cair/tmu.svg?style=flat-square) ![Maintenance](https://img.shields.io/maintenance/yes/2024?style=flat-square)
 
-Implementation of the Graph Tsetlin Machine.
+*"The Tsetlin machine is a new universal artificial intelligence (AI) method that learns simple logical rules to understand complex things, similar to how an infant uses logic to learn about the world. Being logical, the rules become understandable to humans. Yet, unlike all other intrinsically explainable techniques, Tsetlin machines are drop-in replacements for neural networks by supporting classification, convolution, regression, reinforcement learning, auto-encoding, language models, and natural language processing. They are further ideally suited for cutting-edge hardware solutions of low cost, enabling nanoscale intelligence, ultralow energy consumption, energy harvesting, unrivaled inference speed, and competitive accuracy."*
+
+This project implements the Graph Tsetlin Machine.
 
 ## Contents
 
@@ -13,13 +15,15 @@ Implementation of the Graph Tsetlin Machine.
   - [Adding Nodes](#adding-nodes)
   - [Adding Edges](#adding-edges)
   - [Adding Properties and Class Labels](#adding-properties-and-class-labels)
-- [Graph Tsetlin Machine Basics](#graph-tsetlin-machine-basics)
-  - [Clause-Driven Message Passing](#clause-driven-message-passing)
-  - [Logical Learning and Reasoning With Nested Clauses](#logical-learning-and-reasoning-with-nested-clauses)
 - [Demos](#demos)
   - [Vanilla MNIST](#vanilla-mnist)
   - [Convolutional MNIST](#convolutional-mnist)
-  - [Simple Sequence Problem](#simple-sequence-problem)
+  - [Sequence Classification](#sequence-classification)
+- [Example Use Case](#example-use-case)
+- [Graph Tsetlin Machine Basics](#graph-tsetlin-machine-basics)
+  - [Clause-Driven Message Passing](#clause-driven-message-passing)
+  - [Logical Reasoning With Nested Clauses](#logical-reasoning-with-nested-clauses)
+  - [Logical Learning With Nested Clauses](#logical-reasoning-with-nested-clauses)
 - [Paper](#paper)
 - [CUDA Configurations](#cuda-configurations)
 - [Roadmap](#roadmap)
@@ -55,7 +59,7 @@ Noisy XOR gives four kinds of graphs, shown below:
   <img width="60%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/NoisyXOR.png">
 </p>
 
-Observe how each node in a graph has one of two properties: **A** or **B**. If both of the graph's nodes have the same property, the graph is given the class label _Y=0_. Otherwise, it is given the class label _Y=1_.
+Observe how each node has one of two properties: **A** or **B**. If both of the graph's nodes have the same property, the graph is given the class label _Y=0_. Otherwise, it is given the class label _Y=1_.
 
 The task of the Graph Tsetlin Machine is to assign the correct class label to each graph when the labels used for training are noisy.
 
@@ -93,11 +97,9 @@ graphs_train.prepare_node_configuration()
 You add the two nodes to the graphs as follows, giving them one outgoing edge each:
 ```bash
 for graph_id in range(10000):
-  number_of_outgoing_edges = 1
-
-  graphs_train.add_graph_node(graph_id, 'Node 1', number_of_outgoing_edges)
-
-  graphs_train.add_graph_node(graph_id, 'Node 2', number_of_outgoing_edges)
+   number_of_outgoing_edges = 1
+   graphs_train.add_graph_node(graph_id, 'Node 1', number_of_outgoing_edges)
+   graphs_train.add_graph_node(graph_id, 'Node 2', number_of_outgoing_edges)
 ```
 
 ### Adding Edges
@@ -114,7 +116,7 @@ for graph_id in range(10000):
     graphs_train.add_graph_node_edge(graph_id, 'Node 1', 'Node 2', edge_type)
     graphs_train.add_graph_node_edge(graph_id, 'Node 2', 'Node 1', edge_type)
 ```
-You need two edges because you build directed graphs, and with two edges you cover both directions. Use only one type of edges, named _Plain_.
+You need two edges because you build directed graphs, and with two edges you cover both directions. Use only one edge type, named _Plain_.
 
 ### Adding Properties and Class Labels
 
@@ -140,6 +142,62 @@ The class label is finally randomly inverted to introduce noise.
     if np.random.rand() <= 0.01:
         Y_train[graph_id] = 1 - Y_train[graph_id]
 ```
+See the Noisy XOR Demo in the example folder for further details.
+
+## Demos
+
+### Vanilla MNIST
+
+The Graph Tsetlin Machine supports rich data (images, video, text, spectrograms, sound, etc.). One can, for example, add an entire image to a graph node, illustrated for MNIST images below:
+
+<p align="center">
+  <img width="40%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/VanillaMNIST.png">
+</p>
+
+Here, you define an image by adding its white pixels as properties to the node. Each white pixel in the grid of <i>28x28</i> pixels gets its own symbol W<sub>x,y</sub>.
+
+Note that with only a single node, you obtain a Coalesced Vanilla Tsetlin Machine. See the Vanilla MNIST Demo in the example folder for further details.
+
+### Convolutional MNIST
+
+By using many nodes to capture rich data, you can exploit inherent structure in the data. Below, each MNIST image is broken down into a grid of _19x19_ image patches. A patch then contains _10x10_ pixels:
+
+<p align="center">
+  <img width="60%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/ConvolutionalMNIST.png">
+</p>
+
+Again, white pixel symbols W<sub>x,y</sub> define the image content. Additionally, this example use a node's location inside the image to enhance the representation. You do this by introducing row R<sub>y</sub> and column C<sub>x</sub> symbols.
+
+These symbols allow the Graph Tsetlin Machine to learn and reason about pixel patterns as well as their location inside the image.
+
+Without adding any edges, the result is a Coalesced Convolutional Tsetlin Machine. See the Convolutional MNIST Demo in the example folder for further details.
+
+### Sequence Classification
+
+The above two examples did not require edges. Here is an example where the edges are essential.
+
+The task is to decide how many 'A's occur in sequence. The 'A's can appear at any time, preceded and followed by spaces. The below graphs model the task: 
+
+<p align="center">
+  <img width="60%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/SimpleSequenceProblem.png">
+</p>
+
+From the perspective of a single node, the three classes _Y=0_ (one 'A'), _Y=1_ (two 'A's), and _Y=2_ (three 'A's) all look the same. Each node only sees an 'A' or a space. By considering the nodes to its _Left_ and to its _Right_, however, a node can start gathering information about how many 'A's appear in the sequence.
+
+**Remark.** Notice the two types of edges: _Left_ and _Right_. With only a single edge type, a node would not be able distinguish between an 'A' to its left and an 'A' to its right, making the task more difficult. Hence, using two types of edges is beneficial.
+
+See the Sequence Classification Demo in the example folder for further details.
+
+## Example Use Case
+
+Graph Tsetlin Machines process multimodal data in complex structures. Here is an envisioned example use case from a hospital:
+
+<p align="center">
+  <img width="70%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/GraphTM.png">
+</p>
+
+The nodes in the figure capture various kinds of health data, such as [ECG](https://arxiv.org/abs/2301.10181) and the [medical narrative](https://ieeexplore.ieee.org/document/8798633) in Electronic Health Records. The different types of edges specify the relationships between the data: _Measurement_ edges relate medical tests to a patient, _Condition_ edges relate diseases to patients, and so on. Machine learning tasks in this setting include: forecasting, alerting, decision-making, situation assessment, risk mitigation, knowledge discovery, and optimization.
+
 ## Graph Tsetlin Machine Basics
 
 ### Clause-Driven Message Passing
@@ -149,11 +207,52 @@ The Graph Tsetlin Machine is based on message passing. As illustrated below, a p
 <p align="center">
   <img width="75%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/MessagePassing.png">
 </p>
-When a node receives a message, it adds the message to its properties. In this manner, the messages supplement the node properties with contextual information.
 
-### Logical Learning and Reasoning With Nested Clauses
+When a node receives a message, it appends the message to its properties. In this manner, the messages supplement the node properties with contextual information.
 
-The above message passing enables logical learning and reasoning with nested (deep) clauses. The number of message rounds decides the depth of the reasoning. Three layers of reasoning, for instance, consist of local reasoning, followed by two rounds of message passing, illustrated below:
+### Logical Reasoning With Nested Clauses
+
+The above message passing enables logical reasoning with nested (deep) clauses. We here use the Sequence Classification Demo to study the reasoning procedure step-by-step, employing a single clause $C:$
+
+<p align="center">
+  <img width="70%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/SequenceClassificationInference.png">
+</p>
+
+**1) Input Graph.** Our input is a graph with three consecutive $\mathbf{A}$ nodes:
+
+<p align="center">
+  <img width="50%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/InputGraphSequenceClassification.png">
+</p>
+
+**2) Features.** The Graph Tsetlin Machine next describes each node using Boolean features $[\mathbf{A}, \mathit{Left} \otimes C, \mathit{Right} \otimes C]:$
+
+<p align="center">
+  <img width="65%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/FeaturesSequenceClassification.png">
+</p>
+
+Feature $A$ tells whether the node has property $A$. Feature $\mathit{Left} \otimes C$ introduces the truth value of clause $C$ to the *Left*. The operator $\otimes$ is the vector symbolic way of saying that you bind two symbols together into a new unit, in this case the symbol _Left_ and the symbol $C$. Correspondingly, feature $\mathit{Right} \otimes C$ gives the truth value of clause $C$ to the *Right*.
+
+**3) Clause Without Message Literals.** To produce the first round of messages, the clause $C$ only considers the node properties:
+
+$$C = \textbf{A} \textcolor{lightgray}{\land \Big(\mathit{Left} \otimes C\Big) \land \Big(\mathit{Right} \otimes C\Big)}.$$
+
+The reason is that the clause truth value to the _Left_ and _Right_ is not yet calculated.
+
+**4) Partial Clause Matching; 5) Message Passing; 6) Updated Features.** In these steps, the Graph Tsetlin Machine matches the partial clause against the nodes. This matching gives one truth value per node. If any of these values are _True_, they are passed allong the outgoing edges, updating the features of each node:
+
+<p align="center">
+  <img width="90%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/PartialMatchingAndMessagePassingSequenceClassification.png">
+</p>
+
+**7) Full Clause With Message Literals; 8)Full Clause Matching; 9) Evaluation; 10) Classification.**
+
+<p align="center">
+  <img width="90%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/FullClauseMatchingAndEvaluationSequenceClassification.png">
+</p>
+
+### Logical Learning With Nested Clauses
+
+The number of message rounds decides the depth of the reasoning. Three layers of reasoning, for instance, consist of local reasoning, followed by two rounds of message passing, illustrated below:
 
 <p align="center">
   <img width="100%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/DeepLogicalLearningAndReasoning.png">
@@ -167,43 +266,9 @@ This process continues until reaching the desired depth of reasoning, in this ca
 
 Notice how each team operates across a node's properties as well as the incorporated messages.  In this manner, they are able to build nested clauses. That is, a clause can draw upon the outcomes of other clauses to create hierarchical clause structures, centered around the various nodes. Hence, the power of the scheme!
 
-## Demos
-
-### Vanilla MNIST
-
-The Graph Tsetlin Machine supports rich data (images, video, text, spectrograms, sound, etc.). One can, for example, add an entire image to a node, illustrated for MNIST images below:
-
-<p align="center">
-  <img width="40%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/VanillaMNIST.png">
-</p>
-
-Here, you define an image by adding its white pixels as properties to the graph node. Each white pixel in the grid of <i>28x28</i> pixels gets its own symbol W<sub>x,y</sub>.
-
-Note that with only a single node, you obtain a Coalesced Vanilla Tsetlin Machine. See the Vanilla MNIST Demo in the example folder for further details.
-
-### Convolutional MNIST
-
-By using many nodes to capture rich data, you can exploit inherent structure in the data. Below, each MNIST image is broken down into a grid of _19x19_ image patches, each patch containing _10x10_ pixels:
-
-<p align="center">
-  <img width="60%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/ConvolutionalMNIST.png">
-</p>
-
-Again, white pixel symbols W<sub>x,y</sub> define the image content. However, this example also shows how you can use a node's location inside the image to enhance the representation. You do this by introducing row R<sub>x</sub> and column C<sub>y</sub> symbols.
-
-These symbols allow the Graph Tsetlin Machine to learn and reason about pixel patterns as well as their location inside the image.
-
-Without adding any edges, the result is a Coalesced Convolutional Tsetlin Machine. See the Convolutional MNIST Demo in the example folder for further details.
-
-### Simple Sequence Problem
-
-<p align="center">
-  <img width="60%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/SimpleSequenceProblem.png">
-</p>
-
 ## Paper
 
-_A Tsetlin Machine for Logical Learning and Reasoning With Graphs_. Ole-Christoffer Granmo, et al., 2024. (Forthcoming)
+_A Tsetlin Machine for Logical Learning and Reasoning With Graphs_. Ole-Christoffer Granmo, Youmna Abdelwahab, Per-Arne Andersen, Paul F. A. Clarke, Kunal Dumbre, Ylva Grønninsæter, Vojtech Halenka, Runar Helin, Lei Jiao, Ahmed Khalid, Rebekka Omslandseter, Rupsa Saha, Mayur Shende, and Xuan Zhang, 2024. (Forthcoming)
 
 ## CUDA Configurations
 
