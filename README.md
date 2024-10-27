@@ -199,7 +199,7 @@ The Graph Tsetlin Machine is based on message passing. As illustrated below, a p
 
 When a node receives a message, it adds the message to its properties. In this manner, the messages supplement the node properties with contextual information.
 
-### Logical Reasoning and Learning With Nested Clauses
+### Logical Learning and Reasoning With Nested Clauses
 
 The above message passing enables logical learning and reasoning with nested (deep) clauses. Let us use the Sequence Classification Demo to study this procedure step-by-step using a single clause $C:$
 
