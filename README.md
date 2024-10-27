@@ -200,13 +200,13 @@ When a node receives a message, it adds the message to its properties. In this m
 
 ### Logical Reasoning and Learning With Nested Clauses
 
-The above message passing enable logical reasoning with nested (deep) clauses. Reasoning with one round of message passing happens as follows:
+The above message passing enable logical learning and reasoning with nested (deep) clauses. Let us use the Sequence Classification Demo to study this procedure step-by-step:
 
 <p align="center">
   <img width="90%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/SequenceClassificationInference.png">
 </p>
 
-The task is to recognize graphs with the property **A** in three neighboring nodes.
+Above, a single clause _C_ is capable of recognizing three consecutive **A**. $$a+b$$.
 
 The number of message rounds decides the depth of the reasoning. Three layers of reasoning, for instance, consist of local reasoning, followed by two rounds of message passing, illustrated below:
 
