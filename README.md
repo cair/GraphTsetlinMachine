@@ -201,7 +201,7 @@ When a node receives a message, it adds the message to its properties. In this m
 
 ### Logical Learning and Reasoning With Nested Clauses
 
-The above message passing enables logical learning and reasoning with nested (deep) clauses. Let us use the Sequence Classification Demo to study this procedure step-by-step using a single clause $C:$
+The above message passing enables logical learning and reasoning with nested (deep) clauses. Use the Sequence Classification Demo to study this procedure step-by-step using a single clause $C:$
 
 <p align="center">
   <img width="90%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/SequenceClassificationInference.png">
