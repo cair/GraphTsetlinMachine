@@ -183,9 +183,7 @@ The task is to decide how many 'A's occur in sequence. The 'A's can appear at an
 
 From the perspective of a single node, the three classes _Y=0_ (one 'A'), _Y=1_ (two 'A's), and _Y=2_ (three 'A's) all look the same. Each node only sees an 'A' or a space. By considering the nodes to its _Left_ and to its _Right_, however, a node can start gathering information about how many 'A's appear in the sequence.
 
-**Remark 1.** If three 'A's is the maximum, you only need one round of message passing to determine the correct class. More 'A's require additional rounds. The reason is that the message passing widens the perspective of each node by incorporating the perspective of neighboring nodes. Since every node enhances their perspective in this manner, the effect is cascading.
-
-**Remark 2.** Notice the two types of edges: _Left_ and _Right_. With only a single edge type, a node would not be able distinguish between an 'A' to its left and an 'A' to its right, making the task more difficult. Hence, using two types of edges is beneficial.
+**Remark.** Notice the two types of edges: _Left_ and _Right_. With only a single edge type, a node would not be able distinguish between an 'A' to its left and an 'A' to its right, making the task more difficult. Hence, using two types of edges is beneficial.
 
 See the Sequence Classification Demo in the example folder for further details.
 
