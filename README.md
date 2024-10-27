@@ -232,7 +232,7 @@ The above message passing enables logical reasoning with nested (deep) clauses. 
 
 Feature $A$ tells whether the node has property $A$. Feature $\mathit{Left} \otimes C$ introduces the truth value of clause $C$ to the *Left*. The operator $\otimes$ is the vector symbolic way of saying that you bind two symbols together into a new unit, in this case the symbol _Left_ and the symbol $C$. Correspondingly, feature $\mathit{Right} \otimes C$ gives the truth value of clause $C$ to the *Right*.
 
-**3) Clause $$C$$ Without Message Literals.** To produce the first round of messages, the clause $C$ only considers the node property part of the features:
+**3) Clause Without Message Literals.** To produce the first round of messages, the clause $C$ only considers the node property part of the features:
 
 $$C = \textbf{A} \textcolor{lightgray}{\land \Big(\mathit{Left} \otimes C\Big) \land \Big(\mathit{Right} \otimes C\Big)}.$$
 
@@ -244,11 +244,11 @@ The reason is that the clause truth value to the _Left_ and _Right_ is not yet c
 
 **6) Updated Features**
 
-**7) Clause $$C$$ With Message Literals.**
+**7) Full Clause With Message Literals.**
 
 $$C = \textbf{A} \textcolor{red}{\land \Big(\mathit{Left} \otimes C\Big) \land \Big(\mathit{Right} \otimes C\Big)}$$
 
-**8) Clause Matching.**
+**8) Full Clause Matching.**
 
 **9) Evaluation.**
 
