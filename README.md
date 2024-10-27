@@ -204,10 +204,10 @@ When a node receives a message, it adds the message to its properties. In this m
 The above message passing enables logical learning and reasoning with nested (deep) clauses. Use the Sequence Classification Demo to study this procedure step-by-step with a single clause $C:$
 
 <p align="center">
-  <img width="50%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/SequenceClassificationInference.png">
+  <img width="70%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/SequenceClassificationInference.png">
 </p>
 
-**Input Graph.** A graph with three consecutive $\mathbf{A}$  nodes is the input:
+**Input Graph.** Here, the input is a graph with three consecutive $\mathbf{A}$:
 
 <p align="center">
   <img width="50%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/InputGraphSequenceClassification.png">
