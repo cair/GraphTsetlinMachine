@@ -19,6 +19,7 @@ This project implements the Graph Tsetlin Machine.
   - [Vanilla MNIST](#vanilla-mnist)
   - [Convolutional MNIST](#convolutional-mnist)
   - [Sequence Classification](#sequence-classification)
+  - [Noisy XOR MNIST](#noisy-xor-mnist)
 - [Example Use Case](#example-use-case)
 - [Graph Tsetlin Machine Basics](#graph-tsetlin-machine-basics)
   - [Clause-Driven Message Passing](#clause-driven-message-passing)
@@ -183,6 +184,12 @@ The task is to decide how many 'A's occur in sequence. The 'A's can appear at an
 </p>
 
 From the perspective of a single node, the three classes _Y=0_ (one 'A'), _Y=1_ (two 'A's), and _Y=2_ (three 'A's) all look the same. Each node only sees an 'A' or a space. By considering the nodes to its _Left_ and to its _Right_, however, a node can start gathering information about how many 'A's appear in the sequence.
+
+### Noisy XOR MNIST
+
+<p align="center">
+  <img width="60%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/NoisyXORMNIST.png">
+</p>
 
 **Remark.** Notice the two types of edges: _Left_ and _Right_. With only a single edge type, a node would not be able distinguish between an 'A' to its left and an 'A' to its right, making the task more difficult. Hence, using two types of edges is beneficial.
 
