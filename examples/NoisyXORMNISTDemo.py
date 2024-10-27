@@ -11,8 +11,8 @@ from keras.datasets import mnist
 
 X_train = np.where(X_train > 75, 1, 0).reshape(X_train.shape[0], -1).astype(np.uint32)
 X_test = np.where(X_test > 75, 1, 0).reshape(X_test.shape[0], -1).astype(np.uint32)
-Y_train = Y_train.astype(np.uint32)
-Y_test = Y_test.astype(np.uint32)
+Y_train_mnist = Y_train.astype(np.uint32)
+Y_test_mnist = Y_test.astype(np.uint32)
 
 def default_args(**kwargs):
     parser = argparse.ArgumentParser()
@@ -75,12 +75,12 @@ for graph_id in range(args.number_of_examples):
 Y_train = np.empty(args.number_of_examples, dtype=np.uint32)
 for graph_id in range(args.number_of_examples):
     x1 = random.choice([0, 1])
-    image_1 = X_train[Y_train==x1][0,:]
+    image_1 = X_train[Y_train_mnist==x1][0,:]
     for k in image_1.nonzero()[0]:
         graphs_train.add_graph_node_property(graph_id, 'Node 1', "W%d,%d" % (k // 28, k % 28))
 
     x2 = random.choice([0, 1])
-    image_2 = X_train[Y_train==x2][0,:]
+    image_2 = X_train[Y_train_mnist==x2][0,:]
     for k in image_2.nonzero()[0]:
         graphs_train.add_graph_node_property(graph_id, 'Node 2', "W%d,%d" % (k // 28, k % 28))
 
@@ -120,12 +120,12 @@ for graph_id in range(args.number_of_examples):
 Y_test = np.empty(args.number_of_examples, dtype=np.uint32)
 for graph_id in range(args.number_of_examples):
     x1 = random.choice([0, 1])
-    image_1 = X_train[Y_train==x1][0,:]
+    image_1 = X_train[Y_train_mnist==x1][0,:]
     for k in image_1.nonzero()[0]:
         graphs_test.add_graph_node_property(graph_id, 'Node 1', "W%d,%d" % (k // 28, k % 28))
 
     x2 = random.choice([0, 1])
-    image_2 = X_train[Y_train==x2][0,:]
+    image_2 = X_train[Y_train_mnist==x2][0,:]
     for k in image_2.nonzero()[0]:
         graphs_test.add_graph_node_property(graph_id, 'Node 2', "W%d,%d" % (k // 28, k % 28))
 
