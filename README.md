@@ -97,9 +97,7 @@ You add the two nodes to the graphs as follows, giving them one outgoing edge ea
 ```bash
 for graph_id in range(10000):
   number_of_outgoing_edges = 1
-
   graphs_train.add_graph_node(graph_id, 'Node 1', number_of_outgoing_edges)
-
   graphs_train.add_graph_node(graph_id, 'Node 2', number_of_outgoing_edges)
 ```
 
