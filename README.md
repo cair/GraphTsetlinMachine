@@ -207,39 +207,39 @@ The above message passing enables logical learning and reasoning with nested (de
   <img width="70%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/SequenceClassificationInference.png">
 </p>
 
-**Input Graph.** Here, the input is a graph with three consecutive $\mathbf{A}$:
+**1) Input Graph.** Here, the input is a graph with three consecutive $\mathbf{A}$:
 
 <p align="center">
   <img width="50%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/InputGraphSequenceClassification.png">
 </p>
 
-**Features.** The Graph Tsetlin Machine next describes each node using Boolean features:
+**2) Features.** The Graph Tsetlin Machine next describes each node using Boolean features:
 
 $$[\mathbf{A}, \mathit{Left} \otimes C, \mathit{Right} \otimes C].$$
 
 Feature $A$ tells whether the node has property $A$. Feature $\mathit{Left} \otimes C$ introduces the truth value of clause $C$ to the *Left*. The operator $\otimes$ is the vector symbolic way of saying that you bind two symbols together into a new unit, in this case the symbol _Left_ and the symbol $C$. Correspondingly, feature $\mathit{Right} \otimes C$ gives the truth value of clause $C$ to the *Right*.
 
-**Clause $$C$$ Without Message Literals.**
-
-To produce the first round of messages, the clause only considers the node property part of the features:
+**3) Clause $$C$$ Without Message Literals.** To produce the first round of messages, the clause $C$ only considers the node property part of the features:
 
 $$C = \textbf{A} \textcolor{lightgray}{\land \Big(\mathit{Left} \otimes C\Big) \land \Big(\mathit{Right} \otimes C\Big)}.$$
 
-The reason is that the clause value to the left and right is not yet calculated.
+The reason is that the clause truth value to the _Left_ and _Right_ is not yet calculated.
 
-**Partial Clause Matching.**
+**4) Partial Clause Matching.** In this step, the Graph Tsetlin Machine matches the partial clause against the nodes. This matching gives one truth value per node.
 
-**Message Passing.**
+**5) Message Passing.** After matching, the truth values are passed as messages along the edges. 
 
-**Clause $$C$$ With Message Literals.**
+**6) Updated Features**
+
+**7) Clause $$C$$ With Message Literals.**
 
 $$C = \textbf{A} \textcolor{red}{\land \Big(\mathit{Left} \otimes C\Big) \land \Big(\mathit{Right} \otimes C\Big)}$$
 
-**Clause Matching.**
+**8) Clause Matching.**
 
-**Evaluation.**
+**9) Evaluation.**
 
-**Classification.**
+**10) Classification.**
 
 ### Multiple Message Rounds
 
