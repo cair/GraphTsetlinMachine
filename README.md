@@ -200,20 +200,25 @@ When a node receives a message, it adds the message to its properties. In this m
 
 ### Logical Reasoning and Learning With Nested Clauses
 
-The above message passing enable logical learning and reasoning with nested (deep) clauses. Let us use the Sequence Classification Demo to study this procedure step-by-step using a single clause $C = \textbf{A} \land \Big(\mathit{Left} \otimes C\Big) \land \Big(\mathit{Right} \otimes C\Big)$:
+The above message passing enable logical learning and reasoning with nested (deep) clauses. Let us use the Sequence Classification Demo to study this procedure step-by-step using a single clause $C:$
 
 <p align="center">
   <img width="90%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/SequenceClassificationInference.png">
 </p>
 
-**Features.** The first step is to describe each node using Boolean features:
+**Features.** The first step is to describe each node in the graph using Boolean features:
 
-$$[A, \mathit{Left} \otimes C, \mathit{Right} \otimes C]$$.
+$[A, \mathit{Left} \otimes C, \mathit{Right} \otimes C]$
 
-The first feature tells whether the node has property $A$. The second feature introduces the truth value of clause $C$ to the *Left*. The third feature is the truth value $C$ to the right. The notation $$\mathit{Left} \otimes C$$ is the vector symbolic way of saying that Boolean feature two represents the binding of the symbol _Left_ with the symbol $$C$$.
+Feature $A$ tells whether the node has property $A$. Feature $\mathit{Left} \otimes C$ introduces the truth value of clause $C$ to the *Left*. The operator $\otimes$ is the vector symbolic way of saying that you bind two symbols together into a new unit, in this case the symbol _Left_ and the symbol $$C$$.
 
-**Clause $$C$$ Without Message Literals. $$C = \textbf{A} \textcolor{lightgray}{\land \Big(\mathit{Left} \otimes C\Big) \land \Big(\mathit{Right} \otimes C\Big)}$$
+**Clause $$C$$ Without Message Literals.**
 
+$C = \textbf{A} \textcolor{lightgray}{\land \Big(\mathit{Left} \otimes C\Big) \land \Big(\mathit{Right} \otimes C\Big)}$
+
+**Clause $$C$$ With Message Literals.**
+
+$C = \textbf{A} \textcolor{red}{\land \Big(\mathit{Left} \otimes C\Big) \land \Big(\mathit{Right} \otimes C\Big)}$
 
 The number of message rounds decides the depth of the reasoning. Three layers of reasoning, for instance, consist of local reasoning, followed by two rounds of message passing, illustrated below:
 
