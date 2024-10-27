@@ -19,10 +19,11 @@ This project implements the Graph Tsetlin Machine.
   - [Vanilla MNIST](#vanilla-mnist)
   - [Convolutional MNIST](#convolutional-mnist)
   - [Sequence Classification](#sequence-classification)
+- [Example Use Case](#example-use-case)
 - [Graph Tsetlin Machine Basics](#graph-tsetlin-machine-basics)
   - [Clause-Driven Message Passing](#clause-driven-message-passing)
-  - [Logical Learning and Reasoning With Nested Clauses](#logical-learning-and-reasoning-with-nested-clauses)
-- [Example Use Case](#example-use-case)
+  - [Logical Reasoning With Nested Clauses](#logical-reasoning-with-nested-clauses)
+  - [Logical Learning With Nested Clauses](#logical-reasoning-with-nested-clauses)
 - [Paper](#paper)
 - [CUDA Configurations](#cuda-configurations)
 - [Roadmap](#roadmap)
@@ -187,6 +188,16 @@ From the perspective of a single node, the three classes _Y=0_ (one 'A'), _Y=1_ 
 
 See the Sequence Classification Demo in the example folder for further details.
 
+## Example Use Case
+
+Graph Tsetlin Machines process multimodal data in complex structures. Here is an envisioned example use case from a hospital:
+
+<p align="center">
+  <img width="70%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/GraphTM.png">
+</p>
+
+The nodes in the figure capture various kinds of health data, such as [ECG](https://arxiv.org/abs/2301.10181) and the [medical narrative](https://ieeexplore.ieee.org/document/8798633) in Electronic Health Records. The different types of edges specify the relationships between the data: _Measurement_ edges relate medical tests to a patient, _Condition_ edges relate diseases to patients, and so on. Machine learning tasks in this setting include: forecasting, alerting, decision-making, situation assessment, risk mitigation, knowledge discovery, and optimization.
+
 ## Graph Tsetlin Machine Basics
 
 ### Clause-Driven Message Passing
@@ -243,7 +254,7 @@ $$C = \textbf{A} \textcolor{red}{\land \Big(\mathit{Left} \otimes C\Big) \land \
 
 **10) Classification.**
 
-### Multiple Message Rounds
+### Logical Learning With Nested Clauses
 
 The number of message rounds decides the depth of the reasoning. Three layers of reasoning, for instance, consist of local reasoning, followed by two rounds of message passing, illustrated below:
 
@@ -258,16 +269,6 @@ Initially, the clauses only consider the nodes' properties (marked in black).
 This process continues until reaching the desired depth of reasoning, in this case depth three. Finally, the Tsetlin Automata Teams update their states based on how the clauses handled the classification task at hand.
 
 Notice how each team operates across a node's properties as well as the incorporated messages.  In this manner, they are able to build nested clauses. That is, a clause can draw upon the outcomes of other clauses to create hierarchical clause structures, centered around the various nodes. Hence, the power of the scheme!
-
-## Example Use Case
-
-Graph Tsetlin Machines process multimodal data in complex structures. Here is an envisioned example use case from a hospital:
-
-<p align="center">
-  <img width="70%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/GraphTM.png">
-</p>
-
-The nodes in the figure capture various kinds of health data, such as [ECG](https://arxiv.org/abs/2301.10181) and the [medical narrative](https://ieeexplore.ieee.org/document/8798633) in Electronic Health Records. The different types of edges specify the relationships between the data: _Measurement_ edges relate medical tests to a patient, _Condition_ edges relate diseases to patients, and so on. Machine learning tasks in this setting include: forecasting, alerting, decision-making, situation assessment, risk mitigation, knowledge discovery, and optimization.
 
 ## Paper
 
