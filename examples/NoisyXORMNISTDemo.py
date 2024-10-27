@@ -56,7 +56,7 @@ graphs_train = Graphs(
 )
 
 for graph_id in range(args.number_of_examples):
-    graphs_train.set_number_of_graph_nodes(graph_id, 2)
+    graphs_train.set_number_of_graph_nodes(graph_id, 3)
 
 graphs_train.prepare_node_configuration()
 
