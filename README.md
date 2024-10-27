@@ -206,7 +206,7 @@ The above message passing enable logical learning and reasoning with nested (dee
   <img width="90%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/SequenceClassificationInference.png">
 </p>
 
-Above, a single clause _C_ is capable of recognizing three consecutive **A**. $$a+b$$.
+Above, a single clause $$C = \textbf{A} \textcolor{red}{\land \Big(\mathit{Left} \otimes C\Big) \land \Big(\mathit{Right} \otimes C\Big)}$$ recognizes three consecutive $$\textbf{A}$$.
 
 The number of message rounds decides the depth of the reasoning. Three layers of reasoning, for instance, consist of local reasoning, followed by two rounds of message passing, illustrated below:
 
