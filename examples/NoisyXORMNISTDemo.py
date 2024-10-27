@@ -30,7 +30,6 @@ def default_args(**kwargs):
     parser.add_argument("--noise", default=0.01, type=float)
     parser.add_argument("--number-of-examples", default=1000, type=int)
     parser.add_argument("--max-included-literals", default=32, type=int)
-    parser.add_argument("--number-of-images", default=10, type=int)
 
     args = parser.parse_args()
     for key, value in kwargs.items():
@@ -76,12 +75,12 @@ for graph_id in range(args.number_of_examples):
 Y_train = np.empty(args.number_of_examples, dtype=np.uint32)
 for graph_id in range(args.number_of_examples):
     x1 = random.choice([0, 1])
-    image_1 = X_train[Y_train_mnist==x1][random.randint(0, args.number_of_images-1),:]
+    image_1 = X_train[Y_train_mnist==x1][random.randint(0, X_train.shape[0]-1),:]
     for k in image_1.nonzero()[0]:
         graphs_train.add_graph_node_property(graph_id, 'Node 1', "W%d,%d" % (k // 28, k % 28))
 
     x2 = random.choice([0, 1])
-    image_2 = X_train[Y_train_mnist==x2][random.randint(0, args.number_of_images-1),:]
+    image_2 = X_train[Y_train_mnist==x2][random.randint(0, X_train.shape[0]-1),:]
     for k in image_2.nonzero()[0]:
         graphs_train.add_graph_node_property(graph_id, 'Node 2', "W%d,%d" % (k // 28, k % 28))
 
@@ -121,12 +120,12 @@ for graph_id in range(args.number_of_examples):
 Y_test = np.empty(args.number_of_examples, dtype=np.uint32)
 for graph_id in range(args.number_of_examples):
     x1 = random.choice([0, 1])
-    image_1 = X_train[Y_train_mnist==x1][random.randint(0, args.number_of_images-1),:]
+    image_1 = X_test[Y_test_mnist==x1][random.randint(0, X_test.shape[0]-1),:]
     for k in image_1.nonzero()[0]:
         graphs_test.add_graph_node_property(graph_id, 'Node 1', "W%d,%d" % (k // 28, k % 28))
 
     x2 = random.choice([0, 1])
-    image_2 = X_train[Y_train_mnist==x2][random.randint(0, args.number_of_images-1),:]
+    image_2 = X_test[Y_test_mnist==x2][random.randint(0, X_test.shape[0]-1),:]
     for k in image_2.nonzero()[0]:
         graphs_test.add_graph_node_property(graph_id, 'Node 2', "W%d,%d" % (k // 28, k % 28))
 
