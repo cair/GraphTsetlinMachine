@@ -75,12 +75,12 @@ for graph_id in range(args.number_of_examples):
 Y_train = np.empty(args.number_of_examples, dtype=np.uint32)
 for graph_id in range(args.number_of_examples):
     x1 = random.choice([0, 1])
-    image_1 = X_train[Y_train_mnist==x1][random.randint(0, X_train.shape[0]-1),:]
+    image_1 = X_train[Y_train_mnist==x1][random.randint(0, X_train[Y_train_mnist==x1].shape[0]-1),:]
     for k in image_1.nonzero()[0]:
         graphs_train.add_graph_node_property(graph_id, 'Node 1', "W%d,%d" % (k // 28, k % 28))
 
     x2 = random.choice([0, 1])
-    image_2 = X_train[Y_train_mnist==x2][random.randint(0, X_train.shape[0]-1),:]
+    image_2 = X_train[Y_train_mnist==x2][random.randint(0, X_train[Y_train_mnist==x2].shape[0]-1),:]
     for k in image_2.nonzero()[0]:
         graphs_train.add_graph_node_property(graph_id, 'Node 2', "W%d,%d" % (k // 28, k % 28))
 
@@ -120,12 +120,12 @@ for graph_id in range(args.number_of_examples):
 Y_test = np.empty(args.number_of_examples, dtype=np.uint32)
 for graph_id in range(args.number_of_examples):
     x1 = random.choice([0, 1])
-    image_1 = X_test[Y_test_mnist==x1][random.randint(0, X_test.shape[0]-1),:]
+    image_1 = X_test[Y_test_mnist==x1][random.randint(0, X_test[Y_test_mnist==x1].shape[0]-1),:]
     for k in image_1.nonzero()[0]:
         graphs_test.add_graph_node_property(graph_id, 'Node 1', "W%d,%d" % (k // 28, k % 28))
 
     x2 = random.choice([0, 1])
-    image_2 = X_test[Y_test_mnist==x2][random.randint(0, X_test.shape[0]-1),:]
+    image_2 = X_test[Y_test_mnist==x2][random.randint(0, X_test[Y_test_mnist==x2].shape[0]-1),:]
     for k in image_2.nonzero()[0]:
         graphs_test.add_graph_node_property(graph_id, 'Node 2', "W%d,%d" % (k // 28, k % 28))
 
