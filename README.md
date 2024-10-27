@@ -232,11 +232,11 @@ The above message passing enables logical reasoning with nested (deep) clauses. 
 
 Feature $\mathbf{A}$ tells whether the node has property $\mathbf{A}$. Feature $Left \otimes C$ introduces the truth value of clause $C$ to the *Left*. The operator $\otimes$ is the vector symbolic way of saying that you bind two symbols together into a new unit, in this case the edge type $Left$ and the clause $C$. Correspondingly, feature $Right \otimes C$ gives the truth value of clause $C$ to the *Right*.
 
-**3) Clause Without Message Literals.** To produce the first round of messages, the clause $C$ only considers the node properties:
+**3) Clause Without Message Literals.** To produce the first round of messages, clause $C$ only considers the node properties:
 
-$$C = \textbf{A} \textcolor{lightgray}{\land \Big(\mathit{Left} \otimes C\Big) \land \Big(\mathit{Right} \otimes C\Big)}.$$
+$$C = \textbf{A} \textcolor{lightgray}{\land \Big(Left \otimes C\Big) \land \Big(Right \otimes C\Big)}.$$
 
-The reason is that the clause truth value to the _Left_ and _Right_ is not yet calculated.
+The reason is that the truth values of $C$ to the _Left_ and to the _Right_ are not yet calculated.
 
 **4) Partial Clause Matching; 5) Message Passing; 6) Updated Features.** In these steps, the Graph Tsetlin Machine matches the partial clause against the nodes. This matching gives one truth value per node. If any of these values are _True_, they are passed allong the outgoing edges, updating the features of each node:
 
