@@ -208,7 +208,7 @@ The Graph Tsetlin Machine is based on message passing. As illustrated below, a p
   <img width="75%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/MessagePassing.png">
 </p>
 
-When a node receives a message, it adds the message to its properties. In this manner, the messages supplement the node properties with contextual information.
+When a node receives a message, it appends the message to its properties. In this manner, the messages supplement the node properties with contextual information.
 
 ### Logical Reasoning With Nested Clauses
 
@@ -238,11 +238,11 @@ $$C = \textbf{A} \textcolor{lightgray}{\land \Big(\mathit{Left} \otimes C\Big) \
 
 The reason is that the clause truth value to the _Left_ and _Right_ is not yet calculated.
 
-**4) Partial Clause Matching.** In this step, the Graph Tsetlin Machine matches the partial clause against the nodes. This matching gives one truth value per node.
+**4) Partial Clause Matching; 5) Message Passing; 6) Updated Features.** In these steps, the Graph Tsetlin Machine matches the partial clause against the nodes. This matching gives one truth value per node. If any of these values are _True_, they are passed allong the outgoing edges, updating the features of each node:
 
-**5) Message Passing.** After matching, the truth values are passed as messages along the edges. 
-
-**6) Updated Features**
+<p align="center">
+  <img width="65%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/PartialMatchingAndMessagePassingSequenceClassification.png">
+</p>
 
 **7) Full Clause With Message Literals.**
 
