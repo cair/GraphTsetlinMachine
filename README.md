@@ -241,7 +241,7 @@ The reason is that the clause truth value to the _Left_ and _Right_ is not yet c
 **4) Partial Clause Matching; 5) Message Passing; 6) Updated Features.** In these steps, the Graph Tsetlin Machine matches the partial clause against the nodes. This matching gives one truth value per node. If any of these values are _True_, they are passed allong the outgoing edges, updating the features of each node:
 
 <p align="center">
-  <img width="80%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/PartialMatchingAndMessagePassingSequenceClassification.png">
+  <img width="90%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/PartialMatchingAndMessagePassingSequenceClassification.png">
 </p>
 
 **7) Full Clause With Message Literals.**
