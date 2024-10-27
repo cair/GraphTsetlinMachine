@@ -227,7 +227,7 @@ The above message passing enables logical reasoning with nested (deep) clauses. 
 **2) Features.** The Graph Tsetlin Machine next describes each node using Boolean features $[\mathbf{A}, \mathit{Left} \otimes C, \mathit{Right} \otimes C]:$
 
 <p align="center">
-  <img width="70%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/FeaturesSequenceClassification.png">
+  <img width="60%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/FeaturesSequenceClassification.png">
 </p>
 
 Feature $A$ tells whether the node has property $A$. Feature $\mathit{Left} \otimes C$ introduces the truth value of clause $C$ to the *Left*. The operator $\otimes$ is the vector symbolic way of saying that you bind two symbols together into a new unit, in this case the symbol _Left_ and the symbol $C$. Correspondingly, feature $\mathit{Right} \otimes C$ gives the truth value of clause $C$ to the *Right*.
