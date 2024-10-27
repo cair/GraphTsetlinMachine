@@ -230,7 +230,7 @@ The above message passing enables logical reasoning with nested (deep) clauses. 
   <img width="65%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/FeaturesSequenceClassification.png">
 </p>
 
-Feature $\mathbf{A}$ tells whether the node has property $\mathbf{A}$. Feature $\mathit{Left} \otimes C$ introduces the truth value of clause $C$ to the *Left*. The operator $\otimes$ is the vector symbolic way of saying that you bind two symbols together into a new unit, in this case the symbol _Left_ and the symbol $C$. Correspondingly, feature $\mathit{Right} \otimes C$ gives the truth value of clause $C$ to the *Right*.
+Feature $\mathbf{A}$ tells whether the node has property $\mathbf{A}$. Feature $Left \otimes C$ introduces the truth value of clause $C$ to the *Left*. The operator $\otimes$ is the vector symbolic way of saying that you bind two symbols together into a new unit, in this case the symbol $Left$ and the symbol $C$. Correspondingly, feature $Right \otimes C$ gives the truth value of clause $C$ to the *Right*.
 
 **3) Clause Without Message Literals.** To produce the first round of messages, the clause $C$ only considers the node properties:
 
