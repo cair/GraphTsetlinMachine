@@ -148,7 +148,7 @@ graphs_test.encode()
 tm = MultiClassGraphTsetlinMachine(
     args.number_of_clauses,
     args.T,
-    (10.0, 1.0, 1.0,1.0),#args.s,
+    args.s,
     number_of_state_bits = args.number_of_state_bits,
     depth = args.depth,
     message_size = args.message_size,
