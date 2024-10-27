@@ -14,28 +14,22 @@ X_test = np.where(X_test > 75, 1, 0).reshape(X_test.shape[0], -1).astype(np.uint
 Y_train = Y_train.astype(np.uint32)
 Y_test = Y_test.astype(np.uint32)
 
-X_zeros_train = X_train[Y_train == 0]
-X_ones_train = X_train[Y_train == 1]
-
-X_zeros_test = X_test[Y_test == 0]
-X_ones_test = X_test[Y_test == 1]
-
 def default_args(**kwargs):
     parser = argparse.ArgumentParser()
     parser.add_argument("--epochs", default=10, type=int)
-    parser.add_argument("--number-of-clauses", default=10, type=int)
-    parser.add_argument("--T", default=100, type=int)
-    parser.add_argument("--s", default=1.0, type=float)
+    parser.add_argument("--number-of-clauses", default=2000, type=int)
+    parser.add_argument("--T", default=2500, type=int)
+    parser.add_argument("--s", default=10.0, type=float)
     parser.add_argument("--number-of-state-bits", default=8, type=int)
     parser.add_argument("--depth", default=2, type=int)
-    parser.add_argument("--hypervector-size", default=32, type=int)
+    parser.add_argument("--hypervector-size", default=1024, type=int)
     parser.add_argument("--hypervector-bits", default=2, type=int)
     parser.add_argument("--message-size", default=256, type=int)
     parser.add_argument("--message-bits", default=2, type=int)
     parser.add_argument('--double-hashing', dest='double_hashing', default=False, action='store_true')
     parser.add_argument("--noise", default=0.01, type=float)
-    parser.add_argument("--number-of-examples", default=10000, type=int)
-    parser.add_argument("--max-included-literals", default=4, type=int)
+    parser.add_argument("--number-of-examples", default=1000, type=int)
+    parser.add_argument("--max-included-literals", default=32, type=int)
 
     args = parser.parse_args()
     for key, value in kwargs.items():
@@ -48,10 +42,15 @@ args = default_args()
 print("Creating training data")
 
 # Create train data
+symbols = []
+
+# 784 white pixel symbols
+for k in range(28*28):
+    symbols.append("W%d,%d" % (k // 28, k % 28))
 
 graphs_train = Graphs(
     args.number_of_examples,
-    symbols=['A', 'B'],
+    symbols=symbols,
     hypervector_size=args.hypervector_size,
     hypervector_bits=args.hypervector_bits,
 )
@@ -75,11 +74,15 @@ for graph_id in range(args.number_of_examples):
 
 Y_train = np.empty(args.number_of_examples, dtype=np.uint32)
 for graph_id in range(args.number_of_examples):
-    x1 = random.choice(['A', 'B'])
-    x2 = random.choice(['A', 'B'])
- 
-    graphs_train.add_graph_node_property(graph_id, 'Node 1', x1)
-    graphs_train.add_graph_node_property(graph_id, 'Node 2', x2)
+    x1 = random.choice([0, 1])
+    image_1 = X_train[Y==x1][0,:]
+    for k in image_1.nonzero()[0]:
+        graphs_train.add_graph_node_property(graph_id, 'Node 1', "W%d,%d" % (k // 28, k % 28))
+
+    x2 = random.choice([0, 1])
+    image_2 = X_train[Y==x2][0,:]
+    for k in image_2.nonzero()[0]:
+        graphs_train.add_graph_node_property(graph_id, 'Node 2', "W%d,%d" % (k // 28, k % 28))
 
     if x1 == x2:
         Y_train[graph_id] = 0
@@ -116,11 +119,15 @@ for graph_id in range(args.number_of_examples):
 
 Y_test = np.empty(args.number_of_examples, dtype=np.uint32)
 for graph_id in range(args.number_of_examples):
-    x1 = random.choice(['A', 'B'])
-    x2 = random.choice(['A', 'B'])
+    x1 = random.choice([0, 1])
+    image_1 = X_train[Y==x1][0,:]
+    for k in image_1.nonzero()[0]:
+        graphs_test.add_graph_node_property(graph_id, 'Node 1', "W%d,%d" % (k // 28, k % 28))
 
-    graphs_test.add_graph_node_property(graph_id, 'Node 1', x1)
-    graphs_test.add_graph_node_property(graph_id, 'Node 2', x2)
+    x2 = random.choice([0, 1])
+    image_2 = X_train[Y==x2][0,:]
+    for k in image_2.nonzero()[0]:
+        graphs_test.add_graph_node_property(graph_id, 'Node 2', "W%d,%d" % (k // 28, k % 28))
 
     if x1 == x2:
         Y_test[graph_id] = 0
