@@ -115,7 +115,7 @@ for graph_id in range(10000):
     graphs_train.add_graph_node_edge(graph_id, 'Node 1', 'Node 2', edge_type)
     graphs_train.add_graph_node_edge(graph_id, 'Node 2', 'Node 1', edge_type)
 ```
-You need two edges because you build directed graphs, and with two edges you cover both directions. Use only one type of edges, named _Plain_.
+You need two edges because you build directed graphs, and with two edges you cover both directions. Use only one edge type, named _Plain_.
 
 ### Adding Properties and Class Labels
 
