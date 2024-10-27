@@ -196,6 +196,7 @@ The Graph Tsetlin Machine is based on message passing. As illustrated below, a p
 <p align="center">
   <img width="75%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/MessagePassing.png">
 </p>
+
 When a node receives a message, it adds the message to its properties. In this manner, the messages supplement the node properties with contextual information.
 
 ### Logical Reasoning and Learning With Nested Clauses
@@ -206,7 +207,13 @@ The above message passing enable logical learning and reasoning with nested (dee
   <img width="90%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/SequenceClassificationInference.png">
 </p>
 
-**Features.** The first step is to describe each node in the graph using Boolean features:
+**Input Graph.** Use a graph with three consecutive $$A$$s as input:
+
+<p align="center">
+  <img width="70%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/InputGraphSequenceClassification.png">
+</p>
+
+**Features.** The first step is to describe each node in the input graph using Boolean features:
 
 $[A, \mathit{Left} \otimes C, \mathit{Right} \otimes C]$
 
