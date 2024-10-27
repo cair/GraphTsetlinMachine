@@ -64,13 +64,18 @@ for graph_id in range(args.number_of_examples):
     number_of_outgoing_edges = 1
     graphs_train.add_graph_node(graph_id, 'Node 1', number_of_outgoing_edges)
     graphs_train.add_graph_node(graph_id, 'Node 2', number_of_outgoing_edges)
+    number_of_outgoing_edges = 2
+    graphs_train.add_graph_node(graph_id, 'Node 3', number_of_outgoing_edges)
 
 graphs_train.prepare_edge_configuration()
 
 for graph_id in range(args.number_of_examples):
     edge_type = "Plain"
-    graphs_train.add_graph_node_edge(graph_id, 'Node 1', 'Node 2', edge_type)
-    graphs_train.add_graph_node_edge(graph_id, 'Node 2', 'Node 1', edge_type)
+    graphs_train.add_graph_node_edge(graph_id, 'Node 1', 'Node 3', edge_type)
+    graphs_train.add_graph_node_edge(graph_id, 'Node 3', 'Node 1', edge_type)
+
+    graphs_train.add_graph_node_edge(graph_id, 'Node 2', 'Node 3', edge_type)
+    graphs_train.add_graph_node_edge(graph_id, 'Node 3', 'Node 2', edge_type)
 
 Y_train = np.empty(args.number_of_examples, dtype=np.uint32)
 for graph_id in range(args.number_of_examples):
@@ -101,7 +106,7 @@ print("Creating testing data")
 graphs_test = Graphs(args.number_of_examples, init_with=graphs_train)
 
 for graph_id in range(args.number_of_examples):
-    graphs_test.set_number_of_graph_nodes(graph_id, 2)
+    graphs_test.set_number_of_graph_nodes(graph_id, 3)
 
 graphs_test.prepare_node_configuration()
 
@@ -109,13 +114,17 @@ for graph_id in range(args.number_of_examples):
     number_of_outgoing_edges = 1
     graphs_test.add_graph_node(graph_id, 'Node 1', number_of_outgoing_edges)
     graphs_test.add_graph_node(graph_id, 'Node 2', number_of_outgoing_edges)
+    number_of_outgoing_edges = 2
+    graphs_test.add_graph_node(graph_id, 'Node 3', number_of_outgoing_edges)
 
 graphs_test.prepare_edge_configuration()
 
 for graph_id in range(args.number_of_examples):
     edge_type = "Plain"
-    graphs_test.add_graph_node_edge(graph_id, 'Node 1', 'Node 2', edge_type)
-    graphs_test.add_graph_node_edge(graph_id, 'Node 2', 'Node 1', edge_type)
+    graphs_test.add_graph_node_edge(graph_id, 'Node 1', 'Node 3', edge_type)
+    graphs_test.add_graph_node_edge(graph_id, 'Node 3', 'Node 1', edge_type)
+    graphs_test.add_graph_node_edge(graph_id, 'Node 2', 'Node 3', edge_type)
+    graphs_test.add_graph_node_edge(graph_id, 'Node 3', 'Node 2', edge_type)
 
 Y_test = np.empty(args.number_of_examples, dtype=np.uint32)
 for graph_id in range(args.number_of_examples):
