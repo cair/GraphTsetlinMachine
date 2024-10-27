@@ -215,7 +215,7 @@ The above message passing enables logical learning and reasoning with nested (de
 
 **Features.** The Graph Tsetlin Machine next describes each node using Boolean features:
 
-$$[A, \mathit{Left} \otimes C, \mathit{Right} \otimes C]$$
+$$[\mathbf{A}, \mathit{Left} \otimes C, \mathit{Right} \otimes C].$$
 
 Feature $A$ tells whether the node has property $A$. Feature $\mathit{Left} \otimes C$ introduces the truth value of clause $C$ to the *Left*. The operator $\otimes$ is the vector symbolic way of saying that you bind two symbols together into a new unit, in this case the symbol _Left_ and the symbol $C$. Correspondingly, feature $\mathit{Right} \otimes C$ gives the truth value of clause $C$ to the *Right*.
 
@@ -223,7 +223,7 @@ Feature $A$ tells whether the node has property $A$. Feature $\mathit{Left} \oti
 
 To produce the first round of messages, the clause only considers the node property part of the features:
 
-$$C = \textbf{A} \textcolor{lightgray}{\land \Big(\mathit{Left} \otimes C\Big) \land \Big(\mathit{Right} \otimes C\Big)}$$
+$$C = \textbf{A} \textcolor{lightgray}{\land \Big(\mathit{Left} \otimes C\Big) \land \Big(\mathit{Right} \otimes C\Big)}.$$
 
 The reason is that the clause value to the left and right is not yet calculated.
 
