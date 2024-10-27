@@ -207,7 +207,7 @@ The above message passing enable logical learning and reasoning with nested (dee
   <img width="90%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/SequenceClassificationInference.png">
 </p>
 
-**Input Graph.** Use a graph with three consecutive $$A$$s as input:
+**Input Graph.** Use a graph with three consecutive nodes with property $A$ as input:
 
 <p align="center">
   <img width="70%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/InputGraphSequenceClassification.png">
