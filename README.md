@@ -229,7 +229,7 @@ The above message passing enables logical reasoning with nested (deep) clauses. 
   <img width="70%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/SequenceClassificationInference.png">
 </p>
 
-**1) Input Graph.** Our input is a graph with three consecutive $\mathbf{A}$ nodes:
+**1) Input Graph.** The example input is a graph with three consecutive $\mathbf{A}$ nodes:
 
 <p align="center">
   <img width="50%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/InputGraphSequenceClassification.png">
