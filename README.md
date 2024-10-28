@@ -200,6 +200,8 @@ This example increases the challenge of the Noisy XOR problem by using images of
 
 Again, the white pixels of the images become the node properties (illustrated by the images themselves above). To solve this task, the Graph Tsetlin Machine must both learn the appearance of handwritten '0's and '1', while relating them according to the XOR relation under the guidance of noisy class labels.
 
+See the Noisy XOR MNIST Demo in the example folder for further details.
+
 ## Example Use Case
 
 Graph Tsetlin Machines process multimodal data in complex structures. Here is an envisioned example use case from a hospital:
