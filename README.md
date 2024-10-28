@@ -60,7 +60,7 @@ Noisy XOR gives four kinds of graphs, shown below:
   <img width="60%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/NoisyXOR.png">
 </p>
 
-Observe how each node has one of two properties: **A** or **B**. If both of the graph's nodes have the same property, the graph is given the class label _Y=0_. Otherwise, it is given the class label $Y=1$.
+Observe how each node has one of two properties: **A** or **B**. If both of the graph's nodes have the same property, the graph is given the class label $Y=0$. Otherwise, it is given the class label $Y=1$.
 
 The task of the Graph Tsetlin Machine is to assign the correct class label to each graph when the labels used for training are noisy.
 
