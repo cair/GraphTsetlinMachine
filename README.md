@@ -60,7 +60,7 @@ Noisy XOR gives four kinds of graphs, shown below:
   <img width="60%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/NoisyXOR.png">
 </p>
 
-Observe how each node has one of two properties: **A** or **B**. If both of the graph's nodes have the same property, the graph is given the class label _Y=0_. Otherwise, it is given the class label _Y=1_.
+Observe how each node has one of two properties: **A** or **B**. If both of the graph's nodes have the same property, the graph is given the class label _Y=0_. Otherwise, it is given the class label $Y=1$.
 
 The task of the Graph Tsetlin Machine is to assign the correct class label to each graph when the labels used for training are noisy.
 
@@ -183,9 +183,9 @@ The task is to decide how many 'A's occur in sequence. The 'A's can appear at an
   <img width="60%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/SimpleSequenceProblem.png">
 </p>
 
-From the perspective of a single node, the three classes _Y=0_ (one 'A'), _Y=1_ (two 'A's), and _Y=2_ (three 'A's) all look the same. Each node only sees an 'A' or a space. By considering the nodes to its _Left_ and to its _Right_, however, a node can start gathering information about how many 'A's appear in the sequence.
+From the perspective of a single node, the three classes _Y=0_ (one 'A'), _Y=1_ (two 'A's), and _Y=2_ (three 'A's) all look the same. Each node only sees an 'A' or a space. By considering the nodes to its $Left$ and to its $Right$, however, a node can start gathering information about how many 'A's appear in the sequence.
 
-**Remark.** Notice the two types of edges: _Left_ and _Right_. With only a single edge type, a node would not be able distinguish between an 'A' to its left and an 'A' to its right, making the task more difficult. Hence, using two types of edges is beneficial.
+**Remark.** Notice the two types of edges: $Left$ and $Right$. With only a single edge type, a node would not be able distinguish between an 'A' to its left and an 'A' to its right, making the task more difficult. Hence, using two types of edges is beneficial.
 
 See the Sequence Classification Demo in the example folder for further details.
 
@@ -247,7 +247,7 @@ Feature $\mathbf{A}$ tells whether the node has property $\mathbf{A}$. Feature $
 
 $$C = \textbf{A} \textcolor{lightgray}{\land \Big(Left \otimes C\Big) \land \Big(Right \otimes C\Big)}.$$
 
-The reason is that the truth values of $C$ to the _Left_ and to the _Right_ are not yet calculated.
+The reason is that the truth values of $C$ to the $Left$ and to the $Right$ are not yet calculated.
 
 **4) Partial Clause Matching; 5) Message Passing; 6) Updated Features.** In these steps, the Graph Tsetlin Machine matches the partial clause against the nodes. This matching gives one truth value per node. _True_ values then passes along the outgoing edges, updating the features of each node:
 
