@@ -249,7 +249,7 @@ $$C = \textbf{A} \textcolor{lightgray}{\land \Big(Left \otimes C\Big) \land \Big
 
 The reason is that the truth values of $C$ to the _left_ and to the _right_ are not yet calculated.
 
-**4) Partial Clause Matching; 5) Message Passing; 6) Updated Features.** In these steps, the Graph Tsetlin Machine matches the partial clause against the nodes. This matching gives one truth value per node. _True_ values then passes along the outgoing edges, updating the features of each node:
+**4) Partial Clause Matching; 5) Message Passing; 6) Updated Features.** In these steps, the Graph Tsetlin Machine matches the partial clause against the nodes. This matching gives one truth value per node. Value $True$ then passes along the outgoing edges, updating the features of each node:
 
 <p align="center">
   <img width="90%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/PartialMatchingAndMessagePassingSequenceClassification.png">
