@@ -191,9 +191,13 @@ See the Sequence Classification Demo in the example folder for further details.
 
 ### Noisy XOR With MNIST Images
 
+This example increases the challenge of the Noisy XOR problem by using images of handwritten '0's and '1's instead of the symbols $\textbf{A}$ and $\textbf{B}$. Random selection from the MNIST collection of images gives a diverse range of handwritten digits.
+
 <p align="center">
   <img width="60%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/NoisyXORMNIST.png">
 </p>
+
+Again, the white pixels of the images become the node properties. 
 
 ## Example Use Case
 
