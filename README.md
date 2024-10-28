@@ -282,7 +282,7 @@ This process continues until reaching the desired depth of reasoning, in this ca
 
 ### Logical Learning With Nested Clauses
 
-Finally, the Tsetlin Automata Teams update their states based on how the clauses handled the classification task at hand. Notice from the figure how each team operates across each node's properties as well as the incorporated messages.  In this manner, they are able to build nested clauses. That is, a clause can draw upon the outcomes of other clauses to create hierarchical clause structures, centered around the various nodes. Hence, the power of the scheme!
+Finally, the Tsetlin Automata Teams update their states based on how the clauses handled the classification task at hand. Notice from the figure how each team operates across the nodes' properties as well as the incorporated messages.  In this manner, they are able to build nested clauses. That is, a clause can draw upon the outcomes of other clauses to create hierarchical clause structures, centered around the various nodes. Hence, the power of the scheme!
 
 ## Paper
 
