@@ -247,7 +247,7 @@ Feature $\mathbf{A}$ tells whether the node has property $\mathbf{A}$. Feature $
 
 $$C = \textbf{A} \textcolor{lightgray}{\land \Big(Left \otimes C\Big) \land \Big(Right \otimes C\Big)}.$$
 
-The reason is that the truth values of $C$ to the $Left$ and to the $Right$ are not yet calculated.
+The reason is that the truth values of $C$ to the _left_ and to the _right_ are not yet calculated.
 
 **4) Partial Clause Matching; 5) Message Passing; 6) Updated Features.** In these steps, the Graph Tsetlin Machine matches the partial clause against the nodes. This matching gives one truth value per node. _True_ values then passes along the outgoing edges, updating the features of each node:
 
