@@ -24,7 +24,8 @@ This project implements the Graph Tsetlin Machine.
 - [Graph Tsetlin Machine Basics](#graph-tsetlin-machine-basics)
   - [Clause-Driven Message Passing](#clause-driven-message-passing)
   - [Logical Reasoning With Nested Clauses](#logical-reasoning-with-nested-clauses)
-  - [Deeper Reasoning and Logical Learning With Nested Clauses](#deeper-reasoning-and-logical-reasoning-with-nested-clauses)
+  - [Deeper Logical Reasoning](#deeper-logical-reasoning)
+  - [Logical Learning With Nested Clauses](logical-learning-with-nested-clauses)
 - [Paper](#paper)
 - [CUDA Configurations](#cuda-configurations)
 - [Roadmap](#roadmap)
@@ -265,7 +266,7 @@ Note that the truth values are set to $False$ by default to minimize the need fo
 
 The result is an updated truth value per node. Finally, the truth values are ORed together to give the final classification $Y = 2$ (three consecutive $\mathbf{A}s$).
 
-### Deeper Reasoning and Logical Learning With Nested Clauses
+### Deeper Logical Reasoning
 
 The number of message rounds decides the depth of the reasoning. Three layers of reasoning, for instance, consist of local reasoning, followed by two rounds of message passing, illustrated below:
 
@@ -279,7 +280,9 @@ Initially, the clauses only consider the nodes' properties (marked in black).
   
 This process continues until reaching the desired depth of reasoning, in this case depth three.
 
-Finally, the Tsetlin Automata Teams update their states based on how the clauses handled the classification task at hand. Notice how each team operates across each node's properties as well as the incorporated messages.  In this manner, they are able to build nested clauses. That is, a clause can draw upon the outcomes of other clauses to create hierarchical clause structures, centered around the various nodes. Hence, the power of the scheme!
+### Logical Learning With Nested Clauses
+
+Finally, the Tsetlin Automata Teams update their states based on how the clauses handled the classification task at hand. Notice from the figure how each team operates across each node's properties as well as the incorporated messages.  In this manner, they are able to build nested clauses. That is, a clause can draw upon the outcomes of other clauses to create hierarchical clause structures, centered around the various nodes. Hence, the power of the scheme!
 
 ## Paper
 
