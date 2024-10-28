@@ -257,7 +257,7 @@ The reason is that the truth values of $C$ to the _left_ and to the _right_ are 
 
 Note that the truth values are set to $False$ by default to minimize the need for message passing.
 
-**7) Full Clause With Message Literals; 8)Full Clause Matching; 9) Evaluation; 10) Classification.** The message literals of the clause (marked in red) can now be activated for full clause evaluation:
+**7) Full Clause With Message Literals; 8)Full Clause Matching; 9) Evaluation; 10) Classification.** The message literals of the clause (marked in red) can now be activated for full clause matching:
 
 <p align="center">
   <img width="90%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/FullClauseMatchingAndEvaluationSequenceClassification.png">
