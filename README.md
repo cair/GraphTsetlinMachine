@@ -24,7 +24,7 @@ This project implements the Graph Tsetlin Machine.
 - [Graph Tsetlin Machine Basics](#graph-tsetlin-machine-basics)
   - [Clause-Driven Message Passing](#clause-driven-message-passing)
   - [Logical Reasoning With Nested Clauses](#logical-reasoning-with-nested-clauses)
-  - [Logical Learning With Nested Clauses](#logical-reasoning-with-nested-clauses)
+  - [Deeper Reasoning and Logical Learning With Nested Clauses](#deeper-reasoning-and-logical-reasoning-with-nested-clauses)
 - [Paper](#paper)
 - [CUDA Configurations](#cuda-configurations)
 - [Roadmap](#roadmap)
