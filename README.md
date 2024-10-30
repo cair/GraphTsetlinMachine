@@ -244,7 +244,7 @@ The above message passing enables logical reasoning with nested (deep) clauses. 
   <img width="65%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/FeaturesSequenceClassification.png">
 </p>
 
-Feature $\mathbf{A}$ tells whether the node has property $\mathbf{A}$. Feature $Left \otimes C$ is a placeholder for the truth value of clause $C$ to the *left*. Note that the operator $\otimes$ is the vector symbolic way of binding two symbols together into a new unit, in this case the edge type $Left$ and the clause $C$. You can consider this binding as an explainable way to name the second feature. Correspondingly, feature $Right \otimes C$ gives the truth value of clause $C$ to the *right*. The Graph Tsetlin Machine initializes the second and third feature to $False$, to be updated by any arriving messages. 
+Feature $\mathbf{A}$ tells whether the node has property $\mathbf{A}$. Feature $Left \otimes C$ is a placeholder for the truth value of clause $C$ to the *left*. Note that the operator $\otimes$ is the vector symbolic way of binding two symbols together into a new unit, in this case the edge type $Left$ and the clause $C$. You can consider this binding as an explainable way to name the second feature. Correspondingly, feature $Right \otimes C$ gives the truth value of clause $C$ to the *right*. The Graph Tsetlin Machine initializes the second and third feature to $False$, to be updated by arriving messages. 
 
 **3) Clause Without Message Literals.** To produce the first round of messages, clause $C$ only considers the node properties:
 
