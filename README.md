@@ -238,7 +238,7 @@ The above message passing enables logical reasoning with nested (deep) clauses. 
   <img width="50%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/InputGraphSequenceClassification.png">
 </p>
 
-**2) Initial Features.** The Graph Tsetlin Machine next describes each node using Boolean features $[\mathbf{A}, Left \otimes C, Right \otimes C]:$
+**2) Initial Features.** The Graph Tsetlin Machine next describes each node using Boolean features $[\mathbf{A}, Right \otimes C, Left \otimes C]:$
 
 <p align="center">
   <img width="65%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/FeaturesSequenceClassification.png">
