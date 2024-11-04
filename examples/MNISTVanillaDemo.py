@@ -4,7 +4,6 @@ from scipy.sparse import csr_matrix
 from GraphTsetlinMachine.tm import MultiClassGraphTsetlinMachine
 from time import time
 import argparse
-from skimage.util import view_as_windows
 from keras.datasets import mnist
 from numba import jit
 
@@ -53,51 +52,37 @@ graphs_train = Graphs(
     hypervector_bits=args.hypervector_bits,
     double_hashing = args.double_hashing
 )
-
 for graph_id in range(X_train.shape[0]):
     graphs_train.set_number_of_graph_nodes(graph_id, number_of_nodes)
-
 graphs_train.prepare_node_configuration()
-
 for graph_id in range(X_train.shape[0]):
     number_of_outgoing_edges = 0
     graphs_train.add_graph_node(graph_id, 'Image Node', number_of_outgoing_edges)
-
 graphs_train.prepare_edge_configuration()
-
 for graph_id in range(X_train.shape[0]):
     if graph_id % 1000 == 0:
         print(graph_id, X_train.shape[0])
     
     for k in X_train[graph_id].nonzero()[0]:
         graphs_train.add_graph_node_property(graph_id, 'Image Node', "W%d,%d" % (k // 28, k % 28))
-
 graphs_train.encode()
-
 print("Training data produced")
 
 graphs_test = Graphs(X_test.shape[0], init_with=graphs_train)
-
 for graph_id in range(X_test.shape[0]):
     graphs_test.set_number_of_graph_nodes(graph_id, number_of_nodes)
-
 graphs_test.prepare_node_configuration()
-
 for graph_id in range(X_test.shape[0]):
     number_of_outgoing_edges = 0
     graphs_test.add_graph_node(graph_id, 'Image Node', number_of_outgoing_edges)
-
 graphs_test.prepare_edge_configuration()
-
 for graph_id in range(X_test.shape[0]):
     if graph_id % 1000 == 0:
         print(graph_id, X_test.shape[0])
     
     for k in X_test[graph_id].nonzero()[0]:
         graphs_test.add_graph_node_property(graph_id, 'Image Node', "W%d,%d" % (k // 28, k % 28))
-
 graphs_test.encode()
-
 print("Testing data produced")
 
 tm = MultiClassGraphTsetlinMachine(
