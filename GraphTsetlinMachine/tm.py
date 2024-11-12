@@ -571,6 +571,64 @@ class MultiClassGraphTsetlinMachine(CommonTsetlinMachine):
 	def predict(self, graphs):
 		return np.argmax(self.score(graphs), axis=1)
 
+class MultiOutputGraphTsetlinMachine(CommonTsetlinMachine):
+	"""
+	This class implements the MultiOuput GTM...
+	"""
+
+	def __init__(
+		self,
+		number_of_clauses,
+		T,
+		s,
+		q=1.0,
+		max_included_literals=None,
+		boost_true_positive_feedback=1,
+		number_of_state_bits=8,
+		depth=1,
+		message_size=256,
+		message_bits=2,
+		double_hashing=False,
+		grid=(16*13*4, 1, 1),
+		block=(128, 1, 1),
+	):
+		super().__init__(
+			number_of_clauses,
+			T,
+			s,
+			q=q,
+			max_included_literals=max_included_literals,
+			boost_true_positive_feedback=boost_true_positive_feedback,
+			number_of_state_bits=number_of_state_bits,
+			depth=depth,
+			message_size=message_size,
+			message_bits=message_bits,
+			double_hashing=double_hashing,
+			grid=grid,
+			block=block
+		)
+		self.negative_clauses = 1
+
+	def fit(self, graphs, Y, epochs=100, incremental=False):
+		self.number_of_outputs = int(np.max(Y) + 1)
+
+		self.max_y = None
+		self.min_y = None
+
+		encoded_Y = np.empty((Y.shape[0], self.number_of_outputs), dtype=np.int32)
+		for i in range(self.number_of_outputs):
+			encoded_Y[:, i] = np.where(Y == i, self.T, -self.T)
+
+		self._fit(graphs, encoded_Y, epochs=epochs, incremental=incremental)
+
+	def score(self, graphs):
+		return self._score(graphs)
+
+	def predict(self, graphs):
+		class_sums = self.score(graphs)
+		preds = (class_sums >= 0).astype(np.uint32)
+		return preds
+
 class GraphTsetlinMachine(CommonTsetlinMachine):
 	def __init__(
 			self,
