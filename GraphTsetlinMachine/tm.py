@@ -610,14 +610,12 @@ class MultiOutputGraphTsetlinMachine(CommonTsetlinMachine):
 		self.negative_clauses = 1
 
 	def fit(self, graphs, Y, epochs=100, incremental=False):
-		self.number_of_outputs = int(np.max(Y) + 1)
+		self.number_of_outputs = Y.shape[1]
 
 		self.max_y = None
 		self.min_y = None
 
-		encoded_Y = np.empty((Y.shape[0], self.number_of_outputs), dtype=np.int32)
-		for i in range(self.number_of_outputs):
-			encoded_Y[:, i] = np.where(Y == i, self.T, -self.T)
+		encoded_Y = np.where(Y == 1, self.T, -self.T).astype(np.int32)
 
 		self._fit(graphs, encoded_Y, epochs=epochs, incremental=incremental)
 
