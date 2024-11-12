@@ -80,9 +80,9 @@ for graph_id in range(args.number_of_examples):
 		Y_train[graph_id, 1] = 0
 
 	if x1 == "B" and x2 == "B":
-		Y_train[graph_id, 1] = 1
+		Y_train[graph_id, 2] = 1
 	else:
-		Y_train[graph_id, 1] = 0
+		Y_train[graph_id, 2] = 0
 
 	if np.random.rand() <= args.noise:
 		Y_train[graph_id] = 1 - Y_train[graph_id]
@@ -112,7 +112,7 @@ for graph_id in range(args.number_of_examples):
 	graphs_test.add_graph_node_edge(graph_id, "Node 1", "Node 2", edge_type)
 	graphs_test.add_graph_node_edge(graph_id, "Node 2", "Node 1", edge_type)
 
-Y_test = np.empty(args.number_of_examples, dtype=np.uint32)
+Y_test = np.empty((args.number_of_examples, 3), dtype=np.uint32)
 for graph_id in range(args.number_of_examples):
 	x1 = random.choice(["A", "B"])
 	x2 = random.choice(["A", "B"])
@@ -121,22 +121,22 @@ for graph_id in range(args.number_of_examples):
 	graphs_test.add_graph_node_property(graph_id, "Node 2", x2)
 
 	if x1 == x2:
-		Y_train[graph_id, 0] = 0
+		Y_test[graph_id, 0] = 0
 	else:
-		Y_train[graph_id, 0] = 1
+		Y_test[graph_id, 0] = 1
 
 	if x1 == "B" or x2 == "B":
-		Y_train[graph_id, 1] = 1
+		Y_test[graph_id, 1] = 1
 	else:
-		Y_train[graph_id, 1] = 0
+		Y_test[graph_id, 1] = 0
 
 	if x1 == "B" and x2 == "B":
-		Y_train[graph_id, 1] = 1
+		Y_test[graph_id, 2] = 1
 	else:
-		Y_train[graph_id, 1] = 0
+		Y_test[graph_id, 2] = 0
 
 	if np.random.rand() <= args.noise:
-		Y_train[graph_id] = 1 - Y_train[graph_id]
+		Y_test[graph_id] = 1 - Y_test[graph_id]
 
 graphs_test.encode()
 average_accuracy = 0.0
