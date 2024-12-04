@@ -134,6 +134,26 @@ class CommonTsetlinMachine():
 
 			return (message_ta_state[clause, ta // 32, self.number_of_state_bits-1] & (1 << (ta % 32))) > 0
 
+	def get_hyperliterals(self, depth):
+		if depth == 0:
+			literals = np.array(
+				[
+					[self.ta_action(0, clause, ta) for ta in range(self.number_of_literals)]
+					for clause in range(self.number_of_clauses)
+				],
+				dtype=np.uint8,
+			)
+		else:
+			literals = np.array(
+				[
+					[self.ta_action(depth, clause, ta) for ta in range(self.number_of_message_literals)]
+					for clause in range(self.number_of_clauses)
+				],
+				dtype=np.uint8,
+			)
+
+		return literals
+
 	def convert_hv_clause_to_literals(self, clause, symbol_hv):
 		hvc_positive = clause[: (self.number_of_literals // 2)]
 		hvc_negated = clause[(self.number_of_literals // 2) :]
