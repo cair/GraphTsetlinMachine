@@ -469,7 +469,7 @@ class CommonTsetlinMachine():
 		
 		return
 
-	def _score(self, graphs):
+	def _score_init(self, graphs):
 		if not self.initialized:
 			print("Error: Model not trained.")
 			sys.exit(-1)
@@ -498,6 +498,9 @@ class CommonTsetlinMachine():
 			else:
 				self.edge_test_gpu = cuda.mem_alloc(1)
 
+	def _score(self, graphs):
+		self._score_init(graphs)
+
 		class_sum = np.zeros((graphs.number_of_graphs, self.number_of_outputs), dtype=np.int32)
 		for e in range(graphs.number_of_graphs):
 			cuda.memcpy_htod(self.class_sum_gpu, class_sum[e,:])
@@ -523,41 +526,7 @@ class CommonTsetlinMachine():
 		return class_sum
 
 	def transform(self, graphs):
-		if not self.initialized:
-			print("Error: Model not trained.")
-			sys.exit(-1)
-
-		if not np.array_equal(self.graphs_signature_test, graphs.signature):
-			self.graphs_signature_test = graphs.signature
-
-			self.encoded_X_test_gpu = cuda.mem_alloc(graphs.X.nbytes)
-			cuda.memcpy_htod(self.encoded_X_test_gpu, graphs.X)
-
-			self.current_clause_node_output_test_gpu = cuda.mem_alloc(
-				int(self.number_of_clauses * graphs.max_number_of_graph_node_chunks) * 4
-			)
-			self.next_clause_node_output_test_gpu = cuda.mem_alloc(
-				int(self.number_of_clauses * graphs.max_number_of_graph_node_chunks) * 4
-			)
-
-			self.clause_X_int_test_gpu = cuda.mem_alloc(
-				int(graphs.max_number_of_graph_nodes * self.number_of_message_literals) * 4
-			)
-
-			self.clause_X_test_gpu = []
-			for depth in range(self.depth - 1):
-				self.clause_X_test_gpu.append(
-					cuda.mem_alloc(int(graphs.max_number_of_graph_nodes * self.number_of_message_chunks) * 4)
-				)
-
-			self.number_of_graph_node_edges_test_gpu = cuda.mem_alloc(graphs.number_of_graph_node_edges.nbytes)
-			cuda.memcpy_htod(self.number_of_graph_node_edges_test_gpu, graphs.number_of_graph_node_edges)
-
-			if graphs.edge.nbytes > 0:
-				self.edge_test_gpu = cuda.mem_alloc(graphs.edge.nbytes)
-				cuda.memcpy_htod(self.edge_test_gpu, graphs.edge)
-			else:
-				self.edge_test_gpu = cuda.mem_alloc(1)
+		self._score_init(graphs)
 
 		class_sum = np.zeros((graphs.number_of_graphs, self.number_of_outputs), dtype=np.int32)
 		transformed_X = np.zeros((graphs.number_of_graphs, self.number_of_clauses), dtype=np.int32)
@@ -595,41 +564,7 @@ class CommonTsetlinMachine():
 		return transformed_X, class_sum
 
 	def transform_nodewise(self, graphs):
-		if not self.initialized:
-			print("Error: Model not trained.")
-			sys.exit(-1)
-
-		if not np.array_equal(self.graphs_signature_test, graphs.signature):
-			self.graphs_signature_test = graphs.signature
-
-			self.encoded_X_test_gpu = cuda.mem_alloc(graphs.X.nbytes)
-			cuda.memcpy_htod(self.encoded_X_test_gpu, graphs.X)
-
-			self.current_clause_node_output_test_gpu = cuda.mem_alloc(
-				int(self.number_of_clauses * graphs.max_number_of_graph_node_chunks) * 4
-			)
-			self.next_clause_node_output_test_gpu = cuda.mem_alloc(
-				int(self.number_of_clauses * graphs.max_number_of_graph_node_chunks) * 4
-			)
-
-			self.clause_X_int_test_gpu = cuda.mem_alloc(
-				int(graphs.max_number_of_graph_nodes * self.number_of_message_literals) * 4
-			)
-
-			self.clause_X_test_gpu = []
-			for depth in range(self.depth - 1):
-				self.clause_X_test_gpu.append(
-					cuda.mem_alloc(int(graphs.max_number_of_graph_nodes * self.number_of_message_chunks) * 4)
-				)
-
-			self.number_of_graph_node_edges_test_gpu = cuda.mem_alloc(graphs.number_of_graph_node_edges.nbytes)
-			cuda.memcpy_htod(self.number_of_graph_node_edges_test_gpu, graphs.number_of_graph_node_edges)
-
-			if graphs.edge.nbytes > 0:
-				self.edge_test_gpu = cuda.mem_alloc(graphs.edge.nbytes)
-				cuda.memcpy_htod(self.edge_test_gpu, graphs.edge)
-			else:
-				self.edge_test_gpu = cuda.mem_alloc(1)
+		self._score_init(graphs)
 
 		class_sum = np.zeros((graphs.number_of_graphs, self.number_of_outputs), dtype=np.int32)
 		transformed_X = np.zeros(
@@ -654,7 +589,9 @@ class CommonTsetlinMachine():
 				self.encoded_X_test_gpu,
 			)
 
-			transformed_X_sample_gpu = cuda.mem_alloc(int(self.number_of_clauses *  np.max(graphs.number_of_graph_nodes) * 4))
+			transformed_X_sample_gpu = cuda.mem_alloc(
+				int(self.number_of_clauses * np.max(graphs.number_of_graph_nodes) * 4)
+			)
 			self.transform_nodewise_gpu.prepared_call(
 				self.grid,
 				self.block,
@@ -666,7 +603,9 @@ class CommonTsetlinMachine():
 			cuda.memcpy_dtoh(class_sum[e, :], self.class_sum_gpu)
 			cuda.memcpy_dtoh(transformed_X[e, :], transformed_X_sample_gpu)
 
-		return transformed_X.reshape((graphs.number_of_graphs, self.number_of_clauses, np.max(graphs.number_of_graph_nodes))), class_sum
+		return transformed_X.reshape(
+			(graphs.number_of_graphs, self.number_of_clauses, np.max(graphs.number_of_graph_nodes))
+		), class_sum
 
 
 class MultiClassGraphTsetlinMachine(CommonTsetlinMachine):
