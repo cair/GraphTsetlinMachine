@@ -670,8 +670,6 @@ code_transform = """
 		int index = blockIdx.x * blockDim.x + threadIdx.x;
 		int stride = blockDim.x * gridDim.x;
 
-		int number_of_node_chunks = (number_of_nodes - 1) / INT_SIZE + 1;
-
 		for (int clause = index; clause < CLAUSES; clause += stride) {
 			int clause_output = 0;
 			for (int n = 0; n < number_of_nodes; n++) {
@@ -694,7 +692,6 @@ code_transform = """
 		int index = blockIdx.x * blockDim.x + threadIdx.x;
 		int stride = blockDim.x * gridDim.x;
 
-		int number_of_node_chunks = (number_of_nodes - 1) / INT_SIZE + 1;
 		for (int clause = index; clause < CLAUSES; clause += stride) {
 			for (int n = 0; n < number_of_nodes; n++) {
 				int chunk_nr = n / INT_SIZE;
