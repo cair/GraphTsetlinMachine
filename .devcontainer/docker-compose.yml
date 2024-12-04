@@ -1,5 +1,5 @@
 services:
-  tm-graph-development:
+  tm-graph-recomm:
     build:
       context: ../
       dockerfile: .devcontainer/Dockerfile
