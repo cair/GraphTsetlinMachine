@@ -10,18 +10,18 @@ from sklearn.preprocessing import LabelEncoder
 def default_args(**kwargs):
     parser = argparse.ArgumentParser()
     parser.add_argument("--epochs", default=250, type=int)
-    parser.add_argument("--number-of-clauses", default=60, type=int)
-    parser.add_argument("--T", default=100, type=int)
+    parser.add_argument("--number-of-clauses", default=1000, type=int)
+    parser.add_argument("--T", default=1000, type=int)
     parser.add_argument("--s", default=10.0, type=float)
     parser.add_argument("--number-of-state-bits", default=8, type=int)
-    parser.add_argument("--depth", default=2, type=int)
-    parser.add_argument("--hypervector-size", default=1024, type=int)
-    parser.add_argument("--hypervector-bits", default=8, type=int)
-    parser.add_argument("--message-size", default=256, type=int)
-    parser.add_argument("--message-bits", default=8, type=int)
+    parser.add_argument("--depth", default=3, type=int)
+    parser.add_argument("--hypervector-size", default=16384, type=int)
+    parser.add_argument("--hypervector-bits", default=328, type=int)
+    parser.add_argument("--message-size", default=1024, type=int)
+    parser.add_argument("--message-bits", default=32, type=int)
     parser.add_argument('--double-hashing', dest='double_hashing', default=False, action='store_true')
     parser.add_argument("--noise", default=0.01, type=float)
-    parser.add_argument("--number-of-examples", default=10000, type=int)
+    parser.add_argument("--number-of-examples", default=1000, type=int)
     parser.add_argument("--max-included-literals", default=4, type=int)
 
     args = parser.parse_args()
@@ -68,7 +68,7 @@ categories = data['category'].unique()
 number_of_nodes = 3
 symbols = []
 symbols = ["U_" + str(u) for u in users] + ["I_" + str(i) for i in items] + ["C_" + str(c) for c in categories] 
-
+print(len(symbols))
 # Train data
 graphs_train = Graphs(
     X_train.shape[0],
