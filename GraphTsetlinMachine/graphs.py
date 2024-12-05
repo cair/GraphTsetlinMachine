@@ -134,8 +134,10 @@ class Graphs():
 	def add_graph_node_property(self, graph_id, node_name, symbol):
 		self._add_graph_node_property(self.hypervectors, self.hypervector_size, self.node_index[graph_id], self.graph_node_id[graph_id][node_name], self.symbol_id[symbol], self.X)
 
-	def print_graph(self, graph_id):
+	def print_graph_nodes(self, graph_id):
+		graphstr ='Printing nodes of Graph#'+str(graph_id)+':\n'
 		for node_id in range(self.number_of_graph_nodes[graph_id]):
+			nodestr='Node#'+str(node_id)+'( '
 			for (symbol_name, symbol_id) in self.symbol_id.items():
 				match = True
 				for k in self.hypervectors[symbol_id,:]:
@@ -146,10 +148,36 @@ class Graphs():
 						match = False
 
 				if match:
-					print(symbol_name, end=' ')
+					nodestr+= symbol_name+' '
 				else:
-					print("*", end=' ')
+					nodestr+= '*'+' '
+			nodestr+= ')'+' '
+			graphstr+= nodestr
+		print(graphstr)
 		print()
+
+	def print_graph_edges(self, graph_id):
+		graphstr ='Printing edges of Graph#'+str(graph_id)+':\n'
+		for node_id in range(0,self.number_of_graph_nodes[graph_id]):
+			for node_edge_num in range(0, self.graph_node_edge_counter[self.node_index[graph_id] + node_id]):
+				edge_index = self.edge_index[self.node_index[graph_id] + node_id] + node_edge_num
+				edgestr='Edge#'+str(edge_index)
+			
+				edgestr+= ' SrcNode#'+str(node_id)
+
+				edgestr+= ' DestNode#'+str(self.edge[edge_index][0])
+
+				edgestr+= ' EdgeType#'+str(self.edge[edge_index][1])+'\n'
+			
+				graphstr+= edgestr
+			graphstr+= '\n'
+		print(graphstr)
+		print()
+
+	def print_graph(self, graph_id):
+		self.print_graph_nodes(graph_id)
+		self.print_graph_edges(graph_id)
+
 
 	def encode(self):
 		edges_missing = False
