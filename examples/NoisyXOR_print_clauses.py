@@ -203,8 +203,8 @@ for edge_type in range(len(graphs_train.edge_type_id)):
 		print(f"Message {msg} ", end=": ")
 
 		for clause in range(tm.number_of_clauses):
-			if message_clauses[edge_type, msg, clause] == 1:
-				print(f"C:{clause}(", end=" ")
+			if message_clauses[edge_type, msg, clause] > 0:
+				print(f"{message_clauses[edge_type, msg, clause]}C:{clause}(", end=" ")
 
 				for literal in range(num_symbols):
 					if clause_literals[clause, literal] > 0:
@@ -215,8 +215,8 @@ for edge_type in range(len(graphs_train.edge_type_id)):
 
 				print(")", end=" ")
 
-			if message_clauses[edge_type, msg, tm.number_of_clauses + clause] == 1:
-				print(f"~C:{clause}(", end=" ")
+			if message_clauses[edge_type, msg, tm.number_of_clauses + clause] > 0:
+				print(f"~{message_clauses[edge_type, msg, tm.number_of_clauses + clause]}C:{clause}(", end=" ")
 
 				for literal in range(num_symbols):
 					if clause_literals[clause, literal] > 0:

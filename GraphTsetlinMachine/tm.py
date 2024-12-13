@@ -204,7 +204,7 @@ class CommonTsetlinMachine():
 
 		hv_messages = self.get_hyperliterals(depth)
 
-		message_literals = np.zeros((edge_types, self.number_of_clauses, 2 * self.number_of_clauses), dtype=np.uint8)
+		message_literals = np.zeros((edge_types, self.number_of_clauses, 2 * self.number_of_clauses))
 
 		for clause in range(self.number_of_clauses):
 			hvc_positive = hv_messages[clause, : (self.number_of_message_literals // 2)]
@@ -217,11 +217,11 @@ class CommonTsetlinMachine():
 					# Shift the HV before matching
 					sym_hv = (sym_hv + edge_type) % self.message_size
 
-					if np.all(hvc_positive[sym_hv] == 1):
-						message_literals[edge_type, clause, sym_id] = 1
+					pos_match = (hvc_positive[sym_hv] == 1) & 1
+					neg_match = (hvc_negated[sym_hv] == 1) & 1
 
-					elif np.all(hvc_negated[sym_hv] == 1):
-						message_literals[edge_type, clause, sym_id + (self.number_of_clauses)] = 1
+					message_literals[edge_type, clause, sym_id] = np.mean(pos_match)
+					message_literals[edge_type, clause, sym_id + (self.number_of_clauses)] = np.mean(neg_match)
 
 		return message_literals
 
