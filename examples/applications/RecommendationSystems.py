@@ -16,7 +16,7 @@ def default_args(**kwargs):
     parser.add_argument("--number-of-state-bits", default=8, type=int)
     parser.add_argument("--depth", default=3, type=int)
     parser.add_argument("--hypervector-size", default=16384, type=int)
-    parser.add_argument("--hypervector-bits", default=328, type=int)
+    parser.add_argument("--hypervector-bits", default=496, type=int)
     parser.add_argument("--message-size", default=1024, type=int)
     parser.add_argument("--message-bits", default=32, type=int)
     parser.add_argument('--double-hashing', dest='double_hashing', default=False, action='store_true')
