@@ -3,6 +3,7 @@ from GraphTsetlinMachine.tm import MultiClassGraphTsetlinMachine
 from time import time
 import argparse
 import pandas as pd
+import numpy as np
 import kagglehub
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
@@ -15,13 +16,13 @@ def default_args(**kwargs):
     parser.add_argument("--s", default=10.0, type=float)
     parser.add_argument("--number-of-state-bits", default=8, type=int)
     parser.add_argument("--depth", default=3, type=int)
-    parser.add_argument("--hypervector-size", default=16384, type=int)
-    parser.add_argument("--hypervector-bits", default=496, type=int)
-    parser.add_argument("--message-size", default=1024, type=int)
-    parser.add_argument("--message-bits", default=32, type=int)
+    parser.add_argument("--hypervector-size", default=1024, type=int)
+    parser.add_argument("--hypervector-bits", default=10, type=int)
+    parser.add_argument("--message-size", default=512, type=int)
+    parser.add_argument("--message-bits", default=10, type=int)
     parser.add_argument('--double-hashing', dest='double_hashing', default=False, action='store_true')
     parser.add_argument("--noise", default=0.01, type=float)
-    parser.add_argument("--number-of-examples", default=1000, type=int)
+    parser.add_argument("--number-of-examples", default=500, type=int)
     parser.add_argument("--max-included-literals", default=4, type=int)
 
     args = parser.parse_args()
@@ -32,13 +33,38 @@ def default_args(**kwargs):
 
 args = default_args()
 
-print("Creating training data")
-path = kagglehub.dataset_download("karkavelrajaj/amazon-sales-dataset")
-print("Path to dataset files:", path)
-data_file = path + "/amazon.csv" 
-data = pd.read_csv(data_file)
-# print("Data preview:", data.head())
-data = data[['product_id', 'category', 'user_id', 'rating']]
+# print("Creating training data")
+# path = kagglehub.dataset_download("karkavelrajaj/amazon-sales-dataset")
+# print("Path to dataset files:", path)
+# data_file = path + "/amazon.csv" 
+# data = pd.read_csv(data_file)
+# # print("Data preview:", data.head())
+# data = data[['product_id', 'category', 'user_id', 'rating']]
+
+############################# artificial dataset ########################
+# Set random seed for reproducibility
+np.random.seed(42)
+# Define the size of the artificial dataset
+num_users = 10  # Number of unique users
+num_items = 50   # Number of unique items
+num_categories = 10  # Number of unique categories
+num_interactions = 10000  # Number of user-item interactions
+# Generate random ratings (e.g., between 1 and 5)
+ratings = np.random.choice(range(1, 3), num_interactions)
+# Generate random user-item interactions
+user_ids = np.random.choice(range(num_users), num_interactions)
+item_ids = np.random.choice(range(num_items), num_interactions)
+categories = np.random.choice(range(num_categories), num_interactions)
+# Combine into a DataFrame
+data = pd.DataFrame({
+    'user_id': user_ids,
+    'product_id': item_ids,
+    'category': categories,
+    'rating': ratings
+})
+print("Artificial Dataset Preview:")
+print(data.head())
+########################################################################
  
 le_user = LabelEncoder()
 le_item = LabelEncoder()
