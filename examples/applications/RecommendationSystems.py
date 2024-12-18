@@ -38,10 +38,38 @@ print("Creating training data")
 path = kagglehub.dataset_download("karkavelrajaj/amazon-sales-dataset")
 print("Path to dataset files:", path)
 data_file = path + "/amazon.csv" 
-data = pd.read_csv(data_file)
+org_data = pd.read_csv(data_file)
 # print("Data preview:", data.head())
-data = data[['product_id', 'category', 'user_id', 'rating']]
+org_data = org_data[['product_id', 'category', 'user_id', 'rating']]
+#################################### expanded 
+org_data['rating'] = pd.to_numeric(org_data['rating'], errors='coerce')  # Coerce invalid values to NaN
+org_data.dropna(subset=['rating'], inplace=True)  # Drop rows with NaN ratings
+org_data['rating'] = org_data['rating'].astype(int)
+# Expand the dataset 10 times
+data = pd.concat([org_data] * 10, ignore_index=True)
 
+# Shuffle the expanded dataset
+data = data.sample(frac=1, random_state=42).reset_index(drop=True)
+
+# Add noise
+# Define the noise ratio
+noise_ratio = 0.1  # 10% noise
+
+# Select rows to apply noise
+num_noisy_rows = int(noise_ratio * len(data))
+noisy_indices = np.random.choice(data.index, size=num_noisy_rows, replace=False)
+
+# Add noise to ratings
+data.loc[noisy_indices, 'rating'] = np.random.choice(range(1, 6), size=num_noisy_rows)
+
+# Add noise to categories
+unique_categories = data['category'].unique()
+data.loc[noisy_indices, 'category'] = np.random.choice(unique_categories, size=num_noisy_rows)
+
+# Print a preview of the noisy and expanded dataset
+print("Original data shape:", org_data.shape)
+print("Expanded data shape:", data.shape)
+print("Data preview:\n", data.head())
 ############################# artificial dataset ########################
 
 # Set random seed for reproducibility
