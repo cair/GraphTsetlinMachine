@@ -19,7 +19,7 @@ def default_args(**kwargs):
     parser.add_argument("--hypervector-size", default=1024, type=int)
     parser.add_argument("--hypervector-bits", default=10, type=int)
     parser.add_argument("--message-size", default=512, type=int)
-    parser.add_argument("--message-bits", default=10, type=int)
+    parser.add_argument("--message-bits", default=2, type=int)
     parser.add_argument('--double-hashing', dest='double_hashing', default=False, action='store_true')
     parser.add_argument("--noise", default=0.01, type=float)
     parser.add_argument("--number-of-examples", default=500, type=int)
@@ -48,7 +48,7 @@ np.random.seed(42)
 num_users = 10  # Number of unique users
 num_items = 50   # Number of unique items
 num_categories = 10  # Number of unique categories
-num_interactions = 10000  # Number of user-item interactions
+num_interactions = 100000  # Number of user-item interactions
 # Generate random ratings (e.g., between 1 and 5)
 ratings = np.random.choice(range(1, 3), num_interactions)
 # Generate random user-item interactions
