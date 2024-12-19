@@ -22,7 +22,7 @@ def default_args(**kwargs):
     parser.add_argument("--message-bits", default=256, type=int)
     parser.add_argument('--double-hashing', dest='double_hashing', default=False, action='store_true')
     parser.add_argument("--noise", default=0.01, type=float)
-    parser.add_argument("--max-included-literals", default=4, type=int)
+    parser.add_argument("--max-included-literals", default=10, type=int)
 
     args = parser.parse_args()
     for key, value in kwargs.items():
