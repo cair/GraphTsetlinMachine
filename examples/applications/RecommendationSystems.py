@@ -10,19 +10,20 @@ from sklearn.preprocessing import LabelEncoder
 
 def default_args(**kwargs):
     parser = argparse.ArgumentParser()
-    parser.add_argument("--epochs", default=250, type=int)
+    parser.add_argument("--epochs", default=10, type=int)
     parser.add_argument("--number-of-clauses", default=10000, type=int)
     parser.add_argument("--T", default=10000, type=int)
     parser.add_argument("--s", default=10.0, type=float)
     parser.add_argument("--number-of-state-bits", default=8, type=int)
-    parser.add_argument("--depth", default=1, type=int)
+    parser.add_argument("--depth", default=3, type=int)
     parser.add_argument("--hypervector-size", default=4096, type=int)
     parser.add_argument("--hypervector-bits", default=256, type=int)
-    parser.add_argument("--message-size", default=4096, type=int)
-    parser.add_argument("--message-bits", default=256, type=int)
+    parser.add_argument("--message-size", default=256, type=int)
+    parser.add_argument("--message-bits", default=2, type=int)
     parser.add_argument('--double-hashing', dest='double_hashing', default=False, action='store_true')
     parser.add_argument("--noise", default=0.01, type=float)
     parser.add_argument("--max-included-literals", default=10, type=int)
+    parser.add_argument("--number-of-examples", default=1000, type=int)
 
     args = parser.parse_args()
     for key, value in kwargs.items():
@@ -314,25 +315,25 @@ for i in range(args.epochs):
 
     print("%d %.2f %.2f %.2f %.2f" % (i, result_train, result_test, stop_training-start_training, stop_testing-start_testing))
 
-# weights = tm.get_state()[1].reshape(2, -1)
-# for i in range(tm.number_of_clauses):
-#         print("Clause #%d W:(%d %d)" % (i, weights[0,i], weights[1,i]), end=' ')
-#         l = []
-#         for k in range(args.hypervector_size * 2):
-#             if tm.ta_action(0, i, k):
-#                 if k < args.hypervector_size:
-#                     l.append("x%d" % (k))
-#                 else:
-#                     l.append("NOT x%d" % (k - args.hypervector_size))
+weights = tm.get_state()[1].reshape(2, -1)
+for i in range(tm.number_of_clauses):
+        print("Clause #%d W:(%d %d)" % (i, weights[0,i], weights[1,i]), end=' ')
+        l = []
+        for k in range(args.hypervector_size * 2):
+            if tm.ta_action(0, i, k):
+                if k < args.hypervector_size:
+                    l.append("x%d" % (k))
+                else:
+                    l.append("NOT x%d" % (k - args.hypervector_size))
 
-#         for k in range(args.message_size * 2):
-#             if tm.ta_action(1, i, k):
-#                 if k < args.message_size:
-#                     l.append("c%d" % (k))
-#                 else:
-#                     l.append("NOT c%d" % (k - args.message_size))
+        for k in range(args.message_size * 2):
+            if tm.ta_action(1, i, k):
+                if k < args.message_size:
+                    l.append("c%d" % (k))
+                else:
+                    l.append("NOT c%d" % (k - args.message_size))
 
-#         print(" AND ".join(l))
+        print(" AND ".join(l))
 
 # print(graphs_test.hypervectors)
 # print(tm.hypervectors)
