@@ -2,7 +2,6 @@ import pandas as pd
 import kagglehub
 import numpy as np
 
-np.random.seed(42)
 
 def amazon_products():
     print("Creating training data")
@@ -14,6 +13,7 @@ def amazon_products():
     return org_data[['product_id', 'category', 'user_id', 'rating']]
 
 def aug_amazon_products():
+    np.random.seed(42)
     org_data = amazon_products()
     org_data['rating'] = pd.to_numeric(org_data['rating'], errors='coerce')  # Coerce invalid values to NaN
     org_data.dropna(subset=['rating'], inplace=True)  # Drop rows with NaN ratings
@@ -24,7 +24,7 @@ def aug_amazon_products():
     data = data.sample(frac=1, random_state=42).reset_index(drop=True)
     # Add noise
     # Define the noise ratio
-    noise_ratio = 0.1  # 10% noise
+    noise_ratio = 0.01  # 10% noise
     # Select rows to apply noise
     num_noisy_rows = int(noise_ratio * len(data))
     noisy_indices = np.random.choice(data.index, size=num_noisy_rows, replace=False)
@@ -35,10 +35,10 @@ def aug_amazon_products():
     data.loc[noisy_indices, 'category'] = np.random.choice(unique_categories, size=num_noisy_rows)
     # Print a preview of the noisy and expanded dataset
     print("Expanded data shape:", data.shape)
-    print("Data preview:\n", data.head())
     return data
 
 def artificial():
+    np.random.seed(42)
     num_users = 5  # Number of unique users
     num_items =10  # Number of unique items
     num_categories = 5  # Number of unique categories
@@ -59,6 +59,7 @@ def artificial():
     return data
 
 def artificial_with_user_pref():
+    np.random.seed(42)
     num_users = 100  # Number of unique users
     num_items = 50    # Number of unique items
     num_categories = 50  # Number of unique categories
@@ -103,6 +104,7 @@ def artificial_with_user_pref():
     return data
 
 def artificial_pattered():
+    np.random.seed(42)
     num_users = 100 # Number of unique users
     num_items = 50    # Number of unique items
     num_categories = 5  # Number of unique categories

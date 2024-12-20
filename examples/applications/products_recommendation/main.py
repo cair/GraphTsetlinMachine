@@ -10,19 +10,19 @@ import prepare_dataset
 
 def default_args(**kwargs):
     parser = argparse.ArgumentParser()
-    parser.add_argument("--epochs", default=10, type=int)
+    parser.add_argument("--epochs", default=100, type=int)
     parser.add_argument("--number-of-clauses", default=1000, type=int)
     parser.add_argument("--T", default=10000, type=int)
     parser.add_argument("--s", default=10.0, type=float)
     parser.add_argument("--number-of-state-bits", default=8, type=int)
-    parser.add_argument("--depth", default=3, type=int)
+    parser.add_argument("--depth", default=1, type=int)
     parser.add_argument("--hypervector-size", default=4096, type=int)
     parser.add_argument("--hypervector-bits", default=256, type=int)
     parser.add_argument("--message-size", default=256, type=int)
     parser.add_argument("--message-bits", default=2, type=int)
     parser.add_argument('--double-hashing', dest='double_hashing', default=False, action='store_true')
     parser.add_argument("--noise", default=0.01, type=float)
-    parser.add_argument("--max-included-literals", default=10, type=int)
+    parser.add_argument("--max-included-literals", default=3, type=int)
 
     args = parser.parse_args()
     for key, value in kwargs.items():
@@ -30,9 +30,14 @@ def default_args(**kwargs):
             setattr(args, key, value)
     return args
 args = default_args()
+np.random.seed(42)
 
+# data = prepare_dataset.amazon_products()
 data = prepare_dataset.aug_amazon_products()
-print(data.head())
+# data = prepare_dataset.artificial()
+# data = prepare_dataset.artificial_with_user_pref()
+# data = prepare_dataset.artificial_pattered()
+# print(data.head())
 le_user = LabelEncoder()
 le_item = LabelEncoder()
 le_category = LabelEncoder()
