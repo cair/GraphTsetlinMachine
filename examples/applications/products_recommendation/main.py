@@ -2,16 +2,13 @@ from GraphTsetlinMachine.graphs import Graphs
 from GraphTsetlinMachine.tm import MultiClassGraphTsetlinMachine
 from time import time
 import argparse
-import pandas as pd
 import numpy as np
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import LabelEncoder
 import prepare_dataset
 
 def default_args(**kwargs):
     parser = argparse.ArgumentParser()
-    parser.add_argument("--epochs", default=100, type=int)
-    parser.add_argument("--number-of-clauses", default=1000, type=int)
+    parser.add_argument("--epochs", default=10, type=int)
+    parser.add_argument("--number-of-clauses", default=2000, type=int)
     parser.add_argument("--T", default=10000, type=int)
     parser.add_argument("--s", default=10.0, type=float)
     parser.add_argument("--number-of-state-bits", default=8, type=int)
@@ -22,7 +19,7 @@ def default_args(**kwargs):
     parser.add_argument("--message-bits", default=2, type=int)
     parser.add_argument('--double-hashing', dest='double_hashing', default=False, action='store_true')
     parser.add_argument("--noise", default=0.01, type=float)
-    parser.add_argument("--max-included-literals", default=3, type=int)
+    parser.add_argument("--max-included-literals", default=23, type=int)
 
     args = parser.parse_args()
     for key, value in kwargs.items():
@@ -38,21 +35,8 @@ data = prepare_dataset.aug_amazon_products()
 # data = prepare_dataset.artificial_with_user_pref()
 # data = prepare_dataset.artificial_pattered()
 # print(data.head())
-le_user = LabelEncoder()
-le_item = LabelEncoder()
-le_category = LabelEncoder()
-le_rating = LabelEncoder() 
-data['user_id'] = le_user.fit_transform(data['user_id'])
-data['product_id'] = le_item.fit_transform(data['product_id'])
-data['category'] = le_category.fit_transform(data['category'])
-data['rating'] = le_rating.fit_transform(data['rating'])
-x = data[['user_id', 'product_id', 'category']].values  
-y = data['rating'].values 
-X_train, X_test, Y_train, Y_test = train_test_split(x, y, test_size=0.2, random_state=42)
-print("X_train shape:", X_train.shape)
-print("y_train shape:", Y_train.shape)
-print("X_test shape:", X_test.shape)
-print("y_test shape:", Y_test.shape)
+x, y = prepare_dataset.construct_x_y(data)
+X_train, X_test, Y_train, Y_test = prepare_dataset.train_test_split(x,y)
 users = data['user_id'].unique()
 items = data['product_id'].unique()
 categories = data['category'].unique()
@@ -160,24 +144,21 @@ for i in range(args.epochs):
 
 # weights = tm.get_state()[1].reshape(2, -1)
 # for i in range(tm.number_of_clauses):
-#         print("Clause #%d W:(%d %d)" % (i, weights[0,i], weights[1,i]), end=' ')
-#         l = []
-#         for k in range(args.hypervector_size * 2):
-#             if tm.ta_action(0, i, k):
-#                 if k < args.hypervector_size:
-#                     l.append("x%d" % (k))
-#                 else:
-#                     l.append("NOT x%d" % (k - args.hypervector_size))
-
-#         for k in range(args.message_size * 2):
-#             if tm.ta_action(1, i, k):
-#                 if k < args.message_size:
-#                     l.append("c%d" % (k))
-#                 else:
-#                     l.append("NOT c%d" % (k - args.message_size))
-
-#         print(" AND ".join(l))
-
+#     print("Clause #%d W:(%d %d)" % (i, weights[0,i], weights[1,i]), end=' ')
+#     l = []
+#     for k in range(args.hypervector_size * 2):
+#         if tm.ta_action(0, i, k):
+#             if k < args.hypervector_size:
+#                 l.append("x%d" % (k))
+#             else:
+#                 l.append("NOT x%d" % (k - args.hypervector_size))
+#     for k in range(args.message_size * 2):
+#         if tm.ta_action(1, i, k):
+#             if k < args.message_size:
+#                 l.append("c%d" % (k))
+#             else:
+#                 l.append("NOT c%d" % (k - args.message_size))
+#     print(" AND ".join(l))
 # print(graphs_test.hypervectors)
 # print(tm.hypervectors)
 # print(graphs_test.edge_type_id)
