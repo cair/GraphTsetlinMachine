@@ -19,9 +19,9 @@ def main(args):
         weighted_clauses=args.weighted_clauses,
     )
         
-    for epoch in range(args.epochs):
-        benchmark_total = BenchmarkTimer(logger=None, text="Epoch Time")
-        with benchmark_total:
+    benchmark_total = BenchmarkTimer(logger=None, text="Epoch Time")
+    with benchmark_total:
+        for epoch in range(args.epochs):
             benchmark1 = BenchmarkTimer(logger=None, text="Training Time")
             with benchmark1:
                 tm.fit(X_train, Y_train)
@@ -30,9 +30,9 @@ def main(args):
             with benchmark2:
                 accuracy = 100 * (tm.predict(X_test) == Y_test).mean()
             test_time = benchmark2.elapsed()
-        total_time = benchmark_total.elapsed()
+    total_time = benchmark_total.elapsed()
         
-        # Append results for each epoch
+    # Append results for each epoch
     results.append({
         "Algorithm": "TMClassifier",
         "Noise_Ratio": args.dataset_noise_ratio,

@@ -106,9 +106,9 @@ def main(args):
         double_hashing = args.double_hashing
     )
 
-    for epoch in range(args.epochs):
-        benchmark_total = BenchmarkTimer(logger=None, text="Epoch Time")
-        with benchmark_total:
+    benchmark_total = BenchmarkTimer(logger=None, text="Epoch Time")
+    with benchmark_total:
+        for epoch in range(args.epochs):
             benchmark1 = BenchmarkTimer(logger=None, text="Training Time")
             with benchmark1:
                 tm.fit(graphs_train, Y_train, epochs=1, incremental=True)
@@ -118,8 +118,8 @@ def main(args):
             with benchmark2:
                 accuracy = 100*(tm.predict(graphs_test) == Y_test).mean()
             test_time = benchmark2.elapsed()
-        total_time = benchmark_total.elapsed()
-        # result_train = 100*(tm.predict(graphs_train) == Y_train).mean()
+    total_time = benchmark_total.elapsed()
+    # result_train = 100*(tm.predict(graphs_train) == Y_train).mean()
     results.append({
         "Algorithm": "GraphTM",
         "Noise_Ratio": args.dataset_noise_ratio,

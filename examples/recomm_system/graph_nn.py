@@ -61,9 +61,9 @@ def main(args):
     ).t()
     test_labels = torch.tensor(Y_test, dtype=torch.float)
     # Training Loop with Accuracy Logging
-    for epoch in range(args.epochs):
-        benchmark_total = BenchmarkTimer(logger=None, text="Epoch Time")
-        with benchmark_total:
+    benchmark_total = BenchmarkTimer(logger=None, text="Epochs Time")
+    with benchmark_total:
+        for epoch in range(args.epochs):
             benchmark1 = BenchmarkTimer(logger=None, text="Training Time")
             with benchmark1:
                 # Training Phase
@@ -91,8 +91,8 @@ def main(args):
                     # Compute accuracy
                     accuracy = ((test_predicted_ratings.round() == test_labels).float().mean().item()) * 100
             test_time = benchmark2.elapsed()
-        total_time = benchmark_total.elapsed()
-        # Append results for each epoch
+    total_time = benchmark_total.elapsed()
+    # Append results for each epoch
     results.append({
         "Algorithm": "Graph NN",
         "Noise_Ratio": args.dataset_noise_ratio,
@@ -118,7 +118,7 @@ def main(args):
 def default_args(**kwargs):
     parser = argparse.ArgumentParser()
     parser.add_argument("--platform", default="CPU", type=str, choices=["CPU", "CUDA"])
-    parser.add_argument("--epochs", default=1000, type=int)
+    parser.add_argument("--epochs", default=20000, type=int)
     parser.add_argument("--dataset_noise_ratio", default=0.01, type=float)
     args = parser.parse_args()
     for key, value in kwargs.items():
