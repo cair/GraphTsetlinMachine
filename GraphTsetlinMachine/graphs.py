@@ -50,7 +50,7 @@ class Graphs():
 				prime = prevprime(self.hypervector_size)
 				for i in range(len(self.symbol_id)):
 					self.hypervectors[i, 0] = i % (self.hypervector_size)
-					self.hypervectors[i, 1] = (self.hypervector_size) + prime - (i % prime)
+					self.hypervectors[i, 1] = prime - (i % prime)
 			else:
 				self.hypervectors = np.zeros((len(self.symbol_id), self.hypervector_bits), dtype=np.uint32)
 				indexes = np.arange(self.hypervector_size)
