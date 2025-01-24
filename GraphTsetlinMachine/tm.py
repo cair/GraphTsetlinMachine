@@ -659,7 +659,7 @@ class CommonTsetlinMachine():
 
 		class_sum = np.zeros((graphs.number_of_graphs, self.number_of_outputs), dtype=np.int32)
 		transformed_X = np.zeros(
-			(graphs.number_of_graphs, self.number_of_clauses * np.max(graphs.number_of_graph_nodes)), dtype=np.int32
+			(graphs.number_of_graphs, self.number_of_clauses, np.max(graphs.number_of_graph_nodes)), dtype=np.int32
 		)
 		for e in range(graphs.number_of_graphs):
 			cuda.memcpy_htod(self.class_sum_gpu, class_sum[e, :])
@@ -690,9 +690,11 @@ class CommonTsetlinMachine():
 				np.int32(graphs.number_of_graph_nodes[e]),
 				transformed_X_sample_gpu,
 			)
+			t = np.zeros((self.number_of_clauses * graphs.number_of_graph_nodes[e]), dtype=np.uint32)
+			cuda.memcpy_dtoh(t, transformed_X_sample_gpu)
+			transformed_X[e, :, :graphs.number_of_graph_nodes[e]] = t.reshape((self.number_of_clauses, graphs.number_of_graph_nodes[e]))
 
 			cuda.memcpy_dtoh(class_sum[e, :], self.class_sum_gpu)
-			cuda.memcpy_dtoh(transformed_X[e, :], transformed_X_sample_gpu)
 
 		return transformed_X.reshape(
 			(graphs.number_of_graphs, self.number_of_clauses, np.max(graphs.number_of_graph_nodes))
