@@ -87,6 +87,7 @@ class Graphs():
 		self.max_number_of_graph_nodes = self.number_of_graph_nodes.max()
 		self.max_number_of_graph_node_chunks = (self.max_number_of_graph_nodes - 1) // 32 + 1
 		self.number_of_nodes = self.number_of_graph_nodes.sum()
+		self.graph_node_type = np.empty(self.number_of_nodes, dtype=np.uint32)
 		self.number_of_graph_node_edges = np.empty(self.number_of_nodes, dtype=np.uint32)
 		self.graph_node_edge_counter = np.zeros(self.number_of_nodes, dtype=np.uint32)
 		self.edge_index = np.zeros(self.number_of_nodes, dtype=np.uint32)
@@ -100,6 +101,7 @@ class Graphs():
 
 		if node_name not in self.graph_node_id[graph_id]:
 			self.graph_node_id[graph_id][node_name] = len(self.graph_node_id[graph_id])
+		self.graph_node_type[self.node_index[graph_id] + self.graph_node_id[graph_id][node_name]] = self.node_type_id[node_type_name]
 		self.number_of_graph_node_edges[self.node_index[graph_id] + self.graph_node_id[graph_id][node_name]] = number_of_graph_node_edges
 
 	def prepare_edge_configuration(self):		
