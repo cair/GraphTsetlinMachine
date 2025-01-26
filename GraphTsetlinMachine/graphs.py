@@ -36,6 +36,7 @@ class Graphs():
 		self.init_with = init_with
 		if self.init_with == None:
 			self.edge_type_id = {}
+			self.node_type_id = {}
 
 			self.symbol_id = {}
 			for symbol_name in symbols:
@@ -60,6 +61,7 @@ class Graphs():
 			self.number_of_hypervector_chunks = (self.hypervector_size*2 - 1) // 32 + 1
 		else:
 			self.edge_type_id = self.init_with.edge_type_id
+			self.node_type_id = self.init_with.node_type_id
 			self.symbol_id = self.init_with.symbol_id
 			self.hypervector_size = self.init_with.hypervector_size
 			self.hypervector_bits = self.init_with.hypervector_bits
@@ -92,7 +94,10 @@ class Graphs():
 		self.X = np.zeros((self.number_of_nodes, self.number_of_hypervector_chunks), dtype=np.uint32)
 		self._initialize_node_hypervectors(self.hypervector_size, self.X)
 
-	def add_graph_node(self, graph_id, node_name, number_of_graph_node_edges):
+	def add_graph_node(self, graph_id, node_name, number_of_graph_node_edges, node_type_name='Plain'):
+		if node_type_name not in self.node_type_id:
+			self.node_type_id[node_type_name] = len(self.node_type_id)
+
 		if node_name not in self.graph_node_id[graph_id]:
 			self.graph_node_id[graph_id][node_name] = len(self.graph_node_id[graph_id])
 		self.number_of_graph_node_edges[self.node_index[graph_id] + self.graph_node_id[graph_id][node_name]] = number_of_graph_node_edges
