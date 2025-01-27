@@ -469,7 +469,7 @@ code_evaluate = """
 
         __global__ void calculate_messages_conditional(
             unsigned int *global_ta_state,
-            int *graph_node_type,
+            int *node_type,
             int number_of_node_types,
             int number_of_nodes,
             int graph_index,
