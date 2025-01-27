@@ -104,6 +104,9 @@ class Graphs():
 		self.node_type[self.node_index[graph_id] + self.graph_node_id[graph_id][node_name]] = self.node_type_id[node_type_name]
 		self.number_of_graph_node_edges[self.node_index[graph_id] + self.graph_node_id[graph_id][node_name]] = number_of_graph_node_edges
 
+	def number_of_node_types(self):
+		return len(self.node_type_id)
+
 	def prepare_edge_configuration(self):		
 		self.edge_index[1:] = np.add.accumulate(self.number_of_graph_node_edges[:-1])
 		self.edge = np.empty((self.number_of_graph_node_edges.sum(), 2), dtype=np.uint32)
