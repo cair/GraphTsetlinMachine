@@ -308,10 +308,10 @@ class CommonTsetlinMachine():
 		self.select_clause_updates.prepare("PPPPiPP")
 
 		self.calculate_messages = mod_evaluate.get_function("calculate_messages")
-		self.calculate_messages.prepare("PiiPPP")
+		self.calculate_messages.prepare("PPiiPPP")
 
 		self.calculate_messages_conditional = mod_evaluate.get_function("calculate_messages_conditional")
-		self.calculate_messages_conditional.prepare("PiPPPP")
+		self.calculate_messages_conditional.prepare("PPiiPPPP")
 
 		self.prepare_messages = mod_evaluate.get_function("prepare_messages")
 		self.prepare_messages.prepare("iP")
@@ -398,6 +398,7 @@ class CommonTsetlinMachine():
 			self.grid,
 			self.block,
 			self.ta_state_gpu,
+			self.graph_node_type_gpu
 			np.int32(number_of_graph_nodes),
 			np.int32(node_index),
 			current_clause_node_output,
@@ -447,7 +448,9 @@ class CommonTsetlinMachine():
 				self.grid,
 				self.block,
 				self.message_ta_state_gpu[depth],
-				number_of_graph_nodes,
+				self.graph_node_type_gpu,
+				np.int32(number_of_graph_nodes),
+				np.int32(node_index),
 				current_clause_node_output,
 				next_clause_node_output,
 				self.number_of_include_actions,

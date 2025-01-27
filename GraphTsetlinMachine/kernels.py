@@ -406,6 +406,7 @@ code_evaluate = """
 
         __global__ void calculate_messages(
             unsigned int *global_ta_state,
+            int *graph_node_type,
             int number_of_nodes,
             int graph_index,
             int *global_clause_node_output,
@@ -442,6 +443,8 @@ code_evaluate = """
                 for (int node_pos = 0; (node_pos < INT_SIZE) && ((node_chunk * INT_SIZE + node_pos) < number_of_nodes); ++node_pos) {
                     int node = node_chunk * INT_SIZE + node_pos;
 
+                    // Skip node if type does not match clause...
+
                     for (int la_chunk = 0; la_chunk < LA_CHUNKS-1; ++la_chunk) {
                         if ((ta_state[la_chunk*STATE_BITS + STATE_BITS - 1] & X[node*LA_CHUNKS + la_chunk]) != ta_state[la_chunk*STATE_BITS + STATE_BITS - 1]) {
                             clause_node_output &= ~(1 << node_pos);
@@ -463,7 +466,9 @@ code_evaluate = """
 
         __global__ void calculate_messages_conditional(
             unsigned int *global_ta_state,
+            int *graph_node_type,
             int number_of_nodes,
+            int graph_index,
             int *global_clause_node_output_condition,
             int *global_clause_node_output,
             int *number_of_include_actions,
@@ -496,6 +501,8 @@ code_evaluate = """
                 clause_node_output = ~0;
                 for (int node_pos = 0; (node_pos < INT_SIZE) && ((node_chunk * INT_SIZE + node_pos) < number_of_nodes); ++node_pos) {
                     int node = node_chunk * INT_SIZE + node_pos;
+
+                    // Skip node if type does not match clause...
 
                     for (int la_chunk = 0; la_chunk < MESSAGE_CHUNKS-1; ++la_chunk) {
                         if ((ta_state[la_chunk*STATE_BITS + STATE_BITS - 1] & X[node*MESSAGE_CHUNKS + la_chunk]) != ta_state[la_chunk*STATE_BITS + STATE_BITS - 1]) {
