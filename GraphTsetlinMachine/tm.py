@@ -398,7 +398,7 @@ class CommonTsetlinMachine():
 			self.grid,
 			self.block,
 			self.ta_state_gpu,
-			self.graph_node_type_gpu
+			self.graph_node_type_gpu,
 			np.int32(number_of_graph_nodes),
 			np.int32(node_index),
 			current_clause_node_output,
