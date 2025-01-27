@@ -403,7 +403,7 @@ class CommonTsetlinMachine():
 			self.block,
 			self.ta_state_gpu,
 			node_type,
-			np.int32(graphs.number_of_node_types())
+			np.int32(graphs.number_of_node_types()),
 			np.int32(number_of_graph_nodes),
 			np.int32(node_index),
 			current_clause_node_output,
@@ -454,7 +454,7 @@ class CommonTsetlinMachine():
 				self.block,
 				self.message_ta_state_gpu[depth],
 				node_type,
-				np.int32(graphs.number_of_node_types())
+				np.int32(graphs.number_of_node_types()),
 				np.int32(number_of_graph_nodes),
 				np.int32(node_index),
 				current_clause_node_output,
