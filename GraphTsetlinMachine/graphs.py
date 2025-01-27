@@ -117,7 +117,7 @@ class Graphs():
 
 		destination_node_id = self.graph_node_id[graph_id][destination_node_name]
 		if edge_type_name not in self.edge_type_id:
-			self.edge_type_id[edge_type_name] = len(self.edge_type_id)
+			self.edge_type_id[edge_type_name] = len(self.edge_type_id) + 1
 		edge_type_id = self.edge_type_id[edge_type_name]
 
 		edge_index = self.edge_index[self.node_index[graph_id] + source_node_id] + self.graph_node_edge_counter[self.node_index[graph_id] + source_node_id]
