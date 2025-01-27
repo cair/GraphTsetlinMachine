@@ -359,6 +359,9 @@ class CommonTsetlinMachine():
 			for depth in range(self.depth-1):
 				self.clause_X_train_gpu.append(cuda.mem_alloc(int(graphs.max_number_of_graph_nodes * self.number_of_message_chunks) * 4))
 
+			self.node_type_train_gpu = cuda.mem_alloc(graphs.node_type.nbytes)
+			cuda.memcpy_htod(self.node_type_train_gpu, graphs.node_type)
+
 			self.number_of_graph_node_edges_train_gpu = cuda.mem_alloc(graphs.number_of_graph_node_edges.nbytes)
 			cuda.memcpy_htod(self.number_of_graph_node_edges_train_gpu, graphs.number_of_graph_node_edges)
 
@@ -384,6 +387,7 @@ class CommonTsetlinMachine():
 			edge_index,
 			current_clause_node_output,
 			next_clause_node_output,
+			node_type,
 			number_of_graph_node_edges,
 			edge,
 			clause_X_int,
@@ -398,7 +402,7 @@ class CommonTsetlinMachine():
 			self.grid,
 			self.block,
 			self.ta_state_gpu,
-			self.graph_node_type_gpu,
+			node_type,
 			np.int32(number_of_graph_nodes),
 			np.int32(node_index),
 			current_clause_node_output,
@@ -448,7 +452,7 @@ class CommonTsetlinMachine():
 				self.grid,
 				self.block,
 				self.message_ta_state_gpu[depth],
-				self.graph_node_type_gpu,
+				node_type,
 				np.int32(number_of_graph_nodes),
 				np.int32(node_index),
 				current_clause_node_output,
@@ -492,6 +496,7 @@ class CommonTsetlinMachine():
 					np.int32(graphs.edge_index[graphs.node_index[e]]),
 					self.current_clause_node_output_train_gpu,
 					self.next_clause_node_output_train_gpu,
+					self.node_type_train_gpu,
 					self.number_of_graph_node_edges_train_gpu,
 					self.edge_train_gpu,
 					self.clause_X_int_train_gpu,
@@ -583,6 +588,9 @@ class CommonTsetlinMachine():
 			for depth in range(self.depth-1):
 				self.clause_X_test_gpu.append(cuda.mem_alloc(int(graphs.max_number_of_graph_nodes * self.number_of_message_chunks) * 4))
 
+			self.node_type_test_gpu = cuda.mem_alloc(graphs.node_type.nbytes)
+			cuda.memcpy_htod(self.node_type_test_gpu, graphs.node_type)
+
 			self.number_of_graph_node_edges_test_gpu = cuda.mem_alloc(graphs.number_of_graph_node_edges.nbytes)
 			cuda.memcpy_htod(self.number_of_graph_node_edges_test_gpu, graphs.number_of_graph_node_edges)
 
@@ -608,6 +616,7 @@ class CommonTsetlinMachine():
 				np.int32(graphs.edge_index[graphs.node_index[e]]),
 				self.current_clause_node_output_test_gpu,
 				self.next_clause_node_output_test_gpu,
+				self.node_type_test_gpu,
 				self.number_of_graph_node_edges_test_gpu,
 				self.edge_test_gpu,
 				self.clause_X_int_test_gpu,
@@ -636,6 +645,7 @@ class CommonTsetlinMachine():
 				np.int32(graphs.edge_index[graphs.node_index[e]]),
 				self.current_clause_node_output_test_gpu,
 				self.next_clause_node_output_test_gpu,
+				self.node_type_test_gpu,
 				self.number_of_graph_node_edges_test_gpu,
 				self.edge_test_gpu,
 				self.clause_X_int_test_gpu,
@@ -676,6 +686,7 @@ class CommonTsetlinMachine():
 				np.int32(graphs.edge_index[graphs.node_index[e]]),
 				self.current_clause_node_output_test_gpu,
 				self.next_clause_node_output_test_gpu,
+				self.node_type_test_gpu,
 				self.number_of_graph_node_edges_test_gpu,
 				self.edge_test_gpu,
 				self.clause_X_int_test_gpu,
