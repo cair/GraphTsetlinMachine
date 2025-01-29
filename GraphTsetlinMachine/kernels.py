@@ -455,7 +455,6 @@ code_evaluate = """
                             clause_node_output &= ~(1 << node_pos);
                         }
                     } else {
-                        printf("Wrong node type %d for clause %d\\n", node_type[graph_index + node], clause);
                         clause_node_output &= ~(1 << node_pos);   
                     }
                 }
