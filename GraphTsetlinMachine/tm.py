@@ -91,9 +91,7 @@ class CommonTsetlinMachine():
 		if self.one_hot_encoding:
 			self.message_bits = 1
 			self.hypervectors = np.zeros((self.number_of_clauses, self.message_bits), dtype=np.uint32)
-			for i in range(self.number_of_clauses):
-				self.hypervectors[i, 0] = i
-
+			# Initialized when the number of edge types is known
 		elif self.double_hashing:
 			from sympy import prevprime
 			self.message_bits = 2
@@ -267,6 +265,8 @@ class CommonTsetlinMachine():
 	def _init(self, graphs):
 		if self.one_hot_encoding:
 			self.message_size = self.number_of_clauses * len(graphs.edge_type_id)
+			for i in range(self.number_of_clauses):
+				self.hypervectors[i, 0] = i * len(graphs.edge_type_id)
 
 		self.number_of_features = graphs.hypervector_size
 		self.number_of_literals = self.number_of_features*2
