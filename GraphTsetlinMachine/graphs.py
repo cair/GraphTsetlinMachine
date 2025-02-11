@@ -56,7 +56,7 @@ class Graphs():
 			self.hypervector_bits = hypervector_bits
 
 			if self.one_hot_encoding:
-				self.hypervector_size = len(self.symbol_id)+1
+				self.hypervector_size = len(self.symbol_id)+1000
 				self.hypervector_bits = 1
 				self.hypervectors = np.zeros((len(self.symbol_id), self.hypervector_bits), dtype=np.uint32)
 				for i in range(len(self.symbol_id)):
