@@ -441,26 +441,24 @@ code_evaluate = """
                 }
 
                 clause_node_output = ~0;
-                if (clause != 0) {
-                    for (int node_pos = 0; (node_pos < INT_SIZE) && ((node_chunk * INT_SIZE + node_pos) < number_of_nodes); ++node_pos) {
-                        int node = node_chunk * INT_SIZE + node_pos;
+                for (int node_pos = 0; (node_pos < INT_SIZE) && ((node_chunk * INT_SIZE + node_pos) < number_of_nodes); ++node_pos) {
+                    int node = node_chunk * INT_SIZE + node_pos;
 
-                        if (node_type[graph_index + node] == (clause % number_of_node_types)) {
-                            for (int la_chunk = 0; la_chunk < LA_CHUNKS-1; ++la_chunk) {
-                                if ((ta_state[la_chunk*STATE_BITS + STATE_BITS - 1] & X[node*LA_CHUNKS + la_chunk]) != ta_state[la_chunk*STATE_BITS + STATE_BITS - 1]) {
-                                    clause_node_output &= ~(1 << node_pos);
-                                }
-                            }
-
-                            if ((ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & X[node*LA_CHUNKS + LA_CHUNKS-1] & FILTER) != (ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & FILTER)) {
+                    if (node_type[graph_index + node] == (clause % number_of_node_types)) {
+                        for (int la_chunk = 0; la_chunk < LA_CHUNKS-1; ++la_chunk) {
+                            if ((ta_state[la_chunk*STATE_BITS + STATE_BITS - 1] & X[node*LA_CHUNKS + la_chunk]) != ta_state[la_chunk*STATE_BITS + STATE_BITS - 1]) {
                                 clause_node_output &= ~(1 << node_pos);
                             }
-                        } else {
-                            clause_node_output &= ~(1 << node_pos);   
                         }
+
+                        if ((ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & X[node*LA_CHUNKS + LA_CHUNKS-1] & FILTER) != (ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & FILTER)) {
+                            clause_node_output &= ~(1 << node_pos);
+                        }
+                    } else {
+                        clause_node_output &= ~(1 << node_pos);   
                     }
                 }
-
+                
                 if (node_chunk == number_of_node_chunks - 1) {
                     global_clause_node_output[clause*NODE_CHUNKS + node_chunk] = clause_node_output & node_filter;
                 } else {
