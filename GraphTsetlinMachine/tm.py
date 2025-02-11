@@ -264,7 +264,7 @@ class CommonTsetlinMachine():
 
 	def _init(self, graphs):
 		if self.one_hot_encoding:
-			self.message_size = self.number_of_clauses * len(graphs.edge_type_id)
+			self.message_size = self.number_of_clauses * max(1, len(graphs.edge_type_id))
 			for i in range(self.number_of_clauses):
 				self.hypervectors[i, 0] = i * len(graphs.edge_type_id)
 
