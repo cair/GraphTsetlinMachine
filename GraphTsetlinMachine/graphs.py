@@ -24,10 +24,12 @@ from numba import jit
 import sys
 
 class Graphs():
-	def __init__(self, number_of_graphs, hypervector_size = 128, hypervector_bits = 2, double_hashing=False, symbols=None, init_with=None):
+	def __init__(self, number_of_graphs, hypervector_size = 128, hypervector_bits = 2, double_hashing=False, one_hot_encoding=False, symbols=None, init_with=None):
 		self.number_of_graphs = number_of_graphs
 		self.number_of_graph_nodes = np.zeros(self.number_of_graphs, dtype=np.uint32)
+	
 		self.double_hashing = double_hashing
+		self.one_hot_encoding = one_hot_encoding
 
 		self.graph_node_id = [None] * self.number_of_graphs
 		for i in range(number_of_graphs):
@@ -44,7 +46,13 @@ class Graphs():
 			self.hypervector_size = hypervector_size
 			self.hypervector_bits = hypervector_bits
 
-			if self.double_hashing:
+			if self.one_hot_encoding:
+				self.hypervector_size = len(self.symbol_id)
+				self.hypervector_bits = 1
+				self.hypervectors = np.zeros((len(self.symbol_id), self.hypervector_bits), dtype=np.uint32)
+				for i in range(len(self.symbol_id)):
+					self.hypervectors[i, 0] = i
+			elif self.double_hashing:
 				from sympy import prevprime
 				self.hypervector_bits = 2
 				self.hypervectors = np.zeros((len(self.symbol_id), self.hypervector_bits), dtype=np.uint32)
