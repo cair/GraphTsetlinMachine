@@ -149,12 +149,12 @@ weights = tm.get_state()[1].reshape(2, -1)
 for i in range(tm.number_of_clauses):
         print("Clause #%d W:(%d %d)" % (i, weights[0,i], weights[1,i]), end=' ')
         l = []
-        for k in range(args.hypervector_size * 2):
+        for k in range(graphs_train.hypervector_size * 2):
             if tm.ta_action(0, i, k):
-                if k < args.hypervector_size:
+                if k < graphs_train.hypervector_size:
                     l.append("x%d" % (k))
                 else:
-                    l.append("NOT x%d" % (k - args.hypervector_size))
+                    l.append("NOT x%d" % (k - graphs_train.hypervector_size))
 
         # for k in range(args.message_size * 2):
         #     if tm.ta_action(1, i, k):
