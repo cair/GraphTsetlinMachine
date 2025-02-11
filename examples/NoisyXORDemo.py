@@ -41,7 +41,10 @@ graphs_train = Graphs(
     symbols=['A', 'B'],
     hypervector_size=args.hypervector_size,
     hypervector_bits=args.hypervector_bits,
+    one_hot_encoding=args.one_hot_encoding
 )
+
+print(args.one_hot_encoding)
 
 for graph_id in range(args.number_of_examples):
     graphs_train.set_number_of_graph_nodes(graph_id, 2)
