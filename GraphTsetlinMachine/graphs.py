@@ -24,7 +24,16 @@ from numba import jit
 import sys
 
 class Graphs():
-	def __init__(self, number_of_graphs, hypervector_size = 128, hypervector_bits = 2, double_hashing=False, one_hot_encoding=False, symbols=None, init_with=None):
+	def __init__(
+		self,
+		number_of_graphs,
+		hypervector_size = 128,
+		hypervector_bits = 2,
+		double_hashing=False,
+		one_hot_encoding=False,
+		symbols=None,
+		init_with=None
+	):
 		self.number_of_graphs = number_of_graphs
 		self.number_of_graph_nodes = np.zeros(self.number_of_graphs, dtype=np.uint32)
 	
@@ -128,7 +137,7 @@ class Graphs():
 
 		destination_node_id = self.graph_node_id[graph_id][destination_node_name]
 		if edge_type_name not in self.edge_type_id:
-			self.edge_type_id[edge_type_name] = len(self.edge_type_id) + 1
+			self.edge_type_id[edge_type_name] = len(self.edge_type_id)
 		edge_type_id = self.edge_type_id[edge_type_name]
 
 		edge_index = self.edge_index[self.node_index[graph_id] + source_node_id] + self.graph_node_edge_counter[self.node_index[graph_id] + source_node_id]

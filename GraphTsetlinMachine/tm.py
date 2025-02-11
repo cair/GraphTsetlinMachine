@@ -49,6 +49,7 @@ class CommonTsetlinMachine():
 			message_size=256,
 			message_bits=2,
 			double_hashing=False,
+			one_hot_encoding=False,
 			grid=(16*13*4,1,1),
 			block=(128,1,1)
 	):
@@ -74,6 +75,7 @@ class CommonTsetlinMachine():
 		self.message_literals = message_size*2
 
 		self.double_hashing = double_hashing
+		self.one_hot_encoding = one_hot_encoding
 
 		self.grid = grid
 		self.block = block
@@ -86,7 +88,13 @@ class CommonTsetlinMachine():
 		self.message_ta_state = np.array([])
 		self.clause_weights = np.array([])
 
-		if self.double_hashing:
+		if self.one_hot_encoding:
+			self.message_bits = 1
+			self.hypervectors = np.zeros((self.number_of_clauses, self.message_bits), dtype=np.uint32)
+			for i in range(self.number_of_clauses):
+				self.hypervectors[i, 0] = i
+
+		elif self.double_hashing:
 			from sympy import prevprime
 			self.message_bits = 2
 			self.hypervectors = np.zeros((self.number_of_clauses, self.message_bits), dtype=np.uint32)
@@ -257,6 +265,9 @@ class CommonTsetlinMachine():
 		self.clause_weights = np.array([])
 
 	def _init(self, graphs):
+		if self.one_hot_encoding:
+			self.message_size = self.number_of_clauses * len(graphs.edge_type_id)
+
 		self.number_of_features = graphs.hypervector_size
 		self.number_of_literals = self.number_of_features*2
 		self.number_of_ta_chunks = int((self.number_of_literals-1)//32 + 1)
