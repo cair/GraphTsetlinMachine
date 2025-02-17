@@ -14,8 +14,14 @@ def main(args):
     x, y = prepare_dataset.construct_x_y(data)
     X_train, X_test, Y_train, Y_test = prepare_dataset.train_test_split(x,y)
     users = data['user_id'].unique()
+    print("Users: ",len(users))
+    
     items = data['product_id'].unique()
+    print("Items: ",len(items))
+    
     categories = data['category'].unique()
+    print("Categories: ",len(categories))
+    
     # Initialize Graphs with symbols for GTM
     number_of_nodes = 3
     symbols = []
