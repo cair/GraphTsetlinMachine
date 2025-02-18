@@ -162,6 +162,45 @@ class CommonTsetlinMachine():
 
 		return literals
 
+	def get_ta_states(self, depth):
+		if depth == 0:
+			ta_states_gpu = cuda.mem_alloc(self.number_of_clauses * self.number_of_literals * 4)
+			self.get_ta_states_gpu(
+				self.ta_state_gpu,
+				np.int32(self.number_of_ta_chunks),
+				np.int32(self.number_of_literals),
+				ta_states_gpu,
+				grid=self.grid,
+				block=self.block,
+			)
+			cuda.Context.synchronize()
+
+			ta_states = np.empty(self.number_of_clauses * self.number_of_literals, dtype=np.uint32)
+			cuda.memcpy_dtoh(ta_states, ta_states_gpu)
+
+			return ta_states.reshape((self.number_of_clauses, self.number_of_literals))
+		else:
+			message_ta_states_gpu = cuda.mem_alloc(self.number_of_clauses * self.number_of_message_literals * 4)
+			self.get_ta_states_gpu(
+				self.message_ta_state_gpu[depth - 1],
+				np.int32(self.number_of_message_chunks),
+				np.int32(self.number_of_message_literals),
+				message_ta_states_gpu,
+				grid=self.grid,
+				block=self.block,
+			)
+			cuda.Context.synchronize()
+
+			message_ta_state = np.empty(self.number_of_clauses * self.number_of_message_literals, dtype=np.uint32)
+			cuda.memcpy_dtoh(message_ta_state, message_ta_states_gpu)
+			return message_ta_state.reshape((self.number_of_clauses, self.number_of_message_literals))
+
+	def get_weights(self):
+		if np.array_equal(self.clause_weights, np.array([])):
+			self.clause_weights = np.empty(self.number_of_outputs * self.number_of_clauses, dtype=np.int32)
+			cuda.memcpy_dtoh(self.clause_weights, self.clause_weights_gpu)
+		return self.clause_weights.reshape((self.number_of_outputs, self.number_of_clauses))
+
 	def get_clause_literals(self, symbol_hv):
 		"""
 		Convert HV clauses to literals and return them.
