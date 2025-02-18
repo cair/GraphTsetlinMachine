@@ -9,8 +9,8 @@ from GraphTsetlinMachine.tm import MultiClassGraphTsetlinMachine
 
 def default_args(**kwargs):
 	parser = argparse.ArgumentParser()
-	parser.add_argument("--epochs", default=2, type=int)
-	parser.add_argument("--number-of-clauses", default=6, type=int)
+	parser.add_argument("--epochs", default=5, type=int)
+	parser.add_argument("--number-of-clauses", default=4, type=int)
 	parser.add_argument("--T", default=100, type=int)
 	parser.add_argument("--s", default=2.0, type=float)
 	parser.add_argument("--number-of-state-bits", default=8, type=int)
@@ -134,6 +134,8 @@ tm = MultiClassGraphTsetlinMachine(
 	message_bits=args.message_bits,
 	# max_included_literals=args.max_included_literals,
 	double_hashing=args.double_hashing,
+	grid=(1, 1, 1),
+	block=(1, 1, 1)
 )
 
 for i in range(args.epochs):
@@ -176,8 +178,8 @@ for clause in range(tm.number_of_clauses):
 	print(*[int(tm.ta_action(depth=1, clause=clause, ta=i)) for i in range(tm.message_size * 2)])
 
 # Get Clauses in symbols format and Messages in clause_indices format
-clause_literals = tm.get_clause_literals(graphs_train.hypervectors)
-message_clauses = tm.get_messages(1, len(graphs_train.edge_type_id))
+clause_literals = tm.get_clause_literals(graphs_train.hypervectors).astype(np.int32)
+message_clauses = tm.get_messages(1, len(graphs_train.edge_type_id)).astype(np.int32)
 num_symbols = len(graphs_train.symbol_id)
 
 # Create symbol_id to symbol_name dictionary for printing symbol names
@@ -204,7 +206,7 @@ for edge_type in range(len(graphs_train.edge_type_id)):
 
 		for clause in range(tm.number_of_clauses):
 			if message_clauses[edge_type, msg, clause] > 0:
-				print(f"{message_clauses[edge_type, msg, clause]}C:{clause}(", end=" ")
+				print(f"{message_clauses[edge_type, msg, clause]}C{clause}(", end=" ")
 
 				for literal in range(num_symbols):
 					if clause_literals[clause, literal] > 0:
@@ -216,7 +218,7 @@ for edge_type in range(len(graphs_train.edge_type_id)):
 				print(")", end=" ")
 
 			if message_clauses[edge_type, msg, tm.number_of_clauses + clause] > 0:
-				print(f"~{message_clauses[edge_type, msg, tm.number_of_clauses + clause]}C:{clause}(", end=" ")
+				print(f"~{message_clauses[edge_type, msg, tm.number_of_clauses + clause]}C{clause}(", end=" ")
 
 				for literal in range(num_symbols):
 					if clause_literals[clause, literal] > 0:
