@@ -83,7 +83,7 @@ class CommonTsetlinMachine():
 		self.encoded_Y = np.array([])
 		
 		self.ta_state = np.array([])
-		self.message_ta_state = np.array([])
+		self.message_ta_state = [np.array([])] * (self.depth - 1)
 		self.clause_weights = np.array([])
 
 		if self.double_hashing:
@@ -127,12 +127,16 @@ class CommonTsetlinMachine():
 
 			return (ta_state[clause, ta // 32, self.number_of_state_bits-1] & (1 << (ta % 32))) > 0
 		else:
-			#if np.array_equal(self.message_ta_state, np.array([])):
-			self.message_ta_state = np.empty(self.number_of_clauses*self.number_of_message_chunks*self.number_of_state_bits, dtype=np.uint32)
-			cuda.memcpy_dtoh(self.message_ta_state, self.message_ta_state_gpu[depth-1])
-			message_ta_state = self.message_ta_state.reshape((self.number_of_clauses, self.number_of_message_chunks, self.number_of_state_bits))
+			if np.array_equal(self.message_ta_state[depth - 1], np.array([])):
+				self.message_ta_state[depth - 1] = np.empty(
+					self.number_of_clauses * self.number_of_message_chunks * self.number_of_state_bits, dtype=np.uint32
+				)
+				cuda.memcpy_dtoh(self.message_ta_state[depth - 1], self.message_ta_state_gpu[depth - 1])
+			message_ta_state_depth = self.message_ta_state[depth - 1].reshape(
+				(self.number_of_clauses, self.number_of_message_chunks, self.number_of_state_bits)
+			)
 
-			return (message_ta_state[clause, ta // 32, self.number_of_state_bits-1] & (1 << (ta % 32))) > 0
+			return (message_ta_state_depth[clause, ta // 32, self.number_of_state_bits - 1] & (1 << (ta % 32))) > 0
 
 	def get_hyperliterals(self, depth):
 		if depth == 0:
@@ -154,21 +158,6 @@ class CommonTsetlinMachine():
 
 		return literals
 
-	def convert_hv_clause_to_literals(self, clause, symbol_hv):
-		hvc_positive = clause[: (self.number_of_literals // 2)]
-		hvc_negated = clause[(self.number_of_literals // 2) :]
-		literals = np.zeros((2 * symbol_hv.shape[0]))
-		for sym_id in range(symbol_hv.shape[0]):
-			sym_hv = symbol_hv[sym_id].ravel()
-
-			pos_match = (hvc_positive[sym_hv] == 1) & 1
-			neg_match = (hvc_negated[sym_hv] == 1) & 1
-
-			literals[sym_id] = np.mean(pos_match)
-			literals[sym_id + (symbol_hv.shape[0])] = np.mean(neg_match)
-
-		return literals
-
 	def get_clause_literals(self, symbol_hv):
 		"""
 		Convert HV clauses to literals and return them.
@@ -177,15 +166,26 @@ class CommonTsetlinMachine():
 			symbol_hv: Symbol hypervectors from graphs created for training (graphs.hypervectors)
 
 		:returns:
-			float NDArray of shape (number_of_clauses, number_of_symbols)
+			float NDArray of shape (number_of_clauses, 2 * number_of_symbols)
+			Indicating the presence of symbols in each clause. Each value is the number of symbol bits present in the clause.
 		"""
+		# Get clause literals in HV format
 		hv_clauses = self.get_hyperliterals(0)
 
-		# Must be float
+		# Must be float. Store the symbols present in each clause.
 		clause_literals = np.zeros((self.number_of_clauses, 2 * symbol_hv.shape[0]))
 
-		for clause in range(self.number_of_clauses):
-			clause_literals[clause] = self.convert_hv_clause_to_literals(hv_clauses[clause], symbol_hv)
+		# Expand symbol indices to actual hypervectors (in column format)
+		expanded_sym = np.zeros((self.number_of_literals // 2, symbol_hv.shape[0]), dtype=np.uint8)
+		for sym_id in range(symbol_hv.shape[0]):
+			sym_hv = symbol_hv[sym_id].ravel()
+			expanded_sym[sym_hv, sym_id] = 1
+
+
+		# Check if the symbols are present in the clause.
+		clause_literals[:, : symbol_hv.shape[0]] = hv_clauses[:, : (self.number_of_literals // 2)] @ expanded_sym
+		clause_literals[:, symbol_hv.shape[0] :] = hv_clauses[:, (self.number_of_literals // 2) :] @ expanded_sym
+
 
 		return clause_literals
 
@@ -194,34 +194,33 @@ class CommonTsetlinMachine():
 		Convert HV Message to clause indexes (considered as literals) and return them
 
 		:params:
-			depth: how deep do you want to go?
-			edge_types: How many types of edges did the input have?
+			depth: Should be greater than 0. For depth = 0, use get_clause_literals()
+			edge_types: Number of edge types in the input graphs. (len(graphs.edge_type_id))
 
 		:returns:
-			NDArray of shape (edge_types, number_of_clauses, 2 * number_of_clauses)
+			NDArray of shape (edge_types, number_of_clauses, 2 * number_of_clauses).
+			Indicating messages recieved over each edge type, at depth 'depth'. Each value is the number of symbol bits present in the message.
 		"""
 		assert depth > 0, f"Expected depth > 0, got {depth}. Depth <= 0 means surface, use get_clause_literals()"
 
+		# Get message literals in HV format
 		hv_messages = self.get_hyperliterals(depth)
 
+		# Store message literals as symbols(in this case, clause indices)
 		message_literals = np.zeros((edge_types, self.number_of_clauses, 2 * self.number_of_clauses))
 
-		for clause in range(self.number_of_clauses):
-			hvc_positive = hv_messages[clause, : (self.number_of_message_literals // 2)]
-			hvc_negated = hv_messages[clause, (self.number_of_message_literals // 2) :]
-
+		for edge_type in range(edge_types):
+			# Expand symbol indices to actual hypervectors and shift based on edge type
+			expanded_sym = np.zeros((self.number_of_message_literals // 2, self.number_of_clauses), dtype=np.uint8)
 			for sym_id in range(self.number_of_clauses):
-				for edge_type in range(edge_types):
-					sym_hv = self.hypervectors[sym_id].ravel()
+				sym_hv = self.hypervectors[sym_id].ravel()
+				sym_hv = (sym_hv + edge_type) % self.message_size
+				expanded_sym[sym_hv, sym_id] = 1
 
-					# Shift the HV before matching
-					sym_hv = (sym_hv + edge_type) % self.message_size
-
-					pos_match = (hvc_positive[sym_hv] == 1) & 1
-					neg_match = (hvc_negated[sym_hv] == 1) & 1
-
-					message_literals[edge_type, clause, sym_id] = np.mean(pos_match)
-					message_literals[edge_type, clause, sym_id + (self.number_of_clauses)] = np.mean(neg_match)
+			# Check if the symbols are present in the message.
+			# Using numpy matrix multiplication for way faster computation compared to python loops.
+			message_literals[edge_type, :, : self.number_of_clauses] = hv_messages[:, : (self.number_of_message_literals // 2)] @ expanded_sym
+			message_literals[edge_type, :, self.number_of_clauses :] = hv_messages[:, (self.number_of_message_literals // 2) :] @ expanded_sym
 
 		return message_literals
 
