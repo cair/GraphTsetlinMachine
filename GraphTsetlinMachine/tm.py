@@ -37,20 +37,21 @@ g = curandom.XORWOWRandomNumberGenerator()
 
 class CommonTsetlinMachine():
 	def __init__(
-			self,
-			number_of_clauses,
-			T,
-			s,
-			q=1.0,
-			max_included_literals=None,
-			boost_true_positive_feedback=1,
-			number_of_state_bits=8,
-			depth=1,
-			message_size=256,
-			message_bits=2,
-			double_hashing=False,
-			grid=(16*13*4,1,1),
-			block=(128,1,1)
+		self,
+		number_of_clauses,
+		T,
+		s,
+		q=1.0,
+		max_included_literals=None,
+		boost_true_positive_feedback=1,
+		number_of_state_bits=8,
+		depth=1,
+		message_size=256,
+		message_bits=2,
+		double_hashing=False,
+		one_hot_encoding=False,
+		grid=(16 * 13 * 4, 1, 1),
+		block=(128, 1, 1),
 	):
 		print("Initialization of sparse structure.")
 
@@ -181,11 +182,9 @@ class CommonTsetlinMachine():
 			sym_hv = symbol_hv[sym_id].ravel()
 			expanded_sym[sym_hv, sym_id] = 1
 
-
 		# Check if the symbols are present in the clause.
 		clause_literals[:, : symbol_hv.shape[0]] = hv_clauses[:, : (self.number_of_literals // 2)] @ expanded_sym
 		clause_literals[:, symbol_hv.shape[0] :] = hv_clauses[:, (self.number_of_literals // 2) :] @ expanded_sym
-
 
 		return clause_literals
 
@@ -219,8 +218,12 @@ class CommonTsetlinMachine():
 
 			# Check if the symbols are present in the message.
 			# Using numpy matrix multiplication for way faster computation compared to python loops.
-			message_literals[edge_type, :, : self.number_of_clauses] = hv_messages[:, : (self.number_of_message_literals // 2)] @ expanded_sym
-			message_literals[edge_type, :, self.number_of_clauses :] = hv_messages[:, (self.number_of_message_literals // 2) :] @ expanded_sym
+			message_literals[edge_type, :, : self.number_of_clauses] = (
+				hv_messages[:, : (self.number_of_message_literals // 2)] @ expanded_sym
+			)
+			message_literals[edge_type, :, self.number_of_clauses :] = (
+				hv_messages[:, (self.number_of_message_literals // 2) :] @ expanded_sym
+			)
 
 		return message_literals
 
@@ -376,18 +379,19 @@ class CommonTsetlinMachine():
 			cuda.memcpy_htod(self.encoded_Y_gpu, encoded_Y)
 
 	def _evaluate(
-			self,
-			graphs,
-			number_of_graph_nodes,
-			node_index,
-			edge_index,
-			current_clause_node_output,
-			next_clause_node_output,
-			number_of_graph_node_edges,
-			edge,
-			clause_X_int,
-			clause_X,
-			encoded_X
+		self,
+		graphs,
+		number_of_graph_nodes,
+		node_index,
+		edge_index,
+		current_clause_node_output,
+		next_clause_node_output,
+		node_type,
+		number_of_graph_node_edges,
+		edge,
+		clause_X_int,
+		clause_X,
+		encoded_X,
 	):
 		class_sum = np.zeros(self.number_of_outputs).astype(np.int32)
 		cuda.memcpy_htod(self.class_sum_gpu, class_sum)
@@ -691,7 +695,9 @@ class CommonTsetlinMachine():
 			)
 			t = np.zeros((self.number_of_clauses * graphs.number_of_graph_nodes[e]), dtype=np.uint32)
 			cuda.memcpy_dtoh(t, transformed_X_sample_gpu)
-			transformed_X[e, :, :graphs.number_of_graph_nodes[e]] = t.reshape((self.number_of_clauses, graphs.number_of_graph_nodes[e]))
+			transformed_X[e, :, : graphs.number_of_graph_nodes[e]] = t.reshape(
+				(self.number_of_clauses, graphs.number_of_graph_nodes[e])
+			)
 
 			cuda.memcpy_dtoh(class_sum[e, :], self.class_sum_gpu)
 
@@ -706,20 +712,21 @@ class MultiClassGraphTsetlinMachine(CommonTsetlinMachine):
 	"""
 	
 	def __init__(
-			self,
-			number_of_clauses,
-			T,
-			s,
-			q=1.0,
-			max_included_literals=None,
-			boost_true_positive_feedback=1,
-			number_of_state_bits=8,
-			depth=1,
-			message_size=256,
-			message_bits=2,
-			double_hashing=False,
-			grid=(16*13*4,1,1),
-			block=(128,1,1)
+		self,
+		number_of_clauses,
+		T,
+		s,
+		q=1.0,
+		max_included_literals=None,
+		boost_true_positive_feedback=1,
+		number_of_state_bits=8,
+		depth=1,
+		message_size=256,
+		message_bits=2,
+		double_hashing=False,
+		one_hot_encoding=False,
+		grid=(16 * 13 * 4, 1, 1),
+		block=(128, 1, 1),
 	):
 		super().__init__(
 			number_of_clauses,
@@ -774,7 +781,8 @@ class MultiOutputGraphTsetlinMachine(CommonTsetlinMachine):
 		message_size=256,
 		message_bits=2,
 		double_hashing=False,
-		grid=(16*13*4, 1, 1),
+		one_hot_encoding=False,
+		grid=(16 * 13 * 4, 1, 1),
 		block=(128, 1, 1),
 	):
 		super().__init__(
@@ -814,20 +822,21 @@ class MultiOutputGraphTsetlinMachine(CommonTsetlinMachine):
 
 class GraphTsetlinMachine(CommonTsetlinMachine):
 	def __init__(
-			self,
-			number_of_clauses,
-			T,
-			s,
-			q=1.0,
-			max_included_literals=None,
-			boost_true_positive_feedback=1,
-			number_of_state_bits=8,
-			depth=1,
-			message_size=256,
-			message_bits=2,
-			double_hashing=False,
-			grid=(16*13*4,1,1),
-			block=(128,1,1)
+		self,
+		number_of_clauses,
+		T,
+		s,
+		q=1.0,
+		max_included_literals=None,
+		boost_true_positive_feedback=1,
+		number_of_state_bits=8,
+		depth=1,
+		message_size=256,
+		message_bits=2,
+		double_hashing=False,
+		one_hot_encoding=False,
+		grid=(16 * 13 * 4, 1, 1),
+		block=(128, 1, 1),
 	):
 		super().__init__(
 			number_of_clauses,
