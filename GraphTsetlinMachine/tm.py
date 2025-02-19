@@ -52,7 +52,6 @@ class CommonTsetlinMachine():
 		message_size=256,
 		message_bits=2,
 		double_hashing=False,
-		one_hot_encoding=False,
 		grid=(16 * 13 * 4, 1, 1),
 		block=(128, 1, 1),
 	):
@@ -344,7 +343,7 @@ class CommonTsetlinMachine():
 			"message_size": self.message_size,
 			"message_bits": self.message_bits,
 			"double_hashing": self.double_hashing,
-			"one_hot_encoding": self.one_hot_encoding,
+			# "one_hot_encoding": self.one_hot_encoding, # TODO: When merged
 		}
 
 		# Save to file
@@ -379,7 +378,7 @@ class CommonTsetlinMachine():
 		self.negative_clauses = state_dict["negative_clauses"]
 		self.max_number_of_graph_nodes = state_dict["max_number_of_graph_nodes"]
 
-		# Message size can change if one-hot encoding is used
+		# Message size can change if one-hot encoding is used (when merged)
 		self.message_size = state_dict["message_size"]
 
 		# Initialize variables required in the _init() function
@@ -552,7 +551,6 @@ class CommonTsetlinMachine():
 		edge_index,
 		current_clause_node_output,
 		next_clause_node_output,
-		node_type,
 		number_of_graph_node_edges,
 		edge,
 		clause_X_int,
@@ -890,7 +888,6 @@ class MultiClassGraphTsetlinMachine(CommonTsetlinMachine):
 		message_size=256,
 		message_bits=2,
 		double_hashing=False,
-		one_hot_encoding=False,
 		grid=(16 * 13 * 4, 1, 1),
 		block=(128, 1, 1),
 	):
@@ -947,7 +944,6 @@ class MultiOutputGraphTsetlinMachine(CommonTsetlinMachine):
 		message_size=256,
 		message_bits=2,
 		double_hashing=False,
-		one_hot_encoding=False,
 		grid=(16 * 13 * 4, 1, 1),
 		block=(128, 1, 1),
 	):
@@ -1000,7 +996,6 @@ class GraphTsetlinMachine(CommonTsetlinMachine):
 		message_size=256,
 		message_bits=2,
 		double_hashing=False,
-		one_hot_encoding=False,
 		grid=(16 * 13 * 4, 1, 1),
 		block=(128, 1, 1),
 	):
