@@ -21,6 +21,9 @@
 # This code implements the Convolutional Tsetlin Machine from paper arXiv:1905.09688
 # https://arxiv.org/abs/1905.09688
 
+import pickle
+import sys
+
 import numpy as np
 
 import GraphTsetlinMachine.kernels as kernels
@@ -110,8 +113,8 @@ class CommonTsetlinMachine():
 		for depth in range(self.depth - 1):
 			self.message_ta_state_gpu.append(cuda.mem_alloc(self.number_of_clauses*self.number_of_message_chunks*self.number_of_state_bits*4))
 
-		self.clause_weights_gpu = cuda.mem_alloc(self.number_of_outputs*self.number_of_clauses*4)
-		self.clause_weights_dummy_gpu = cuda.mem_alloc(self.number_of_outputs*self.number_of_clauses*4)
+		self.clause_weights_gpu = cuda.mem_alloc(self.number_of_outputs * self.number_of_clauses * 4)
+		# self.clause_weights_dummy_gpu = cuda.mem_alloc(self.number_of_outputs * self.number_of_clauses * 4) # Never used
 
 		self.class_sum_gpu = cuda.mem_alloc(self.number_of_outputs*4)
 		self.clause_node_gpu = cuda.mem_alloc(int(self.number_of_clauses) * 4)
@@ -258,6 +261,111 @@ class CommonTsetlinMachine():
 		self.ta_state = np.array([])
 		self.clause_weights = np.array([])
 
+	def save(self, fname=""):
+		# Copy data from GPU to CPU
+		if np.array_equal(self.ta_state, np.array([])):
+			self.ta_state = np.empty(
+				self.number_of_clauses * self.number_of_ta_chunks * self.number_of_state_bits, dtype=np.uint32
+			)
+			cuda.memcpy_dtoh(self.ta_state, self.ta_state_gpu)
+
+		for depth in range(self.depth - 1):
+			if np.array_equal(self.message_ta_state[depth], np.array([])):
+				self.message_ta_state[depth] = np.empty(
+					self.number_of_clauses * self.number_of_message_chunks * self.number_of_state_bits, dtype=np.uint32
+				)
+				cuda.memcpy_dtoh(self.message_ta_state[depth], self.message_ta_state_gpu[depth])
+
+		if np.array_equal(self.clause_weights, np.array([])):
+			self.clause_weights = np.empty(self.number_of_outputs * self.number_of_clauses, dtype=np.int32)
+			cuda.memcpy_dtoh(self.clause_weights, self.clause_weights_gpu)
+
+		state_dict = {
+			# State arrays
+			"ta_state": self.ta_state,
+			"message_ta_state": self.message_ta_state,
+			"clause_weights": self.clause_weights,
+			"hypervectors": self.hypervectors,
+			"number_of_outputs": self.number_of_outputs,
+			"number_of_literals": self.number_of_literals,
+			"number_of_message_literals": self.number_of_message_literals,
+			"min_y": self.min_y,
+			"max_y": self.max_y,
+			"negative_clauses": self.negative_clauses,  # Set in children classes, should be set in this class.
+			"max_number_of_graph_nodes": self.max_number_of_graph_nodes,
+			# Parameters
+			"number_of_clauses": self.number_of_clauses,
+			"T": self.T,
+			"s": self.s,
+			"q": self.q,
+			"max_included_literals": self.max_included_literals,
+			"boost_true_positive_feedback": self.boost_true_positive_feedback,
+			"number_of_state_bits": self.number_of_state_bits,
+			"depth": self.depth,
+			"message_size": self.message_size,
+			"message_bits": self.message_bits,
+			"double_hashing": self.double_hashing,
+			"one_hot_encoding": self.one_hot_encoding,
+		}
+
+		# Save to file
+		if len(fname) > 0:
+			print(f"Saving model to {fname}.")
+			with open(fname, "wb") as f:
+				pickle.dump(state_dict, f)
+
+		return state_dict
+
+	def load(self, state_dict={}, fname=""):
+		if len(fname) == 0 and len(state_dict) == 0:
+			print("Error: No file or state_dict provided. Pass either a file name or a state_dict.")
+			return
+
+		# Load from file
+		if len(fname) > 0:
+			print(f"Loading model from {fname}.")
+			with open(fname, "rb") as f:
+				state_dict = pickle.load(f)
+
+		# Load arrays state_dict
+		self.ta_state = state_dict["ta_state"]
+		self.message_ta_state = state_dict["message_ta_state"]
+		self.clause_weights = state_dict["clause_weights"]
+		self.hypervectors = state_dict["hypervectors"]
+		self.number_of_outputs = state_dict["number_of_outputs"]
+		self.number_of_literals = state_dict["number_of_literals"]
+		self.number_of_message_literals = state_dict["number_of_message_literals"]
+		self.min_y = state_dict["min_y"]
+		self.max_y = state_dict["max_y"]
+		self.negative_clauses = state_dict["negative_clauses"]
+		self.max_number_of_graph_nodes = state_dict["max_number_of_graph_nodes"]
+
+		# Message size can change if one-hot encoding is used
+		self.message_size = state_dict["message_size"]
+
+		# Initialize variables required in the _init() function
+		self.number_of_features = self.number_of_literals // 2
+		self.number_of_ta_chunks = int((self.number_of_literals - 1) // 32 + 1)
+
+		self.number_of_message_features = self.number_of_message_literals // 2
+		self.number_of_message_chunks = int((self.number_of_message_literals - 1) // 32 + 1)
+
+		if self.max_included_literals is None:
+			self.max_included_literals = self.number_of_literals
+
+		# Initialize the gpu kernels and allocate gpu memory
+		self._init_gpu_kernels()
+		self.allocate_gpu_memory()
+
+		# Copy states and weights to GPU
+		cuda.memcpy_htod(self.ta_state_gpu, self.ta_state)
+		for depth in range(self.depth - 1):
+			cuda.memcpy_htod(self.message_ta_state_gpu[depth], self.message_ta_state[depth])
+		cuda.memcpy_htod(self.clause_weights_gpu, self.clause_weights)
+
+		# Now we are initialized
+		self.initialized = True
+
 	def _init(self, graphs):
 		self.number_of_features = graphs.hypervector_size
 		self.number_of_literals = self.number_of_features*2
@@ -270,6 +378,13 @@ class CommonTsetlinMachine():
 		if self.max_included_literals == None:
 			self.max_included_literals = self.number_of_literals
 
+		self.max_number_of_graph_nodes = graphs.max_number_of_graph_nodes
+
+		self._init_gpu_kernels()
+		self.allocate_gpu_memory()
+		self.initialized = True
+
+	def _init_gpu_kernels(self):
 		parameters = """
 #define CLASSES %d
 #define CLAUSES %d
@@ -283,14 +398,24 @@ class CommonTsetlinMachine():
 #define MAX_NODES %d
 #define MESSAGE_SIZE %d
 #define MESSAGE_BITS %d
-""" % (self.number_of_outputs, self.number_of_clauses, self.number_of_literals, self.number_of_state_bits, self.boost_true_positive_feedback, self.T, self.q, self.max_included_literals, self.negative_clauses, graphs.max_number_of_graph_nodes, self.message_size, self.message_bits)
+""" % (
+			self.number_of_outputs,
+			self.number_of_clauses,
+			self.number_of_literals,
+			self.number_of_state_bits,
+			self.boost_true_positive_feedback,
+			self.T,
+			self.q,
+			self.max_included_literals,
+			self.negative_clauses,
+			self.max_number_of_graph_nodes,
+			self.message_size,
+			self.message_bits,
+		)
 
 		mod_prepare = SourceModule(parameters + kernels.code_header + kernels.code_prepare, no_extern_c=True)
 		self.prepare = mod_prepare.get_function("prepare")
-
 		self.prepare_message_ta_state = mod_prepare.get_function("prepare_message_ta_state")
-
-		self.allocate_gpu_memory()
 
 		mod_update = SourceModule(parameters + kernels.code_header + kernels.code_update, no_extern_c=True)
 		self.update = mod_update.get_function("update")
@@ -331,7 +456,9 @@ class CommonTsetlinMachine():
 		self.transform_nodewise_gpu = mod_transform.get_function("transform_nodewise")
 		self.transform_nodewise_gpu.prepare("PiP")
 
-		self.initialized = True
+		mod_clauses = SourceModule(parameters + kernels.code_header + kernels.code_clauses, no_extern_c=True)
+		self.get_ta_states_gpu = mod_clauses.get_function("get_ta_states")
+		self.get_ta_states_gpu.prepare("PiiP")
 
 	def _init_fit(self, graphs, encoded_Y, incremental):
 		if not self.initialized:
