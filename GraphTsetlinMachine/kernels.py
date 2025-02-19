@@ -406,6 +406,8 @@ code_evaluate = """
 
         __global__ void calculate_messages(
             unsigned int *global_ta_state,
+            int *node_type,
+            int number_of_node_types,
             int number_of_nodes,
             int graph_index,
             int *global_clause_node_output,
@@ -442,17 +444,21 @@ code_evaluate = """
                 for (int node_pos = 0; (node_pos < INT_SIZE) && ((node_chunk * INT_SIZE + node_pos) < number_of_nodes); ++node_pos) {
                     int node = node_chunk * INT_SIZE + node_pos;
 
-                    for (int la_chunk = 0; la_chunk < LA_CHUNKS-1; ++la_chunk) {
-                        if ((ta_state[la_chunk*STATE_BITS + STATE_BITS - 1] & X[node*LA_CHUNKS + la_chunk]) != ta_state[la_chunk*STATE_BITS + STATE_BITS - 1]) {
+                    if (node_type[graph_index + node] == (clause % number_of_node_types)) {
+                        for (int la_chunk = 0; la_chunk < LA_CHUNKS-1; ++la_chunk) {
+                            if ((ta_state[la_chunk*STATE_BITS + STATE_BITS - 1] & X[node*LA_CHUNKS + la_chunk]) != ta_state[la_chunk*STATE_BITS + STATE_BITS - 1]) {
+                                clause_node_output &= ~(1 << node_pos);
+                            }
+                        }
+
+                        if ((ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & X[node*LA_CHUNKS + LA_CHUNKS-1] & FILTER) != (ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & FILTER)) {
                             clause_node_output &= ~(1 << node_pos);
                         }
-                    }
-
-                    if ((ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & X[node*LA_CHUNKS + LA_CHUNKS-1] & FILTER) != (ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & FILTER)) {
-                        clause_node_output &= ~(1 << node_pos);
+                    } else {
+                        clause_node_output &= ~(1 << node_pos);   
                     }
                 }
-
+                
                 if (node_chunk == number_of_node_chunks - 1) {
                     global_clause_node_output[clause*NODE_CHUNKS + node_chunk] = clause_node_output & node_filter;
                 } else {
@@ -463,7 +469,10 @@ code_evaluate = """
 
         __global__ void calculate_messages_conditional(
             unsigned int *global_ta_state,
+            int *node_type,
+            int number_of_node_types,
             int number_of_nodes,
+            int graph_index,
             int *global_clause_node_output_condition,
             int *global_clause_node_output,
             int *number_of_include_actions,
@@ -497,13 +506,17 @@ code_evaluate = """
                 for (int node_pos = 0; (node_pos < INT_SIZE) && ((node_chunk * INT_SIZE + node_pos) < number_of_nodes); ++node_pos) {
                     int node = node_chunk * INT_SIZE + node_pos;
 
-                    for (int la_chunk = 0; la_chunk < MESSAGE_CHUNKS-1; ++la_chunk) {
-                        if ((ta_state[la_chunk*STATE_BITS + STATE_BITS - 1] & X[node*MESSAGE_CHUNKS + la_chunk]) != ta_state[la_chunk*STATE_BITS + STATE_BITS - 1]) {
+                    if (node_type[graph_index + node] == (clause % number_of_node_types)) {
+                        for (int la_chunk = 0; la_chunk < MESSAGE_CHUNKS-1; ++la_chunk) {
+                            if ((ta_state[la_chunk*STATE_BITS + STATE_BITS - 1] & X[node*MESSAGE_CHUNKS + la_chunk]) != ta_state[la_chunk*STATE_BITS + STATE_BITS - 1]) {
+                                clause_node_output &= ~(1 << node_pos);
+                            }
+                        }
+
+                        if ((ta_state[(MESSAGE_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & X[node*MESSAGE_CHUNKS + MESSAGE_CHUNKS-1] & MESSAGE_FILTER) != (ta_state[(MESSAGE_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & MESSAGE_FILTER)) {
                             clause_node_output &= ~(1 << node_pos);
                         }
-                    }
-
-                    if ((ta_state[(MESSAGE_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & X[node*MESSAGE_CHUNKS + MESSAGE_CHUNKS-1] & MESSAGE_FILTER) != (ta_state[(MESSAGE_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & MESSAGE_FILTER)) {
+                    } else {
                         clause_node_output &= ~(1 << node_pos);
                     }
                 }
@@ -514,17 +527,6 @@ code_evaluate = """
                     global_clause_node_output[clause*NODE_CHUNKS + node_chunk] = global_clause_node_output_condition[clause*NODE_CHUNKS + node_chunk] & clause_node_output;
                 }
             }
-        }
-
-        __device__ inline unsigned int murmur(unsigned int key, unsigned int h)
-        {        
-            for (int i = 0; i < 4; ++i) {
-                h ^= (key >> (8*i)) & 0xff;
-                h *= 0x5bd1e995;
-                h ^= h >> 15;
-            }
-    
-            return (h);
         }
 
         __global__ void prepare_messages(

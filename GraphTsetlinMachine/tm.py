@@ -40,20 +40,21 @@ g = curandom.XORWOWRandomNumberGenerator()
 
 class CommonTsetlinMachine():
 	def __init__(
-		self,
-		number_of_clauses,
-		T,
-		s,
-		q=1.0,
-		max_included_literals=None,
-		boost_true_positive_feedback=1,
-		number_of_state_bits=8,
-		depth=1,
-		message_size=256,
-		message_bits=2,
-		double_hashing=False,
-		grid=(16 * 13 * 4, 1, 1),
-		block=(128, 1, 1),
+			self,
+			number_of_clauses,
+			T,
+			s,
+			q=1.0,
+			max_included_literals=None,
+			boost_true_positive_feedback=1,
+			number_of_state_bits=8,
+			depth=1,
+			message_size=256,
+			message_bits=2,
+			double_hashing=False,
+			one_hot_encoding=False,
+			grid=(16*13*4,1,1),
+			block=(128,1,1)
 	):
 		print("Initialization of sparse structure.")
 
@@ -77,6 +78,7 @@ class CommonTsetlinMachine():
 		self.message_literals = message_size*2
 
 		self.double_hashing = double_hashing
+		self.one_hot_encoding = one_hot_encoding
 
 		self.grid = grid
 		self.block = block
@@ -89,7 +91,11 @@ class CommonTsetlinMachine():
 		self.message_ta_state = [np.array([])] * (self.depth - 1)
 		self.clause_weights = np.array([])
 
-		if self.double_hashing:
+		if self.one_hot_encoding:
+			self.message_bits = 1
+			self.hypervectors = np.zeros((self.number_of_clauses, self.message_bits), dtype=np.uint32)
+			# Initialized when the number of edge types is known
+		elif self.double_hashing:
 			from sympy import prevprime
 			self.message_bits = 2
 			self.hypervectors = np.zeros((self.number_of_clauses, self.message_bits), dtype=np.uint32)
@@ -405,6 +411,11 @@ class CommonTsetlinMachine():
 		self.initialized = True
 
 	def _init(self, graphs):
+		if self.one_hot_encoding:
+			self.message_size = self.number_of_clauses * max(1, len(graphs.edge_type_id))
+			for i in range(self.number_of_clauses):
+				self.hypervectors[i, 0] = i * len(graphs.edge_type_id)
+
 		self.number_of_features = graphs.hypervector_size
 		self.number_of_literals = self.number_of_features*2
 		self.number_of_ta_chunks = int((self.number_of_literals-1)//32 + 1)
@@ -473,10 +484,10 @@ class CommonTsetlinMachine():
 		self.select_clause_updates.prepare("PPPPiPP")
 
 		self.calculate_messages = mod_evaluate.get_function("calculate_messages")
-		self.calculate_messages.prepare("PiiPPP")
+		self.calculate_messages.prepare("PPiiiPPP")
 
 		self.calculate_messages_conditional = mod_evaluate.get_function("calculate_messages_conditional")
-		self.calculate_messages_conditional.prepare("PiPPPP")
+		self.calculate_messages_conditional.prepare("PPiiiPPPP")
 
 		self.prepare_messages = mod_evaluate.get_function("prepare_messages")
 		self.prepare_messages.prepare("iP")
@@ -526,6 +537,9 @@ class CommonTsetlinMachine():
 			for depth in range(self.depth-1):
 				self.clause_X_train_gpu.append(cuda.mem_alloc(int(graphs.max_number_of_graph_nodes * self.number_of_message_chunks) * 4))
 
+			self.node_type_train_gpu = cuda.mem_alloc(graphs.node_type.nbytes)
+			cuda.memcpy_htod(self.node_type_train_gpu, graphs.node_type)
+
 			self.number_of_graph_node_edges_train_gpu = cuda.mem_alloc(graphs.number_of_graph_node_edges.nbytes)
 			cuda.memcpy_htod(self.number_of_graph_node_edges_train_gpu, graphs.number_of_graph_node_edges)
 
@@ -544,18 +558,19 @@ class CommonTsetlinMachine():
 			cuda.memcpy_htod(self.encoded_Y_gpu, encoded_Y)
 
 	def _evaluate(
-		self,
-		graphs,
-		number_of_graph_nodes,
-		node_index,
-		edge_index,
-		current_clause_node_output,
-		next_clause_node_output,
-		number_of_graph_node_edges,
-		edge,
-		clause_X_int,
-		clause_X,
-		encoded_X,
+			self,
+			graphs,
+			number_of_graph_nodes,
+			node_index,
+			edge_index,
+			current_clause_node_output,
+			next_clause_node_output,
+			node_type,
+			number_of_graph_node_edges,
+			edge,
+			clause_X_int,
+			clause_X,
+			encoded_X
 	):
 		class_sum = np.zeros(self.number_of_outputs).astype(np.int32)
 		cuda.memcpy_htod(self.class_sum_gpu, class_sum)
@@ -565,6 +580,8 @@ class CommonTsetlinMachine():
 			self.grid,
 			self.block,
 			self.ta_state_gpu,
+			node_type,
+			np.int32(graphs.number_of_node_types()),
 			np.int32(number_of_graph_nodes),
 			np.int32(node_index),
 			current_clause_node_output,
@@ -614,7 +631,10 @@ class CommonTsetlinMachine():
 				self.grid,
 				self.block,
 				self.message_ta_state_gpu[depth],
-				number_of_graph_nodes,
+				node_type,
+				np.int32(graphs.number_of_node_types()),
+				np.int32(number_of_graph_nodes),
+				np.int32(node_index),
 				current_clause_node_output,
 				next_clause_node_output,
 				self.number_of_include_actions,
@@ -656,6 +676,7 @@ class CommonTsetlinMachine():
 					np.int32(graphs.edge_index[graphs.node_index[e]]),
 					self.current_clause_node_output_train_gpu,
 					self.next_clause_node_output_train_gpu,
+					self.node_type_train_gpu,
 					self.number_of_graph_node_edges_train_gpu,
 					self.edge_train_gpu,
 					self.clause_X_int_train_gpu,
@@ -747,6 +768,9 @@ class CommonTsetlinMachine():
 			for depth in range(self.depth-1):
 				self.clause_X_test_gpu.append(cuda.mem_alloc(int(graphs.max_number_of_graph_nodes * self.number_of_message_chunks) * 4))
 
+			self.node_type_test_gpu = cuda.mem_alloc(graphs.node_type.nbytes)
+			cuda.memcpy_htod(self.node_type_test_gpu, graphs.node_type)
+
 			self.number_of_graph_node_edges_test_gpu = cuda.mem_alloc(graphs.number_of_graph_node_edges.nbytes)
 			cuda.memcpy_htod(self.number_of_graph_node_edges_test_gpu, graphs.number_of_graph_node_edges)
 
@@ -772,6 +796,7 @@ class CommonTsetlinMachine():
 				np.int32(graphs.edge_index[graphs.node_index[e]]),
 				self.current_clause_node_output_test_gpu,
 				self.next_clause_node_output_test_gpu,
+				self.node_type_test_gpu,
 				self.number_of_graph_node_edges_test_gpu,
 				self.edge_test_gpu,
 				self.clause_X_int_test_gpu,
@@ -800,6 +825,7 @@ class CommonTsetlinMachine():
 				np.int32(graphs.edge_index[graphs.node_index[e]]),
 				self.current_clause_node_output_test_gpu,
 				self.next_clause_node_output_test_gpu,
+				self.node_type_test_gpu,
 				self.number_of_graph_node_edges_test_gpu,
 				self.edge_test_gpu,
 				self.clause_X_int_test_gpu,
@@ -840,6 +866,7 @@ class CommonTsetlinMachine():
 				np.int32(graphs.edge_index[graphs.node_index[e]]),
 				self.current_clause_node_output_test_gpu,
 				self.next_clause_node_output_test_gpu,
+				self.node_type_test_gpu,
 				self.number_of_graph_node_edges_test_gpu,
 				self.edge_test_gpu,
 				self.clause_X_int_test_gpu,
@@ -876,20 +903,21 @@ class MultiClassGraphTsetlinMachine(CommonTsetlinMachine):
 	"""
 	
 	def __init__(
-		self,
-		number_of_clauses,
-		T,
-		s,
-		q=1.0,
-		max_included_literals=None,
-		boost_true_positive_feedback=1,
-		number_of_state_bits=8,
-		depth=1,
-		message_size=256,
-		message_bits=2,
-		double_hashing=False,
-		grid=(16 * 13 * 4, 1, 1),
-		block=(128, 1, 1),
+			self,
+			number_of_clauses,
+			T,
+			s,
+			q=1.0,
+			max_included_literals=None,
+			boost_true_positive_feedback=1,
+			number_of_state_bits=8,
+			depth=1,
+			message_size=256,
+			message_bits=2,
+			double_hashing=False,
+			one_hot_encoding=False,
+			grid=(16*13*4,1,1),
+			block=(128,1,1)
 	):
 		super().__init__(
 			number_of_clauses,
@@ -903,6 +931,7 @@ class MultiClassGraphTsetlinMachine(CommonTsetlinMachine):
 			message_size=message_size,
 			message_bits=message_bits,
 			double_hashing=double_hashing,
+			one_hot_encoding=one_hot_encoding,
 			grid=grid,
 			block=block
 		)
@@ -944,7 +973,8 @@ class MultiOutputGraphTsetlinMachine(CommonTsetlinMachine):
 		message_size=256,
 		message_bits=2,
 		double_hashing=False,
-		grid=(16 * 13 * 4, 1, 1),
+		one_hot_encoding=False,
+		grid=(16*13*4, 1, 1),
 		block=(128, 1, 1),
 	):
 		super().__init__(
@@ -959,6 +989,7 @@ class MultiOutputGraphTsetlinMachine(CommonTsetlinMachine):
 			message_size=message_size,
 			message_bits=message_bits,
 			double_hashing=double_hashing,
+			one_hot_encoding=one_hot_encoding,
 			grid=grid,
 			block=block
 		)
@@ -984,20 +1015,21 @@ class MultiOutputGraphTsetlinMachine(CommonTsetlinMachine):
 
 class GraphTsetlinMachine(CommonTsetlinMachine):
 	def __init__(
-		self,
-		number_of_clauses,
-		T,
-		s,
-		q=1.0,
-		max_included_literals=None,
-		boost_true_positive_feedback=1,
-		number_of_state_bits=8,
-		depth=1,
-		message_size=256,
-		message_bits=2,
-		double_hashing=False,
-		grid=(16 * 13 * 4, 1, 1),
-		block=(128, 1, 1),
+			self,
+			number_of_clauses,
+			T,
+			s,
+			q=1.0,
+			max_included_literals=None,
+			boost_true_positive_feedback=1,
+			number_of_state_bits=8,
+			depth=1,
+			message_size=256,
+			message_bits=2,
+			double_hashing=False,
+			one_hot_encoding=False,
+			grid=(16*13*4,1,1),
+			block=(128,1,1)
 	):
 		super().__init__(
 			number_of_clauses,
@@ -1011,6 +1043,7 @@ class GraphTsetlinMachine(CommonTsetlinMachine):
 			message_size=message_size,
 			message_bits=message_bits,
 			double_hashing=double_hashing,
+			one_hot_encoding=one_hot_encoding,
 			grid=grid,
 			block=block
 		)

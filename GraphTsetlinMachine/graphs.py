@@ -24,10 +24,21 @@ from numba import jit
 import sys
 
 class Graphs():
-	def __init__(self, number_of_graphs, hypervector_size = 128, hypervector_bits = 2, double_hashing=False, symbols=None, init_with=None):
+	def __init__(
+		self,
+		number_of_graphs,
+		hypervector_size = 128,
+		hypervector_bits = 2,
+		double_hashing=False,
+		one_hot_encoding=False,
+		symbols=None,
+		init_with=None
+	):
 		self.number_of_graphs = number_of_graphs
 		self.number_of_graph_nodes = np.zeros(self.number_of_graphs, dtype=np.uint32)
+	
 		self.double_hashing = double_hashing
+		self.one_hot_encoding = one_hot_encoding
 
 		self.graph_node_id = [None] * self.number_of_graphs
 		for i in range(number_of_graphs):
@@ -36,6 +47,7 @@ class Graphs():
 		self.init_with = init_with
 		if self.init_with == None:
 			self.edge_type_id = {}
+			self.node_type_id = {}
 
 			self.symbol_id = {}
 			for symbol_name in symbols:
@@ -43,7 +55,13 @@ class Graphs():
 			self.hypervector_size = hypervector_size
 			self.hypervector_bits = hypervector_bits
 
-			if self.double_hashing:
+			if self.one_hot_encoding:
+				self.hypervector_size = len(self.symbol_id)
+				self.hypervector_bits = 1
+				self.hypervectors = np.zeros((len(self.symbol_id), self.hypervector_bits), dtype=np.uint32)
+				for i in range(len(self.symbol_id)):
+					self.hypervectors[i, 0] = i
+			elif self.double_hashing:
 				from sympy import prevprime
 				self.hypervector_bits = 2
 				self.hypervectors = np.zeros((len(self.symbol_id), self.hypervector_bits), dtype=np.uint32)
@@ -60,6 +78,7 @@ class Graphs():
 			self.number_of_hypervector_chunks = (self.hypervector_size*2 - 1) // 32 + 1
 		else:
 			self.edge_type_id = self.init_with.edge_type_id
+			self.node_type_id = self.init_with.node_type_id
 			self.symbol_id = self.init_with.symbol_id
 			self.hypervector_size = self.init_with.hypervector_size
 			self.hypervector_bits = self.init_with.hypervector_bits
@@ -85,6 +104,7 @@ class Graphs():
 		self.max_number_of_graph_nodes = self.number_of_graph_nodes.max()
 		self.max_number_of_graph_node_chunks = (self.max_number_of_graph_nodes - 1) // 32 + 1
 		self.number_of_nodes = self.number_of_graph_nodes.sum()
+		self.node_type = np.empty(self.number_of_nodes, dtype=np.uint32)
 		self.number_of_graph_node_edges = np.empty(self.number_of_nodes, dtype=np.uint32)
 		self.graph_node_edge_counter = np.zeros(self.number_of_nodes, dtype=np.uint32)
 		self.edge_index = np.zeros(self.number_of_nodes, dtype=np.uint32)
@@ -92,10 +112,17 @@ class Graphs():
 		self.X = np.zeros((self.number_of_nodes, self.number_of_hypervector_chunks), dtype=np.uint32)
 		self._initialize_node_hypervectors(self.hypervector_size, self.X)
 
-	def add_graph_node(self, graph_id, node_name, number_of_graph_node_edges):
+	def add_graph_node(self, graph_id, node_name, number_of_graph_node_edges, node_type_name='Plain'):
+		if node_type_name not in self.node_type_id:
+			self.node_type_id[node_type_name] = len(self.node_type_id)
+
 		if node_name not in self.graph_node_id[graph_id]:
 			self.graph_node_id[graph_id][node_name] = len(self.graph_node_id[graph_id])
+		self.node_type[self.node_index[graph_id] + self.graph_node_id[graph_id][node_name]] = self.node_type_id[node_type_name]
 		self.number_of_graph_node_edges[self.node_index[graph_id] + self.graph_node_id[graph_id][node_name]] = number_of_graph_node_edges
+
+	def number_of_node_types(self):
+		return len(self.node_type_id)
 
 	def prepare_edge_configuration(self):		
 		self.edge_index[1:] = np.add.accumulate(self.number_of_graph_node_edges[:-1])
