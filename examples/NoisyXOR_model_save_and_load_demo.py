@@ -1,4 +1,5 @@
 import argparse
+import pickle
 import random
 from time import time
 
@@ -9,7 +10,7 @@ from GraphTsetlinMachine.tm import MultiClassGraphTsetlinMachine
 
 def default_args(**kwargs):
 	parser = argparse.ArgumentParser()
-	parser.add_argument("--epochs", default=5, type=int)
+	parser.add_argument("--epochs", default=2, type=int)
 	parser.add_argument("--number-of-clauses", default=4, type=int)
 	parser.add_argument("--T", default=100, type=int)
 	parser.add_argument("--s", default=2.0, type=float)
@@ -135,7 +136,7 @@ tm = MultiClassGraphTsetlinMachine(
 	# max_included_literals=args.max_included_literals,
 	double_hashing=args.double_hashing,
 	grid=(1, 1, 1),
-	block=(1, 1, 1)
+	block=(1, 1, 1),
 )
 
 for i in range(args.epochs):
@@ -160,73 +161,106 @@ for i in range(args.epochs):
 		)
 	)
 ##########################################
-
-weights = tm.get_state()[1].reshape(2, -1)
-
-print(f"Symbol hypervectors: \n{graphs_train.hypervectors}\n\n")
-print(f"Clause hypervectors: \n{tm.hypervectors=}\n\n")
+print("\nTA States and weights before save")
+weights = tm.get_weights()
+clause_states = tm.get_ta_states(depth=0)
+message_states = tm.get_ta_states(depth=1)
 
 print("Clause in Hyperliterals format:")
 for clause in range(tm.number_of_clauses):
 	print(f"Clause {clause} [{weights[0, clause]:>4d} {weights[1, clause]:>4d}]", end=": ")
-	print(*[int(tm.ta_action(depth=0, clause=clause, ta=i)) for i in range(graphs_train.hypervector_size * 2)])
+	print(*[state for state in clause_states[clause]])
 print()
 
 print("Messages as hypervectors:")
 for clause in range(tm.number_of_clauses):
 	print(f"Clause {clause} [{weights[0, clause]:>4d} {weights[1, clause]:>4d}]", end=": ")
-	print(*[int(tm.ta_action(depth=1, clause=clause, ta=i)) for i in range(tm.message_size * 2)])
+	print(*[state for state in message_states[clause]])
 
-# Get Clauses in symbols format and Messages in clause_indices format
-clause_literals = tm.get_clause_literals(graphs_train.hypervectors).astype(np.int32)
-message_clauses = tm.get_messages(1, len(graphs_train.edge_type_id)).astype(np.int32)
-num_symbols = len(graphs_train.symbol_id)
+#############Model Save#################
+state_dict = tm.save()
 
-# Create symbol_id to symbol_name dictionary for printing symbol names
-symbol_dict = dict((v, k) for k, v in graphs_train.symbol_id.items())
+fname = "model.tm"
+with open(fname, "wb") as f:
+	pickle.dump(state_dict, f)
 
-print("Actual clauses:")
+print(f"\nModel saved to {fname}.")
+
+
+######Create new model and load#########
+new_tm = MultiClassGraphTsetlinMachine(
+	args.number_of_clauses,
+	args.T,
+	args.s,
+	number_of_state_bits=args.number_of_state_bits,
+	depth=args.depth,
+	message_size=args.message_size,
+	message_bits=args.message_bits,
+	# max_included_literals=args.max_included_literals,
+	double_hashing=args.double_hashing,
+	grid=(1, 1, 1),
+	block=(1, 1, 1),
+)
+
+with open(fname, "rb") as f:
+	loaded_state = pickle.load(f)
+
+new_tm.load(loaded_state)
+print("\n Created and Loaded new model.")
+
+print("\nTA States and weights after load, before training")
+weights = tm.get_weights()
+clause_states = tm.get_ta_states(depth=0)
+message_states = tm.get_ta_states(depth=1)
+
+print("Clause in Hyperliterals format:")
 for clause in range(tm.number_of_clauses):
 	print(f"Clause {clause} [{weights[0, clause]:>4d} {weights[1, clause]:>4d}]", end=": ")
-	for literal in range(num_symbols):
-		if clause_literals[clause, literal] > 0:
-			print(f"{clause_literals[clause, literal]}{symbol_dict[literal]}", end=" ")
+	print(*[state for state in clause_states[clause]])
+print()
 
-		if clause_literals[clause, literal + num_symbols] > 0:
-			print(f"~{clause_literals[clause, literal + num_symbols]}{symbol_dict[literal]}", end=" ")
+print("Messages as hypervectors:")
+for clause in range(tm.number_of_clauses):
+	print(f"Clause {clause} [{weights[0, clause]:>4d} {weights[1, clause]:>4d}]", end=": ")
+	print(*[state for state in message_states[clause]])
 
-	print("")
+######Coontinue training new model from the same states###############
+print("\nTraining new model from the loaded states")
+for i in range(args.epochs):
+	start_training = time()
+	new_tm.fit(graphs_train, Y_train, epochs=1, incremental=True)
+	stop_training = time()
 
-# Print messages for each edge type
-for edge_type in range(len(graphs_train.edge_type_id)):
-	print(f"Actual Messages for {edge_type=}:")
+	start_testing = time()
+	result_test = 100 * (new_tm.predict(graphs_test) == Y_test).mean()
+	stop_testing = time()
 
-	for msg in range(tm.number_of_clauses):
-		print(f"Message {msg} ", end=": ")
+	result_train = 100 * (new_tm.predict(graphs_train) == Y_train).mean()
 
-		for clause in range(tm.number_of_clauses):
-			if message_clauses[edge_type, msg, clause] > 0:
-				print(f"{message_clauses[edge_type, msg, clause]}C{clause}(", end=" ")
+	print(
+		"%d %.2f %.2f %.2f %.2f"
+		% (
+			i,
+			result_train,
+			result_test,
+			stop_training - start_training,
+			stop_testing - start_testing,
+		)
+	)
 
-				for literal in range(num_symbols):
-					if clause_literals[clause, literal] > 0:
-						print(f"{clause_literals[clause, literal]}{symbol_dict[literal]}", end=" ")
 
-					if clause_literals[clause, literal + num_symbols] > 0:
-						print(f"~{clause_literals[clause, literal + num_symbols]}{symbol_dict[literal]}", end=" ")
+print("\nTA States and weights after training new model")
+weights = new_tm.get_weights()
+clause_states = new_tm.get_ta_states(depth=0)
+message_states = new_tm.get_ta_states(depth=1)
 
-				print(")", end=" ")
+print("Clause in Hyperliterals format:")
+for clause in range(new_tm.number_of_clauses):
+	print(f"Clause {clause} [{weights[0, clause]:>4d} {weights[1, clause]:>4d}]", end=": ")
+	print(*[state for state in clause_states[clause]])
+print()
 
-			if message_clauses[edge_type, msg, tm.number_of_clauses + clause] > 0:
-				print(f"~{message_clauses[edge_type, msg, tm.number_of_clauses + clause]}C{clause}(", end=" ")
-
-				for literal in range(num_symbols):
-					if clause_literals[clause, literal] > 0:
-						print(f"{clause_literals[clause, literal]}{symbol_dict[literal]}", end=" ")
-
-					if clause_literals[clause, literal + num_symbols] > 0:
-						print(f"~{clause_literals[clause, literal + num_symbols]}{symbol_dict[literal]}", end=" ")
-
-				print(")", end=" ")
-
-		print("")
+print("Messages as hypervectors:")
+for clause in range(new_tm.number_of_clauses):
+	print(f"Clause {clause} [{weights[0, clause]:>4d} {weights[1, clause]:>4d}]", end=": ")
+	print(*[state for state in message_states[clause]])

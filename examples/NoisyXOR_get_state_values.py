@@ -9,7 +9,7 @@ from GraphTsetlinMachine.tm import MultiClassGraphTsetlinMachine
 
 def default_args(**kwargs):
 	parser = argparse.ArgumentParser()
-	parser.add_argument("--epochs", default=5, type=int)
+	parser.add_argument("--epochs", default=2, type=int)
 	parser.add_argument("--number-of-clauses", default=4, type=int)
 	parser.add_argument("--T", default=100, type=int)
 	parser.add_argument("--s", default=2.0, type=float)
@@ -135,7 +135,7 @@ tm = MultiClassGraphTsetlinMachine(
 	# max_included_literals=args.max_included_literals,
 	double_hashing=args.double_hashing,
 	grid=(1, 1, 1),
-	block=(1, 1, 1)
+	block=(1, 1, 1),
 )
 
 for i in range(args.epochs):
@@ -162,10 +162,15 @@ for i in range(args.epochs):
 ##########################################
 
 weights = tm.get_state()[1].reshape(2, -1)
+weights = tm.get_weights()
 
-print(f"Symbol hypervectors: \n{graphs_train.hypervectors}\n\n")
-print(f"Clause hypervectors: \n{tm.hypervectors=}\n\n")
+clause_states = tm.get_ta_states(depth=0)
+message_states = tm.get_ta_states(depth=1)
 
+print(f"{clause_states.shape=}")
+print(f"{message_states.shape=}")
+
+print("Literals")
 print("Clause in Hyperliterals format:")
 for clause in range(tm.number_of_clauses):
 	print(f"Clause {clause} [{weights[0, clause]:>4d} {weights[1, clause]:>4d}]", end=": ")
@@ -177,56 +182,16 @@ for clause in range(tm.number_of_clauses):
 	print(f"Clause {clause} [{weights[0, clause]:>4d} {weights[1, clause]:>4d}]", end=": ")
 	print(*[int(tm.ta_action(depth=1, clause=clause, ta=i)) for i in range(tm.message_size * 2)])
 
-# Get Clauses in symbols format and Messages in clause_indices format
-clause_literals = tm.get_clause_literals(graphs_train.hypervectors).astype(np.int32)
-message_clauses = tm.get_messages(1, len(graphs_train.edge_type_id)).astype(np.int32)
-num_symbols = len(graphs_train.symbol_id)
-
-# Create symbol_id to symbol_name dictionary for printing symbol names
-symbol_dict = dict((v, k) for k, v in graphs_train.symbol_id.items())
-
-print("Actual clauses:")
+print("\nState values")
+print("Clause in Hyperliterals format:")
 for clause in range(tm.number_of_clauses):
 	print(f"Clause {clause} [{weights[0, clause]:>4d} {weights[1, clause]:>4d}]", end=": ")
-	for literal in range(num_symbols):
-		if clause_literals[clause, literal] > 0:
-			print(f"{clause_literals[clause, literal]}{symbol_dict[literal]}", end=" ")
+	print(*[state for state in clause_states[clause]])
+	# print(*[int(tm.ta_action(depth=0, clause=clause, ta=i)) for i in range(graphs_train.hypervector_size * 2)])
+print()
 
-		if clause_literals[clause, literal + num_symbols] > 0:
-			print(f"~{clause_literals[clause, literal + num_symbols]}{symbol_dict[literal]}", end=" ")
-
-	print("")
-
-# Print messages for each edge type
-for edge_type in range(len(graphs_train.edge_type_id)):
-	print(f"Actual Messages for {edge_type=}:")
-
-	for msg in range(tm.number_of_clauses):
-		print(f"Message {msg} ", end=": ")
-
-		for clause in range(tm.number_of_clauses):
-			if message_clauses[edge_type, msg, clause] > 0:
-				print(f"{message_clauses[edge_type, msg, clause]}C{clause}(", end=" ")
-
-				for literal in range(num_symbols):
-					if clause_literals[clause, literal] > 0:
-						print(f"{clause_literals[clause, literal]}{symbol_dict[literal]}", end=" ")
-
-					if clause_literals[clause, literal + num_symbols] > 0:
-						print(f"~{clause_literals[clause, literal + num_symbols]}{symbol_dict[literal]}", end=" ")
-
-				print(")", end=" ")
-
-			if message_clauses[edge_type, msg, tm.number_of_clauses + clause] > 0:
-				print(f"~{message_clauses[edge_type, msg, tm.number_of_clauses + clause]}C{clause}(", end=" ")
-
-				for literal in range(num_symbols):
-					if clause_literals[clause, literal] > 0:
-						print(f"{clause_literals[clause, literal]}{symbol_dict[literal]}", end=" ")
-
-					if clause_literals[clause, literal + num_symbols] > 0:
-						print(f"~{clause_literals[clause, literal + num_symbols]}{symbol_dict[literal]}", end=" ")
-
-				print(")", end=" ")
-
-		print("")
+print("Messages as hypervectors:")
+for clause in range(tm.number_of_clauses):
+	print(f"Clause {clause} [{weights[0, clause]:>4d} {weights[1, clause]:>4d}]", end=": ")
+	print(*[state for state in message_states[clause]])
+	# print(*[int(tm.ta_action(depth=1, clause=clause, ta=i)) for i in range(tm.message_size * 2)])
