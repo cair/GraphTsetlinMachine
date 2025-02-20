@@ -359,7 +359,7 @@ class CommonTsetlinMachine():
 			"message_size": self.message_size,
 			"message_bits": self.message_bits,
 			"double_hashing": self.double_hashing,
-			# "one_hot_encoding": self.one_hot_encoding, # TODO: When merged
+			"one_hot_encoding": self.one_hot_encoding,
 		}
 
 		# Save to file
