@@ -127,6 +127,7 @@ def main(args):
     total_time = benchmark_total.elapsed()
     # result_train = 100*(tm.predict(graphs_train) == Y_train).mean()
     results.append({
+        "Exp_id": args.exp_id,
         "Algorithm": "GraphTM",
         "Noise_Ratio": args.dataset_noise_ratio,
         "T": args.T,
@@ -163,6 +164,7 @@ def default_args(**kwargs):
     parser.add_argument("--noise", default=0.01, type=float)
     parser.add_argument("--max-included-literals", default=23, type=int)
     parser.add_argument("--dataset_noise_ratio", default=0.01, type=float)
+    parser.add_argument("--exp_id", default="", type=str)
     args = parser.parse_args()
     for key, value in kwargs.items():
         if key in args.__dict__:

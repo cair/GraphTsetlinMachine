@@ -94,6 +94,7 @@ def main(args):
     total_time = benchmark_total.elapsed()
     # Append results for each epoch
     results.append({
+        "Exp_id": args.exp_id,
         "Algorithm": "Graph NN",
         "Noise_Ratio": args.dataset_noise_ratio,
         "T": 0,
@@ -118,8 +119,9 @@ def main(args):
 def default_args(**kwargs):
     parser = argparse.ArgumentParser()
     parser.add_argument("--platform", default="CPU", type=str, choices=["CPU", "CUDA"])
-    parser.add_argument("--epochs", default=20000, type=int)
+    parser.add_argument("--epochs", default=2000, type=int)
     parser.add_argument("--dataset_noise_ratio", default=0.01, type=float)
+    parser.add_argument("--exp_id", default="", type=str)
     args = parser.parse_args()
     for key, value in kwargs.items():
         if key in args.__dict__:

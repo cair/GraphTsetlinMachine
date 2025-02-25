@@ -34,6 +34,7 @@ def main(args):
         
     # Append results for each epoch
     results.append({
+        "Exp_id": args.exp_id,
         "Algorithm": "TMClassifier",
         "Noise_Ratio": args.dataset_noise_ratio,
         "T": args.T,
@@ -64,6 +65,7 @@ def default_args(**kwargs):
     parser.add_argument("--weighted_clauses", default=True, type=bool)
     parser.add_argument("--epochs", default=10, type=int)
     parser.add_argument("--dataset_noise_ratio", default=0.01, type=float)
+    parser.add_argument("--exp_id", default="", type=str)
     args = parser.parse_args()
     for key, value in kwargs.items():
         if key in args.__dict__:
