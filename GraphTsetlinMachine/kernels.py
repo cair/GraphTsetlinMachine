@@ -428,7 +428,7 @@ code_evaluate = """
                 node_filter = 0xffffffff;
             }
 
-            printf("%x\\n", node_filter);
+            //printf("%x\\n", node_filter);
 
             unsigned int *X = &global_X[graph_index * LA_CHUNKS];
 
