@@ -71,7 +71,7 @@ for graph_id in range(args.number_of_examples):
             graphs_train.add_graph_node_edge(graph_id, node_id, destination_node_id, edge_type)
 
     Y_train[graph_id] = np.random.randint(args.number_of_classes)
-    node_id = np.random.choice([Y_train[graph_id] + distance_from_edge, args.max_sequence_length - 1 - args.distance_from_edge])
+    node_id = np.random.choice([Y_train[graph_id] + args.distance_from_edge, args.max_sequence_length - 1 - args.distance_from_edge])
     for node_pos in range(Y_train[graph_id] + 1):
         graphs_train.add_graph_node_property(graph_id, node_id - node_pos, 'A')
 
@@ -111,7 +111,7 @@ for graph_id in range(args.number_of_examples):
             graphs_test.add_graph_node_edge(graph_id, node_id, destination_node_id, edge_type)
 
     Y_test[graph_id] = np.random.randint(args.number_of_classes)
-    node_id = np.random.choice([Y_test[graph_id] + distance_from_edge, args.max_sequence_length - 1 - args.distance_from_edge])
+    node_id = np.random.choice([Y_test[graph_id] + args.distance_from_edge, args.max_sequence_length - 1 - args.distance_from_edge])
     for node_pos in range(Y_test[graph_id] + 1):
         graphs_test.add_graph_node_property(graph_id, node_id - node_pos, 'A')
 
