@@ -428,6 +428,8 @@ code_evaluate = """
                 node_filter = 0xffffffff;
             }
 
+            printf("%x\\n", node_filter);
+
             unsigned int *X = &global_X[graph_index * LA_CHUNKS];
 
             for (int clause_node_chunk = index; clause_node_chunk < (CLAUSES)*(NODE_CHUNKS); clause_node_chunk += stride) {
