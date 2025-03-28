@@ -23,6 +23,7 @@ def default_args(**kwargs):
     parser.add_argument("--number-of-classes", default=3, type=int)
     parser.add_argument("--max-sequence-length", default=10, type=int)
     parser.add_argument("--max-included-literals", default=4, type=int)
+    parser.add_argument("--distance-from-edge", default=5, type=int)
 
     args = parser.parse_args()
     for key, value in kwargs.items():
@@ -45,7 +46,7 @@ graphs_train = Graphs(
 )
 
 for graph_id in range(args.number_of_examples):
-    graphs_train.set_number_of_graph_nodes(graph_id, np.random.randint(args.number_of_classes, args.max_sequence_length+1))
+    graphs_train.set_number_of_graph_nodes(graph_id, args.max_sequence_length)
 
 graphs_train.prepare_node_configuration()
 
@@ -70,7 +71,7 @@ for graph_id in range(args.number_of_examples):
             graphs_train.add_graph_node_edge(graph_id, node_id, destination_node_id, edge_type)
 
     Y_train[graph_id] = np.random.randint(args.number_of_classes)
-    node_id = np.random.randint(Y_train[graph_id], graphs_train.number_of_graph_nodes[graph_id])
+    node_id = np.random.choice([Y_train[graph_id] + distance_from_edge, args.max_sequence_length - 1 - args.distance_from_edge])
     for node_pos in range(Y_train[graph_id] + 1):
         graphs_train.add_graph_node_property(graph_id, node_id - node_pos, 'A')
 
@@ -85,7 +86,7 @@ print("Creating testing data")
 
 graphs_test = Graphs(args.number_of_examples, init_with=graphs_train)
 for graph_id in range(args.number_of_examples):
-    graphs_test.set_number_of_graph_nodes(graph_id, np.random.randint(args.number_of_classes, args.max_sequence_length+1))
+    graphs_test.set_number_of_graph_nodes(graph_id, args.max_sequence_length)
 
 graphs_test.prepare_node_configuration()
 
@@ -110,7 +111,7 @@ for graph_id in range(args.number_of_examples):
             graphs_test.add_graph_node_edge(graph_id, node_id, destination_node_id, edge_type)
 
     Y_test[graph_id] = np.random.randint(args.number_of_classes)
-    node_id = np.random.randint(Y_test[graph_id], graphs_test.number_of_graph_nodes[graph_id])
+    node_id = np.random.choice([Y_test[graph_id] + distance_from_edge, args.max_sequence_length - 1 - args.distance_from_edge])
     for node_pos in range(Y_test[graph_id] + 1):
         graphs_test.add_graph_node_property(graph_id, node_id - node_pos, 'A')
 
