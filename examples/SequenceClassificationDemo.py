@@ -4,6 +4,7 @@ from scipy.sparse import csr_matrix
 from GraphTsetlinMachine.tm import MultiClassGraphTsetlinMachine
 from time import time
 import argparse
+from sklearn.metrics import confusion_matrix
 
 def default_args(**kwargs):
     parser = argparse.ArgumentParser()
@@ -135,8 +136,11 @@ for i in range(args.epochs):
     stop_training = time()
 
     start_testing = time()
-    result_test = 100*(tm.predict(graphs_test) == Y_test).mean()
+    y_pred = tm.predict(graphs_test)
+    result_test = 100*(y_pred == Y_test).mean()
     stop_testing = time()
+
+    print(confusion_matrix(Y_test, y_pred))
 
     result_train = 100*(tm.predict(graphs_train) == Y_train).mean()
 
