@@ -145,15 +145,19 @@ for i in range(args.epochs):
     stop_training = time()
 
     start_testing = time()
-    y_pred = tm.predict(graphs_test)
-    result_test = 100*(y_pred == Y_test).mean()
+    y_test_pred = tm.predict(graphs_test)
+    result_test = 100*(y_test_pred == Y_test).mean()
     stop_testing = time()
 
-    print("Left", confusion_matrix(Y_test[Y_right==0], y_pred[Y_right==0]))
+    print("Left\n", confusion_matrix(Y_test[Y_right==0], y_test_pred[Y_right==0]))
 
-    print("Right", confusion_matrix(Y_test[Y_right==1], y_pred[Y_right==1]))
+    print("Right\n", confusion_matrix(Y_test[Y_right==1], y_test_pred[Y_right==1]))
 
-    result_train = 100*(tm.predict(graphs_train) == Y_train).mean()
+
+    y_train_pred = tm.predict(graphs_train)
+    result_train = 100*(y_train_pred == Y_train).mean()
+
+    print("Train\n", confusion_matrix(Y_train, y_train_pred))
 
     print("%d %.2f %.2f %.2f %.2f" % (i, result_train, result_test, stop_training-start_training, stop_testing-start_testing))
 
