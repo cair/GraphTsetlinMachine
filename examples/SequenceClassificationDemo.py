@@ -101,6 +101,10 @@ for graph_id in range(args.number_of_examples):
 
 graphs_test.prepare_edge_configuration()
 
+Y_right = np.empty(args.number_of_examples, dtype=np.uint32)
+
+location = [Y_test[graph_id] + args.distance_from_edge, args.max_sequence_length - 1 - args.distance_from_edge]
+
 Y_test = np.empty(args.number_of_examples, dtype=np.uint32)
 for graph_id in range(args.number_of_examples):
     for node_id in range(graphs_test.number_of_graph_nodes[graph_id]):
@@ -115,7 +119,8 @@ for graph_id in range(args.number_of_examples):
             graphs_test.add_graph_node_edge(graph_id, node_id, destination_node_id, edge_type)
 
     Y_test[graph_id] = np.random.randint(args.number_of_classes)
-    node_id = np.random.choice([Y_test[graph_id] + args.distance_from_edge, args.max_sequence_length - 1 - args.distance_from_edge])
+    Y_right[graph_id] = np.random.randint(2)
+    node_id = location[Y_right[graph_id]]
     for node_pos in range(Y_test[graph_id] + 1):
         graphs_test.add_graph_node_property(graph_id, node_id - node_pos, 'A')
 
@@ -145,7 +150,9 @@ for i in range(args.epochs):
     result_test = 100*(y_pred == Y_test).mean()
     stop_testing = time()
 
-    print(confusion_matrix(Y_test, y_pred))
+    print("Left", confusion_matrix(Y_test[Y_right==0], y_pred[Y_right==0]))
+
+    print("Right", confusion_matrix(Y_test[Y_right==1], y_pred[Y_right==1]))
 
     result_train = 100*(tm.predict(graphs_train) == Y_train).mean()
 
