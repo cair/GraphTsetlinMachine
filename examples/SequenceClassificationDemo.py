@@ -19,6 +19,7 @@ def default_args(**kwargs):
     parser.add_argument("--message-size", default=256, type=int)
     parser.add_argument("--message-bits", default=2, type=int)
     parser.add_argument('--double-hashing', dest='double_hashing', default=False, action='store_true')
+    parser.add_argument('--one-hot-encoding', dest='one_hot_encoding', default=False, action='store_true')
     parser.add_argument("--noise", default=0.01, type=float)
     parser.add_argument("--q", default=1.0, type=float)
     parser.add_argument("--number-of-examples", default=40000, type=int)
@@ -44,7 +45,8 @@ graphs_train = Graphs(
     symbols=['A'],
     hypervector_size=args.hypervector_size,
     hypervector_bits=args.hypervector_bits,
-    double_hashing = args.double_hashing
+    double_hashing = args.double_hashing,
+    one_hot_encoding = args.one_hot_encoding
 )
 
 for graph_id in range(args.number_of_examples):
@@ -129,6 +131,7 @@ tm = MultiClassGraphTsetlinMachine(
     message_bits = args.message_bits,
     max_included_literals = args.max_included_literals,
     double_hashing = args.double_hashing,
+    one_hot_encoding = args.one_hot_encoding,
     q = args.q
 )
 
