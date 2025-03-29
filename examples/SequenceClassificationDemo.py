@@ -103,8 +103,6 @@ graphs_test.prepare_edge_configuration()
 
 Y_right = np.empty(args.number_of_examples, dtype=np.uint32)
 
-location = [Y_test[graph_id] + args.distance_from_edge, args.max_sequence_length - 1 - args.distance_from_edge]
-
 Y_test = np.empty(args.number_of_examples, dtype=np.uint32)
 for graph_id in range(args.number_of_examples):
     for node_id in range(graphs_test.number_of_graph_nodes[graph_id]):
@@ -120,6 +118,7 @@ for graph_id in range(args.number_of_examples):
 
     Y_test[graph_id] = np.random.randint(args.number_of_classes)
     Y_right[graph_id] = np.random.randint(2)
+    location = [Y_test[graph_id] + args.distance_from_edge, args.max_sequence_length - 1 - args.distance_from_edge]
     node_id = location[Y_right[graph_id]]
     for node_pos in range(Y_test[graph_id] + 1):
         graphs_test.add_graph_node_property(graph_id, node_id - node_pos, 'A')
