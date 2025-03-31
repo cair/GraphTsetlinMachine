@@ -169,14 +169,15 @@ for i in range(tm.number_of_clauses):
                 else:
                     l.append("NOT x%d" % (k - graphs_train.hypervector_size))
 
-        for k in range(tm.message_size * 2):
-            if tm.ta_action(1, i, k):
-                if k < tm.message_size:
-                    l.append("c%d" % (k))
-                else:
-                    l.append("NOT c%d" % (k - tm.message_size))
+        for depth in range(1,args.depth):
+            for k in range(tm.message_size * 2):
+                if tm.ta_action(depth, i, k):
+                    if k < tm.message_size:
+                        l.append("%d: c%d" % (depth, k))
+                    else:
+                        l.append("%d: NOT c%d" % (depth, k - tm.message_size))
 
-        print(" AND ".join(l))
+            print(" AND ".join(l))
 
 print(graphs_test.hypervectors)
 print(tm.hypervectors)
