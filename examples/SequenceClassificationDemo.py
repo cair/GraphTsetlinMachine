@@ -173,7 +173,7 @@ for i in range(tm.number_of_clauses):
             for k in range(tm.message_size * 2):
                 if tm.ta_action(depth, i, k):
                     if k < tm.message_size:
-                        l.append("%d: m%d:%d" % (depth, k))
+                        l.append("m%d:%d" % (depth, k))
                     else:
                         l.append("NOT m%d:%d" % (depth, k - tm.message_size))
 
