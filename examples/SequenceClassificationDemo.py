@@ -177,7 +177,7 @@ for i in range(tm.number_of_clauses):
                     else:
                         l.append("NOT m%d:%d" % (depth, k - tm.message_size))
 
-            print(" AND ".join(l))
+        print(" AND ".join(l))
 
 print(graphs_test.hypervectors)
 print(tm.hypervectors)
