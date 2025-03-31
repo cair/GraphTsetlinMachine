@@ -156,9 +156,11 @@ for i in range(args.epochs):
 
     print("%d %.2f %.2f %.2f %.2f" % (i, result_train, result_test, stop_training-start_training, stop_testing-start_testing))
 
-weights = tm.get_state()[1].reshape(2, -1)
+number_of_classes = np.unique(Y_train).shape[0]
+
+weights = tm.get_state()[1].reshape(number_of_classes, tm.number_of_clauses)
 for i in range(tm.number_of_clauses):
-        print("Clause #%d W:(%d %d)" % (i, weights[0,i], weights[1,i]), end=' ')
+        print("Clause #%d W:" % (i), weights[:,i], end=' ')
         l = []
         for k in range(graphs_train.hypervector_size * 2):
             if tm.ta_action(0, i, k):
