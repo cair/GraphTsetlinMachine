@@ -148,7 +148,6 @@ for i in range(args.epochs):
 
     print("Test\n", confusion_matrix(Y_test, y_test_pred))
 
-
     y_train_pred = tm.predict(graphs_train)
     result_train = 100*(y_train_pred == Y_train).mean()
 
