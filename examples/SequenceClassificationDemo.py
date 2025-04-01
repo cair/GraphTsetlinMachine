@@ -171,18 +171,18 @@ for i in range(tm.number_of_clauses):
 
         for depth in range(1, args.depth):
             for k in range(tm.message_size * 2):
-                if k % 2 == 0:
+                if k % 2 == 1:
                     if tm.ta_action(depth, i, k):
                         if k < tm.message_size:
                             l.append("l%d:%d" % (depth, k // 2))
                         else:
                             l.append("NOT l%d:%d" % (depth, (k - tm.message_size) // 2))
-                    else:
-                        if tm.ta_action(depth, i, k):
-                            if k < tm.message_size:
-                                l.append("r%d:%d" % (depth, k // 2))
-                            else:
-                                l.append("NOT r%d:%d" % (depth, (k - tm.message_size) // 2))
+                else:
+                    if tm.ta_action(depth, i, k):
+                        if k < tm.message_size:
+                            l.append("r%d:%d" % (depth, k // 2))
+                        else:
+                            l.append("NOT r%d:%d" % (depth, (k - tm.message_size) // 2))
 
         print(" AND ".join(l))
 
