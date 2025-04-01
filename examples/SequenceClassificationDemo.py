@@ -76,7 +76,9 @@ for graph_id in range(args.number_of_examples):
 
     Y_train[graph_id] = np.random.randint(args.number_of_classes)
     node_id = np.random.choice([Y_train[graph_id] + args.distance_from_edge, args.max_sequence_length - 1 - args.distance_from_edge])
+    print(node_id)
     for node_pos in range(Y_train[graph_id] + 1):
+        print("\t", node_id - node_pos)
         graphs_train.add_graph_node_property(graph_id, node_id - node_pos, 'A')
 
     if np.random.rand() <= args.noise:
