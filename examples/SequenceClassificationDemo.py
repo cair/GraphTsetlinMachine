@@ -159,6 +159,12 @@ for i in range(args.epochs):
     number_of_classes = np.unique(Y_train).shape[0]
 
     weights = tm.get_state()[1].reshape(number_of_classes, tm.number_of_clauses)
+
+    ta_states = {}
+    ta_states[0] = tm.get_ta_states(0)
+    for depth in range(1, args.depth):
+        ta_states[depth] = tm.get_ta_states(depth)
+
     for i in range(tm.number_of_clauses):
             print("Clause #%d W:" % (i), weights[:,i], end=' ')
             l = []
@@ -170,24 +176,24 @@ for i in range(args.epochs):
             #             l.append("NOT x%d" % (k - graphs_train.hypervector_size))
 
             if tm.ta_action(0, i, 0):
-                l.append("A")
+                l.append("A (%d)" % (ta_states[0][i, 0]))
             elif tm.ta_action(0, i, 1):
-                l.append("NOT A")
+                l.append("NOT A (%d)" % (ta_states[0][i, 1]))
 
             for depth in range(1, args.depth):
                 for k in range(tm.message_size * 2):
                     if k % 2 == 1:
                         if tm.ta_action(depth, i, k):
                             if k < tm.message_size:
-                                l.append("l%d:%d" % (depth, k // 2))
+                                l.append("l%d:%d (%d)" % (depth, k // 2, ta_states[depth][i, k]))
                             else:
-                                l.append("NOT l%d:%d" % (depth, (k - tm.message_size) // 2))
+                                l.append("NOT l%d:%d (%d)" % (depth, (k - tm.message_size) // 2, ta_states[depth][i, k]))
                     else:
                         if tm.ta_action(depth, i, k):
                             if k < tm.message_size:
-                                l.append("r%d:%d" % (depth, k // 2))
+                                l.append("r%d:%d (%d)" % (depth, k // 2, ta_states[depth][i, k]))
                             else:
-                                l.append("NOT r%d:%d" % (depth, (k - tm.message_size) // 2))
+                                l.append("NOT r%d:%d (%d)" % (depth, (k - tm.message_size) // 2, ta_states[depth][i, k]))
 
             print(" AND ".join(l))
 
