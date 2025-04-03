@@ -153,7 +153,7 @@ class CommonTsetlinMachine():
 
 			state = 0
 			for i in range(self.number_of_state_bits):
-				if (ta_state[clause, ta // 32, self.number_of_state_bits-1] & (1 << (ta % 32))):
+				if (ta_state[clause, ta // 32, i] & (1 << (ta % 32))):
 					state |= (1 << i)
 			return state
 
@@ -168,7 +168,7 @@ class CommonTsetlinMachine():
 
 			state = 0
 			for i in range(self.number_of_state_bits):
-				if (message_ta_state_depth[clause, ta // 32, self.number_of_state_bits-1] & (1 << (ta % 32))):
+				if (message_ta_state_depth[clause, ta // 32, i] & (1 << (ta % 32))):
 					state |= (1 << i)
 
 			return state
