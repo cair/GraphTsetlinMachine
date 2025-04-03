@@ -142,7 +142,7 @@ class CommonTsetlinMachine():
 
 			return (message_ta_state_depth[clause, ta // 32, self.number_of_state_bits - 1] & (1 << (ta % 32))) > 0
 
-	def ta_state(self, depth, clause, ta):
+	def get_ta_state(self, depth, clause, ta):
 		if depth == 0:
 			#if True or np.array_equal(self.ta_state, np.array([])):
 			self.ta_state = np.empty(self.number_of_clauses*self.number_of_ta_chunks*self.number_of_state_bits, dtype=np.uint32)
@@ -154,7 +154,7 @@ class CommonTsetlinMachine():
 				if (ta_state[clause, ta // 32, self.number_of_state_bits-1] & (1 << (ta % 32))):
 					state |= (1 << i)
 			return state
-			
+
 		else:
 			#if True or np.array_equal(self.message_ta_state[depth - 1], np.array([])):
 			self.message_ta_state[depth - 1] = np.empty(
