@@ -76,7 +76,7 @@ for graph_id in range(args.number_of_examples):
 
     subsequence_length = np.random.randint(args.max_subsequence_length)    
     Y_train[graph_id] = (subsequence_length >= args.max_subsequence_length - 1)
-    node_id = np.random.randint([subsequence_length + args.distance_from_edge, args.max_sequence_length - 1 - args.distance_from_edge])
+    node_id = np.random.randint(subsequence_length + args.distance_from_edge, args.max_sequence_length - 1 - args.distance_from_edge)
     for node_pos in range(subsequence_length + 1):
         graphs_train.add_graph_node_property(graph_id, node_id - node_pos, 'A')
 
@@ -118,7 +118,7 @@ for graph_id in range(args.number_of_examples):
 
     subsequence_length = np.random.randint(args.max_subsequence_length)    
     Y_test[graph_id] = (subsequence_length >= args.max_subsequence_length - 1)
-    node_id = np.random.randint([subsequence_length + args.distance_from_edge, args.max_sequence_length - 1 - args.distance_from_edge])
+    node_id = np.random.randint(subsequence_length + args.distance_from_edge, args.max_sequence_length - 1 - args.distance_from_edge)
     for node_pos in range(subsequence_length + 1):
         graphs_test.add_graph_node_property(graph_id, node_id - node_pos, 'A')
 
