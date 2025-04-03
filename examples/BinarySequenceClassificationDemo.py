@@ -187,7 +187,7 @@ for i in range(args.epochs):
                     else:
                         if tm.ta_action(depth, i, k):
                             if k < tm.message_size:
-                                l.append("r%d:%d (%d)" % (depth, k // 2, ta_states[depth][i, k], tm.get_ta_state(depth, i, k)))
+                                l.append("r%d:%d (%d)" % (depth, k // 2, tm.get_ta_state(depth, i, k)))
                             else:
                                 l.append("NOT r%d:%d (%d)" % (depth, (k - tm.message_size) // 2, tm.get_ta_state(depth, i, k)))
 
