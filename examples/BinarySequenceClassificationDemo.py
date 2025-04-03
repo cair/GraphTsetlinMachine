@@ -172,9 +172,9 @@ for i in range(args.epochs):
             #             l.append("NOT x%d" % (k - graphs_train.hypervector_size))
 
             if tm.ta_action(0, i, 0):
-                l.append("A (%d %d)" % (ta_states[0][i, 0], tm.get_ta_state(0, i, 0)))
+                l.append("A (%d)" % (tm.get_ta_state(0, i, 0)))
             elif tm.ta_action(0, i, 1):
-                l.append("NOT A (%d %d)" % (ta_states[0][i, 1], tm.get_ta_state(0, i, 1)))
+                l.append("NOT A (%d)" % (tm.get_ta_state(0, i, 1)))
 
             for depth in range(1, args.depth):
                 for k in range(tm.message_size * 2):
