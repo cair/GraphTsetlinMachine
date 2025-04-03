@@ -81,7 +81,7 @@ for graph_id in range(args.number_of_examples):
         graphs_train.add_graph_node_property(graph_id, node_id - node_pos, 'A')
 
     if np.random.rand() <= args.noise:
-        Y_train[graph_id] = np.random.choice(np.setdiff1d(np.arange(args.number_of_classes), [Y_train[graph_id]]))
+        Y_train[graph_id] = 1 - Y_train[graph_id]
 
 graphs_train.encode()
 
