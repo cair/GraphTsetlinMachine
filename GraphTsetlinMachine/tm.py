@@ -142,6 +142,35 @@ class CommonTsetlinMachine():
 
 			return (message_ta_state_depth[clause, ta // 32, self.number_of_state_bits - 1] & (1 << (ta % 32))) > 0
 
+	def ta_state(self, depth, clause, ta):
+		if depth == 0:
+			#if True or np.array_equal(self.ta_state, np.array([])):
+			self.ta_state = np.empty(self.number_of_clauses*self.number_of_ta_chunks*self.number_of_state_bits, dtype=np.uint32)
+			cuda.memcpy_dtoh(self.ta_state, self.ta_state_gpu)
+			ta_state = self.ta_state.reshape((self.number_of_clauses, self.number_of_ta_chunks, self.number_of_state_bits))
+
+			state = 0
+			for i in range(self.number_of_state_bits):
+				if (ta_state[clause, ta // 32, self.number_of_state_bits-1] & (1 << (ta % 32))):
+					state |= (1 << i)
+			return state
+			
+		else:
+			#if True or np.array_equal(self.message_ta_state[depth - 1], np.array([])):
+			self.message_ta_state[depth - 1] = np.empty(
+				self.number_of_clauses * self.number_of_message_chunks * self.number_of_state_bits, dtype=np.uint32
+			)
+			cuda.memcpy_dtoh(self.message_ta_state[depth - 1], self.message_ta_state_gpu[depth - 1])
+			message_ta_state_depth = self.message_ta_state[depth - 1].reshape(
+			(self.number_of_clauses, self.number_of_message_chunks, self.number_of_state_bits))
+
+			state = 0
+			for i in range(self.number_of_state_bits):
+				if (message_ta_state[clause, ta // 32, self.number_of_state_bits-1] & (1 << (ta % 32))):
+					state |= (1 << i)
+
+			return state
+
 	def get_hyperliterals(self, depth):
 		if depth == 0:
 			literals = np.array(
