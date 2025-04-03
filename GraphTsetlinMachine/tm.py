@@ -105,6 +105,8 @@ class CommonTsetlinMachine():
 			for i in range(self.number_of_clauses):
 				self.hypervectors[i,:] = np.random.choice(indexes, size=(self.message_bits), replace=False)
 
+		self.message_ta_state_depth = {}
+
 		self.initialized = False
 
 	def allocate_gpu_memory(self):
