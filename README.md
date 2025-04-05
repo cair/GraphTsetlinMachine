@@ -144,6 +144,23 @@ The class label is finally randomly inverted to introduce noise.
     if np.random.rand() <= 0.01:
         Y_train[graph_id] = 1 - Y_train[graph_id]
 ```
+
+### Execution
+
+Running the program, you should get the following output:
+```bash
+python3 ./examples/NoisyXORDemo.py 
+Creating training data
+Creating testing data
+Initialization of sparse structure.
+0 99.15 100.00 5.40 0.88
+1 99.15 100.00 1.54 0.88
+2 99.15 100.00 1.55 0.88
+3 99.15 100.00 1.52 0.88
+4 99.15 100.00 1.53 0.88
+5 99.15 100.00 1.52 0.88
+...
+```
 See the Noisy XOR Demo in the example folder for further details.
 
 ## Demos
