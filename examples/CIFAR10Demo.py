@@ -45,6 +45,7 @@ def default_args(**kwargs):
     parser.add_argument("--hypervector-bits", default=2, type=int)
     parser.add_argument("--message-size", default=256, type=int)
     parser.add_argument("--message-bits", default=2, type=int)
+    parser.add_argument("--patch_size", default=8, type=int)
     parser.add_argument('--double-hashing', dest='double_hashing', default=False, action='store_true')
     parser.add_argument('--one-hot-encoding', dest='one_hot_encoding', default=False, action='store_true')
     parser.add_argument("--max-included-literals", default=32, type=int)
@@ -57,8 +58,7 @@ def default_args(**kwargs):
 
 args = default_args()
 
-patch_size = 10
-dim = 32 - patch_size + 1
+dim = 32 - args.patch_size + 1
 
 number_of_nodes = dim * dim
 
@@ -70,7 +70,7 @@ for i in range(dim):
     symbols.append("R:%d" % (i))
 
 # Patch pixel symbols
-for i in range(patch_size*patch_size*3):
+for i in range(args.patch_size*args.patch_size*3):
     symbols.append(i)
 
 graphs_train = Graphs(
@@ -97,7 +97,7 @@ for graph_id in range(X_train.shape[0]):
     if graph_id % 1000 == 0:
         print(graph_id, X_train.shape[0])
      
-    windows = view_as_windows(X_train[graph_id,:,:,:], (patch_size, patch_size, 3))
+    windows = view_as_windows(X_train[graph_id,:,:,:], (args.patch_size, args.patch_size, 3))
     for q in range(windows.shape[0]):
             for r in range(windows.shape[1]):
                 node_id = q*dim + r
@@ -106,8 +106,11 @@ for graph_id in range(X_train.shape[0]):
                 for k in patch.nonzero()[0]:
                     graphs_train.add_graph_node_property(graph_id, node_id, k)
 
-                graphs_train.add_graph_node_property(graph_id, node_id, "C:%d" % (q))
-                graphs_train.add_graph_node_property(graph_id, node_id, "R:%d" % (r))
+                for s in range(q+1):
+                    graphs_train.add_graph_node_property(graph_id, node_id, "C:%d" % (s))
+
+                for s in range(r+1):
+                    graphs_train.add_graph_node_property(graph_id, node_id, "R:%d" % (s))
 
 graphs_train.encode()
 
@@ -129,7 +132,7 @@ for graph_id in range(X_test.shape[0]):
     if graph_id % 1000 == 0:
         print(graph_id, X_test.shape[0])
      
-    windows = view_as_windows(X_test[graph_id,:,:], (patch_size, patch_size, 3))
+    windows = view_as_windows(X_test[graph_id,:,:], (args.patch_size, args.patch_size, 3))
     for q in range(windows.shape[0]):
             for r in range(windows.shape[1]):
                 node_id = q*dim + r
@@ -138,8 +141,11 @@ for graph_id in range(X_test.shape[0]):
                 for k in patch.nonzero()[0]:
                     graphs_test.add_graph_node_property(graph_id, node_id, k)
 
-                graphs_test.add_graph_node_property(graph_id, node_id, "C:%d" % (q))
-                graphs_test.add_graph_node_property(graph_id, node_id, "R:%d" % (r))
+                for s in range(q+1):
+                    graphs_test.add_graph_node_property(graph_id, node_id, "C:%d" % (s))
+
+                for s in range(r+1):
+                    graphs_test.add_graph_node_property(graph_id, node_id, "R:%d" % (s))
 
 graphs_test.encode()
 
