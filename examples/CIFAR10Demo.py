@@ -93,7 +93,7 @@ for graph_id in range(X_train.shape[0]):
     if graph_id % 1000 == 0:
         print(graph_id, X_train.shape[0])
      
-    windows = view_as_windows(X_train[graph_id,:,:], (patch_size, patch_size))
+    windows = view_as_windows(X_train[graph_id,:,:,:], (patch_size, patch_size))
     print(windows.shape)
     for q in range(windows.shape[0]):
             for r in range(windows.shape[1]):
