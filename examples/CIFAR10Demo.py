@@ -60,14 +60,12 @@ symbols = []
 
 # Column and row symbols
 for i in range(dim):
-    symbols.append("X:%d" % (i))
-    symbols.append("Y:%d" % (i))
+    symbols.append("C:%d" % (i))
+    symbols.append("R:%d" % (i))
 
 # Patch pixel symbols
-for i in range(patch_size*patch_size):
-    symbols.append("R:%d" % (i))
-    symbols.append("G:%d" % (i))
-    symbols.append("B:%d" % (i))
+for i in range(patch_size*patch_size*3):
+    symbols.append(i)
 
 graphs_train = Graphs(
     X_train.shape[0],
@@ -93,15 +91,12 @@ for graph_id in range(X_train.shape[0]):
     if graph_id % 1000 == 0:
         print(graph_id, X_train.shape[0])
      
-    windows = view_as_windows(X_train[graph_id,:,:,:], (patch_size, patch_size))
-    print(windows.shape)
+    windows = view_as_windows(X_train[graph_id,:,:,:], (patch_size, patch_size, 3))
     for q in range(windows.shape[0]):
             for r in range(windows.shape[1]):
                 node_id = q*dim + r
 
-                patch = windows[q,r].reshape(-1).astype(np.uint32)
-                print(patch.shape)
-                print(patch.nonzero())
+                patch = windows[q,r,0].reshape(-1).astype(np.uint32)
                 for k in patch.nonzero()[0]:
                     graphs_train.add_graph_node_property(graph_id, node_id, k)
 
@@ -128,12 +123,12 @@ for graph_id in range(X_test.shape[0]):
     if graph_id % 1000 == 0:
         print(graph_id, X_test.shape[0])
      
-    windows = view_as_windows(X_test[graph_id,:,:], (10, 10))
+    windows = view_as_windows(X_test[graph_id,:,:], (patch_size, patch_size, 3))
     for q in range(windows.shape[0]):
             for r in range(windows.shape[1]):
                 node_id = q*dim + r
 
-                patch = windows[q,r].reshape(-1).astype(np.uint32)
+                patch = windows[q,r,0].reshape(-1).astype(np.uint32)
                 for k in patch.nonzero()[0]:
                     graphs_test.add_graph_node_property(graph_id, node_id, k)
 
