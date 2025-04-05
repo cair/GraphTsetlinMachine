@@ -690,20 +690,24 @@ code_transform = """
 		}
 	}
 
-	__global__ void transform_nodewise(int *global_clause_node_output, int number_of_nodes, int *transformed_X) {
+	__global__ void transform_nodewise(
+        unsigned int *global_clause_node_output,
+        int number_of_nodes, int *transformed_X
+    ) {
 		int index = blockIdx.x * blockDim.x + threadIdx.x;
 		int stride = blockDim.x * gridDim.x;
 
 		for (int clause = index; clause < CLAUSES; clause += stride) {
 			for (int n = 0; n < number_of_nodes; n++) {
-				int chunk_nr = n / INT_SIZE;
-				int chunk_pos = n % INT_SIZE;
+				unsigned int chunk_nr = n / INT_SIZE;
+				unsigned int chunk_pos = n % INT_SIZE;
 
 				transformed_X[clause * number_of_nodes + n] =
 					(global_clause_node_output[clause * NODE_CHUNKS + chunk_nr] & (1 << chunk_pos)) > 0;
 			}
 		}
 	}
+
 	}
 
 """
