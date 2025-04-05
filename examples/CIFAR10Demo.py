@@ -11,11 +11,11 @@ import cv2
 
 (X_train, Y_train), (X_test, Y_test) = cifar10.load_data()
 
-X_train = X_train[0:100]
-Y_train = Y_train[0:100]
+X_train = X_train
+Y_train = Y_train
 
-X_test = X_test[0:100]
-Y_test = Y_test[0:100]
+X_test = X_test
+Y_test = Y_test
 
 Y_train = Y_train.reshape(Y_train.shape[0])
 Y_test = Y_test.reshape(Y_test.shape[0])
@@ -36,9 +36,9 @@ Y_test = Y_test.astype(np.uint32)
 def default_args(**kwargs):
     parser = argparse.ArgumentParser()
     parser.add_argument("--epochs", default=250, type=int)
-    parser.add_argument("--number-of-clauses", default=20000, type=int)
-    parser.add_argument("--T", default=25000, type=int)
-    parser.add_argument("--s", default=10.0, type=float)
+    parser.add_argument("--number-of-clauses", default=40000, type=int)
+    parser.add_argument("--T", default=7500, type=int)
+    parser.add_argument("--s", default=20.0, type=float)
     parser.add_argument("--number-of-state-bits", default=8, type=int)
     parser.add_argument("--depth", default=1, type=int)
     parser.add_argument("--hypervector-size", default=128, type=int)
