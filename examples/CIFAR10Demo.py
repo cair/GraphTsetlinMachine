@@ -17,8 +17,8 @@ Y_train = Y_train[0:100]
 X_test = X_test[0:100]
 Y_test = Y_test[0:100]
 
-#Y_train = Y_train.reshape(Y_train.shape[0])
-#Y_test = Y_test.reshape(Y_test.shape[0])
+Y_train = Y_train.reshape(Y_train.shape[0])
+Y_test = Y_test.reshape(Y_test.shape[0])
 
 for i in range(X_train.shape[0]):
         for j in range(X_train.shape[3]):
