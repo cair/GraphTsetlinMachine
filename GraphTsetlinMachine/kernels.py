@@ -554,6 +554,7 @@ code_evaluate = """
             int global_edge_index,
             int *number_of_graph_node_edges,
             int *edge,
+            int *number_of_include_actions,
             unsigned int *clause_X_int
         )
         {
@@ -572,7 +573,7 @@ code_evaluate = """
                     unsigned int source_node_chunk = source_node / INT_SIZE;
                     unsigned int source_node_pos = source_node % INT_SIZE;
                     
-                    if ((global_clause_node_output[clause*NODE_CHUNKS + source_node_chunk] & (1 << source_node_pos)) > 0) { 
+                    if (((global_clause_node_output[clause*NODE_CHUNKS + source_node_chunk] & (1 << source_node_pos)) > 0) && number_of_include_actions[clause] > 0) { 
                         for (int i = 0; i < number_of_graph_node_edges[node_index + source_node]; ++i) {
                             int destination_node = edge[(edge_index + i) * 2];
                             int edge_type = edge[(edge_index + i)* 2 + 1];

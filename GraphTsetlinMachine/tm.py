@@ -491,7 +491,7 @@ class CommonTsetlinMachine():
 		self.prepare_messages.prepare("iP")
 
 		self.exchange_messages = mod_evaluate.get_function("exchange_messages")
-		self.exchange_messages.prepare("iPPiiPPP")
+		self.exchange_messages.prepare("iPPiiPPPP")
 
 		self.encode_messages = mod_evaluate.get_function("encode_messages")
 		self.encode_messages.prepare("iPP")
@@ -610,6 +610,7 @@ class CommonTsetlinMachine():
 				np.int32(edge_index),
 				number_of_graph_node_edges,
 				edge,
+				self.number_of_include_actions,
 				clause_X_int
 			)
 			cuda.Context.synchronize()
