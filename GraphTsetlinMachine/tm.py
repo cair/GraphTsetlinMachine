@@ -147,21 +147,31 @@ class CommonTsetlinMachine():
 
 	def get_hyperliterals(self, depth):
 		if depth == 0:
-			literals = np.array(
-				[
-					[self.ta_action(0, clause, ta) for ta in range(self.number_of_literals)]
-					for clause in range(self.number_of_clauses)
-				],
-				dtype=np.uint8,
+			literals_gpu = cuda.mem_alloc(self.number_of_clauses * self.number_of_literals * 4)
+			self.get_hyperliterals_gpu(
+				self.ta_state_gpu,
+				np.int32(self.number_of_ta_chunks),
+				np.int32(self.number_of_literals),
+				literals_gpu,
+				grid=self.grid,
+				block=self.block,
 			)
+			literals = np.empty(self.number_of_clauses * self.number_of_literals, dtype=np.uint32)
+			cuda.memcpy_dtoh(literals, literals_gpu)
+			literals = literals.reshape((self.number_of_clauses, self.number_of_literals))
 		else:
-			literals = np.array(
-				[
-					[self.ta_action(depth, clause, ta) for ta in range(self.number_of_message_literals)]
-					for clause in range(self.number_of_clauses)
-				],
-				dtype=np.uint8,
+			literals_gpu = cuda.mem_alloc(self.number_of_clauses * self.number_of_message_literals * 4)
+			self.get_hyperliterals_gpu(
+				self.message_ta_state_gpu[depth - 1],
+				np.int32(self.number_of_message_chunks),
+				np.int32(self.number_of_message_literals),
+				literals_gpu,
+				grid=self.grid,
+				block=self.block,
 			)
+			literals = np.empty(self.number_of_clauses * self.number_of_message_literals, dtype=np.uint32)
+			cuda.memcpy_dtoh(literals, literals_gpu)
+			literals = literals.reshape((self.number_of_clauses, self.number_of_message_literals))
 
 		return literals
 
@@ -248,14 +258,14 @@ class CommonTsetlinMachine():
 		assert depth > 0, f"Expected depth > 0, got {depth}. Depth <= 0 means surface, use get_clause_literals()"
 
 		# Get message literals in HV format
-		hv_messages = self.get_hyperliterals(depth)
+		hv_messages = self.get_hyperliterals(depth).astype(np.float32)
 
 		# Store message literals as symbols(in this case, clause indices)
 		message_literals = np.zeros((edge_types, self.number_of_clauses, 2 * self.number_of_clauses))
 
 		for edge_type in range(edge_types):
 			# Expand symbol indices to actual hypervectors and shift based on edge type
-			expanded_sym = np.zeros((self.number_of_message_literals // 2, self.number_of_clauses), dtype=np.uint8)
+			expanded_sym = np.zeros((self.number_of_message_literals // 2, self.number_of_clauses))
 			for sym_id in range(self.number_of_clauses):
 				sym_hv = self.hypervectors[sym_id].ravel()
 				sym_hv = (sym_hv + edge_type) % self.message_size
@@ -347,7 +357,7 @@ class CommonTsetlinMachine():
 			"message_size": self.message_size,
 			"message_bits": self.message_bits,
 			"double_hashing": self.double_hashing,
-			# "one_hot_encoding": self.one_hot_encoding, # TODO: When merged
+			"one_hot_encoding": self.one_hot_encoding,
 		}
 
 		# Save to file
@@ -506,6 +516,8 @@ class CommonTsetlinMachine():
 		mod_clauses = SourceModule(parameters + kernels.code_header + kernels.code_clauses, no_extern_c=True)
 		self.get_ta_states_gpu = mod_clauses.get_function("get_ta_states")
 		self.get_ta_states_gpu.prepare("PiiP")
+		self.get_hyperliterals_gpu = mod_clauses.get_function("get_hyperliterals")
+		self.get_hyperliterals_gpu.prepare("PiiP")
 
 	def _init_fit(self, graphs, encoded_Y, incremental):
 		if not self.initialized:
