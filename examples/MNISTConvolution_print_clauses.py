@@ -25,7 +25,7 @@ Y_test = Y_test.astype(np.uint32)
 
 def default_args(**kwargs):
 	parser = argparse.ArgumentParser()
-	parser.add_argument("--epochs", default=5, type=int)
+	parser.add_argument("--epochs", default=2, type=int)
 	parser.add_argument("--number-of-clauses", default=2500, type=int)
 	parser.add_argument("--T", default=3125, type=int)
 	parser.add_argument("--s", default=10.0, type=float)
@@ -35,7 +35,7 @@ def default_args(**kwargs):
 	parser.add_argument("--hypervector-bits", default=2, type=int)
 	parser.add_argument("--message-size", default=256, type=int)
 	parser.add_argument("--message-bits", default=2, type=int)
-	parser.add_argument("--double-hashing", dest="double_hashing", default=False, action="store_true")
+	parser.add_argument("--double-hashing", dest="double_hashing", default=True, action="store_true")
 	parser.add_argument("--max-included-literals", default=32, type=int)
 
 	args = parser.parse_args()
@@ -143,7 +143,9 @@ tm = MultiClassGraphTsetlinMachine(
 	message_size=args.message_size,
 	message_bits=args.message_bits,
 	max_included_literals=args.max_included_literals,
-	double_hashing=args.double_hashing,
+	double_hashing=False,
+	grid=(16 * 13, 1, 1),
+	block=(128, 1, 1),
 )
 
 for i in range(args.epochs):
@@ -192,8 +194,43 @@ weights = tm.get_state()[1].reshape(tm.number_of_outputs, tm.number_of_clauses)
 clause_literals = tm.get_clause_literals(graphs_train.hypervectors)
 num_symbols = len(graphs_train.symbol_id)
 
+
+def create_graph_sample(X):
+	graph_sample = Graphs(X.shape[0], init_with=graphs_train)
+	for graph_id in range(X.shape[0]):
+		graph_sample.set_number_of_graph_nodes(graph_id, number_of_nodes)
+
+	graph_sample.prepare_node_configuration()
+
+	for graph_id in range(X.shape[0]):
+		for node_id in range(graph_sample.number_of_graph_nodes[graph_id]):
+			graph_sample.add_graph_node(graph_id, node_id, 0)
+
+	graph_sample.prepare_edge_configuration()
+
+	for graph_id in range(X.shape[0]):
+		if graph_id % 1000 == 0:
+			print(graph_id, X.shape[0])
+
+		windows = view_as_windows(X[graph_id, :, :], (10, 10))
+		for q in range(windows.shape[0]):
+			for r in range(windows.shape[1]):
+				node_id = q * dim + r
+
+				patch = windows[q, r].reshape(-1).astype(np.uint32)
+				for k in patch.nonzero()[0]:
+					graph_sample.add_graph_node_property(graph_id, node_id, k)
+
+				graph_sample.add_graph_node_property(graph_id, node_id, "C:%d" % (q))
+				graph_sample.add_graph_node_property(graph_id, node_id, "R:%d" % (r))
+
+	graph_sample.encode()
+
+	return graph_sample
+
+
 # get output of each clause at each node
-clause_outputs, class_sums = tm.transform_nodewise(graphs_test)
+clause_outputs, class_sums = tm.transform_nodewise(create_graph_sample(X_test[:1]))
 
 # Lets consider example 0 of graph_test
 for e in [0]:

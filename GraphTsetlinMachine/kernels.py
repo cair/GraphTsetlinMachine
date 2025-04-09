@@ -1,4 +1,4 @@
-# Copyright (c) 2024 Ole-Christoffer Granmo
+# Copyright (c) 2025 Ole-Christoffer Granmo
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -406,6 +406,8 @@ code_evaluate = """
 
         __global__ void calculate_messages(
             unsigned int *global_ta_state,
+            int *node_type,
+            int number_of_node_types,
             int number_of_nodes,
             int graph_index,
             int *global_clause_node_output,
@@ -442,17 +444,21 @@ code_evaluate = """
                 for (int node_pos = 0; (node_pos < INT_SIZE) && ((node_chunk * INT_SIZE + node_pos) < number_of_nodes); ++node_pos) {
                     int node = node_chunk * INT_SIZE + node_pos;
 
-                    for (int la_chunk = 0; la_chunk < LA_CHUNKS-1; ++la_chunk) {
-                        if ((ta_state[la_chunk*STATE_BITS + STATE_BITS - 1] & X[node*LA_CHUNKS + la_chunk]) != ta_state[la_chunk*STATE_BITS + STATE_BITS - 1]) {
+                    if (node_type[graph_index + node] == (clause % number_of_node_types)) {
+                        for (int la_chunk = 0; la_chunk < LA_CHUNKS-1; ++la_chunk) {
+                            if ((ta_state[la_chunk*STATE_BITS + STATE_BITS - 1] & X[node*LA_CHUNKS + la_chunk]) != ta_state[la_chunk*STATE_BITS + STATE_BITS - 1]) {
+                                clause_node_output &= ~(1 << node_pos);
+                            }
+                        }
+
+                        if ((ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & X[node*LA_CHUNKS + LA_CHUNKS-1] & FILTER) != (ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & FILTER)) {
                             clause_node_output &= ~(1 << node_pos);
                         }
-                    }
-
-                    if ((ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & X[node*LA_CHUNKS + LA_CHUNKS-1] & FILTER) != (ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & FILTER)) {
-                        clause_node_output &= ~(1 << node_pos);
+                    } else {
+                        clause_node_output &= ~(1 << node_pos);   
                     }
                 }
-
+                
                 if (node_chunk == number_of_node_chunks - 1) {
                     global_clause_node_output[clause*NODE_CHUNKS + node_chunk] = clause_node_output & node_filter;
                 } else {
@@ -463,7 +469,10 @@ code_evaluate = """
 
         __global__ void calculate_messages_conditional(
             unsigned int *global_ta_state,
+            int *node_type,
+            int number_of_node_types,
             int number_of_nodes,
+            int graph_index,
             int *global_clause_node_output_condition,
             int *global_clause_node_output,
             int *number_of_include_actions,
@@ -497,13 +506,17 @@ code_evaluate = """
                 for (int node_pos = 0; (node_pos < INT_SIZE) && ((node_chunk * INT_SIZE + node_pos) < number_of_nodes); ++node_pos) {
                     int node = node_chunk * INT_SIZE + node_pos;
 
-                    for (int la_chunk = 0; la_chunk < MESSAGE_CHUNKS-1; ++la_chunk) {
-                        if ((ta_state[la_chunk*STATE_BITS + STATE_BITS - 1] & X[node*MESSAGE_CHUNKS + la_chunk]) != ta_state[la_chunk*STATE_BITS + STATE_BITS - 1]) {
+                    if (node_type[graph_index + node] == (clause % number_of_node_types)) {
+                        for (int la_chunk = 0; la_chunk < MESSAGE_CHUNKS-1; ++la_chunk) {
+                            if ((ta_state[la_chunk*STATE_BITS + STATE_BITS - 1] & X[node*MESSAGE_CHUNKS + la_chunk]) != ta_state[la_chunk*STATE_BITS + STATE_BITS - 1]) {
+                                clause_node_output &= ~(1 << node_pos);
+                            }
+                        }
+
+                        if ((ta_state[(MESSAGE_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & X[node*MESSAGE_CHUNKS + MESSAGE_CHUNKS-1] & MESSAGE_FILTER) != (ta_state[(MESSAGE_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & MESSAGE_FILTER)) {
                             clause_node_output &= ~(1 << node_pos);
                         }
-                    }
-
-                    if ((ta_state[(MESSAGE_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & X[node*MESSAGE_CHUNKS + MESSAGE_CHUNKS-1] & MESSAGE_FILTER) != (ta_state[(MESSAGE_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & MESSAGE_FILTER)) {
+                    } else {
                         clause_node_output &= ~(1 << node_pos);
                     }
                 }
@@ -514,17 +527,6 @@ code_evaluate = """
                     global_clause_node_output[clause*NODE_CHUNKS + node_chunk] = global_clause_node_output_condition[clause*NODE_CHUNKS + node_chunk] & clause_node_output;
                 }
             }
-        }
-
-        __device__ inline unsigned int murmur(unsigned int key, unsigned int h)
-        {        
-            for (int i = 0; i < 4; ++i) {
-                h ^= (key >> (8*i)) & 0xff;
-                h *= 0x5bd1e995;
-                h ^= h >> 15;
-            }
-    
-            return (h);
         }
 
         __global__ void prepare_messages(
@@ -547,7 +549,7 @@ code_evaluate = """
         __global__ void exchange_messages(
             int number_of_nodes,
             int *hypervectors,
-            int *global_clause_node_output,
+            unsigned int *global_clause_node_output,
             int node_index,
             int global_edge_index,
             int *number_of_graph_node_edges,
@@ -567,8 +569,8 @@ code_evaluate = """
 
                 int edge_index = global_edge_index;
                 for (int source_node = 0; source_node < number_of_nodes; ++source_node) {
-                    int source_node_chunk = source_node / INT_SIZE;
-                    int source_node_pos = source_node % INT_SIZE;
+                    unsigned int source_node_chunk = source_node / INT_SIZE;
+                    unsigned int source_node_pos = source_node % INT_SIZE;
                     
                     if ((global_clause_node_output[clause*NODE_CHUNKS + source_node_chunk] & (1 << source_node_pos)) > 0) { 
                         for (int i = 0; i < number_of_graph_node_edges[node_index + source_node]; ++i) {
@@ -688,20 +690,112 @@ code_transform = """
 		}
 	}
 
-	__global__ void transform_nodewise(int *global_clause_node_output, int number_of_nodes, int *transformed_X) {
+	__global__ void transform_nodewise(
+        unsigned int *global_clause_node_output,
+        int number_of_nodes, int *transformed_X
+    ) {
 		int index = blockIdx.x * blockDim.x + threadIdx.x;
 		int stride = blockDim.x * gridDim.x;
 
 		for (int clause = index; clause < CLAUSES; clause += stride) {
 			for (int n = 0; n < number_of_nodes; n++) {
-				int chunk_nr = n / INT_SIZE;
-				int chunk_pos = n % INT_SIZE;
+				unsigned int chunk_nr = n / INT_SIZE;
+				unsigned int chunk_pos = n % INT_SIZE;
 
 				transformed_X[clause * number_of_nodes + n] =
 					(global_clause_node_output[clause * NODE_CHUNKS + chunk_nr] & (1 << chunk_pos)) > 0;
 			}
 		}
 	}
+
 	}
+
+"""
+
+code_clauses = """
+extern "C" {
+
+__global__ void get_ta_states(unsigned int *ta_state, unsigned int chunks, unsigned int literals, unsigned int *out) {
+    // :param: global_ta_state
+    // Array of TAs for each literal.
+    //
+    // :param: chunks
+    // Number of chunks.
+    //
+    // :param: literals
+    // Number of literals.
+    //
+    // Shape:
+    // For Clauses:
+    //        (         CLAUSES,        LA_CHUNKS,           STATE_BITS)
+    //        (number of clauses, number of chunks, number of state bits)
+    // For Messages:
+    //        (         CLAUSES,            MESSAGE_CHUNKS,           STATE_BITS)
+    //        (number of clauses, number of message chunks, number of state bits)
+    //
+    //
+    // :param: out
+    // Output array to store the state values of each TA.
+    // Shape: (CLAUSES, literals)
+    int index = blockIdx.x * blockDim.x + threadIdx.x;
+    int stride = blockDim.x * gridDim.x;
+
+    for (int clause = index; clause < CLAUSES; clause += stride) {
+        unsigned int *local_ta_state = &ta_state[clause * chunks * STATE_BITS];
+
+        for (int literal = 0; literal < literals; ++literal) {
+            unsigned int state = 0;
+            int chunk_nr = literal / INT_SIZE;
+            int chunk_pos = literal % INT_SIZE;
+
+            for (int bit = 0; bit < STATE_BITS; ++bit)
+                if (local_ta_state[chunk_nr * STATE_BITS + bit] & (1 << chunk_pos)) state |= (1 << bit);
+
+            out[clause * literals + literal] = state;
+        }
+    }
+
+}
+
+
+__global__ void get_hyperliterals(unsigned int *ta_state, unsigned int chunks, unsigned int literals, unsigned int *out) {
+    // :param: global_ta_state
+    // Array of TAs for each literal.
+    //
+    // :param: chunks
+    // Number of chunks.
+    //
+    // :param: literals
+    // Number of literals.
+    //
+    // Shape:
+    // For Clauses:
+    //        (         CLAUSES,        LA_CHUNKS,           STATE_BITS)
+    //        (number of clauses, number of chunks, number of state bits)
+    // For Messages:
+    //        (         CLAUSES,            MESSAGE_CHUNKS,           STATE_BITS)
+    //        (number of clauses, number of message chunks, number of state bits)
+    //
+    //
+    // :param: out
+    // Output array to store the include/exclude action of each TA.
+    // Shape: (CLAUSES, literals)
+    int index = blockIdx.x * blockDim.x + threadIdx.x;
+    int stride = blockDim.x * gridDim.x;
+
+    for (int clause = index; clause < CLAUSES; clause += stride) {
+        unsigned int *local_ta_state = &ta_state[clause * chunks * STATE_BITS];
+
+        for (int literal = 0; literal < literals; ++literal) {
+            unsigned int state = 0;
+            int chunk_nr = literal / INT_SIZE;
+            int chunk_pos = literal % INT_SIZE;
+            out[clause * literals + literal] = (local_ta_state[chunk_nr * STATE_BITS + STATE_BITS - 1] & (1 << chunk_pos)) > 0;
+        }
+    }
+
+}
+
+}
 
 """

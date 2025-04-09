@@ -21,6 +21,9 @@
 # This code implements the Convolutional Tsetlin Machine from paper arXiv:1905.09688
 # https://arxiv.org/abs/1905.09688
 
+import pickle
+import sys
+
 import numpy as np
 
 import GraphTsetlinMachine.kernels as kernels
@@ -49,6 +52,7 @@ class CommonTsetlinMachine():
 			message_size=256,
 			message_bits=2,
 			double_hashing=False,
+			one_hot_encoding=False,
 			grid=(16*13*4,1,1),
 			block=(128,1,1)
 	):
@@ -74,6 +78,7 @@ class CommonTsetlinMachine():
 		self.message_literals = message_size*2
 
 		self.double_hashing = double_hashing
+		self.one_hot_encoding = one_hot_encoding
 
 		self.grid = grid
 		self.block = block
@@ -83,17 +88,21 @@ class CommonTsetlinMachine():
 		self.encoded_Y = np.array([])
 		
 		self.ta_state = np.array([])
-		self.message_ta_state = np.array([])
+		self.message_ta_state = [np.array([])] * (self.depth - 1)
 		self.clause_weights = np.array([])
 
-		if self.double_hashing:
+		if self.one_hot_encoding:
+			self.message_bits = 1
+			self.hypervectors = np.zeros((self.number_of_clauses, self.message_bits), dtype=np.uint32)
+			# Initialized when the number of edge types is known
+		elif self.double_hashing:
 			from sympy import prevprime
 			self.message_bits = 2
 			self.hypervectors = np.zeros((self.number_of_clauses, self.message_bits), dtype=np.uint32)
 			prime = prevprime(self.message_size)
 			for i in range(self.number_of_clauses):
 				self.hypervectors[i, 0] = i % (self.message_size)
-				self.hypervectors[i, 1] = (self.message_size) + prime - (i % prime)
+				self.hypervectors[i, 1] = prime - (i % prime)
 		else:
 			indexes = np.arange(self.message_size, dtype=np.uint32)
 			self.hypervectors = np.zeros((self.number_of_clauses, self.message_bits), dtype=np.uint32)
@@ -109,8 +118,8 @@ class CommonTsetlinMachine():
 		for depth in range(self.depth - 1):
 			self.message_ta_state_gpu.append(cuda.mem_alloc(self.number_of_clauses*self.number_of_message_chunks*self.number_of_state_bits*4))
 
-		self.clause_weights_gpu = cuda.mem_alloc(self.number_of_outputs*self.number_of_clauses*4)
-		self.clause_weights_dummy_gpu = cuda.mem_alloc(self.number_of_outputs*self.number_of_clauses*4)
+		self.clause_weights_gpu = cuda.mem_alloc(self.number_of_outputs * self.number_of_clauses * 4)
+		# self.clause_weights_dummy_gpu = cuda.mem_alloc(self.number_of_outputs * self.number_of_clauses * 4) # Never used
 
 		self.class_sum_gpu = cuda.mem_alloc(self.number_of_outputs*4)
 		self.clause_node_gpu = cuda.mem_alloc(int(self.number_of_clauses) * 4)
@@ -120,54 +129,90 @@ class CommonTsetlinMachine():
 
 	def ta_action(self, depth, clause, ta):
 		if depth == 0:
-			if np.array_equal(self.ta_state, np.array([])):
-				self.ta_state = np.empty(self.number_of_clauses*self.number_of_ta_chunks*self.number_of_state_bits, dtype=np.uint32)
-				cuda.memcpy_dtoh(self.ta_state, self.ta_state_gpu)
+			self.ta_state = np.empty(self.number_of_clauses*self.number_of_ta_chunks*self.number_of_state_bits, dtype=np.uint32)
+			cuda.memcpy_dtoh(self.ta_state, self.ta_state_gpu)
 			ta_state = self.ta_state.reshape((self.number_of_clauses, self.number_of_ta_chunks, self.number_of_state_bits))
 
 			return (ta_state[clause, ta // 32, self.number_of_state_bits-1] & (1 << (ta % 32))) > 0
 		else:
-			#if np.array_equal(self.message_ta_state, np.array([])):
-			self.message_ta_state = np.empty(self.number_of_clauses*self.number_of_message_chunks*self.number_of_state_bits, dtype=np.uint32)
-			cuda.memcpy_dtoh(self.message_ta_state, self.message_ta_state_gpu[depth-1])
-			message_ta_state = self.message_ta_state.reshape((self.number_of_clauses, self.number_of_message_chunks, self.number_of_state_bits))
+			self.message_ta_state[depth - 1] = np.empty(
+				self.number_of_clauses * self.number_of_message_chunks * self.number_of_state_bits, dtype=np.uint32
+			)
+			cuda.memcpy_dtoh(self.message_ta_state[depth - 1], self.message_ta_state_gpu[depth - 1])
+			message_ta_state_depth = self.message_ta_state[depth - 1].reshape(
+				(self.number_of_clauses, self.number_of_message_chunks, self.number_of_state_bits)
+			)
 
-			return (message_ta_state[clause, ta // 32, self.number_of_state_bits-1] & (1 << (ta % 32))) > 0
+			return (message_ta_state_depth[clause, ta // 32, self.number_of_state_bits - 1] & (1 << (ta % 32))) > 0
 
 	def get_hyperliterals(self, depth):
 		if depth == 0:
-			literals = np.array(
-				[
-					[self.ta_action(0, clause, ta) for ta in range(self.number_of_literals)]
-					for clause in range(self.number_of_clauses)
-				],
-				dtype=np.uint8,
+			literals_gpu = cuda.mem_alloc(self.number_of_clauses * self.number_of_literals * 4)
+			self.get_hyperliterals_gpu(
+				self.ta_state_gpu,
+				np.int32(self.number_of_ta_chunks),
+				np.int32(self.number_of_literals),
+				literals_gpu,
+				grid=self.grid,
+				block=self.block,
 			)
+			literals = np.empty(self.number_of_clauses * self.number_of_literals, dtype=np.uint32)
+			cuda.memcpy_dtoh(literals, literals_gpu)
+			literals = literals.reshape((self.number_of_clauses, self.number_of_literals))
 		else:
-			literals = np.array(
-				[
-					[self.ta_action(depth, clause, ta) for ta in range(self.number_of_message_literals)]
-					for clause in range(self.number_of_clauses)
-				],
-				dtype=np.uint8,
+			literals_gpu = cuda.mem_alloc(self.number_of_clauses * self.number_of_message_literals * 4)
+			self.get_hyperliterals_gpu(
+				self.message_ta_state_gpu[depth - 1],
+				np.int32(self.number_of_message_chunks),
+				np.int32(self.number_of_message_literals),
+				literals_gpu,
+				grid=self.grid,
+				block=self.block,
 			)
+			literals = np.empty(self.number_of_clauses * self.number_of_message_literals, dtype=np.uint32)
+			cuda.memcpy_dtoh(literals, literals_gpu)
+			literals = literals.reshape((self.number_of_clauses, self.number_of_message_literals))
 
 		return literals
 
-	def convert_hv_clause_to_literals(self, clause, symbol_hv):
-		hvc_positive = clause[: (self.number_of_literals // 2)]
-		hvc_negated = clause[(self.number_of_literals // 2) :]
-		literals = np.zeros((2 * symbol_hv.shape[0]))
-		for sym_id in range(symbol_hv.shape[0]):
-			sym_hv = symbol_hv[sym_id].ravel()
+	def get_ta_states(self, depth):
+		if depth == 0:
+			ta_states_gpu = cuda.mem_alloc(self.number_of_clauses * self.number_of_literals * 4)
+			self.get_ta_states_gpu(
+				self.ta_state_gpu,
+				np.int32(self.number_of_ta_chunks),
+				np.int32(self.number_of_literals),
+				ta_states_gpu,
+				grid=self.grid,
+				block=self.block,
+			)
+			cuda.Context.synchronize()
 
-			pos_match = (hvc_positive[sym_hv] == 1) & 1
-			neg_match = (hvc_negated[sym_hv] == 1) & 1
+			ta_states = np.empty(self.number_of_clauses * self.number_of_literals, dtype=np.uint32)
+			cuda.memcpy_dtoh(ta_states, ta_states_gpu)
 
-			literals[sym_id] = np.mean(pos_match)
-			literals[sym_id + (symbol_hv.shape[0])] = np.mean(neg_match)
+			return ta_states.reshape((self.number_of_clauses, self.number_of_literals))
+		else:
+			message_ta_states_gpu = cuda.mem_alloc(self.number_of_clauses * self.number_of_message_literals * 4)
+			self.get_ta_states_gpu(
+				self.message_ta_state_gpu[depth - 1],
+				np.int32(self.number_of_message_chunks),
+				np.int32(self.number_of_message_literals),
+				message_ta_states_gpu,
+				grid=self.grid,
+				block=self.block,
+			)
+			cuda.Context.synchronize()
 
-		return literals
+			message_ta_state = np.empty(self.number_of_clauses * self.number_of_message_literals, dtype=np.uint32)
+			cuda.memcpy_dtoh(message_ta_state, message_ta_states_gpu)
+			return message_ta_state.reshape((self.number_of_clauses, self.number_of_message_literals))
+
+	def get_weights(self):
+		if np.array_equal(self.clause_weights, np.array([])):
+			self.clause_weights = np.empty(self.number_of_outputs * self.number_of_clauses, dtype=np.int32)
+			cuda.memcpy_dtoh(self.clause_weights, self.clause_weights_gpu)
+		return self.clause_weights.reshape((self.number_of_outputs, self.number_of_clauses))
 
 	def get_clause_literals(self, symbol_hv):
 		"""
@@ -177,15 +222,24 @@ class CommonTsetlinMachine():
 			symbol_hv: Symbol hypervectors from graphs created for training (graphs.hypervectors)
 
 		:returns:
-			float NDArray of shape (number_of_clauses, number_of_symbols)
+			float NDArray of shape (number_of_clauses, 2 * number_of_symbols)
+			Indicating the presence of symbols in each clause. Each value is the number of symbol bits present in the clause.
 		"""
+		# Get clause literals in HV format
 		hv_clauses = self.get_hyperliterals(0)
 
-		# Must be float
+		# Must be float. Store the symbols present in each clause.
 		clause_literals = np.zeros((self.number_of_clauses, 2 * symbol_hv.shape[0]))
 
-		for clause in range(self.number_of_clauses):
-			clause_literals[clause] = self.convert_hv_clause_to_literals(hv_clauses[clause], symbol_hv)
+		# Expand symbol indices to actual hypervectors (in column format)
+		expanded_sym = np.zeros((self.number_of_literals // 2, symbol_hv.shape[0]), dtype=np.uint8)
+		for sym_id in range(symbol_hv.shape[0]):
+			sym_hv = symbol_hv[sym_id].ravel()
+			expanded_sym[sym_hv, sym_id] = 1
+
+		# Check if the symbols are present in the clause.
+		clause_literals[:, : symbol_hv.shape[0]] = hv_clauses[:, : (self.number_of_literals // 2)] @ expanded_sym
+		clause_literals[:, symbol_hv.shape[0] :] = hv_clauses[:, (self.number_of_literals // 2) :] @ expanded_sym
 
 		return clause_literals
 
@@ -194,34 +248,37 @@ class CommonTsetlinMachine():
 		Convert HV Message to clause indexes (considered as literals) and return them
 
 		:params:
-			depth: how deep do you want to go?
-			edge_types: How many types of edges did the input have?
+			depth: Should be greater than 0. For depth = 0, use get_clause_literals()
+			edge_types: Number of edge types in the input graphs. (len(graphs.edge_type_id))
 
 		:returns:
-			NDArray of shape (edge_types, number_of_clauses, 2 * number_of_clauses)
+			NDArray of shape (edge_types, number_of_clauses, 2 * number_of_clauses).
+			Indicating messages recieved over each edge type, at depth 'depth'. Each value is the number of symbol bits present in the message.
 		"""
 		assert depth > 0, f"Expected depth > 0, got {depth}. Depth <= 0 means surface, use get_clause_literals()"
 
-		hv_messages = self.get_hyperliterals(depth)
+		# Get message literals in HV format
+		hv_messages = self.get_hyperliterals(depth).astype(np.float32)
 
+		# Store message literals as symbols(in this case, clause indices)
 		message_literals = np.zeros((edge_types, self.number_of_clauses, 2 * self.number_of_clauses))
 
-		for clause in range(self.number_of_clauses):
-			hvc_positive = hv_messages[clause, : (self.number_of_message_literals // 2)]
-			hvc_negated = hv_messages[clause, (self.number_of_message_literals // 2) :]
-
+		for edge_type in range(edge_types):
+			# Expand symbol indices to actual hypervectors and shift based on edge type
+			expanded_sym = np.zeros((self.number_of_message_literals // 2, self.number_of_clauses))
 			for sym_id in range(self.number_of_clauses):
-				for edge_type in range(edge_types):
-					sym_hv = self.hypervectors[sym_id].ravel()
+				sym_hv = self.hypervectors[sym_id].ravel()
+				sym_hv = (sym_hv + edge_type) % self.message_size
+				expanded_sym[sym_hv, sym_id] = 1
 
-					# Shift the HV before matching
-					sym_hv = (sym_hv + edge_type) % self.message_size
-
-					pos_match = (hvc_positive[sym_hv] == 1) & 1
-					neg_match = (hvc_negated[sym_hv] == 1) & 1
-
-					message_literals[edge_type, clause, sym_id] = np.mean(pos_match)
-					message_literals[edge_type, clause, sym_id + (self.number_of_clauses)] = np.mean(neg_match)
+			# Check if the symbols are present in the message.
+			# Using numpy matrix multiplication for way faster computation compared to python loops.
+			message_literals[edge_type, :, : self.number_of_clauses] = (
+				hv_messages[:, : (self.number_of_message_literals // 2)] @ expanded_sym
+			)
+			message_literals[edge_type, :, self.number_of_clauses :] = (
+				hv_messages[:, (self.number_of_message_literals // 2) :] @ expanded_sym
+			)
 
 		return message_literals
 
@@ -256,7 +313,117 @@ class CommonTsetlinMachine():
 		self.ta_state = np.array([])
 		self.clause_weights = np.array([])
 
+	def save(self, fname=""):
+		# Copy data from GPU to CPU
+		if np.array_equal(self.ta_state, np.array([])):
+			self.ta_state = np.empty(
+				self.number_of_clauses * self.number_of_ta_chunks * self.number_of_state_bits, dtype=np.uint32
+			)
+			cuda.memcpy_dtoh(self.ta_state, self.ta_state_gpu)
+
+		for depth in range(self.depth - 1):
+			if np.array_equal(self.message_ta_state[depth], np.array([])):
+				self.message_ta_state[depth] = np.empty(
+					self.number_of_clauses * self.number_of_message_chunks * self.number_of_state_bits, dtype=np.uint32
+				)
+				cuda.memcpy_dtoh(self.message_ta_state[depth], self.message_ta_state_gpu[depth])
+
+		if np.array_equal(self.clause_weights, np.array([])):
+			self.clause_weights = np.empty(self.number_of_outputs * self.number_of_clauses, dtype=np.int32)
+			cuda.memcpy_dtoh(self.clause_weights, self.clause_weights_gpu)
+
+		state_dict = {
+			# State arrays
+			"ta_state": self.ta_state,
+			"message_ta_state": self.message_ta_state,
+			"clause_weights": self.clause_weights,
+			"hypervectors": self.hypervectors,
+			"number_of_outputs": self.number_of_outputs,
+			"number_of_literals": self.number_of_literals,
+			"number_of_message_literals": self.number_of_message_literals,
+			"min_y": self.min_y,
+			"max_y": self.max_y,
+			"negative_clauses": self.negative_clauses,  # Set in children classes, should be set in this class.
+			"max_number_of_graph_nodes": self.max_number_of_graph_nodes,
+			# Parameters
+			"number_of_clauses": self.number_of_clauses,
+			"T": self.T,
+			"s": self.s,
+			"q": self.q,
+			"max_included_literals": self.max_included_literals,
+			"boost_true_positive_feedback": self.boost_true_positive_feedback,
+			"number_of_state_bits": self.number_of_state_bits,
+			"depth": self.depth,
+			"message_size": self.message_size,
+			"message_bits": self.message_bits,
+			"double_hashing": self.double_hashing,
+			"one_hot_encoding": self.one_hot_encoding,
+		}
+
+		# Save to file
+		if len(fname) > 0:
+			print(f"Saving model to {fname}.")
+			with open(fname, "wb") as f:
+				pickle.dump(state_dict, f)
+
+		return state_dict
+
+	def load(self, state_dict={}, fname=""):
+		if len(fname) == 0 and len(state_dict) == 0:
+			print("Error: No file or state_dict provided. Pass either a file name or a state_dict.")
+			return
+
+		# Load from file
+		if len(fname) > 0:
+			print(f"Loading model from {fname}.")
+			with open(fname, "rb") as f:
+				state_dict = pickle.load(f)
+
+		# Load arrays state_dict
+		self.ta_state = state_dict["ta_state"]
+		self.message_ta_state = state_dict["message_ta_state"]
+		self.clause_weights = state_dict["clause_weights"]
+		self.hypervectors = state_dict["hypervectors"]
+		self.number_of_outputs = state_dict["number_of_outputs"]
+		self.number_of_literals = state_dict["number_of_literals"]
+		self.number_of_message_literals = state_dict["number_of_message_literals"]
+		self.min_y = state_dict["min_y"]
+		self.max_y = state_dict["max_y"]
+		self.negative_clauses = state_dict["negative_clauses"]
+		self.max_number_of_graph_nodes = state_dict["max_number_of_graph_nodes"]
+
+		# Message size can change if one-hot encoding is used (when merged)
+		self.message_size = state_dict["message_size"]
+
+		# Initialize variables required in the _init() function
+		self.number_of_features = self.number_of_literals // 2
+		self.number_of_ta_chunks = int((self.number_of_literals - 1) // 32 + 1)
+
+		self.number_of_message_features = self.number_of_message_literals // 2
+		self.number_of_message_chunks = int((self.number_of_message_literals - 1) // 32 + 1)
+
+		if self.max_included_literals is None:
+			self.max_included_literals = self.number_of_literals
+
+		# Initialize the gpu kernels and allocate gpu memory
+		self._init_gpu_kernels()
+		self.allocate_gpu_memory()
+
+		# Copy states and weights to GPU
+		cuda.memcpy_htod(self.ta_state_gpu, self.ta_state)
+		for depth in range(self.depth - 1):
+			cuda.memcpy_htod(self.message_ta_state_gpu[depth], self.message_ta_state[depth])
+		cuda.memcpy_htod(self.clause_weights_gpu, self.clause_weights)
+
+		# Now we are initialized
+		self.initialized = True
+
 	def _init(self, graphs):
+		if self.one_hot_encoding:
+			self.message_size = self.number_of_clauses * max(1, len(graphs.edge_type_id))
+			for i in range(self.number_of_clauses):
+				self.hypervectors[i, 0] = i * len(graphs.edge_type_id)
+
 		self.number_of_features = graphs.hypervector_size
 		self.number_of_literals = self.number_of_features*2
 		self.number_of_ta_chunks = int((self.number_of_literals-1)//32 + 1)
@@ -268,6 +435,13 @@ class CommonTsetlinMachine():
 		if self.max_included_literals == None:
 			self.max_included_literals = self.number_of_literals
 
+		self.max_number_of_graph_nodes = graphs.max_number_of_graph_nodes
+
+		self._init_gpu_kernels()
+		self.allocate_gpu_memory()
+		self.initialized = True
+
+	def _init_gpu_kernels(self):
 		parameters = """
 #define CLASSES %d
 #define CLAUSES %d
@@ -281,14 +455,24 @@ class CommonTsetlinMachine():
 #define MAX_NODES %d
 #define MESSAGE_SIZE %d
 #define MESSAGE_BITS %d
-""" % (self.number_of_outputs, self.number_of_clauses, self.number_of_literals, self.number_of_state_bits, self.boost_true_positive_feedback, self.T, self.q, self.max_included_literals, self.negative_clauses, graphs.max_number_of_graph_nodes, self.message_size, self.message_bits)
+""" % (
+			self.number_of_outputs,
+			self.number_of_clauses,
+			self.number_of_literals,
+			self.number_of_state_bits,
+			self.boost_true_positive_feedback,
+			self.T,
+			self.q,
+			self.max_included_literals,
+			self.negative_clauses,
+			self.max_number_of_graph_nodes,
+			self.message_size,
+			self.message_bits,
+		)
 
 		mod_prepare = SourceModule(parameters + kernels.code_header + kernels.code_prepare, no_extern_c=True)
 		self.prepare = mod_prepare.get_function("prepare")
-
 		self.prepare_message_ta_state = mod_prepare.get_function("prepare_message_ta_state")
-
-		self.allocate_gpu_memory()
 
 		mod_update = SourceModule(parameters + kernels.code_header + kernels.code_update, no_extern_c=True)
 		self.update = mod_update.get_function("update")
@@ -308,10 +492,10 @@ class CommonTsetlinMachine():
 		self.select_clause_updates.prepare("PPPPiPP")
 
 		self.calculate_messages = mod_evaluate.get_function("calculate_messages")
-		self.calculate_messages.prepare("PiiPPP")
+		self.calculate_messages.prepare("PPiiiPPP")
 
 		self.calculate_messages_conditional = mod_evaluate.get_function("calculate_messages_conditional")
-		self.calculate_messages_conditional.prepare("PiPPPP")
+		self.calculate_messages_conditional.prepare("PPiiiPPPP")
 
 		self.prepare_messages = mod_evaluate.get_function("prepare_messages")
 		self.prepare_messages.prepare("iP")
@@ -329,7 +513,11 @@ class CommonTsetlinMachine():
 		self.transform_nodewise_gpu = mod_transform.get_function("transform_nodewise")
 		self.transform_nodewise_gpu.prepare("PiP")
 
-		self.initialized = True
+		mod_clauses = SourceModule(parameters + kernels.code_header + kernels.code_clauses, no_extern_c=True)
+		self.get_ta_states_gpu = mod_clauses.get_function("get_ta_states")
+		self.get_ta_states_gpu.prepare("PiiP")
+		self.get_hyperliterals_gpu = mod_clauses.get_function("get_hyperliterals")
+		self.get_hyperliterals_gpu.prepare("PiiP")
 
 	def _init_fit(self, graphs, encoded_Y, incremental):
 		if not self.initialized:
@@ -359,6 +547,9 @@ class CommonTsetlinMachine():
 			for depth in range(self.depth-1):
 				self.clause_X_train_gpu.append(cuda.mem_alloc(int(graphs.max_number_of_graph_nodes * self.number_of_message_chunks) * 4))
 
+			self.node_type_train_gpu = cuda.mem_alloc(graphs.node_type.nbytes)
+			cuda.memcpy_htod(self.node_type_train_gpu, graphs.node_type)
+
 			self.number_of_graph_node_edges_train_gpu = cuda.mem_alloc(graphs.number_of_graph_node_edges.nbytes)
 			cuda.memcpy_htod(self.number_of_graph_node_edges_train_gpu, graphs.number_of_graph_node_edges)
 
@@ -384,6 +575,7 @@ class CommonTsetlinMachine():
 			edge_index,
 			current_clause_node_output,
 			next_clause_node_output,
+			node_type,
 			number_of_graph_node_edges,
 			edge,
 			clause_X_int,
@@ -398,6 +590,8 @@ class CommonTsetlinMachine():
 			self.grid,
 			self.block,
 			self.ta_state_gpu,
+			node_type,
+			np.int32(graphs.number_of_node_types()),
 			np.int32(number_of_graph_nodes),
 			np.int32(node_index),
 			current_clause_node_output,
@@ -447,7 +641,10 @@ class CommonTsetlinMachine():
 				self.grid,
 				self.block,
 				self.message_ta_state_gpu[depth],
-				number_of_graph_nodes,
+				node_type,
+				np.int32(graphs.number_of_node_types()),
+				np.int32(number_of_graph_nodes),
+				np.int32(node_index),
 				current_clause_node_output,
 				next_clause_node_output,
 				self.number_of_include_actions,
@@ -489,6 +686,7 @@ class CommonTsetlinMachine():
 					np.int32(graphs.edge_index[graphs.node_index[e]]),
 					self.current_clause_node_output_train_gpu,
 					self.next_clause_node_output_train_gpu,
+					self.node_type_train_gpu,
 					self.number_of_graph_node_edges_train_gpu,
 					self.edge_train_gpu,
 					self.clause_X_int_train_gpu,
@@ -580,6 +778,9 @@ class CommonTsetlinMachine():
 			for depth in range(self.depth-1):
 				self.clause_X_test_gpu.append(cuda.mem_alloc(int(graphs.max_number_of_graph_nodes * self.number_of_message_chunks) * 4))
 
+			self.node_type_test_gpu = cuda.mem_alloc(graphs.node_type.nbytes)
+			cuda.memcpy_htod(self.node_type_test_gpu, graphs.node_type)
+
 			self.number_of_graph_node_edges_test_gpu = cuda.mem_alloc(graphs.number_of_graph_node_edges.nbytes)
 			cuda.memcpy_htod(self.number_of_graph_node_edges_test_gpu, graphs.number_of_graph_node_edges)
 
@@ -605,6 +806,7 @@ class CommonTsetlinMachine():
 				np.int32(graphs.edge_index[graphs.node_index[e]]),
 				self.current_clause_node_output_test_gpu,
 				self.next_clause_node_output_test_gpu,
+				self.node_type_test_gpu,
 				self.number_of_graph_node_edges_test_gpu,
 				self.edge_test_gpu,
 				self.clause_X_int_test_gpu,
@@ -633,6 +835,7 @@ class CommonTsetlinMachine():
 				np.int32(graphs.edge_index[graphs.node_index[e]]),
 				self.current_clause_node_output_test_gpu,
 				self.next_clause_node_output_test_gpu,
+				self.node_type_test_gpu,
 				self.number_of_graph_node_edges_test_gpu,
 				self.edge_test_gpu,
 				self.clause_X_int_test_gpu,
@@ -659,7 +862,7 @@ class CommonTsetlinMachine():
 
 		class_sum = np.zeros((graphs.number_of_graphs, self.number_of_outputs), dtype=np.int32)
 		transformed_X = np.zeros(
-			(graphs.number_of_graphs, self.number_of_clauses * np.max(graphs.number_of_graph_nodes)), dtype=np.int32
+			(graphs.number_of_graphs, self.number_of_clauses, np.max(graphs.number_of_graph_nodes)), dtype=np.int32
 		)
 		for e in range(graphs.number_of_graphs):
 			cuda.memcpy_htod(self.class_sum_gpu, class_sum[e, :])
@@ -673,6 +876,7 @@ class CommonTsetlinMachine():
 				np.int32(graphs.edge_index[graphs.node_index[e]]),
 				self.current_clause_node_output_test_gpu,
 				self.next_clause_node_output_test_gpu,
+				self.node_type_test_gpu,
 				self.number_of_graph_node_edges_test_gpu,
 				self.edge_test_gpu,
 				self.clause_X_int_test_gpu,
@@ -690,9 +894,13 @@ class CommonTsetlinMachine():
 				np.int32(graphs.number_of_graph_nodes[e]),
 				transformed_X_sample_gpu,
 			)
+			t = np.zeros((self.number_of_clauses * graphs.number_of_graph_nodes[e]), dtype=np.uint32)
+			cuda.memcpy_dtoh(t, transformed_X_sample_gpu)
+			transformed_X[e, :, : graphs.number_of_graph_nodes[e]] = t.reshape(
+				(self.number_of_clauses, graphs.number_of_graph_nodes[e])
+			)
 
 			cuda.memcpy_dtoh(class_sum[e, :], self.class_sum_gpu)
-			cuda.memcpy_dtoh(transformed_X[e, :], transformed_X_sample_gpu)
 
 		return transformed_X.reshape(
 			(graphs.number_of_graphs, self.number_of_clauses, np.max(graphs.number_of_graph_nodes))
@@ -717,6 +925,7 @@ class MultiClassGraphTsetlinMachine(CommonTsetlinMachine):
 			message_size=256,
 			message_bits=2,
 			double_hashing=False,
+			one_hot_encoding=False,
 			grid=(16*13*4,1,1),
 			block=(128,1,1)
 	):
@@ -732,6 +941,7 @@ class MultiClassGraphTsetlinMachine(CommonTsetlinMachine):
 			message_size=message_size,
 			message_bits=message_bits,
 			double_hashing=double_hashing,
+			one_hot_encoding=one_hot_encoding,
 			grid=grid,
 			block=block
 		)
@@ -773,6 +983,7 @@ class MultiOutputGraphTsetlinMachine(CommonTsetlinMachine):
 		message_size=256,
 		message_bits=2,
 		double_hashing=False,
+		one_hot_encoding=False,
 		grid=(16*13*4, 1, 1),
 		block=(128, 1, 1),
 	):
@@ -788,6 +999,7 @@ class MultiOutputGraphTsetlinMachine(CommonTsetlinMachine):
 			message_size=message_size,
 			message_bits=message_bits,
 			double_hashing=double_hashing,
+			one_hot_encoding=one_hot_encoding,
 			grid=grid,
 			block=block
 		)
@@ -825,6 +1037,7 @@ class GraphTsetlinMachine(CommonTsetlinMachine):
 			message_size=256,
 			message_bits=2,
 			double_hashing=False,
+			one_hot_encoding=False,
 			grid=(16*13*4,1,1),
 			block=(128,1,1)
 	):
@@ -840,6 +1053,7 @@ class GraphTsetlinMachine(CommonTsetlinMachine):
 			message_size=message_size,
 			message_bits=message_bits,
 			double_hashing=double_hashing,
+			one_hot_encoding=one_hot_encoding,
 			grid=grid,
 			block=block
 		)

@@ -5,28 +5,47 @@ from GraphTsetlinMachine.tm import MultiClassGraphTsetlinMachine
 from time import time
 import argparse
 from skimage.util import view_as_windows
-from keras.datasets import mnist
 from numba import jit
+from keras.datasets import cifar10
+import cv2
 
-(X_train, Y_train), (X_test, Y_test) = mnist.load_data()
+(X_train, Y_train), (X_test, Y_test) = cifar10.load_data()
 
-X_train = np.where(X_train > 75, 1, 0)
-X_test = np.where(X_test > 75, 1, 0)
+X_train = X_train
+Y_train = Y_train
+
+X_test = X_test
+Y_test = Y_test
+
+Y_train = Y_train.reshape(Y_train.shape[0])
+Y_test = Y_test.reshape(Y_test.shape[0])
+
+for i in range(X_train.shape[0]):
+        for j in range(X_train.shape[3]):
+                X_train[i,:,:,j] = cv2.adaptiveThreshold(X_train[i,:,:,j], 1, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2) #cv2.adaptiveThreshold(X_train[i,:,:,j], 1, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 5, 5)
+
+for i in range(X_test.shape[0]):
+        for j in range(X_test.shape[3]):
+                X_test[i,:,:,j] = cv2.adaptiveThreshold(X_test[i,:,:,j], 1, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)#cv2.adaptiveThreshold(X_test[i,:,:,j], 1, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 5, 5)
+
+X_train = X_train.astype(np.uint32)
+X_test = X_test.astype(np.uint32)
 Y_train = Y_train.astype(np.uint32)
 Y_test = Y_test.astype(np.uint32)
 
 def default_args(**kwargs):
     parser = argparse.ArgumentParser()
     parser.add_argument("--epochs", default=250, type=int)
-    parser.add_argument("--number-of-clauses", default=20000, type=int)
-    parser.add_argument("--T", default=25000, type=int)
-    parser.add_argument("--s", default=10.0, type=float)
+    parser.add_argument("--number-of-clauses", default=40000, type=int)
+    parser.add_argument("--T", default=7500, type=int)
+    parser.add_argument("--s", default=20.0, type=float)
     parser.add_argument("--number-of-state-bits", default=8, type=int)
     parser.add_argument("--depth", default=1, type=int)
     parser.add_argument("--hypervector-size", default=128, type=int)
     parser.add_argument("--hypervector-bits", default=2, type=int)
     parser.add_argument("--message-size", default=256, type=int)
     parser.add_argument("--message-bits", default=2, type=int)
+    parser.add_argument("--patch_size", default=8, type=int)
     parser.add_argument('--double-hashing', dest='double_hashing', default=False, action='store_true')
     parser.add_argument('--one-hot-encoding', dest='one_hot_encoding', default=False, action='store_true')
     parser.add_argument("--max-included-literals", default=32, type=int)
@@ -39,8 +58,7 @@ def default_args(**kwargs):
 
 args = default_args()
 
-patch_size = 10
-dim = 28 - patch_size + 1
+dim = 32 - args.patch_size + 1
 
 number_of_nodes = dim * dim
 
@@ -52,7 +70,7 @@ for i in range(dim):
     symbols.append("R:%d" % (i))
 
 # Patch pixel symbols
-for i in range(patch_size*patch_size):
+for i in range(args.patch_size*args.patch_size*3):
     symbols.append(i)
 
 graphs_train = Graphs(
@@ -63,55 +81,74 @@ graphs_train = Graphs(
     double_hashing = args.double_hashing,
     one_hot_encoding = args.one_hot_encoding
 )
+
 for graph_id in range(X_train.shape[0]):
     graphs_train.set_number_of_graph_nodes(graph_id, number_of_nodes)
+
 graphs_train.prepare_node_configuration()
+
 for graph_id in range(X_train.shape[0]):
     for node_id in range(graphs_train.number_of_graph_nodes[graph_id]):
         graphs_train.add_graph_node(graph_id, node_id, 0)
+
 graphs_train.prepare_edge_configuration()
+
 for graph_id in range(X_train.shape[0]):
     if graph_id % 1000 == 0:
         print(graph_id, X_train.shape[0])
      
-    windows = view_as_windows(X_train[graph_id,:,:], (patch_size, patch_size))
+    windows = view_as_windows(X_train[graph_id,:,:,:], (args.patch_size, args.patch_size, 3))
     for q in range(windows.shape[0]):
             for r in range(windows.shape[1]):
                 node_id = q*dim + r
 
-                patch = windows[q,r].reshape(-1).astype(np.uint32)
+                patch = windows[q,r,0].reshape(-1).astype(np.uint32)
                 for k in patch.nonzero()[0]:
                     graphs_train.add_graph_node_property(graph_id, node_id, k)
 
-                graphs_train.add_graph_node_property(graph_id, node_id, "C:%d" % (q))
-                graphs_train.add_graph_node_property(graph_id, node_id, "R:%d" % (r))
+                for s in range(q+1):
+                    graphs_train.add_graph_node_property(graph_id, node_id, "C:%d" % (s))
+
+                for s in range(r+1):
+                    graphs_train.add_graph_node_property(graph_id, node_id, "R:%d" % (s))
+
 graphs_train.encode()
+
 print("Training data produced")
 
 graphs_test = Graphs(X_test.shape[0], init_with=graphs_train)
 for graph_id in range(X_test.shape[0]):
     graphs_test.set_number_of_graph_nodes(graph_id, number_of_nodes)
+
 graphs_test.prepare_node_configuration()
+
 for graph_id in range(X_test.shape[0]):
     for node_id in range(graphs_test.number_of_graph_nodes[graph_id]):
         graphs_test.add_graph_node(graph_id, node_id, 0)
+
 graphs_test.prepare_edge_configuration()
+
 for graph_id in range(X_test.shape[0]):
     if graph_id % 1000 == 0:
         print(graph_id, X_test.shape[0])
      
-    windows = view_as_windows(X_test[graph_id,:,:], (10, 10))
+    windows = view_as_windows(X_test[graph_id,:,:], (args.patch_size, args.patch_size, 3))
     for q in range(windows.shape[0]):
             for r in range(windows.shape[1]):
                 node_id = q*dim + r
 
-                patch = windows[q,r].reshape(-1).astype(np.uint32)
+                patch = windows[q,r,0].reshape(-1).astype(np.uint32)
                 for k in patch.nonzero()[0]:
                     graphs_test.add_graph_node_property(graph_id, node_id, k)
 
-                graphs_test.add_graph_node_property(graph_id, node_id, "C:%d" % (q))
-                graphs_test.add_graph_node_property(graph_id, node_id, "R:%d" % (r))
+                for s in range(q+1):
+                    graphs_test.add_graph_node_property(graph_id, node_id, "C:%d" % (s))
+
+                for s in range(r+1):
+                    graphs_test.add_graph_node_property(graph_id, node_id, "R:%d" % (s))
+
 graphs_test.encode()
+
 print("Testing data produced")
 
 tm = MultiClassGraphTsetlinMachine(
