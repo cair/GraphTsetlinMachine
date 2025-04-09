@@ -1,4 +1,4 @@
-# Copyright (c) 2024 Ole-Christoffer Granmo
+# Copyright (c) 2025 Ole-Christoffer Granmo
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -42,6 +42,7 @@ class CommonTsetlinMachine():
 	def __init__(
 			self,
 			number_of_clauses,
+			number_of_blocks,
 			T,
 			s,
 			q=1.0,
@@ -61,6 +62,9 @@ class CommonTsetlinMachine():
 		self.number_of_clauses = number_of_clauses
 		self.number_of_clause_chunks = (number_of_clauses-1)//32 + 1
 		self.T = int(T)
+
+		self.number_of_blocks = number_of_blocks
+		self.number_of_block_chunks = (number_of_blocks-1)//32 + 1
 
 		self.depth = depth
 		if type(s) != tuple:
@@ -89,24 +93,24 @@ class CommonTsetlinMachine():
 		
 		self.ta_state = np.array([])
 		self.message_ta_state = [np.array([])] * (self.depth - 1)
-		self.clause_weights = np.array([])
+		self.block_weights = np.array([])
 
 		if self.one_hot_encoding:
 			self.message_bits = 1
-			self.hypervectors = np.zeros((self.number_of_clauses, self.message_bits), dtype=np.uint32)
+			self.hypervectors = np.zeros((self.number_of_blocks, self.message_bits), dtype=np.uint32)
 			# Initialized when the number of edge types is known
 		elif self.double_hashing:
 			from sympy import prevprime
 			self.message_bits = 2
-			self.hypervectors = np.zeros((self.number_of_clauses, self.message_bits), dtype=np.uint32)
+			self.hypervectors = np.zeros((self.number_of_blocks, self.message_bits), dtype=np.uint32)
 			prime = prevprime(self.message_size)
-			for i in range(self.number_of_clauses):
+			for i in range(self.number_of_blocks):
 				self.hypervectors[i, 0] = i % (self.message_size)
 				self.hypervectors[i, 1] = prime - (i % prime)
 		else:
 			indexes = np.arange(self.message_size, dtype=np.uint32)
-			self.hypervectors = np.zeros((self.number_of_clauses, self.message_bits), dtype=np.uint32)
-			for i in range(self.number_of_clauses):
+			self.hypervectors = np.zeros((self.number_of_blocks, self.message_bits), dtype=np.uint32)
+			for i in range(self.number_of_blocks):
 				self.hypervectors[i,:] = np.random.choice(indexes, size=(self.message_bits), replace=False)
 
 		self.initialized = False
@@ -118,8 +122,7 @@ class CommonTsetlinMachine():
 		for depth in range(self.depth - 1):
 			self.message_ta_state_gpu.append(cuda.mem_alloc(self.number_of_clauses*self.number_of_message_chunks*self.number_of_state_bits*4))
 
-		self.clause_weights_gpu = cuda.mem_alloc(self.number_of_outputs * self.number_of_clauses * 4)
-		# self.clause_weights_dummy_gpu = cuda.mem_alloc(self.number_of_outputs * self.number_of_clauses * 4) # Never used
+		self.block_weights_gpu = cuda.mem_alloc(self.number_of_outputs * self.number_of_blocks * 4)
 
 		self.class_sum_gpu = cuda.mem_alloc(self.number_of_outputs*4)
 		self.clause_node_gpu = cuda.mem_alloc(int(self.number_of_clauses) * 4)
@@ -209,10 +212,9 @@ class CommonTsetlinMachine():
 			return message_ta_state.reshape((self.number_of_clauses, self.number_of_message_literals))
 
 	def get_weights(self):
-		if np.array_equal(self.clause_weights, np.array([])):
-			self.clause_weights = np.empty(self.number_of_outputs * self.number_of_clauses, dtype=np.int32)
-			cuda.memcpy_dtoh(self.clause_weights, self.clause_weights_gpu)
-		return self.clause_weights.reshape((self.number_of_outputs, self.number_of_clauses))
+		self.block_weights = np.empty(self.number_of_outputs * self.number_of_blocks, dtype=np.int32)
+		cuda.memcpy_dtoh(self.block_weights, self.block_weights_gpu)
+		return self.block_weights.reshape((self.number_of_outputs, self.number_of_blocks))
 
 	def get_clause_literals(self, symbol_hv):
 		"""
@@ -283,12 +285,11 @@ class CommonTsetlinMachine():
 		return message_literals
 
 	def get_state(self):
-		if np.array_equal(self.clause_weights, np.array([])):
-			self.ta_state = np.empty(self.number_of_clauses*self.number_of_ta_chunks*self.number_of_state_bits, dtype=np.uint32)
-			cuda.memcpy_dtoh(self.ta_state, self.ta_state_gpu)
-			self.clause_weights = np.empty(self.number_of_outputs*self.number_of_clauses, dtype=np.int32)
-			cuda.memcpy_dtoh(self.clause_weights, self.clause_weights_gpu)
-		return((self.ta_state, self.clause_weights, self.number_of_outputs, self.number_of_clauses, self.number_of_literals, self.depth, self.number_of_state_bits, self.number_of_ta_chunks, self.min_y, self.max_y))
+		self.ta_state = np.empty(self.number_of_clauses*self.number_of_ta_chunks*self.number_of_state_bits, dtype=np.uint32)
+		cuda.memcpy_dtoh(self.ta_state, self.ta_state_gpu)
+		self.block_weights = np.empty(self.number_of_outputs*self.number_of_blocks, dtype=np.int32)
+		cuda.memcpy_dtoh(self.block_weights, self.block_weights_gpu)
+		return((self.ta_state, self.block_weights, self.number_of_outputs, self.number_of_clauses, self.number_of_literals, self.depth, self.number_of_state_bits, self.number_of_ta_chunks, self.min_y, self.max_y))
 
 	def set_state(self, state):
 		self.number_of_outputs = state[2]
@@ -301,9 +302,9 @@ class CommonTsetlinMachine():
 		self.max_y = state[9]
 		
 		self.ta_state_gpu = cuda.mem_alloc(self.depth*self.number_of_clauses*self.number_of_ta_chunks*self.number_of_state_bits*4)
-		self.clause_weights_gpu = cuda.mem_alloc(self.number_of_outputs*self.number_of_clauses*4)
+		self.block_weights_gpu = cuda.mem_alloc(self.number_of_outputs*self.number_of_clauses*4)
 		cuda.memcpy_htod(self.ta_state_gpu, state[0])
-		cuda.memcpy_htod(self.clause_weights_gpu, state[1])
+		cuda.memcpy_htod(self.block_weights_gpu, state[1])
 
 		self.graphs_signature_train = np.array([])
 		self.graphs_signature_test = np.array([])
@@ -311,7 +312,7 @@ class CommonTsetlinMachine():
 		self.encoded_Y = np.array([])
 
 		self.ta_state = np.array([])
-		self.clause_weights = np.array([])
+		self.block_weights = np.array([])
 
 	def save(self, fname=""):
 		# Copy data from GPU to CPU
@@ -328,15 +329,15 @@ class CommonTsetlinMachine():
 				)
 				cuda.memcpy_dtoh(self.message_ta_state[depth], self.message_ta_state_gpu[depth])
 
-		if np.array_equal(self.clause_weights, np.array([])):
-			self.clause_weights = np.empty(self.number_of_outputs * self.number_of_clauses, dtype=np.int32)
-			cuda.memcpy_dtoh(self.clause_weights, self.clause_weights_gpu)
+		if np.array_equal(self.block_weights, np.array([])):
+			self.block_weights = np.empty(self.number_of_outputs * self.number_of_clauses, dtype=np.int32)
+			cuda.memcpy_dtoh(self.block_weights, self.block_weights_gpu)
 
 		state_dict = {
 			# State arrays
 			"ta_state": self.ta_state,
 			"message_ta_state": self.message_ta_state,
-			"clause_weights": self.clause_weights,
+			"block_weights": self.block_weights,
 			"hypervectors": self.hypervectors,
 			"number_of_outputs": self.number_of_outputs,
 			"number_of_literals": self.number_of_literals,
@@ -382,7 +383,7 @@ class CommonTsetlinMachine():
 		# Load arrays state_dict
 		self.ta_state = state_dict["ta_state"]
 		self.message_ta_state = state_dict["message_ta_state"]
-		self.clause_weights = state_dict["clause_weights"]
+		self.block_weights = state_dict["block_weights"]
 		self.hypervectors = state_dict["hypervectors"]
 		self.number_of_outputs = state_dict["number_of_outputs"]
 		self.number_of_literals = state_dict["number_of_literals"]
@@ -413,7 +414,7 @@ class CommonTsetlinMachine():
 		cuda.memcpy_htod(self.ta_state_gpu, self.ta_state)
 		for depth in range(self.depth - 1):
 			cuda.memcpy_htod(self.message_ta_state_gpu[depth], self.message_ta_state[depth])
-		cuda.memcpy_htod(self.clause_weights_gpu, self.clause_weights)
+		cuda.memcpy_htod(self.block_weights_gpu, self.block_weights)
 
 		# Now we are initialized
 		self.initialized = True
@@ -522,14 +523,14 @@ class CommonTsetlinMachine():
 	def _init_fit(self, graphs, encoded_Y, incremental):
 		if not self.initialized:
 			self._init(graphs)
-			self.prepare(g.state, self.ta_state_gpu, self.clause_weights_gpu, self.class_sum_gpu, grid=self.grid, block=self.block)
+			self.prepare(g.state, self.ta_state_gpu, self.block_weights_gpu, self.class_sum_gpu, grid=self.grid, block=self.block)
 
 			for depth in range(self.depth-1):
 				self.prepare_message_ta_state(self.message_ta_state_gpu[depth], grid=self.grid, block=self.block)
 
 			cuda.Context.synchronize()
 		elif incremental == False:
-			self.prepare(g.state, self.ta_state_gpu, self.clause_weights_gpu, self.class_sum_gpu, grid=self.grid, block=self.block)
+			self.prepare(g.state, self.ta_state_gpu, self.block_weights_gpu, self.class_sum_gpu, grid=self.grid, block=self.block)
 			cuda.Context.synchronize()
 
 		if not np.array_equal(self.graphs_signature_train, graphs.signature):
@@ -660,7 +661,7 @@ class CommonTsetlinMachine():
 			self.grid,
 			self.block,
 			current_clause_node_output,
-			self.clause_weights_gpu,
+			self.block_weights_gpu,
 			number_of_graph_nodes,
 			self.class_sum_gpu
 		)
@@ -712,7 +713,7 @@ class CommonTsetlinMachine():
 					self.grid,
 					self.block,
 					g.state,
-					self.clause_weights_gpu,
+					self.block_weights_gpu,
 					self.class_sum_gpu,
 					self.encoded_Y_gpu,
 					np.int32(e),
@@ -752,9 +753,6 @@ class CommonTsetlinMachine():
 						self.class_clause_update_gpu
 					)
 					cuda.Context.synchronize()
-
-		self.ta_state = np.array([])
-		self.clause_weights = np.array([])
 		
 		return
 
