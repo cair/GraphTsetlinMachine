@@ -42,9 +42,9 @@ class CommonTsetlinMachine():
 	def __init__(
 			self,
 			number_of_clauses,
-			number_of_blocks,
 			T,
 			s,
+			number_of_blocks=None,
 			q=1.0,
 			max_included_literals=None,
 			boost_true_positive_feedback=1,
@@ -63,7 +63,11 @@ class CommonTsetlinMachine():
 		self.number_of_clause_chunks = (number_of_clauses-1)//32 + 1
 		self.T = int(T)
 
-		self.number_of_blocks = number_of_blocks
+		if number_of_blocks == None:
+			self.number_of_blocks = number_of_clauses
+		else:
+			self.number_of_blocks = number_of_blocks
+
 		self.number_of_block_chunks = (number_of_blocks-1)//32 + 1
 
 		self.depth = depth
@@ -917,6 +921,7 @@ class MultiClassGraphTsetlinMachine(CommonTsetlinMachine):
 			number_of_clauses,
 			T,
 			s,
+			number_of_blocks=None,
 			q=1.0,
 			max_included_literals=None,
 			boost_true_positive_feedback=1,
@@ -933,6 +938,7 @@ class MultiClassGraphTsetlinMachine(CommonTsetlinMachine):
 			number_of_clauses,
 			T,
 			s,
+			number_of_blocks=number_of_blocks,
 			q=q,
 			max_included_literals=max_included_literals,
 			boost_true_positive_feedback=boost_true_positive_feedback,
@@ -975,6 +981,7 @@ class MultiOutputGraphTsetlinMachine(CommonTsetlinMachine):
 		number_of_clauses,
 		T,
 		s,
+		number_of_blocks=None,
 		q=1.0,
 		max_included_literals=None,
 		boost_true_positive_feedback=1,
@@ -991,6 +998,7 @@ class MultiOutputGraphTsetlinMachine(CommonTsetlinMachine):
 			number_of_clauses,
 			T,
 			s,
+			number_of_blocks=number_of_blocks,
 			q=q,
 			max_included_literals=max_included_literals,
 			boost_true_positive_feedback=boost_true_positive_feedback,
@@ -1029,6 +1037,7 @@ class GraphTsetlinMachine(CommonTsetlinMachine):
 			number_of_clauses,
 			T,
 			s,
+			number_of_blocks=None,
 			q=1.0,
 			max_included_literals=None,
 			boost_true_positive_feedback=1,
@@ -1045,7 +1054,7 @@ class GraphTsetlinMachine(CommonTsetlinMachine):
 			number_of_clauses,
 			T,
 			s,
-			q=q,
+			number_of_blocks=number_of_blocks,
 			max_included_literals=max_included_literals,
 			boost_true_positive_feedback=boost_true_positive_feedback,
 			number_of_state_bits=number_of_state_bits,
