@@ -68,7 +68,7 @@ class CommonTsetlinMachine():
 		else:
 			self.number_of_blocks = number_of_blocks
 
-		self.number_of_block_chunks = (number_of_blocks-1)//32 + 1
+		self.number_of_block_chunks = (self.number_of_blocks-1)//32 + 1
 
 		self.depth = depth
 		if type(s) != tuple:
