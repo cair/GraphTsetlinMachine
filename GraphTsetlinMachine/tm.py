@@ -446,6 +446,7 @@ class CommonTsetlinMachine():
 		parameters = """
 #define CLASSES %d
 #define CLAUSES %d
+#define BLOCKS %d
 #define LITERALS %d
 #define STATE_BITS %d
 #define BOOST_TRUE_POSITIVE_FEEDBACK %d
@@ -459,6 +460,7 @@ class CommonTsetlinMachine():
 """ % (
 			self.number_of_outputs,
 			self.number_of_clauses,
+			self.number_of_blocks,
 			self.number_of_literals,
 			self.number_of_state_bits,
 			self.boost_true_positive_feedback,
@@ -586,7 +588,7 @@ class CommonTsetlinMachine():
 		class_sum = np.zeros(self.number_of_outputs).astype(np.int32)
 		cuda.memcpy_htod(self.class_sum_gpu, class_sum)
 
-		# Calculate messages to be submitted from layer one
+		# Calculate messages to be submitted from layer one ***
 		self.calculate_messages.prepared_call(
 			self.grid,
 			self.block,
