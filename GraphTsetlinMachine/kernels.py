@@ -563,8 +563,10 @@ code_evaluate = """
             int bit[MESSAGE_BITS];
 
             for (int clause = index; clause < CLAUSES; clause += stride) {
+                int block = clause / (CLAUSES / BLOCKS);
+
                 for (int bit_index = 0; bit_index < MESSAGE_BITS; ++bit_index) {
-                     bit[bit_index] = hypervectors[clause*MESSAGE_BITS + bit_index];
+                     bit[bit_index] = hypervectors[block*MESSAGE_BITS + bit_index];
                 }
 
                 int edge_index = global_edge_index;
