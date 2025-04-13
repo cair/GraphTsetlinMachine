@@ -278,7 +278,7 @@ code_evaluate = """
 
         __global__ void evaluate(
             int *global_clause_node_output,
-            int *clause_weights,
+            int *block_weights,
             int number_of_nodes,
             int *class_sum
         )
@@ -294,23 +294,27 @@ code_evaluate = """
                 node_filter = 0xffffffff;
             }
 
-            for (int clause = index; clause < CLAUSES; clause += stride) {
-                int clause_output = 0;
-                for (int k = 0; k < number_of_node_chunks-1; ++k) {
-                    if (global_clause_node_output[clause*NODE_CHUNKS + k]) {
-                        clause_output = 1;
-                        break;
+            for (int block = index; block < BLOCKS; block += stride) {
+                for (int clause = block * (CLAUSES / BLOCKS); clause < (block + 1) * (CLAUSES / BLOCKS); ++clause) {
+                    int clause_output = 0;
+                    for (int k = 0; k < number_of_node_chunks-1; ++k) {
+                        if (global_clause_node_output[clause*NODE_CHUNKS + k]) {
+                            clause_output = 1;
+                            break;
+                        }
                     }
-                }
 
-                if (global_clause_node_output[clause*NODE_CHUNKS + number_of_node_chunks-1] & node_filter) {
-                    clause_output = 1;
-                }
+                    if (global_clause_node_output[clause*NODE_CHUNKS + number_of_node_chunks-1] & node_filter) {
+                        clause_output = 1;
+                    }
 
-                if (clause_output) {
-                    for (int class_id = 0; class_id < CLASSES; ++class_id) {
-                        int clause_weight = clause_weights[class_id*CLAUSES + clause];
-                        atomicAdd(&class_sum[class_id], clause_weight);                 
+                    if (clause_output) {
+                        for (int class_id = 0; class_id < CLASSES; ++class_id) {
+                            int block_weight = block_weights[class_id*BLOCKS + block];
+                            atomicAdd(&class_sum[class_id], block_weight);                 
+                        }
+
+                        break;
                     }
                 }
             }
