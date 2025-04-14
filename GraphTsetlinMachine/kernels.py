@@ -382,6 +382,10 @@ code_evaluate = """
                         clause_true[clause_true_len] = clause;
                         clause_true_len++;
                     }
+
+                    for (int class_id = 0; class_id < CLASSES; ++class_id) {
+                        class_clause_update[class_id*CLAUSES + clause] = 0;
+                    }
                 }
 
                 int clause;
@@ -404,9 +408,7 @@ code_evaluate = """
                     int target = 1 - 2*(local_class_sum > y[example*CLASSES + class_id]);
                     int absolute_prediction_error = abs(y[example*CLASSES + class_id] - local_class_sum);
 
-                    if ((target == -1 && curand_uniform(&localState) > 1.0*Q/max(1, CLASSES-1)) || (curand_uniform(&localState) > 1.0*absolute_prediction_error/(2*THRESHOLD))) {
-                        class_clause_update[class_id*CLAUSES + clause] = 0;
-                    } else {
+                    if (!((target == -1 && curand_uniform(&localState) > 1.0*Q/max(1, CLASSES-1)) || (curand_uniform(&localState) > 1.0*absolute_prediction_error/(2*THRESHOLD)))) {
                         class_clause_update[class_id*CLAUSES + clause] = target*sign;
 
                         if (target*sign > 0 && clause_node[clause] != -1 && abs(block_weights[class_id*BLOCKS + block]) < INT_MAX) {
