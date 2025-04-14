@@ -409,14 +409,14 @@ code_evaluate = """
                     } else {
                         class_clause_update[class_id*CLAUSES + clause] = target*sign;
 
-                        if (target*sign > 0 && clause_node[clause] != -1 && abs(block_weights[class_id*CLAUSES + clause]) < INT_MAX) {
-                            block_weights[class_id*CLAUSES + clause] += sign;
+                        if (target*sign > 0 && clause_node[clause] != -1 && abs(block_weights[class_id*BLOCKS + block]) < INT_MAX) {
+                            block_weights[class_id*BLOCKS + block] += sign;
                         } else if (target*sign < 0 && clause_node[clause] != -1) {
-                            block_weights[class_id*CLAUSES + clause] -= sign;
+                            block_weights[class_id*BLOCKS + block] -= sign;
 
                             #if NEGATIVE_CLAUSES == 0
-                                if (block_weights[class_id*CLAUSES + clause] < 1) {
-                                    block_weights[class_id*CLAUSES + clause] = 1;
+                                if (block_weights[class_id*BLOCKS + block] < 1) {
+                                    block_weights[class_id*BLOCKS + block] = 1;
                                 }
                             #endif
                         }
