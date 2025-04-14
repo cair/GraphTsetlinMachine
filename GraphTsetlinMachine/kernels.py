@@ -409,14 +409,14 @@ code_evaluate = """
                     } else {
                         class_clause_update[class_id*CLAUSES + clause] = target*sign;
 
-                        if (target*sign > 0 && clause_node[clause] != -1 && abs(clause_weights[class_id*CLAUSES + clause]) < INT_MAX) {
-                            clause_weights[class_id*CLAUSES + clause] += sign;
+                        if (target*sign > 0 && clause_node[clause] != -1 && abs(block_weights[class_id*CLAUSES + clause]) < INT_MAX) {
+                            block_weights[class_id*CLAUSES + clause] += sign;
                         } else if (target*sign < 0 && clause_node[clause] != -1) {
-                            clause_weights[class_id*CLAUSES + clause] -= sign;
+                            block_weights[class_id*CLAUSES + clause] -= sign;
 
                             #if NEGATIVE_CLAUSES == 0
-                                if (clause_weights[class_id*CLAUSES + clause] < 1) {
-                                    clause_weights[class_id*CLAUSES + clause] = 1;
+                                if (block_weights[class_id*CLAUSES + clause] < 1) {
+                                    block_weights[class_id*CLAUSES + clause] = 1;
                                 }
                             #endif
                         }
@@ -660,22 +660,24 @@ code_prepare = """
             }
         }
 
-        __global__ void prepare(curandState *state, unsigned int *global_ta_state, int *clause_weights, int *class_sum)
+        __global__ void prepare(curandState *state, unsigned int *global_ta_state, int *block_weights, int *class_sum)
         {
             int index = blockIdx.x * blockDim.x + threadIdx.x;
             int stride = blockDim.x * gridDim.x;
 
             curandState localState = state[index];
 
-            for (unsigned long long clause = index; clause < CLAUSES; clause += stride) {
+
+            for (unsigned long long block = index; block < BLOCKS; block += stride) {
                 for (unsigned long long class_id = 0; class_id < CLASSES; ++class_id) {
                     #if NEGATIVE_CLAUSES == 1
-                        clause_weights[class_id*CLAUSES + clause] = 1 - 2 * (curand(&localState) % 2); // 1 - 2*(clause % CLASSES != class_id);
+                        block_weights[class_id*BLOCKS + block] = 1 - 2 * (curand(&localState) % 2); // 1 - 2*(clause % CLASSES != class_id);
                     #else
-                        clause_weights[class_id*CLAUSES + clause] = 1;
+                        block_weights[class_id*BLOCKS + block] = 1;
                     #endif
                 }
 
+            for (unsigned long long clause = index; clause < CLAUSES; clause += stride) {
                 unsigned int *ta_state = &global_ta_state[clause*LA_CHUNKS*STATE_BITS];
                 for (int la_chunk = 0; la_chunk < LA_CHUNKS; ++la_chunk) {
                     for (int b = 0; b < STATE_BITS-1; ++b) {
