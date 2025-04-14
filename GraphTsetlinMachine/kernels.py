@@ -676,6 +676,7 @@ code_prepare = """
                         block_weights[class_id*BLOCKS + block] = 1;
                     #endif
                 }
+            }
 
             for (unsigned long long clause = index; clause < CLAUSES; clause += stride) {
                 unsigned int *ta_state = &global_ta_state[clause*LA_CHUNKS*STATE_BITS];
