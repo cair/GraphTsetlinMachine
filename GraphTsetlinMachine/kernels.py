@@ -390,9 +390,9 @@ code_evaluate = """
                     int clause = block * (CLAUSES / BLOCKS) + (curand(&localState) % (CLAUSES / BLOCKS));
                 }
 
-                int sign = (block_weights[class_id*BLOCKS + block] >= 0) - (block_weights[class_id*BLOCKS + block] < 0);
-
                 for (int class_id = 0; class_id < CLASSES; ++class_id) {
+                    int sign = (block_weights[class_id*BLOCKS + block] >= 0) - (block_weights[class_id*BLOCKS + block] < 0);
+
                     int local_class_sum = class_sum[class_id];
                     if (local_class_sum > THRESHOLD) {
                         local_class_sum = THRESHOLD;
