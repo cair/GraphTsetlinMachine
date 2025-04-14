@@ -384,7 +384,7 @@ code_evaluate = """
                     }
                 }
 
-                int clause:
+                int clause;
                 if (clause_true_len > 0) {
                     clause = clause_true[curand(&localState) % (clause_true_len)];
                 } else {
