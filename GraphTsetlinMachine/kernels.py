@@ -359,7 +359,7 @@ code_evaluate = """
 
         __global__ void select_clause_updates(
             curandState *state,
-            int *clause_weights,
+            int *block_weights,
             int *class_sum,
             int *y,
             int example,
@@ -370,9 +370,28 @@ code_evaluate = """
             int index = blockIdx.x * blockDim.x + threadIdx.x;
             int stride = blockDim.x * gridDim.x;
 
+            int clause_true[CLAUSES / BLOCKS];
+            int clause_true_len;
+
             curandState localState = state[index];
 
-            for (int clause = index; clause < CLAUSES; clause += stride) {
+            for (int block = index; block < BLOCKS; block += stride) {
+                clause_true_len = 0;
+                for (int clause = block * (CLAUSES / BLOCKS); clause < (block + 1) * (CLAUSES / BLOCKS); ++clause) {
+                    if (clause_node[clause] != -1) {
+                        clause_true[clause_true_len] = clause;
+                        clause_true_len++;
+                    }
+                }
+
+                if (clause_true_len > 0) {
+                    int clause = clause_true[curand(&localState) % (clause_true_len)];
+                } else {
+                    int clause = block * (CLAUSES / BLOCKS) + (curand(&localState) % (CLAUSES / BLOCKS));
+                }
+
+                int sign = (block_weights[class_id*BLOCKS + block] >= 0) - (block_weights[class_id*BLOCKS + block] < 0);
+
                 for (int class_id = 0; class_id < CLASSES; ++class_id) {
                     int local_class_sum = class_sum[class_id];
                     if (local_class_sum > THRESHOLD) {
@@ -382,7 +401,6 @@ code_evaluate = """
                     }
 
                     int target = 1 - 2*(local_class_sum > y[example*CLASSES + class_id]);
-                    int sign = (clause_weights[class_id*CLAUSES + clause] >= 0) - (clause_weights[class_id*CLAUSES + clause] < 0);
                     int absolute_prediction_error = abs(y[example*CLASSES + class_id] - local_class_sum);
 
                     if ((target == -1 && curand_uniform(&localState) > 1.0*Q/max(1, CLASSES-1)) || (curand_uniform(&localState) > 1.0*absolute_prediction_error/(2*THRESHOLD))) {
