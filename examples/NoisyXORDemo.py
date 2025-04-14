@@ -150,7 +150,7 @@ for i in range(args.epochs):
 weights = tm.get_state()[1].reshape(2, -1)
 for b in range(tm.number_of_blocks):
     print(b)
-    print("Block #%d W:(%d %d)" % (b, weights[0,i], weights[1,i]))
+    print("Block #%d W:(%d %d)" % (b, weights[0,b], weights[1,b]))
 
     for i in range(b*(tm.number_of_clauses // tm.number_of_blocks), (b+1)*(tm.number_of_clauses // tm.number_of_blocks)):
         print("\tClause #%d:" % (i,), end=' ')
