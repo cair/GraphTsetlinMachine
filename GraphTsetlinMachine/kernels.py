@@ -335,22 +335,24 @@ code_evaluate = """
             int clause_true_node[MAX_NODES];
             int clause_true_node_len;
 
-            for (int clause = index; clause < CLAUSES; clause += stride) {
-                clause_true_node_len = 0;
-                for (int node = 0; node < number_of_nodes; ++node) {
-                    int node_chunk = node / INT_SIZE;
-                    int node_pos = node % INT_SIZE;
+            for (int block = index; block < BLOCKS; block += stride) {
+                for (int clause = block * (CLAUSES / BLOCKS); clause < (block + 1) * (CLAUSES / BLOCKS); ++clause) {
+                    clause_true_node_len = 0;
+                    for (int node = 0; node < number_of_nodes; ++node) {
+                        int node_chunk = node / INT_SIZE;
+                        int node_pos = node % INT_SIZE;
 
-                    if (global_clause_node_output[clause*NODE_CHUNKS + node_chunk] & (1 << node_pos)) {
-                        clause_true_node[clause_true_node_len] = node;
-                        clause_true_node_len++;
+                        if (global_clause_node_output[clause*NODE_CHUNKS + node_chunk] & (1 << node_pos)) {
+                            clause_true_node[clause_true_node_len] = node;
+                            clause_true_node_len++;
+                        }
                     }
-                }
 
-                if (clause_true_node_len > 0) {
-                    clause_node[clause] = clause_true_node[curand(&localState) % (clause_true_node_len)];
-                } else {
-                    clause_node[clause] = -1;
+                    if (clause_true_node_len > 0) {
+                        clause_node[clause] = clause_true_node[curand(&localState) % (clause_true_node_len)];
+                    } else {
+                        clause_node[clause] = -1;
+                    }
                 }
             }
 
