@@ -384,10 +384,11 @@ code_evaluate = """
                     }
                 }
 
+                int clause:
                 if (clause_true_len > 0) {
-                    int clause = clause_true[curand(&localState) % (clause_true_len)];
+                    clause = clause_true[curand(&localState) % (clause_true_len)];
                 } else {
-                    int clause = block * (CLAUSES / BLOCKS) + (curand(&localState) % (CLAUSES / BLOCKS));
+                    clause = block * (CLAUSES / BLOCKS) + (curand(&localState) % (CLAUSES / BLOCKS));
                 }
 
                 for (int class_id = 0; class_id < CLASSES; ++class_id) {
