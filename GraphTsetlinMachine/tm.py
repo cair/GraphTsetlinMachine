@@ -75,7 +75,6 @@ class CommonTsetlinMachine():
 		self.number_of_state_bits = number_of_state_bits
 		self.message_size = message_size
 		self.message_bits = message_bits
-		self.message_literals = message_size*2
 
 		self.double_hashing = double_hashing
 		self.one_hot_encoding = one_hot_encoding
@@ -541,7 +540,7 @@ class CommonTsetlinMachine():
 			self.current_clause_node_output_train_gpu = cuda.mem_alloc(int(self.number_of_clauses * graphs.max_number_of_graph_node_chunks) * 4)
 			self.next_clause_node_output_train_gpu = cuda.mem_alloc(int(self.number_of_clauses * graphs.max_number_of_graph_node_chunks) * 4)
 			
-			self.clause_X_int_train_gpu = cuda.mem_alloc(int(graphs.max_number_of_graph_nodes * self.message_literals) * 4)
+			self.clause_X_int_train_gpu = cuda.mem_alloc(int(graphs.max_number_of_graph_nodes * self.number_of_message_literals) * 4)
 			
 			self.clause_X_train_gpu = []
 			for depth in range(self.depth-1):
