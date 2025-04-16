@@ -336,8 +336,6 @@ code_evaluate = """
                     }
                 }
             }
-
-            state[index] = localState;
         }
 
         __global__ void select_clause_node(
