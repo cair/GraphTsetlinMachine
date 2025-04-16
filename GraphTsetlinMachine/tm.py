@@ -488,7 +488,7 @@ class CommonTsetlinMachine():
 		self.evaluate = mod_evaluate.get_function("evaluate")
 		self.evaluate.prepare("PPiP")
 
-		self.count_node_matches = mod_evaluate.get_function("supress_node_matches")
+		self.count_node_matches = mod_evaluate.get_function("count_node_matches")
 		self.count_node_matches.prepare("PPiP")
 
 		self.select_clause_node = mod_evaluate.get_function("select_clause_node")
