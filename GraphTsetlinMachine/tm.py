@@ -125,6 +125,7 @@ class CommonTsetlinMachine():
 
 		self.class_sum_gpu = cuda.mem_alloc(self.number_of_outputs*4)
 		self.clause_node_gpu = cuda.mem_alloc(int(self.number_of_clauses) * 4)
+		self.node_match_count_gpu = cuda.mem_alloc(int(self.max_number_of_graph_nodes) * 4)
 		self.number_of_include_actions = cuda.mem_alloc(int(self.number_of_clauses) * 4)
 		self.hypervectors_gpu = cuda.mem_alloc(self.hypervectors.nbytes)
 		cuda.memcpy_htod(self.hypervectors_gpu, self.hypervectors)
@@ -487,8 +488,8 @@ class CommonTsetlinMachine():
 		self.evaluate = mod_evaluate.get_function("evaluate")
 		self.evaluate.prepare("PPiP")
 
-		self.supress_node_matches = mod_evaluate.get_function("supress_node_matches")
-		self.supress_node_matches.prepare("PPi")
+		self.count_node_matches = mod_evaluate.get_function("supress_node_matches")
+		self.count_node_matches.prepare("PPiP")
 
 		self.select_clause_node = mod_evaluate.get_function("select_clause_node")
 		self.select_clause_node.prepare("PPiP")
@@ -703,12 +704,13 @@ class CommonTsetlinMachine():
 
 				if self.max_matches_per_node != None:
 					# Ensure max number of clause matches per node
-					self.supress_node_matches.prepared_call(
+					self.count_node_matches.prepared_call(
 						self.grid,
 						self.block,
 						g.state,
 						current_clause_node_output,
-						int(graphs.number_of_graph_nodes[e])
+						int(graphs.number_of_graph_nodes[e]),
+						self.node_match_count_gpu
 					)
 
 				# Select one true node per clause
