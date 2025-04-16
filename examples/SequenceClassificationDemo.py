@@ -23,8 +23,8 @@ def default_args(**kwargs):
     parser.add_argument("--number-of-examples", default=40000, type=int)
     parser.add_argument("--number-of-classes", default=3, type=int)
     parser.add_argument("--max-sequence-length", default=10, type=int)
-    parser.add_argument("--max-included-literals", default=4, type=int)
-    parser.add_argument("--max-matches_per_node", default=10, type=int)
+    parser.add_argument("--max-included-literals", default=10, type=int)
+    parser.add_argument("--max-matches_per_node", default=30, type=int)
 
     args = parser.parse_args()
     for key, value in kwargs.items():
