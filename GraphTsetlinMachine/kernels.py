@@ -329,7 +329,7 @@ code_evaluate = """
             curandState localState = state[index];
 
             for (int node = index; node < number_of_nodes; node += stride) {
-                int node_match_count[node] = 0;
+                node_match_count[node] = 0;
                 for (int clause = 0; clause < CLAUSES; ++clause) {
                     int node_chunk = node / INT_SIZE;
                     int node_pos = node % INT_SIZE;
