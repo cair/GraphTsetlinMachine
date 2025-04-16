@@ -787,7 +787,6 @@ __global__ void get_hyperliterals(unsigned int *ta_state, unsigned int chunks, u
         unsigned int *local_ta_state = &ta_state[clause * chunks * STATE_BITS];
 
         for (int literal = 0; literal < literals; ++literal) {
-            unsigned int state = 0;
             int chunk_nr = literal / INT_SIZE;
             int chunk_pos = literal % INT_SIZE;
             out[clause * literals + literal] = (local_ta_state[chunk_nr * STATE_BITS + STATE_BITS - 1] & (1 << chunk_pos)) > 0;
