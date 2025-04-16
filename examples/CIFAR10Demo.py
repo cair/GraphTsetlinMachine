@@ -49,7 +49,7 @@ def default_args(**kwargs):
     parser.add_argument('--double-hashing', dest='double_hashing', default=False, action='store_true')
     parser.add_argument('--one-hot-encoding', dest='one_hot_encoding', default=False, action='store_true')
     parser.add_argument("--max-included-literals", default=32, type=int)
-    parser.add_argument("--max-matches_per_node", default=30, type=int)
+    parser.add_argument("--max-matches_per_node", default=1000, type=int)
 
     args = parser.parse_args()
     for key, value in kwargs.items():
