@@ -342,7 +342,8 @@ code_evaluate = """
             curandState *state,
             int *global_clause_node_output,
             int number_of_nodes,
-            int *clause_node
+            int *clause_node,
+            int *node_match_count
         )
         {
             int index = blockIdx.x * blockDim.x + threadIdx.x;
@@ -359,7 +360,9 @@ code_evaluate = """
                     int node_chunk = node / INT_SIZE;
                     int node_pos = node % INT_SIZE;
 
-                    if (global_clause_node_output[clause*NODE_CHUNKS + node_chunk] & (1 << node_pos)) {
+                    // Randomize selection based on node_match_count
+
+                    if ((curand_uniform(&localState) <= 10.0 / node_match_count[node]) && (global_clause_node_output[clause*NODE_CHUNKS + node_chunk] & (1 << node_pos))) {
                         clause_true_node[clause_true_node_len] = node;
                         clause_true_node_len++;
                     }

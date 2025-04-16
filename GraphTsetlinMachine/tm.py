@@ -492,7 +492,7 @@ class CommonTsetlinMachine():
 		self.count_node_matches.prepare("PiP")
 
 		self.select_clause_node = mod_evaluate.get_function("select_clause_node")
-		self.select_clause_node.prepare("PPiP")
+		self.select_clause_node.prepare("PPiPP")
 
 		self.select_clause_updates = mod_evaluate.get_function("select_clause_updates")
 		self.select_clause_updates.prepare("PPPPiPP")
@@ -719,7 +719,8 @@ class CommonTsetlinMachine():
 					g.state,
 					current_clause_node_output,
 					int(graphs.number_of_graph_nodes[e]),
-					self.clause_node_gpu
+					self.clause_node_gpu,
+					self.node_match_count_gpu
 				)
 				cuda.Context.synchronize()
 
