@@ -24,7 +24,7 @@ def default_args(**kwargs):
     parser.add_argument("--number-of-classes", default=3, type=int)
     parser.add_argument("--max-sequence-length", default=10, type=int)
     parser.add_argument("--max-included-literals", default=4, type=int)
-    parser.add_argument("--max-node-matches", default=10, type=int)
+    parser.add_argument("--max-matches_per_node", default=10, type=int)
 
     args = parser.parse_args()
     for key, value in kwargs.items():
@@ -130,7 +130,7 @@ tm = MultiClassGraphTsetlinMachine(
     max_included_literals = args.max_included_literals,
     double_hashing = args.double_hashing,
     one_hot_encoding = args.one_hot_encoding,
-    max_node_matches = args.max_node_matches
+    max_matches_per_node = args.max_matches_per_node
 )
 
 for i in range(args.epochs):
