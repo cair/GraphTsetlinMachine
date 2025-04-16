@@ -48,7 +48,8 @@ graphs_train = Graphs(
 )
 
 for graph_id in range(args.number_of_examples):
-    graphs_train.set_number_of_graph_nodes(graph_id, np.random.randint(args.number_of_classes, args.max_sequence_length+1))
+    #graphs_train.set_number_of_graph_nodes(graph_id, np.random.randint(args.number_of_classes, args.max_sequence_length+1))
+    graphs_train.set_number_of_graph_nodes(graph_id, args.max_sequence_length)
 
 graphs_train.prepare_node_configuration()
 
@@ -88,7 +89,8 @@ print("Creating testing data")
 
 graphs_test = Graphs(args.number_of_examples, init_with=graphs_train)
 for graph_id in range(args.number_of_examples):
-    graphs_test.set_number_of_graph_nodes(graph_id, np.random.randint(args.number_of_classes, args.max_sequence_length+1))
+    #graphs_test.set_number_of_graph_nodes(graph_id, np.random.randint(args.number_of_classes, args.max_sequence_length+1))
+    graphs_test.set_number_of_graph_nodes(graph_id, args.max_sequence_length)
 
 graphs_test.prepare_node_configuration()
 
