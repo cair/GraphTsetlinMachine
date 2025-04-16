@@ -80,7 +80,10 @@ class CommonTsetlinMachine():
 		self.double_hashing = double_hashing
 		self.one_hot_encoding = one_hot_encoding
 
-		self.max_matches_per_node = max_matches_per_node
+		if self.max_matches_per_node == None:
+			self.max_matches_per_node = self.number_of_clauses
+		else:
+			self.max_matches_per_node = max_matches_per_node
 
 		self.grid = grid
 		self.block = block
@@ -704,15 +707,14 @@ class CommonTsetlinMachine():
 
 				### Learning
 
-				if self.max_matches_per_node != None:
-					# Ensure max number of clause matches per node
-					self.count_node_matches.prepared_call(
-						self.grid,
-						self.block,
-						current_clause_node_output,
-						int(graphs.number_of_graph_nodes[e]),
-						self.node_match_count_gpu
-					)
+				# Ensure max number of clause matches per node
+				self.count_node_matches.prepared_call(
+					self.grid,
+					self.block,
+					current_clause_node_output,
+					int(graphs.number_of_graph_nodes[e]),
+					self.node_match_count_gpu
+				)
 
 				# Select one true node per clause
 				self.select_clause_node.prepared_call(
