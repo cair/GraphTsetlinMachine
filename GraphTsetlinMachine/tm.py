@@ -489,7 +489,7 @@ class CommonTsetlinMachine():
 		self.evaluate.prepare("PPiP")
 
 		self.count_node_matches = mod_evaluate.get_function("count_node_matches")
-		self.count_node_matches.prepare("PPiP")
+		self.count_node_matches.prepare("PiP")
 
 		self.select_clause_node = mod_evaluate.get_function("select_clause_node")
 		self.select_clause_node.prepare("PPiP")
@@ -707,7 +707,6 @@ class CommonTsetlinMachine():
 					self.count_node_matches.prepared_call(
 						self.grid,
 						self.block,
-						g.state,
 						current_clause_node_output,
 						int(graphs.number_of_graph_nodes[e]),
 						self.node_match_count_gpu
