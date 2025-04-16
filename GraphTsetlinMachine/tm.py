@@ -53,6 +53,7 @@ class CommonTsetlinMachine():
 			message_bits=2,
 			double_hashing=False,
 			one_hot_encoding=False,
+			max_matches_per_node=None,
 			grid=(16*13*4,1,1),
 			block=(128,1,1)
 	):
@@ -78,6 +79,8 @@ class CommonTsetlinMachine():
 
 		self.double_hashing = double_hashing
 		self.one_hot_encoding = one_hot_encoding
+
+		self.max_matches_per_node = max_matches_per_node
 
 		self.grid = grid
 		self.block = block
@@ -484,6 +487,9 @@ class CommonTsetlinMachine():
 		self.evaluate = mod_evaluate.get_function("evaluate")
 		self.evaluate.prepare("PPiP")
 
+		self.supress_node_matches = mod_evaluate.get_function("supress_node_matches")
+		self.supress_node_matches.prepare("PPi")
+
 		self.select_clause_node = mod_evaluate.get_function("select_clause_node")
 		self.select_clause_node.prepare("PPiP")
 
@@ -694,6 +700,16 @@ class CommonTsetlinMachine():
 				)
 
 				### Learning
+
+				if self.max_matches_per_node != None:
+					# Ensure max number of clause matches per node
+					self.supress_node_matches.prepared_call(
+						self.grid,
+						self.block,
+						g.state,
+						current_clause_node_output,
+						int(graphs.number_of_graph_nodes[e])
+					)
 
 				# Select one true node per clause
 				self.select_clause_node.prepared_call(
@@ -925,6 +941,7 @@ class MultiClassGraphTsetlinMachine(CommonTsetlinMachine):
 			message_bits=2,
 			double_hashing=False,
 			one_hot_encoding=False,
+			max_matches_per_node=None,
 			grid=(16*13*4,1,1),
 			block=(128,1,1)
 	):
@@ -941,6 +958,7 @@ class MultiClassGraphTsetlinMachine(CommonTsetlinMachine):
 			message_bits=message_bits,
 			double_hashing=double_hashing,
 			one_hot_encoding=one_hot_encoding,
+			max_matches_per_node=max_matches_per_node,
 			grid=grid,
 			block=block
 		)
@@ -983,6 +1001,7 @@ class MultiOutputGraphTsetlinMachine(CommonTsetlinMachine):
 		message_bits=2,
 		double_hashing=False,
 		one_hot_encoding=False,
+		max_matches_per_node=None,
 		grid=(16*13*4, 1, 1),
 		block=(128, 1, 1),
 	):
@@ -999,6 +1018,7 @@ class MultiOutputGraphTsetlinMachine(CommonTsetlinMachine):
 			message_bits=message_bits,
 			double_hashing=double_hashing,
 			one_hot_encoding=one_hot_encoding,
+			max_matches_per_node=max_matches_per_node,
 			grid=grid,
 			block=block
 		)
@@ -1037,6 +1057,7 @@ class GraphTsetlinMachine(CommonTsetlinMachine):
 			message_bits=2,
 			double_hashing=False,
 			one_hot_encoding=False,
+			max_matches_per_node=None,
 			grid=(16*13*4,1,1),
 			block=(128,1,1)
 	):
@@ -1053,6 +1074,7 @@ class GraphTsetlinMachine(CommonTsetlinMachine):
 			message_bits=message_bits,
 			double_hashing=double_hashing,
 			one_hot_encoding=one_hot_encoding,
+			max_matches_per_node=max_matches_per_node,
 			grid=grid,
 			block=block
 		)
