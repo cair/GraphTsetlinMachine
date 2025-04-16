@@ -317,7 +317,6 @@ code_evaluate = """
         }
 
         __global__ void count_node_matches(
-            curandState *state,
             int *global_clause_node_output,
             int number_of_nodes,
             int *node_match_count
@@ -325,8 +324,6 @@ code_evaluate = """
         {
             int index = blockIdx.x * blockDim.x + threadIdx.x;
             int stride = blockDim.x * gridDim.x;
-
-            curandState localState = state[index];
 
             for (int node = index; node < number_of_nodes; node += stride) {
                 node_match_count[node] = 0;
