@@ -362,7 +362,7 @@ code_evaluate = """
 
                     // Randomize selection based on node_match_count
 
-                    if ((curand_uniform(&localState) <= 1.0 * MAX_MATCHES_PER_NODE / node_match_count[node]) && (global_clause_node_output[clause*NODE_CHUNKS + node_chunk] & (1 << node_pos))) {
+                    if ((global_clause_node_output[clause*NODE_CHUNKS + node_chunk] & (1 << node_pos)) && (curand_uniform(&localState) <= 1.0 * MAX_MATCHES_PER_NODE / node_match_count[node])) {
                         clause_true_node[clause_true_node_len] = node;
                         clause_true_node_len++;
                     }
