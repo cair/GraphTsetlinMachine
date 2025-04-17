@@ -80,7 +80,7 @@ class CommonTsetlinMachine():
 		self.double_hashing = double_hashing
 		self.one_hot_encoding = one_hot_encoding
 
-		if self.max_matches_per_node == None:
+		if max_matches_per_node == None:
 			self.max_matches_per_node = self.number_of_clauses
 		else:
 			self.max_matches_per_node = max_matches_per_node
