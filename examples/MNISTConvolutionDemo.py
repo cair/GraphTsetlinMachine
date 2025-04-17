@@ -30,6 +30,7 @@ def default_args(**kwargs):
     parser.add_argument('--double-hashing', dest='double_hashing', default=False, action='store_true')
     parser.add_argument('--one-hot-encoding', dest='one_hot_encoding', default=False, action='store_true')
     parser.add_argument("--max-included-literals", default=32, type=int)
+    parser.add_argument("--max-matches_per_node", default=1000, type=int)
 
     args = parser.parse_args()
     for key, value in kwargs.items():
@@ -136,7 +137,8 @@ tm = MultiClassGraphTsetlinMachine(
     message_bits=args.message_bits,
     max_included_literals=args.max_included_literals,
     double_hashing = args.double_hashing,
-    one_hot_encoding = args.one_hot_encoding
+    one_hot_encoding = args.one_hot_encoding,
+    max_matches_per_node = args.max_matches_per_node
 )
 
 for i in range(args.epochs):
