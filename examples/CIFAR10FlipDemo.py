@@ -90,8 +90,7 @@ graphs_train.prepare_node_configuration()
 
 for graph_id in range(X_train.shape[0]):
     for node_id in range(graphs_train.number_of_graph_nodes[graph_id]):
-        graphs_train.add_graph_node(graph_id, node_id*2, 0)
-        graphs_train.add_graph_node(graph_id, node_id*2 + 1, 0)
+        graphs_train.add_graph_node(graph_id, node_id, 0)
 
 graphs_train.prepare_edge_configuration()
 
@@ -130,8 +129,7 @@ graphs_test.prepare_node_configuration()
 
 for graph_id in range(X_test.shape[0]):
     for node_id in range(graphs_test.number_of_graph_nodes[graph_id]):
-        graphs_test.add_graph_node(graph_id, node_id*2, 0)
-        graphs_test.add_graph_node(graph_id, node_id*2 + 1, 0)
+        graphs_test.add_graph_node(graph_id, node_id, 0)
 
 graphs_test.prepare_edge_configuration()
 
