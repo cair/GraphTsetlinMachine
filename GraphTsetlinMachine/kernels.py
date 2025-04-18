@@ -345,9 +345,9 @@ code_evaluate = """
         }
 
         __global__ void remove_invalid_node_matches(
-            unsigned int *global_clause_node_output
+            unsigned int *global_clause_node_output,
             int number_of_nodes,
-            unsigned int *last_valid_node_match,
+            unsigned int *last_valid_node_match
         )
         {
             int index = blockIdx.x * blockDim.x + threadIdx.x;
