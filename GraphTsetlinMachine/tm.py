@@ -676,6 +676,7 @@ class CommonTsetlinMachine():
 					np.int32(number_of_graph_nodes),
 					self.last_valid_node_match_gpu
 				)
+				cuda.Context.synchronize()
 
 				# Remove invalid node matches
 				self.remove_invalid_node_matches.prepared_call(
@@ -685,6 +686,8 @@ class CommonTsetlinMachine():
 					np.int32(number_of_graph_nodes),
 					self.last_valid_node_match_gpu
 				)
+				cuda.Context.synchronize()
+
 
 		self.evaluate.prepared_call(
 			self.grid,
