@@ -122,6 +122,7 @@ class CommonTsetlinMachine():
 
 		self.class_sum_gpu = cuda.mem_alloc(self.number_of_outputs*4)
 		self.clause_node_gpu = cuda.mem_alloc(int(self.number_of_clauses) * 4)
+		self.last_valid_node_match_gpu = cuda.mem_alloc(int(self.max_number_of_graph_nodes) * 4)
 		self.number_of_include_actions = cuda.mem_alloc(int(self.number_of_clauses) * 4)
 		self.hypervectors_gpu = cuda.mem_alloc(self.hypervectors.nbytes)
 		cuda.memcpy_htod(self.hypervectors_gpu, self.hypervectors)
@@ -454,6 +455,7 @@ class CommonTsetlinMachine():
 #define MAX_NODES %d
 #define MESSAGE_SIZE %d
 #define MESSAGE_BITS %d
+#define MAX_MATCHES_PER_NODE %d
 """ % (
 			self.number_of_outputs,
 			self.number_of_clauses,
@@ -467,6 +469,7 @@ class CommonTsetlinMachine():
 			self.max_number_of_graph_nodes,
 			self.message_size,
 			self.message_bits,
+			30
 		)
 
 		mod_prepare = SourceModule(parameters + kernels.code_header + kernels.code_prepare, no_extern_c=True)
@@ -483,6 +486,9 @@ class CommonTsetlinMachine():
 		mod_evaluate = SourceModule(parameters + kernels.code_header + kernels.code_evaluate, no_extern_c=True)
 		self.evaluate = mod_evaluate.get_function("evaluate")
 		self.evaluate.prepare("PPiP")
+
+		self.identify_last_valid_node_match = mod_evaluate.get_function("identify_last_valid_node_match")
+		self.identify_last_valid_node_match.prepare("PiP")
 
 		self.select_clause_node = mod_evaluate.get_function("select_clause_node")
 		self.select_clause_node.prepare("PPiP")
@@ -654,6 +660,15 @@ class CommonTsetlinMachine():
 			tmp = current_clause_node_output
 			current_clause_node_output = next_clause_node_output
 			next_clause_node_output = tmp
+
+		# Identify last valid node match
+		self.identify_last_valid_node_match.prepared_call(
+			self.grid,
+			self.block,
+			current_clause_node_output,
+			int(graphs.number_of_graph_nodes[e]),
+			self.last_valid_node_match_gpu
+		)
 
 		self.evaluate.prepared_call(
 			self.grid,

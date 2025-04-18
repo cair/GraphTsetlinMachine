@@ -316,6 +316,34 @@ code_evaluate = """
             }
         }
 
+        __global__ void identify_last_valid_node_match(
+            int *global_clause_node_output,
+            int number_of_nodes,
+            int *last_valid_node_match
+        )
+        {
+            int index = blockIdx.x * blockDim.x + threadIdx.x;
+            int stride = blockDim.x * gridDim.x;
+
+
+            for (int node = index; node < number_of_nodes; node += stride) {
+                int node_match_count = 0;
+                for (int clause = 0; clause < CLAUSES; ++clause) {
+                    int node_chunk = node / INT_SIZE;
+                    int node_pos = node % INT_SIZE;
+
+                    if (global_clause_node_output[clause*NODE_CHUNKS + node_chunk] & (1 << node_pos)) {
+                        node_match_count++;
+
+                        if (node_match_count == MAX_MATCHES_PER_NODE) {
+                            last_valid_node_match[node] = clause;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
         __global__ void select_clause_node(
             curandState *state,
             int *global_clause_node_output,
