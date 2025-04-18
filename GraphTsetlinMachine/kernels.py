@@ -344,6 +344,31 @@ code_evaluate = """
             }
         }
 
+        __global__ void remove_invalid_node_matches(
+            int number_of_nodes,
+            unsigned int *last_valid_node_match,
+            unsigned int *global_clause_node_output
+        )
+        {
+            int index = blockIdx.x * blockDim.x + threadIdx.x;
+            int stride = blockDim.x * gridDim.x;
+
+            unsigned int clause_node_output;
+
+            for (int clause_node_chunk = index; clause_node_chunk < (CLAUSES)*(NODE_CHUNKS); clause_node_chunk += stride) {
+                int clause = clause_node_chunk / NODE_CHUNKS;
+                int node_chunk = clause_node_chunk % NODE_CHUNKS;
+
+                for (int node_pos = 0; (node_pos < INT_SIZE) && ((node_chunk * INT_SIZE + node_pos) < number_of_nodes); ++node_pos) {
+                    int node = node_chunk * INT_SIZE + node_pos;
+
+                    if (clause > last_valid_node_match[node] && (global_clause_node_output[clause*NODE_CHUNKS + node_chunk] & (1 << node_pos))) {
+                        global_clause_node_output[clause*NODE_CHUNKS + node_chunk] &= ~(1 << node_pos);
+                    }
+                }
+            }
+        }
+
         __global__ void select_clause_node(
             curandState *state,
             int *global_clause_node_output,
