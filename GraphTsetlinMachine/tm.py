@@ -668,7 +668,6 @@ class CommonTsetlinMachine():
 			next_clause_node_output = tmp
 
 			if self.max_matches_per_node > 0:
-				print("Max matches", self.max_matches_per_node)
 				# Identify last valid node match
 				self.identify_last_valid_node_match.prepared_call(
 					self.grid,
