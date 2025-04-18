@@ -362,6 +362,9 @@ code_evaluate = """
 
                     if ((clause > last_valid_node_match[node]) && (global_clause_node_output[clause*NODE_CHUNKS + node_chunk] & (1 << node_pos))) {
                         global_clause_node_output[clause*NODE_CHUNKS + node_chunk] &= ~(1 << node_pos);
+                        printf("Deleting clause %d for node %d\\n", clause, node);
+                    } else {
+                        printf("Keeping clause %d for node %d\\n", clause, node);
                     }
                 }
             }
