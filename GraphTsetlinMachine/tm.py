@@ -1,4 +1,4 @@
-# Copyright (c) 2024 Ole-Christoffer Granmo
+# Copyright (c) 2025 Ole-Christoffer Granmo
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -53,6 +53,7 @@ class CommonTsetlinMachine():
 			message_bits=2,
 			double_hashing=False,
 			one_hot_encoding=False,
+			max_matches_per_node=None,
 			grid=(16*13*4,1,1),
 			block=(128,1,1)
 	):
@@ -78,6 +79,8 @@ class CommonTsetlinMachine():
 
 		self.double_hashing = double_hashing
 		self.one_hot_encoding = one_hot_encoding
+
+		self.max_matches_per_node = max_matches_per_node
 
 		self.grid = grid
 		self.block = block
@@ -469,7 +472,7 @@ class CommonTsetlinMachine():
 			self.max_number_of_graph_nodes,
 			self.message_size,
 			self.message_bits,
-			30
+			self.max_matches_per_node
 		)
 
 		mod_prepare = SourceModule(parameters + kernels.code_header + kernels.code_prepare, no_extern_c=True)
@@ -664,24 +667,25 @@ class CommonTsetlinMachine():
 			current_clause_node_output = next_clause_node_output
 			next_clause_node_output = tmp
 
-		# Identify last valid node match
-		self.identify_last_valid_node_match.prepared_call(
-			self.grid,
-			self.block,
-			current_clause_node_output,
-			np.int32(number_of_graph_nodes),
-			self.last_valid_node_match_gpu
-		)
+			if self.max_matches_per_node != None:
+				# Identify last valid node match
+				self.identify_last_valid_node_match.prepared_call(
+					self.grid,
+					self.block,
+					current_clause_node_output,
+					np.int32(number_of_graph_nodes),
+					self.last_valid_node_match_gpu
+				)
 
-		# Remove invalid node matches
-		self.remove_invalid_node_matches.prepared_call(
-			self.grid,
-			self.block,
-			current_clause_node_output,
-			np.int32(number_of_graph_nodes),
-			self.last_valid_node_match_gpu
-		)
 
+				# Remove invalid node matches
+				self.remove_invalid_node_matches.prepared_call(
+					self.grid,
+					self.block,
+					current_clause_node_output,
+					np.int32(number_of_graph_nodes),
+					self.last_valid_node_match_gpu
+				)
 
 		self.evaluate.prepared_call(
 			self.grid,
@@ -953,6 +957,7 @@ class MultiClassGraphTsetlinMachine(CommonTsetlinMachine):
 			message_bits=2,
 			double_hashing=False,
 			one_hot_encoding=False,
+			max_matches_per_node=None,
 			grid=(16*13*4,1,1),
 			block=(128,1,1)
 	):
@@ -969,6 +974,7 @@ class MultiClassGraphTsetlinMachine(CommonTsetlinMachine):
 			message_bits=message_bits,
 			double_hashing=double_hashing,
 			one_hot_encoding=one_hot_encoding,
+			max_matches_per_node=max_matches_per_node,
 			grid=grid,
 			block=block
 		)
@@ -1011,6 +1017,7 @@ class MultiOutputGraphTsetlinMachine(CommonTsetlinMachine):
 		message_bits=2,
 		double_hashing=False,
 		one_hot_encoding=False,
+		max_matches_per_node=None,
 		grid=(16*13*4, 1, 1),
 		block=(128, 1, 1),
 	):
@@ -1027,6 +1034,7 @@ class MultiOutputGraphTsetlinMachine(CommonTsetlinMachine):
 			message_bits=message_bits,
 			double_hashing=double_hashing,
 			one_hot_encoding=one_hot_encoding,
+			max_matches_per_node=max_matches_per_node,
 			grid=grid,
 			block=block
 		)
@@ -1065,6 +1073,7 @@ class GraphTsetlinMachine(CommonTsetlinMachine):
 			message_bits=2,
 			double_hashing=False,
 			one_hot_encoding=False,
+			max_matches_per_node=None,
 			grid=(16*13*4,1,1),
 			block=(128,1,1)
 	):
@@ -1081,6 +1090,7 @@ class GraphTsetlinMachine(CommonTsetlinMachine):
 			message_bits=message_bits,
 			double_hashing=double_hashing,
 			one_hot_encoding=one_hot_encoding,
+			max_matches_per_node=max_matches_per_node,
 			grid=grid,
 			block=block
 		)
