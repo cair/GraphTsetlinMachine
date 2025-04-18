@@ -53,7 +53,7 @@ class CommonTsetlinMachine():
 			message_bits=2,
 			double_hashing=False,
 			one_hot_encoding=False,
-			max_matches_per_node=None,
+			max_matches_per_node=-1,
 			grid=(16*13*4,1,1),
 			block=(128,1,1)
 	):
@@ -667,7 +667,7 @@ class CommonTsetlinMachine():
 			current_clause_node_output = next_clause_node_output
 			next_clause_node_output = tmp
 
-			if self.max_matches_per_node != None:
+			if self.max_matches_per_node > 0:
 				print("Max matches", self.max_matches_per_node)
 				# Identify last valid node match
 				self.identify_last_valid_node_match.prepared_call(
@@ -957,7 +957,7 @@ class MultiClassGraphTsetlinMachine(CommonTsetlinMachine):
 			message_bits=2,
 			double_hashing=False,
 			one_hot_encoding=False,
-			max_matches_per_node=None,
+			max_matches_per_node=-1,
 			grid=(16*13*4,1,1),
 			block=(128,1,1)
 	):
@@ -1017,7 +1017,7 @@ class MultiOutputGraphTsetlinMachine(CommonTsetlinMachine):
 		message_bits=2,
 		double_hashing=False,
 		one_hot_encoding=False,
-		max_matches_per_node=None,
+		max_matches_per_node=-1,
 		grid=(16*13*4, 1, 1),
 		block=(128, 1, 1),
 	):
@@ -1073,7 +1073,7 @@ class GraphTsetlinMachine(CommonTsetlinMachine):
 			message_bits=2,
 			double_hashing=False,
 			one_hot_encoding=False,
-			max_matches_per_node=None,
+			max_matches_per_node=-1,
 			grid=(16*13*4,1,1),
 			block=(128,1,1)
 	):
