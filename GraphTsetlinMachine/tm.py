@@ -677,7 +677,6 @@ class CommonTsetlinMachine():
 					self.last_valid_node_match_gpu
 				)
 
-
 				# Remove invalid node matches
 				self.remove_invalid_node_matches.prepared_call(
 					self.grid,
