@@ -345,9 +345,9 @@ code_evaluate = """
         }
 
         __global__ void remove_invalid_node_matches(
+            unsigned int *global_clause_node_output
             int number_of_nodes,
             unsigned int *last_valid_node_match,
-            unsigned int *global_clause_node_output
         )
         {
             int index = blockIdx.x * blockDim.x + threadIdx.x;
@@ -362,7 +362,7 @@ code_evaluate = """
                 for (int node_pos = 0; (node_pos < INT_SIZE) && ((node_chunk * INT_SIZE + node_pos) < number_of_nodes); ++node_pos) {
                     int node = node_chunk * INT_SIZE + node_pos;
 
-                    if (clause > last_valid_node_match[node] && (global_clause_node_output[clause*NODE_CHUNKS + node_chunk] & (1 << node_pos))) {
+                    if ((clause > last_valid_node_match[node]) && (global_clause_node_output[clause*NODE_CHUNKS + node_chunk] & (1 << node_pos))) {
                         global_clause_node_output[clause*NODE_CHUNKS + node_chunk] &= ~(1 << node_pos);
                     }
                 }

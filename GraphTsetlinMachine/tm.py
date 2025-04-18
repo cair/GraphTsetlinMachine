@@ -490,6 +490,9 @@ class CommonTsetlinMachine():
 		self.identify_last_valid_node_match = mod_evaluate.get_function("identify_last_valid_node_match")
 		self.identify_last_valid_node_match.prepare("PiP")
 
+		self.remove_invalid_node_matches = mod_evaluate.get_function("remove_invalid_node_matches")
+		self.remove_invalid_node_matches.prepare("PiP")
+
 		self.select_clause_node = mod_evaluate.get_function("select_clause_node")
 		self.select_clause_node.prepare("PPiP")
 
@@ -669,6 +672,16 @@ class CommonTsetlinMachine():
 			np.int32(number_of_graph_nodes),
 			self.last_valid_node_match_gpu
 		)
+
+		# Remove invalid node matches
+		self.remove_invalid_node_matches.prepared_call(
+			self.grid,
+			self.block,
+			current_clause_node_output,
+			np.int32(number_of_graph_nodes),
+			self.last_valid_node_match_gpu
+		)
+
 
 		self.evaluate.prepared_call(
 			self.grid,
