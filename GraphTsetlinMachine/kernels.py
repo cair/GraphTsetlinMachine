@@ -353,8 +353,6 @@ code_evaluate = """
             int index = blockIdx.x * blockDim.x + threadIdx.x;
             int stride = blockDim.x * gridDim.x;
 
-            unsigned int clause_node_output;
-
             for (int clause_node_chunk = index; clause_node_chunk < (CLAUSES)*(NODE_CHUNKS); clause_node_chunk += stride) {
                 int clause = clause_node_chunk / NODE_CHUNKS;
                 int node_chunk = clause_node_chunk % NODE_CHUNKS;
