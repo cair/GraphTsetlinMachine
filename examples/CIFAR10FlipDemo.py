@@ -11,11 +11,11 @@ import cv2
 
 (X_train, Y_train), (X_test, Y_test) = cifar10.load_data()
 
-X_train = X_train
-Y_train = Y_train
+X_train = X_train[0:1000]
+Y_train = Y_train[0:1000]
 
-X_test = X_test
-Y_test = Y_test
+X_test = X_test[0:1000]
+Y_test = Y_test[0:1000]
 
 Y_train = Y_train.reshape(Y_train.shape[0])
 Y_test = Y_test.reshape(Y_test.shape[0])
@@ -47,6 +47,7 @@ def default_args(**kwargs):
     parser.add_argument("--message-bits", default=2, type=int)
     parser.add_argument("--patch_size", default=8, type=int)
     parser.add_argument('--double-hashing', dest='double_hashing', default=False, action='store_true')
+    parser.add_argument('--flip_recorded', dest='flip_recorded', default=False, action='store_true')
     parser.add_argument('--one-hot-encoding', dest='one_hot_encoding', default=False, action='store_true')
     parser.add_argument("--max-included-literals", default=32, type=int)
     parser.add_argument("--max-matches-per-node", default=100, type=int)
@@ -106,6 +107,7 @@ for graph_id in range(X_train.shape[0]):
                 node_id = (q*dim + r)*2
                 node_id_flipped = (q*dim + r)*2 + 1
 
+                patch = windows[q,r,0].reshape(-1).astype(np.uint32)
                 for k in patch.nonzero()[0]:
                     graphs_train.add_graph_node_property(graph_id, node_id, k)
 
