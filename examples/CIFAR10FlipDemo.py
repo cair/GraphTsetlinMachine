@@ -106,11 +106,10 @@ for graph_id in range(X_train.shape[0]):
                 node_id = (q*dim + r)*2
                 node_id_flipped = (q*dim + r)*2 + 1
 
-                patch = windows[q,r,0].reshape(-1).astype(np.uint32)
                 for k in patch.nonzero()[0]:
                     graphs_train.add_graph_node_property(graph_id, node_id, k)
 
-                patch_flipped = np.flip(patch, axis=1)
+                patch_flipped = np.flip(windows[q,r,0], axis=1).reshape(-1).astype(np.uint32)
                 for k in patch_flipped.nonzero()[0]:
                     graphs_train.add_graph_node_property(graph_id, node_id_flipped, k)
 
@@ -154,7 +153,7 @@ for graph_id in range(X_test.shape[0]):
                 for k in patch.nonzero()[0]:
                     graphs_test.add_graph_node_property(graph_id, node_id, k)
 
-                patch_flipped = np.flip(patch, axis=1)
+                patch_flipped = np.flip(windows[q,r,0], axis=1).reshape(-1).astype(np.uint32)
                 for k in patch_flipped.nonzero()[0]:
                     graphs_test.add_graph_node_property(graph_id, node_id_flipped, k)
 
