@@ -11,11 +11,11 @@ import cv2
 
 (X_train, Y_train), (X_test, Y_test) = cifar10.load_data()
 
-X_train = X_train[0:1000]
-Y_train = Y_train[0:1000]
+X_train = X_train#[0:1000]
+Y_train = Y_train#[0:1000]
 
-X_test = X_test[0:1000]
-Y_test = Y_test[0:1000]
+X_test = X_test#[0:1000]
+Y_test = Y_test#[0:1000]
 
 Y_train = Y_train.reshape(Y_train.shape[0])
 Y_test = Y_test.reshape(Y_test.shape[0])
