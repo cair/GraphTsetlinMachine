@@ -74,6 +74,8 @@ for i in range(dim):
 for i in range(args.patch_size*args.patch_size*3):
     symbols.append(i)
 
+symbols.append("Flipped")
+
 graphs_train = Graphs(
     X_train.shape[0],
     symbols=symbols,
@@ -111,6 +113,8 @@ for graph_id in range(X_train.shape[0]):
                 patch_flipped = np.flip(patch, axis=1)
                 for k in patch_flipped.nonzero()[0]:
                     graphs_train.add_graph_node_property(graph_id, node_id_flipped, k)
+
+                graphs_train.add_graph_node_property(graph_id, node_id_flipped, "Flipped")
 
                 for s in range(q+1):
                     graphs_train.add_graph_node_property(graph_id, node_id, "C:%d" % (s))
@@ -153,6 +157,8 @@ for graph_id in range(X_test.shape[0]):
                 patch_flipped = np.flip(patch, axis=1)
                 for k in patch_flipped.nonzero()[0]:
                     graphs_test.add_graph_node_property(graph_id, node_id_flipped, k)
+
+                graphs_test.add_graph_node_property(graph_id, node_id_flipped, "Flipped")
 
                 for s in range(q+1):
                     graphs_test.add_graph_node_property(graph_id, node_id, "C:%d" % (s))
