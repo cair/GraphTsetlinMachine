@@ -47,12 +47,12 @@ graphs_train = Graphs(
     one_hot_encoding = True
 )
 
-for graph_id in range(X_train.shape[0]):
+for graph_id in range(number_of_training_examples):
     graphs_train.set_number_of_graph_nodes(graph_id, 1)
 
 graphs_train.prepare_node_configuration()
 
-for graph_id in range(X_train.shape[0]):
+for graph_id in range(number_of_training_examples):
     graphs_train.add_graph_node(graph_id, 'X', 0)
 
 graphs_train.prepare_edge_configuration()
@@ -90,12 +90,12 @@ graphs_test = Graphs(
 	init_with=graphs_train
 )
 
-for graph_id in range(X_test.shape[0]):
+for graph_id in range(number_of_testing_examples):
     graphs_test.set_number_of_graph_nodes(graph_id, 1)
 
 graphs_test.prepare_node_configuration()
 
-for graph_id in range(X_test.shape[0]):
+for graph_id in range(number_of_testing_examples):
     graphs_test.add_graph_node(graph_id, 'X', 0)
 
 graphs_test.prepare_edge_configuration()
@@ -138,17 +138,19 @@ tm = MultiClassGraphTsetlinMachine(
 
 start = time()
 for epoch in range(25):
-	tm.fit(X_train, Y_train, epochs=1, incremental=True)
+	tm.fit(graphs_train, Y_train, epochs=1, incremental=True)
 stop = time()
 
 print(stop-start)
+
+print("Accuracy:", 100*(tm.predict(graphs_test) == Y_test).mean())
 
 np.set_printoptions(threshold=np.inf, linewidth=200, precision=2, suppress=True)
 
 print("\nClass 0 Positive Clauses:\n")
 
-precision = tm.clause_precision(0, 0, X_test, Y_test)
-recall = tm.clause_recall(0, 0, X_test, Y_test)
+precision = tm.clause_precision(0, 0, graphs_test, Y_test)
+recall = tm.clause_recall(0, 0, graphs_test, Y_test)
 
 for j in range(number_of_clauses//2):
 	print("Clause #%d W:%d P:%.2f R:%.2f " % (j, tm.get_weight(0, 0, j), precision[j], recall[j]), end=' ')
@@ -244,4 +246,3 @@ for i in range(2):
 
 print(characterizing_features, common_features.shape)
 
-print("Accuracy:", 100*(tm.predict(X_test) == Y_test).mean())
