@@ -20,7 +20,7 @@ number_of_common_features_per_example = 10
 
 number_of_clauses = 10
 T = number_of_clauses*10
-s = 1.0
+s = 10.0
 
 a = 1.1
 b = 2.7
@@ -64,7 +64,6 @@ for graph_id in range(number_of_training_examples):
 	indexes = np.random.choice(characterizing_features[Y_train[i]], number_of_characterizing_features_per_example, replace=False)
 	for j in indexes:
 		graphs_train.add_graph_node_property(graph_id, "X", "x%d" % (j))
-
 
 	for j in low_precision_features[Y_train[i]]:
 		if random.random() <= low_precision_features_p:
