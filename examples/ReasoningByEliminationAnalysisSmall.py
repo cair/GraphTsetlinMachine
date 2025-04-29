@@ -57,6 +57,7 @@ for graph_id in range(number_of_training_examples):
 
 graphs_train.prepare_edge_configuration()
 
+Y_train = np.zeros(number_of_training_examples, dtype=np.uint32)
 for graph_id in range(number_of_training_examples):
 	Y_train[i] = np.random.choice(2)
 
@@ -100,6 +101,7 @@ for graph_id in range(number_of_testing_examples):
 
 graphs_test.prepare_edge_configuration()
 
+Y_test = np.zeros(number_of_testing_examples, dtype=np.uint32)
 for graph_id in range(number_of_testing_examples):
 	Y_test[i] = np.random.choice(2)
 
