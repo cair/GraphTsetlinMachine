@@ -25,7 +25,7 @@ s = 1.0
 a = 1.1
 b = 2.7
 
-low_precision_features_p = 0.8
+low_precision_features_p = 0.5
 
 #characterizing_features = np.random.choice(number_of_features, size=(2, number_of_characterizing_features), replace=False).astype(np.uint32)
 characterizing_features = np.arange(number_of_characterizing_features*2).reshape((2, number_of_characterizing_features)).astype(np.uint32)
@@ -124,11 +124,20 @@ graphs_test.encode()
 
 print("Testing data produced")
 
-tm = TMClassifier(number_of_clauses, T, s, platform='CPU', weighted_clauses=True, max_included_literals=100, type_i_ii_ratio=2.0)
+tm = MultiClassGraphTsetlinMachine(
+    number_of_clauses,
+    T,
+    s,
+    number_of_state_bits = 8,
+    depth=1,
+    max_included_literals=100,
+    double_hashing = False,
+    one_hot_encoding = True
+)
 
 start = time()
 for epoch in range(25):
-	tm.fit(X_train, Y_train)
+	tm.fit(X_train, Y_train, epochs=1, incremental=True)
 stop = time()
 
 print(stop-start)
