@@ -61,7 +61,7 @@ Y_train = np.zeros(number_of_training_examples, dtype=np.uint32)
 for graph_id in range(number_of_training_examples):
 	Y_train[graph_id] = np.random.choice(2)
 
-	indexes = np.random.choice(characterizing_features[Y_train[i]], number_of_characterizing_features_per_example, replace=False)
+	indexes = np.random.choice(characterizing_features[Y_train[graph_id]], number_of_characterizing_features_per_example, replace=False)
 	for j in indexes:
 		graphs_train.add_graph_node_property(graph_id, "X", "x%d" % (j))
 
@@ -105,7 +105,7 @@ Y_test = np.zeros(number_of_testing_examples, dtype=np.uint32)
 for graph_id in range(number_of_testing_examples):
 	Y_test[graph_id] = np.random.choice(2)
 
-	indexes = np.random.choice(characterizing_features[Y_test[i]], number_of_characterizing_features_per_example, replace=False)
+	indexes = np.random.choice(characterizing_features[Y_test[graph_id]], number_of_characterizing_features_per_example, replace=False)
 	for j in indexes:
 		graphs_test.add_graph_node_property(graph_id, "X", "x%d" % (j))
 
