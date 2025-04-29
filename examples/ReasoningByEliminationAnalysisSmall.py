@@ -5,7 +5,7 @@ from time import time
 import random
 
 number_of_training_examples = 10000
-number_of_test_examples = 10000
+number_of_testing_examples = 10000
 
 noise = [0.0, 0.05, 0.1]
 
@@ -88,6 +88,7 @@ graphs_train.encode()
 print("Training data produced")
 
 graphs_test = Graphs(
+	number_of_testing_examples,
 	init_with=graphs_train
 )
 
