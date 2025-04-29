@@ -18,8 +18,8 @@ number_of_low_precision_features = 1
 number_of_characterizing_features_per_example = 1 # Each example consists of this number of unique features
 number_of_common_features_per_example = 10
 
-number_of_clauses = 10
-T = number_of_clauses*100
+number_of_clauses = 100
+T = number_of_clauses*10
 s = 1.0
 
 a = 1.1
@@ -132,7 +132,8 @@ tm = MultiClassGraphTsetlinMachine(
     depth=1,
     max_included_literals=100,
     double_hashing = False,
-    one_hot_encoding = True
+    one_hot_encoding = True,
+    nunber_of_blocks=2
 )
 
 start = time()
