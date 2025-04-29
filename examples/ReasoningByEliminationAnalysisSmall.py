@@ -136,7 +136,7 @@ tm = MultiClassGraphTsetlinMachine(
     max_included_literals=100,
     double_hashing = False,
     one_hot_encoding = True,
-    nunber_of_blocks=2
+    number_of_blocks=2
 )
 
 start = time()
