@@ -11,7 +11,7 @@ noise = [0.0, 0.05, 0.1]
 
 number_of_features = 1000
 
-number_of_characterizing_features = 100 # Each class gets this many unique features in total
+number_of_characterizing_features = 2 # Each class gets this many unique features in total
 
 number_of_low_precision_features = 1
 
