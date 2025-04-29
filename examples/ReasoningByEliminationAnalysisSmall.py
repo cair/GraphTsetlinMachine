@@ -59,7 +59,7 @@ graphs_train.prepare_edge_configuration()
 
 Y_train = np.zeros(number_of_training_examples, dtype=np.uint32)
 for graph_id in range(number_of_training_examples):
-	Y_train[i] = np.random.choice(2)
+	Y_train[graph_id] = np.random.choice(2)
 
 	indexes = np.random.choice(characterizing_features[Y_train[i]], number_of_characterizing_features_per_example, replace=False)
 	for j in indexes:
@@ -103,7 +103,7 @@ graphs_test.prepare_edge_configuration()
 
 Y_test = np.zeros(number_of_testing_examples, dtype=np.uint32)
 for graph_id in range(number_of_testing_examples):
-	Y_test[i] = np.random.choice(2)
+	Y_test[graph_id] = np.random.choice(2)
 
 	indexes = np.random.choice(characterizing_features[Y_test[i]], number_of_characterizing_features_per_example, replace=False)
 	for j in indexes:
