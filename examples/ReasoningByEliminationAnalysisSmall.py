@@ -21,6 +21,7 @@ number_of_common_features_per_example = 10
 number_of_clauses = 100
 T = number_of_clauses*10
 s = 1.0
+number_of_blocks = 2
 
 a = 1.1
 b = 2.7
@@ -134,7 +135,7 @@ tm = MultiClassGraphTsetlinMachine(
     max_included_literals=100,
     double_hashing = False,
     one_hot_encoding = True,
-    number_of_blocks=2
+    number_of_blocks=number_of_blocks
 )
 
 start = time()
