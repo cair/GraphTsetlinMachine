@@ -20,7 +20,7 @@ number_of_common_features_per_example = 10
 
 number_of_clauses = 200
 T = number_of_clauses*10
-s = 100.0
+s = 5.0
 number_of_blocks = 2
 
 a = 1.1
