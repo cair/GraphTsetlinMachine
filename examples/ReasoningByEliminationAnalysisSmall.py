@@ -132,7 +132,7 @@ tm = MultiClassGraphTsetlinMachine(
     s,
     number_of_state_bits = 8,
     depth=1,
-    max_included_literals=100,
+    max_included_literals=1,
     double_hashing = False,
     one_hot_encoding = True,
     number_of_blocks=number_of_blocks
