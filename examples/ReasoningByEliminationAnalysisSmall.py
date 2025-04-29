@@ -25,7 +25,7 @@ s = 1.0
 a = 1.1
 b = 2.7
 
-low_precision_features_p = 0.5
+low_precision_features_p = 0.9
 
 #characterizing_features = np.random.choice(number_of_features, size=(2, number_of_characterizing_features), replace=False).astype(np.uint32)
 characterizing_features = np.arange(number_of_characterizing_features*2).reshape((2, number_of_characterizing_features)).astype(np.uint32)
