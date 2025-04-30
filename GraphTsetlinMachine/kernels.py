@@ -390,7 +390,7 @@ code_evaluate = """
 
                 int clause;
                 if (clause_true_len > 0) {
-                    clause = clause_true[0];//[curand(&localState) % (clause_true_len)];
+                    clause = clause_true[curand(&localState) % (clause_true_len)];
                 } else {
                     clause = block * (CLAUSES / BLOCKS) + (curand(&localState) % (CLAUSES / BLOCKS));
                 }
