@@ -392,7 +392,7 @@ code_evaluate = """
                 if (clause_true_len > 0) {
                     clause = clause_true[0];//[curand(&localState) % (clause_true_len)];
                 } else {
-                    clause = block * (CLAUSES / BLOCKS);// + (curand(&localState) % (CLAUSES / BLOCKS));
+                    clause = block * (CLAUSES / BLOCKS) + (curand(&localState) % (CLAUSES / BLOCKS));
                 }
 
                 for (int class_id = 0; class_id < CLASSES; ++class_id) {
