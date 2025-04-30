@@ -148,103 +148,26 @@ print(stop-start)
 print("Accuracy:", 100*(tm.predict(graphs_test) == Y_test).mean())
 
 np.set_printoptions(threshold=np.inf, linewidth=200, precision=2, suppress=True)
+weights = tm.get_state()[1].reshape(2, -1)
 
-print("\nClass 0 Positive Clauses:\n")
+for b in range(tm.number_of_blocks):
+    print("Block #%d W:(%d %d)" % (b, weights[0,b], weights[1,b]))
 
-precision = tm.clause_precision(0, 0, graphs_test, Y_test)
-recall = tm.clause_recall(0, 0, graphs_test, Y_test)
+    for i in range(b*(tm.number_of_clauses // tm.number_of_blocks), (b+1)*(tm.number_of_clauses // tm.number_of_blocks)):
+        print("\tClause #%d:" % (i,), end=' ')
+        l = []
+        for k in range(graphs_train.hypervector_size * 2):
+            if tm.ta_action(0, i, k):
+                if k < graphs_train.hypervector_size:
+                    l.append("x%d" % (k))
+                else:
+                    l.append("NOT x%d" % (k - graphs_train.hypervector_size))
 
-for j in range(number_of_clauses//2):
-	print("Clause #%d W:%d P:%.2f R:%.2f " % (j, tm.get_weight(0, 0, j), precision[j], recall[j]), end=' ')
-	l = []
-	for k in range(number_of_features*2):
-		if tm.get_ta_action(j, k, the_class = 0, polarity = 0):
-			if k < number_of_features:
-				l.append(" x%d(%d)" % (k, tm.get_ta_state(j, k, the_class = 0, polarity = 0)))
-			else:
-				l.append("¬x%d(%d)" % (k-number_of_features, tm.get_ta_state(j, k, the_class = 0, polarity = 0)))
-	print(" ∧ ".join(l))
+    # for k in range(args.message_size * 2):
+    #     if tm.ta_action(1, i, k):
+    #         if k < args.message_size:
+    #             l.append("c%d" % (k))
+    #         else:
+    #             l.append("NOT c%d" % (k - args.message_size))
 
-print("\nClass 0 Negative Clauses:\n")
-
-precision = tm.clause_precision(0, 1, X_test, Y_test)
-recall = tm.clause_recall(0, 1, X_test, Y_test)
-
-for j in range(number_of_clauses//2):
-	print("Clause #%d W:%d P:%.2f R:%.2f " % (j, tm.get_weight(0, 1, j), precision[j], recall[j]), end=' ')
-	l = []
-	for k in range(number_of_features*2):
-		if tm.get_ta_action(j, k, the_class = 0, polarity = 1):
-			if k < number_of_features:
-				l.append(" x%d(%d)" % (k, tm.get_ta_state(j, k, the_class = 0, polarity = 1)))
-			else:
-				l.append("¬x%d(%d)" % (k-number_of_features, tm.get_ta_state(j, k, the_class = 0, polarity = 1)))
-	print(" ∧ ".join(l))
-
-print("\nClass 1 Positive Clauses:\n")
-
-precision = tm.clause_precision(1, 0, X_test, Y_test)
-recall = tm.clause_recall(1, 0, X_test, Y_test)
-
-for j in range(number_of_clauses//2):
-	print("Clause #%d W:%d P:%.2f R:%.2f " % (j, tm.get_weight(1, 0, j), precision[j], recall[j]), end=' ')
-	l = []
-	for k in range(number_of_features*2):
-		if tm.get_ta_action(j, k, the_class = 1, polarity = 0):
-			if k < number_of_features:
-				l.append(" x%d(%d)" % (k, tm.get_ta_state(j, k, the_class = 1, polarity = 0)))
-			else:
-				l.append("¬x%d(%d)" % (k-number_of_features, tm.get_ta_state(j, k, the_class = 1, polarity = 0)))
-	print(" ∧ ".join(l))
-
-print("\nClass 1 Negative Clauses:\n")
-
-precision = tm.clause_precision(1, 1, X_test, Y_test)
-recall = tm.clause_recall(1, 1, X_test, Y_test)
-
-for j in range(number_of_clauses//2):
-	print("Clause #%d W:%d P:%.2f R:%.2f " % (j, tm.get_weight(1, 1, j), precision[j], recall[j]), end=' ')
-	l = []
-	for k in range(number_of_features*2):
-		if tm.get_ta_action(j, k, the_class = 1, polarity = 1):
-			if k < number_of_features:
-				l.append(" x%d(%d)" % (k, tm.get_ta_state(j, k, the_class = 1, polarity = 1)))
-			else:
-				l.append("¬x%d(%d)" % (k-number_of_features, tm.get_ta_state(j, k, the_class = 1, polarity = 1)))
-	print(" ∧ ".join(l))
-
-print("\nLiteral Clause Frequency:", end=' ')
-literal_frequency = tm.literal_clause_frequency()
-sorted_literals = np.argsort(-1*literal_frequency)
-for k in sorted_literals:
-		if literal_frequency[k] == 0:
-			break
-
-		if k < number_of_features:
-			print("%d(%.2f,%d,%d)" % (k, 1.0*literal_frequency[k]/number_of_clauses, (k - number_of_features) % len(noise), k in common_features), end=' ')
-		else:
-			print("¬%d(%.2f,%d,%d)" % (k - number_of_features, 1.0*literal_frequency[k]/number_of_clauses, (k - number_of_features) % len(noise), k in common_features), end=' ')
-print()
-
-for i in range(2):
-	print("\nLiteral Importance Class #%d:" % (i), end=' ')
-
-	literal_importance = tm.literal_importance(i, negated_features=False, negative_polarity=False).astype(np.int32)
-	sorted_literals = np.argsort(-1*literal_importance)
-	for k in sorted_literals:
-		if literal_importance[k] == 0:
-			break
-
-		print(k, end=' ')
-
-	literal_importance = tm.literal_importance(i, negated_features=True, negative_polarity=False).astype(np.int32)
-	sorted_literals = np.argsort(-1*literal_importance)
-	for k in sorted_literals:
-		if literal_importance[k] == 0:
-			break
-
-		print("¬" + str(k - number_of_features), end=' ')
-	print()
-
-print(characterizing_features, common_features.shape)
-
+        print(" AND ".join(l))
