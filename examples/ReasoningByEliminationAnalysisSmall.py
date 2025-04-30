@@ -139,7 +139,7 @@ tm = MultiClassGraphTsetlinMachine(
 )
 
 start = time()
-for epoch in range(100):
+for epoch in range(500):
 	tm.fit(graphs_train, Y_train, epochs=1, incremental=True)
 stop = time()
 
