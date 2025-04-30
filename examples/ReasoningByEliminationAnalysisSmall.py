@@ -19,9 +19,9 @@ number_of_characterizing_features_per_example = 1 # Each example consists of thi
 number_of_common_features_per_example = 10
 
 number_of_clauses = 200
-T = number_of_clauses*10
-s = 5.0
+s = 110.0
 number_of_blocks = 2
+T = number_of_blocks*10
 
 a = 1.1
 b = 2.7
