@@ -79,9 +79,9 @@ for graph_id in range(number_of_training_examples):
 #		if random.random() <= noise[j%len(noise)]:
 #			graphs_train.add_graph_node_property(graph_id, "X", "x%d" % (j))
 
-	indexes = np.random.choice(common_features, number_of_common_features_per_example, replace=False, p=p_common_feature)
-	for j in indexes:
-		graphs_train.add_graph_node_property(graph_id, "X", "x%d" % (j))
+#	indexes = np.random.choice(common_features, number_of_common_features_per_example, replace=False, p=p_common_feature)
+#	for j in indexes:
+#		graphs_train.add_graph_node_property(graph_id, "X", "x%d" % (j))
 
 graphs_train.encode()
 
@@ -118,9 +118,9 @@ for graph_id in range(number_of_testing_examples):
 #		if random.random() <= 1.0 - low_precision_features_p:
 #			graphs_test.add_graph_node_property(graph_id, "X", "x%d" % (j))
 
-	indexes = np.random.choice(common_features, number_of_common_features_per_example, replace=False, p=p_common_feature)
-	for j in indexes:
-		graphs_test.add_graph_node_property(graph_id, "X", "x%d" % (j))
+#	indexes = np.random.choice(common_features, number_of_common_features_per_example, replace=False, p=p_common_feature)
+#	for j in indexes:
+#		graphs_test.add_graph_node_property(graph_id, "X", "x%d" % (j))
 
 graphs_test.encode()
 
