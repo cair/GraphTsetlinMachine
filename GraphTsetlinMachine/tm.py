@@ -456,6 +456,7 @@ class CommonTsetlinMachine():
 #define MAX_NODES %d
 #define MESSAGE_SIZE %d
 #define MESSAGE_BITS %d
+#define ATTENTION %d
 """ % (
 			self.number_of_outputs,
 			self.number_of_clauses,
@@ -469,6 +470,7 @@ class CommonTsetlinMachine():
 			self.max_number_of_graph_nodes,
 			self.message_size,
 			self.message_bits,
+			self.attention
 		)
 
 		mod_prepare = SourceModule(parameters + kernels.code_header + kernels.code_prepare, no_extern_c=True)
