@@ -53,6 +53,7 @@ class CommonTsetlinMachine():
 			message_bits=2,
 			double_hashing=False,
 			one_hot_encoding=False,
+			attention=False,
 			grid=(16*13*4,1,1),
 			block=(128,1,1)
 	):
@@ -78,6 +79,7 @@ class CommonTsetlinMachine():
 
 		self.double_hashing = double_hashing
 		self.one_hot_encoding = one_hot_encoding
+		self.attention = attention
 
 		self.grid = grid
 		self.block = block
@@ -925,6 +927,7 @@ class MultiClassGraphTsetlinMachine(CommonTsetlinMachine):
 			message_bits=2,
 			double_hashing=False,
 			one_hot_encoding=False,
+			attention=False,
 			grid=(16*13*4,1,1),
 			block=(128,1,1)
 	):
@@ -941,6 +944,7 @@ class MultiClassGraphTsetlinMachine(CommonTsetlinMachine):
 			message_bits=message_bits,
 			double_hashing=double_hashing,
 			one_hot_encoding=one_hot_encoding,
+			attention=attention,
 			grid=grid,
 			block=block
 		)
@@ -983,6 +987,7 @@ class MultiOutputGraphTsetlinMachine(CommonTsetlinMachine):
 		message_bits=2,
 		double_hashing=False,
 		one_hot_encoding=False,
+		attention=False,
 		grid=(16*13*4, 1, 1),
 		block=(128, 1, 1),
 	):
@@ -999,6 +1004,7 @@ class MultiOutputGraphTsetlinMachine(CommonTsetlinMachine):
 			message_bits=message_bits,
 			double_hashing=double_hashing,
 			one_hot_encoding=one_hot_encoding,
+			attention=attention,
 			grid=grid,
 			block=block
 		)
@@ -1037,6 +1043,7 @@ class GraphTsetlinMachine(CommonTsetlinMachine):
 			message_bits=2,
 			double_hashing=False,
 			one_hot_encoding=False,
+			attention=False,
 			grid=(16*13*4,1,1),
 			block=(128,1,1)
 	):
@@ -1053,6 +1060,7 @@ class GraphTsetlinMachine(CommonTsetlinMachine):
 			message_bits=message_bits,
 			double_hashing=double_hashing,
 			one_hot_encoding=one_hot_encoding,
+			attention=attention,
 			grid=grid,
 			block=block
 		)
