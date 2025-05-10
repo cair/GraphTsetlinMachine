@@ -32,6 +32,7 @@ class Graphs():
 		double_hashing=False,
 		one_hot_encoding=False,
 		symbols=None,
+		edge_types=['Plain'],
 		init_with=None
 	):
 		self.number_of_graphs = number_of_graphs
@@ -47,6 +48,9 @@ class Graphs():
 		self.init_with = init_with
 		if self.init_with == None:
 			self.edge_type_id = {}
+			for edge_type in edge_types:
+				self.edge_type_id[edge_type] = len(self.edge_type_id)
+
 			self.node_type_id = {}
 
 			self.symbol_id = {}
@@ -128,7 +132,7 @@ class Graphs():
 		self.edge_index[1:] = np.add.accumulate(self.number_of_graph_node_edges[:-1])
 		self.edge = np.empty((self.number_of_graph_node_edges.sum(), 2), dtype=np.uint32)
 
-	def add_graph_node_edge(self, graph_id, source_node_name, destination_node_name, edge_type_name):
+	def add_graph_node_edge(self, graph_id, source_node_name, destination_node_name, edge_type_name='Plain'):
 		source_node_id = self.graph_node_id[graph_id][source_node_name]
 
 		if self.graph_node_edge_counter[self.node_index[graph_id] + source_node_id] >= self.number_of_graph_node_edges[self.node_index[graph_id] + source_node_id]:
