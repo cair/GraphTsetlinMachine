@@ -560,7 +560,7 @@ code_evaluate = """
             int index = blockIdx.x * blockDim.x + threadIdx.x;
             int stride = blockDim.x * gridDim.x;
 
-            #if BOOST_TRUE_POSITIVE_FEEDBACK == 1
+            #if ATTENTION == 1
                 int bit[LITERALS];
             #else
                 int bit[MESSAGE_BITS];
