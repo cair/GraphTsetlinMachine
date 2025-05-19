@@ -1,4 +1,4 @@
-# Copyright (c) 2024 Ole-Christoffer Granmo
+# Copyright (c) 2025 Ole-Christoffer Granmo
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -31,6 +31,7 @@ class Graphs():
 		hypervector_bits = 2,
 		double_hashing=False,
 		one_hot_encoding=False,
+		attention=False,
 		symbols=None,
 		edge_types=['Plain'],
 		init_with=None
@@ -40,6 +41,7 @@ class Graphs():
 	
 		self.double_hashing = double_hashing
 		self.one_hot_encoding = one_hot_encoding
+		self.attention = attention
 
 		self.graph_node_id = [None] * self.number_of_graphs
 		for i in range(number_of_graphs):
@@ -141,7 +143,7 @@ class Graphs():
 
 		destination_node_id = self.graph_node_id[graph_id][destination_node_name]
 		if edge_type_name not in self.edge_type_id:
-			self.edge_type_id[edge_type_name] = len(self.edge_type_id)
+			print("Edge type '%s' not defined." % edge_type_name)
 		edge_type_id = self.edge_type_id[edge_type_name]
 
 		edge_index = self.edge_index[self.node_index[graph_id] + source_node_id] + self.graph_node_edge_counter[self.node_index[graph_id] + source_node_id]
