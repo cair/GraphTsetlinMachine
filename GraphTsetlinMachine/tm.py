@@ -418,6 +418,8 @@ class CommonTsetlinMachine():
 		self.initialized = True
 
 	def _init(self, graphs):
+		self.attention = graphs.attention
+
 		if self.one_hot_encoding:
 			self.message_size = self.number_of_clauses * max(1, len(graphs.edge_type_id))
 			for i in range(self.number_of_clauses):
@@ -467,7 +469,8 @@ class CommonTsetlinMachine():
 			self.negative_clauses,
 			self.max_number_of_graph_nodes,
 			self.message_size,
-			self.message_bits
+			self.message_bits,
+			self.attention
 		)
 
 		mod_prepare = SourceModule(parameters + kernels.code_header + kernels.code_prepare, no_extern_c=True)
