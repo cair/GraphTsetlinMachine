@@ -49,7 +49,8 @@ graphs_train = Graphs(
     symbols=symbols,
     hypervector_size=args.hypervector_size,
     hypervector_bits=args.hypervector_bits,
-    double_hashing = args.double_hashing
+    double_hashing = args.double_hashing,
+    one_hot_encoding = args.one_hot_encoding
 )
 
 for graph_id in range(args.number_of_examples):
@@ -140,7 +141,8 @@ tm = MultiClassGraphTsetlinMachine(
     message_size = args.message_size,
     message_bits = args.message_bits,
     max_included_literals = args.max_included_literals,
-    double_hashing = args.double_hashing
+    double_hashing = args.double_hashing,
+    one_hot_encoding = args.one_hot_encoding
 )
 
 for i in range(args.epochs):
