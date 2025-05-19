@@ -40,6 +40,7 @@ print("Creating training data")
 graphs_train = Graphs(
     args.number_of_examples,
     symbols=['A'],
+    edge_types=['Left', 'Right'],
     hypervector_size=args.hypervector_size,
     hypervector_bits=args.hypervector_bits,
     double_hashing = args.double_hashing,
