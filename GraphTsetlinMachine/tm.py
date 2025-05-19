@@ -53,7 +53,6 @@ class CommonTsetlinMachine():
 			message_bits=2,
 			double_hashing=False,
 			one_hot_encoding=False,
-			attention=False,
 			grid=(16*13*4,1,1),
 			block=(128,1,1)
 	):
@@ -79,7 +78,6 @@ class CommonTsetlinMachine():
 
 		self.double_hashing = double_hashing
 		self.one_hot_encoding = one_hot_encoding
-		self.attention = attention
 
 		self.grid = grid
 		self.block = block
@@ -469,8 +467,7 @@ class CommonTsetlinMachine():
 			self.negative_clauses,
 			self.max_number_of_graph_nodes,
 			self.message_size,
-			self.message_bits,
-			self.attention
+			self.message_bits
 		)
 
 		mod_prepare = SourceModule(parameters + kernels.code_header + kernels.code_prepare, no_extern_c=True)
@@ -929,7 +926,6 @@ class MultiClassGraphTsetlinMachine(CommonTsetlinMachine):
 			message_bits=2,
 			double_hashing=False,
 			one_hot_encoding=False,
-			attention=False,
 			grid=(16*13*4,1,1),
 			block=(128,1,1)
 	):
@@ -946,7 +942,6 @@ class MultiClassGraphTsetlinMachine(CommonTsetlinMachine):
 			message_bits=message_bits,
 			double_hashing=double_hashing,
 			one_hot_encoding=one_hot_encoding,
-			attention=attention,
 			grid=grid,
 			block=block
 		)
@@ -989,7 +984,6 @@ class MultiOutputGraphTsetlinMachine(CommonTsetlinMachine):
 		message_bits=2,
 		double_hashing=False,
 		one_hot_encoding=False,
-		attention=False,
 		grid=(16*13*4, 1, 1),
 		block=(128, 1, 1),
 	):
@@ -1006,7 +1000,6 @@ class MultiOutputGraphTsetlinMachine(CommonTsetlinMachine):
 			message_bits=message_bits,
 			double_hashing=double_hashing,
 			one_hot_encoding=one_hot_encoding,
-			attention=attention,
 			grid=grid,
 			block=block
 		)
@@ -1045,7 +1038,6 @@ class GraphTsetlinMachine(CommonTsetlinMachine):
 			message_bits=2,
 			double_hashing=False,
 			one_hot_encoding=False,
-			attention=False,
 			grid=(16*13*4,1,1),
 			block=(128,1,1)
 	):
@@ -1062,7 +1054,6 @@ class GraphTsetlinMachine(CommonTsetlinMachine):
 			message_bits=message_bits,
 			double_hashing=double_hashing,
 			one_hot_encoding=one_hot_encoding,
-			attention=attention,
 			grid=grid,
 			block=block
 		)
