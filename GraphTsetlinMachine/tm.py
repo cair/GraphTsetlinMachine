@@ -504,7 +504,7 @@ class CommonTsetlinMachine():
 		self.prepare_messages.prepare("iP")
 
 		self.exchange_messages = mod_evaluate.get_function("exchange_messages")
-		self.exchange_messages.prepare("iPPiiPPP")
+		self.exchange_messages.prepare("PiPPiiPPP")
 
 		self.encode_messages = mod_evaluate.get_function("encode_messages")
 		self.encode_messages.prepare("iPP")
@@ -618,6 +618,7 @@ class CommonTsetlinMachine():
 			self.exchange_messages.prepared_call(
 				self.grid,
 				self.block,
+				self.ta_state_gpu,
 				number_of_graph_nodes,
 				self.hypervectors_gpu,
 				current_clause_node_output,

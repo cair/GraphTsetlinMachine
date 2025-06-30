@@ -547,6 +547,7 @@ code_evaluate = """
         }
 
         __global__ void exchange_messages(
+            unsigned int *global_ta_state,
             int number_of_nodes,
             int *hypervectors,
             unsigned int *global_clause_node_output,
@@ -567,6 +568,7 @@ code_evaluate = """
             #endif
 
             for (int clause = index; clause < CLAUSES; clause += stride) {
+                // Create message
                 for (int bit_index = 0; bit_index < MESSAGE_BITS; ++bit_index) {
                      bit[bit_index] = hypervectors[clause*MESSAGE_BITS + bit_index];
                 }
