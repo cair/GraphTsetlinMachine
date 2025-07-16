@@ -585,8 +585,8 @@ code_evaluate = """
                 // Create message
                 int number_of_include_actions = 0;
                 for (int bit_index = 0; bit_index < LITERALS; ++bit_index) {
-                    la_chunk = bit_index / INT_SIZE;
-                    la_pos = bit_index % 32;
+                    int la_chunk = bit_index / INT_SIZE;
+                    int la_pos = bit_index % 32;
 
                     if ((ta_state[la_chunk*STATE_BITS + STATE_BITS - 1] & (1 << la_pos)) > 0) { 
                         bit[number_of_include_actions] = bit_index;
