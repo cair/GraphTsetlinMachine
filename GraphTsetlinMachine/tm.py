@@ -512,6 +512,9 @@ class CommonTsetlinMachine():
 		self.exchange_messages_attention = mod_evaluate.get_function("exchange_messages_attention")
 		self.exchange_messages_attention.prepare("PiPPiiPPP")
 
+		self.exchange_messages_attention_conditional = mod_evaluate.get_function("exchange_messages_attention_conditional")
+		self.exchange_messages_attention_conditional.prepare("PiPPiiPPP")
+
 		self.encode_messages = mod_evaluate.get_function("encode_messages")
 		self.encode_messages.prepare("iPP")
 

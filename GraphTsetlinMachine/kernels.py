@@ -562,6 +562,60 @@ code_evaluate = """
             }
         }
 
+
+        __global__ void exchange_messages_attention_conditional(
+            unsigned int *global_ta_state,
+            int number_of_nodes,
+            int *hypervectors,
+            unsigned int *global_clause_node_output,
+            int node_index,
+            int global_edge_index,
+            int *number_of_graph_node_edges,
+            int *edge,
+            unsigned int *clause_X_int
+        )
+        {
+            int index = blockIdx.x * blockDim.x + threadIdx.x;
+            int stride = blockDim.x * gridDim.x;
+
+            int bit[MESSAGE_SIZE];
+
+            for (int clause = index; clause < CLAUSES; clause += stride) {
+                unsigned int *ta_state = &global_ta_state[clause*MESSAGE_CHUNKS*STATE_BITS];
+
+                // Create message
+                int number_of_include_actions = 0;
+                for (int bit_index = 0; bit_index < MESSAGE_SIZE; ++bit_index) {
+                    int la_chunk = bit_index / INT_SIZE;
+                    int la_pos = bit_index % 32;
+
+                    if ((ta_state[la_chunk*STATE_BITS + STATE_BITS - 1] & (1 << la_pos)) > 0) { 
+                        bit[number_of_include_actions] = bit_index;
+                        number_of_include_actions++;
+                    } 
+                }
+
+                int edge_index = global_edge_index;
+                for (int source_node = 0; source_node < number_of_nodes; ++source_node) {
+                    unsigned int source_node_chunk = source_node / INT_SIZE;
+                    unsigned int source_node_pos = source_node % INT_SIZE;
+                    
+                    if ((global_clause_node_output[clause*NODE_CHUNKS + source_node_chunk] & (1 << source_node_pos)) > 0) { 
+                        for (int i = 0; i < number_of_graph_node_edges[node_index + source_node]; ++i) {
+                            int destination_node = edge[(edge_index + i) * 2];
+                            int edge_type = edge[(edge_index + i)* 2 + 1];
+
+                            for (int bit_index = 0; bit_index < number_of_include_actions; ++bit_index) {
+                                int shifted_bit = (bit[bit_index] + edge_type * LITERALS);
+                                clause_X_int[destination_node * MESSAGE_SIZE + shifted_bit] = 1;
+                            }
+                        }
+                    }
+                    edge_index += number_of_graph_node_edges[node_index + source_node];
+                }
+            }
+        }
+
         __global__ void exchange_messages_attention(
             unsigned int *global_ta_state,
             int number_of_nodes,
