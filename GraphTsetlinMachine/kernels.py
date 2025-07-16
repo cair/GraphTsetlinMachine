@@ -529,6 +529,22 @@ code_evaluate = """
             }
         }
 
+        __global__ void prepare_messages_attention(
+            int number_of_nodes,
+            unsigned int *clause_X_int
+        )
+        {
+            int index = blockIdx.x * blockDim.x + threadIdx.x;
+            int stride = blockDim.x * gridDim.x;
+
+            for (int node_message_bit = index; node_message_bit < number_of_nodes * MESSAGE_SIZE; node_message_bit += stride) {
+                int node = node_message_bit / MESSAGE_SIZE;
+                int message_bit = node_message_bit % MESSAGE_SIZE;
+
+                clause_X_int[node * MESSAGE_SIZE + message_bit] = 0;
+            }
+        }
+
         __global__ void prepare_messages(
             int number_of_nodes,
             unsigned int *clause_X_int
@@ -564,9 +580,18 @@ code_evaluate = """
             int bit[LITERALS];
 
             for (int clause = index; clause < CLAUSES; clause += stride) {
+                unsigned int *ta_state = &global_ta_state[clause*LA_CHUNKS*STATE_BITS];
+
                 // Create message
-                for (int bit_index = 0; bit_index < MESSAGE_BITS; ++bit_index) {
-                     bit[bit_index] = hypervectors[clause*MESSAGE_BITS + bit_index];
+                int number_of_include_actions = 0;
+                for (int bit_index = 0; bit_index < LITERALS; ++bit_index) {
+                    la_chunk = bit_index / INT_SIZE;
+                    la_pos = bit_index % 32;
+
+                    if ((ta_state[la_chunk*STATE_BITS + STATE_BITS - 1] & (1 << la_pos)) > 0) { 
+                        bit[number_of_include_actions] = bit_index;
+                        number_of_include_actions++;
+                    } 
                 }
 
                 int edge_index = global_edge_index;
@@ -579,10 +604,9 @@ code_evaluate = """
                             int destination_node = edge[(edge_index + i) * 2];
                             int edge_type = edge[(edge_index + i)* 2 + 1];
 
-                            for (int bit_index = 0; bit_index < MESSAGE_BITS; ++bit_index) {
-                                int shifted_bit = (bit[bit_index] + edge_type) % MESSAGE_SIZE;
-                                clause_X_int[destination_node * MESSAGE_LITERALS + shifted_bit] = 1;
-                                clause_X_int[destination_node * MESSAGE_LITERALS + MESSAGE_SIZE + shifted_bit] = 0;
+                            for (int bit_index = 0; bit_index < number_of_include_actions; ++bit_index) {
+                                int shifted_bit = (bit[bit_index] + edge_type * LITERALS);
+                                clause_X_int[destination_node * MESSAGE_SIZE + shifted_bit] = 1;
                             }
                         }
                     }
