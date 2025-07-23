@@ -686,8 +686,6 @@ class CommonTsetlinMachine():
 				)
 				cuda.Context.synchronize()
 
-			return current_clause_node_output
-
 			# Encode messages bitwise
 			self.encode_messages.prepared_call(
 				self.grid,
@@ -697,6 +695,8 @@ class CommonTsetlinMachine():
 				clause_X[depth]
 			)
 			cuda.Context.synchronize()
+
+			return current_clause_node_output
 
 			# Calculate next round of messages
 			self.calculate_messages_conditional.prepared_call(
