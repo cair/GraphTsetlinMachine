@@ -464,6 +464,8 @@ class CommonTsetlinMachine():
 #define MAX_NODES %d
 #define MESSAGE_SIZE %d
 #define MESSAGE_BITS %d
+#define MESSAGE_LITERALS %d
+#define MESSAGE_CHUNKS %d
 #define ATTENTION %d
 """ % (
 			self.number_of_outputs,
@@ -478,6 +480,8 @@ class CommonTsetlinMachine():
 			self.max_number_of_graph_nodes,
 			self.message_size,
 			self.message_bits,
+			self.number_of_message_literals,
+			self.number_of_message_chunks,
 			self.attention
 		)
 

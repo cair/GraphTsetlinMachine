@@ -29,9 +29,6 @@ code_header = """
     #define LA_CHUNKS (((LITERALS-1)/INT_SIZE + 1))
     #define CLAUSE_CHUNKS ((CLAUSES-1)/INT_SIZE + 1)
 
-    #define MESSAGE_LITERALS (MESSAGE_SIZE*2)
-    #define MESSAGE_CHUNKS (((MESSAGE_LITERALS-1)/INT_SIZE + 1))
-
     #define NODE_CHUNKS ((MAX_NODES-1)/INT_SIZE + 1)
 
     #if (LITERALS % 32 != 0)
@@ -734,7 +731,7 @@ code_evaluate = """
                     }
                 }
 
-                //clause_X[node*MESSAGE_CHUNKS + message_chunk] = message;
+                clause_X[node*MESSAGE_CHUNKS + message_chunk] = message;
             }
         }
     }
