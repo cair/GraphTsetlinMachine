@@ -647,20 +647,20 @@ class CommonTsetlinMachine():
 						edge,
 						clause_X_int
 					)
-				else:
-					self.exchange_messages_attention_conditional.prepared_call(
-						self.grid,
-						self.block,
-						self.ta_state_gpu,
-						number_of_graph_nodes,
-						self.hypervectors_gpu,
-						current_clause_node_output,
-						np.int32(node_index),
-						np.int32(edge_index),
-						number_of_graph_node_edges,
-						edge,
-						clause_X_int
-					)
+				# else:
+				# 	self.exchange_messages_attention_conditional.prepared_call(
+				# 		self.grid,
+				# 		self.block,
+				# 		self.ta_state_gpu,
+				# 		number_of_graph_nodes,
+				# 		self.hypervectors_gpu,
+				# 		current_clause_node_output,
+				# 		np.int32(node_index),
+				# 		np.int32(edge_index),
+				# 		number_of_graph_node_edges,
+				# 		edge,
+				# 		clause_X_int
+				# 	)
 			else:
 				self.exchange_messages.prepared_call(
 					self.grid,
