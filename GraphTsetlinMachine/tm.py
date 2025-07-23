@@ -696,6 +696,7 @@ class CommonTsetlinMachine():
 			)
 			cuda.Context.synchronize()
 
+			print("HELLO")
 			return current_clause_node_output
 
 			# Calculate next round of messages
