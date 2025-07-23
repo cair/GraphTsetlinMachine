@@ -602,7 +602,7 @@ class CommonTsetlinMachine():
 			clause_X,
 			encoded_X
 	):
-		return
+		return current_clause_node_output
 
 		class_sum = np.zeros(self.number_of_outputs).astype(np.int32)
 		cuda.memcpy_htod(self.class_sum_gpu, class_sum)
