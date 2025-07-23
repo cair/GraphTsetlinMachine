@@ -755,8 +755,6 @@ class CommonTsetlinMachine():
 					self.encoded_X_train_gpu
 				)
 
-				return
-
 				### Learning
 
 				# Select one true node per clause
@@ -769,6 +767,8 @@ class CommonTsetlinMachine():
 					self.clause_node_gpu
 				)
 				cuda.Context.synchronize()
+
+				return
 
 				# Select which clauses to update and update weights
 				self.select_clause_updates.prepared_call(
