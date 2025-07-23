@@ -620,8 +620,6 @@ class CommonTsetlinMachine():
 		)
 		cuda.Context.synchronize()
 
-		return current_clause_node_output
-
 		# Iterate over layers
 		for depth in range(self.depth-1):
 			# Send messages to neighbors
@@ -634,7 +632,9 @@ class CommonTsetlinMachine():
 					clause_X_int
 				)
 				cuda.Context.synchronize()
-				None
+
+				return current_clause_node_output
+
 				# if self.depth == 0:
 				# 	self.exchange_messages_attention.prepared_call(
 				# 		self.grid,
