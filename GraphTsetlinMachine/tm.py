@@ -602,8 +602,6 @@ class CommonTsetlinMachine():
 			clause_X,
 			encoded_X
 	):
-		return current_clause_node_output
-
 		class_sum = np.zeros(self.number_of_outputs).astype(np.int32)
 		cuda.memcpy_htod(self.class_sum_gpu, class_sum)
 
@@ -621,6 +619,8 @@ class CommonTsetlinMachine():
 			encoded_X
 		)
 		cuda.Context.synchronize()
+
+		return current_clause_node_output
 
 		# Iterate over layers
 		for depth in range(self.depth-1):
@@ -756,8 +756,6 @@ class CommonTsetlinMachine():
 				)
 
 				### Learning
-
-				print(g.state, current_clause_node_output, int(graphs.number_of_graph_nodes[e]), self.clause_node_gpu)
 
 				# Select one true node per clause
 				self.select_clause_node.prepared_call(
