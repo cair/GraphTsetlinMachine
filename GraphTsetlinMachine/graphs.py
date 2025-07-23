@@ -51,7 +51,7 @@ class Graphs():
 		if self.init_with == None:
 			self.edge_type_id = {}
 			for edge_type in edge_types:
-				self.edge_type_id[edge_type] = len(self.edge_type_id)
+				self.edge_type_id[edge_type] = len(self.edge_type_id) + 1
 
 			self.node_type_id = {}
 
