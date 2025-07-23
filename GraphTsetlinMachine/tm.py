@@ -424,19 +424,19 @@ class CommonTsetlinMachine():
 		self.number_of_literals = self.number_of_features*2
 		self.number_of_ta_chunks = int((self.number_of_literals-1)//32 + 1)
 
-		if self.one_hot_encoding:
+		if self.one_hot_encoding and not self.attention:
 			self.message_size = self.number_of_clauses * len(graphs.edge_type_id)
 			for i in range(self.number_of_clauses):
 				self.hypervectors[i, 0] = i * len(graphs.edge_type_id)
-		elif self.attention:
+		
+		if self.attention:
 			# Message size set to allow for edge type shifts without collision
 			self.message_size = self.number_of_literals * (len(graphs.edge_type_id) + 1) * self.depth
 
 			self.number_of_message_features = self.message_size
 			self.number_of_message_literals = self.number_of_message_features
 			self.number_of_message_chunks = int((self.number_of_message_literals-1)//32 + 1)
-
-		if not self.attention:
+		else:
 			self.number_of_message_features = self.message_size
 			self.number_of_message_literals = self.number_of_message_features*2
 			self.number_of_message_chunks = int((self.number_of_message_literals-1)//32 + 1)
