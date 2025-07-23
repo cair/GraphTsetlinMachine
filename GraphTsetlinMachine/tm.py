@@ -142,6 +142,7 @@ class CommonTsetlinMachine():
 				(self.number_of_clauses, self.number_of_message_chunks, self.number_of_state_bits)
 			)
 
+			print(message_ta_state_depth.shape)
 			return (message_ta_state_depth[clause, ta // 32, self.number_of_state_bits - 1] & (1 << (ta % 32))) > 0
 
 	def get_hyperliterals(self, depth):
