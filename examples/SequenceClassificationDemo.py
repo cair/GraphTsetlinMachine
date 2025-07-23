@@ -159,7 +159,9 @@ for i in range(tm.number_of_clauses):
                     l.append("NOT x%d" % (k - tm.hypervector_size))
 
         for d in range(1, args.depth):
-            for k in range(tm.message_size * 2):
+            for k in range(tm.message_size):
+                print(d, k)
+                
                 if tm.ta_action(d, i, k):
                     l.append("%d,%d" % (d, k))
 
