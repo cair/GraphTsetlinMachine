@@ -648,8 +648,6 @@ class CommonTsetlinMachine():
 						clause_X_int
 					)
 
-				return current_clause_node_output
-
 				# else:
 				# 	self.exchange_messages_attention_conditional.prepared_call(
 				# 		self.grid,
@@ -686,7 +684,9 @@ class CommonTsetlinMachine():
 					edge,
 					clause_X_int
 				)
-			cuda.Context.synchronize()
+				cuda.Context.synchronize()
+
+			return current_clause_node_output
 
 			# Encode messages bitwise
 			self.encode_messages.prepared_call(
