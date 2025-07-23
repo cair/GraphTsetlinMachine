@@ -757,6 +757,8 @@ class CommonTsetlinMachine():
 
 				### Learning
 
+				print(g.state, current_clause_node_output, int(graphs.number_of_graph_nodes[e]), self.clause_node_gpu)
+
 				# Select one true node per clause
 				self.select_clause_node.prepared_call(
 					self.grid,
