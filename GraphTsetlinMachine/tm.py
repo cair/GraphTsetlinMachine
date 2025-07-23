@@ -428,17 +428,17 @@ class CommonTsetlinMachine():
 			self.message_size = self.number_of_clauses * len(graphs.edge_type_id)
 			for i in range(self.number_of_clauses):
 				self.hypervectors[i, 0] = i * len(graphs.edge_type_id)
-
-			self.number_of_message_features = self.message_size
-			self.number_of_message_literals = self.number_of_message_features*2
-			self.number_of_message_chunks = int((self.number_of_message_literals-1)//32 + 1)
-
 		elif self.attention:
 			# Message size set to allow for edge type shifts without collision
 			self.message_size = self.number_of_literals * (len(graphs.edge_type_id) + 1) * self.depth
 
 			self.number_of_message_features = self.message_size
 			self.number_of_message_literals = self.number_of_message_features
+			self.number_of_message_chunks = int((self.number_of_message_literals-1)//32 + 1)
+
+		if not self.attention:
+			self.number_of_message_features = self.message_size
+			self.number_of_message_literals = self.number_of_message_features*2
 			self.number_of_message_chunks = int((self.number_of_message_literals-1)//32 + 1)
 
 		if self.max_included_literals == None:
