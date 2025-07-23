@@ -771,8 +771,6 @@ class CommonTsetlinMachine():
 				)
 				cuda.Context.synchronize()
 
-				return
-
 				# Select which clauses to update and update weights
 				self.select_clause_updates.prepared_call(
 					self.grid,
