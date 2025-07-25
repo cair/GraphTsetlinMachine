@@ -699,6 +699,7 @@ class CommonTsetlinMachine():
 				clause_X[depth]
 			)
 			cuda.Context.synchronize()
+			sys.stdout.flush()
 
 			# Calculate next round of messages
 			self.calculate_messages_conditional.prepared_call(
