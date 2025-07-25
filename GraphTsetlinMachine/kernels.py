@@ -719,20 +719,43 @@ code_evaluate = """
             int index = blockIdx.x * blockDim.x + threadIdx.x;
             int stride = blockDim.x * gridDim.x;
 
-            for (int node_message_chunk = index; node_message_chunk < number_of_nodes * MESSAGE_CHUNKS; node_message_chunk += stride) {
-                int node = node_message_chunk / MESSAGE_CHUNKS;
-                int message_chunk = node_message_chunk % MESSAGE_CHUNKS;
-                int X_int_base = node*MESSAGE_LITERALS + message_chunk * INT_SIZE;
+            if (index == 0) {
+                for (int node_message_chunk = 0; node_message_chunk < number_of_nodes * MESSAGE_CHUNKS; node_message_chunk += 1) {
+                    int node = node_message_chunk / MESSAGE_CHUNKS;
+                    int message_chunk = node_message_chunk % MESSAGE_CHUNKS;
+                    int X_int_base = node*MESSAGE_LITERALS + message_chunk * INT_SIZE;
 
-                int message = 0;
-                for (int bit_pos = 0; (bit_pos < INT_SIZE) && (message_chunk * INT_SIZE + bit_pos < MESSAGE_LITERALS); ++bit_pos) {
-                    if (clause_X_int[X_int_base + bit_pos]) {
-                        message |= (1 << bit_pos);
+                    printf("Node %d:", node);
+
+                    int message = 0;
+                    for (int bit_pos = 0; (bit_pos < INT_SIZE) && (message_chunk * INT_SIZE + bit_pos < MESSAGE_LITERALS); ++bit_pos) {
+                        printf(" %d", clause_X_int[X_int_base + bit_pos]);
+
+                        if (clause_X_int[X_int_base + bit_pos]) {
+                            message |= (1 << bit_pos);
+                        }
                     }
+
+                    clause_X[node*MESSAGE_CHUNKS + message_chunk] = message;
+                    printf("\\n");
                 }
 
-                clause_X[node*MESSAGE_CHUNKS + message_chunk] = message;
             }
+
+            //for (int node_message_chunk = index; node_message_chunk < number_of_nodes * MESSAGE_CHUNKS; node_message_chunk += stride) {
+            //    int node = node_message_chunk / MESSAGE_CHUNKS;
+            //    int message_chunk = node_message_chunk % MESSAGE_CHUNKS;
+            //    int X_int_base = node*MESSAGE_LITERALS + message_chunk * INT_SIZE;
+
+            //    int message = 0;
+            //    for (int bit_pos = 0; (bit_pos < INT_SIZE) && (message_chunk * INT_SIZE + bit_pos < MESSAGE_LITERALS); ++bit_pos) {
+            //        if (clause_X_int[X_int_base + bit_pos]) {
+            //            message |= (1 << bit_pos);
+            //        }
+            //    }
+
+            //    clause_X[node*MESSAGE_CHUNKS + message_chunk] = message;
+            //}
         }
     }
 """
