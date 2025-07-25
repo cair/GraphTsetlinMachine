@@ -422,8 +422,9 @@ class CommonTsetlinMachine():
 
 		self.number_of_features = graphs.hypervector_size
 		self.number_of_literals = self.number_of_features*2
-		self.number_of_ta_chunks
-		 and not self.attention:
+		self.number_of_ta_chunks = int((self.number_of_literals-1)//32 + 1)
+
+		if self.one_hot_encoding and not self.attention:
 			self.message_size = self.number_of_clauses * len(graphs.edge_type_id)
 			for i in range(self.number_of_clauses):
 				self.hypervectors[i, 0] = i * len(graphs.edge_type_id)
