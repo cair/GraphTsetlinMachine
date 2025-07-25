@@ -23,7 +23,6 @@
 
 code_header = """
     #include <curand_kernel.h>
-    #include <stdio.h>
     
     #define INT_SIZE 32
 
@@ -739,7 +738,6 @@ code_evaluate = """
 
                     clause_X[node*MESSAGE_CHUNKS + message_chunk] = message;
                     printf("\\n");
-                    fflush(stdout);
                 }
 
             }
