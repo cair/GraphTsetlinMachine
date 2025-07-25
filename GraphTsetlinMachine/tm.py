@@ -452,7 +452,6 @@ class CommonTsetlinMachine():
 		self.initialized = True
 
 	def _init_gpu_kernels(self):
-		print("Number of message chunks", self.number_of_message_chunks)
 		parameters = """
 #define CLASSES %d
 #define CLAUSES %d
