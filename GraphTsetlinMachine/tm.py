@@ -432,10 +432,11 @@ class CommonTsetlinMachine():
 		if self.attention:
 			# Message size set to allow for edge type shifts without collision
 			self.message_size = self.number_of_literals * (len(graphs.edge_type_id) + 1) * (self.depth-1)
-
+			print("Message size", self.message_size)
 			self.number_of_message_features = self.message_size
 			self.number_of_message_literals = self.number_of_message_features
 			self.number_of_message_chunks = int((self.number_of_message_literals-1)//32 + 1)
+			print("Message chunks 2", self.number_of_message_chunks)
 		else:
 			self.number_of_message_features = self.message_size
 			self.number_of_message_literals = self.number_of_message_features*2
