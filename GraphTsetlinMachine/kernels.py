@@ -720,7 +720,7 @@ code_evaluate = """
             int stride = blockDim.x * gridDim.x;
 
             if (index == 0) {
-                printf("Example %d %d\\n", nunber_of_nodes, MESSAGE_CHUNKS);
+                printf("Example %d %d\\n", number_of_nodes, MESSAGE_CHUNKS);
                 for (int node_message_chunk = 0; node_message_chunk < number_of_nodes * MESSAGE_CHUNKS; node_message_chunk += 1) {
                     int node = node_message_chunk / MESSAGE_CHUNKS;
                     int message_chunk = node_message_chunk % MESSAGE_CHUNKS;
