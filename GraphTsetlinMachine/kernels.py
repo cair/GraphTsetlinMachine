@@ -719,6 +719,7 @@ code_evaluate = """
             int index = blockIdx.x * blockDim.x + threadIdx.x;
             int stride = blockDim.x * gridDim.x;
 
+            printf("Example\\n");
             if (index == 0) {
                 for (int node_message_chunk = 0; node_message_chunk < number_of_nodes * MESSAGE_CHUNKS; node_message_chunk += 1) {
                     int node = node_message_chunk / MESSAGE_CHUNKS;
@@ -736,7 +737,7 @@ code_evaluate = """
                         }
                     }
 
-                    clause_X[node*MESSAGE_CHUNKS + message_chunk] = message;
+                    //clause_X[node*MESSAGE_CHUNKS + message_chunk] = message;
                     printf("\\n");
                 }
 
