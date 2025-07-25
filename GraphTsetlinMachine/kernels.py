@@ -726,7 +726,7 @@ code_evaluate = """
                     int message_chunk = node_message_chunk % MESSAGE_CHUNKS;
                     int X_int_base = node*MESSAGE_LITERALS + message_chunk * INT_SIZE;
 
-                    printf("Node %d:", node);
+                    printf("Node/chunk %d/%d:", node);
 
                     int message = 0;
                     for (int bit_pos = 0; (bit_pos < INT_SIZE) && (message_chunk * INT_SIZE + bit_pos < MESSAGE_LITERALS); ++bit_pos) {
