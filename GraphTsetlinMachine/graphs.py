@@ -186,8 +186,8 @@ class Graphs():
 					nodestr+= '*'+' '
 			nodestr+= ')'+' '
 			graphstr+= nodestr
-		print(graphstr)
-		print()
+		print(graphstr, flush=True)
+		print(flush=True)
 
 	def print_graph_edges(self, graph_id):
 		graphstr ='Printing edges of Graph#'+str(graph_id)+':\n'
