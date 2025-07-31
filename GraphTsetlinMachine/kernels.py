@@ -464,7 +464,7 @@ code_evaluate = """
                     if (node_chunk == number_of_node_chunks - 1) {
                         printf("Clause truth values:");
                         for (int node_pos = 0; node_pos < number_of_nodes; ++node_pos) {
-                            printf(" %d", (global_clause_node_output[clause*NODE_CHUNKS + node_chunk] & (1 << node_pos)) > 0));
+                            printf(" %d", (global_clause_node_output[clause*NODE_CHUNKS + node_chunk] & (1 << node_pos)) > 0);
                         }
                         printf("\\n");
 
