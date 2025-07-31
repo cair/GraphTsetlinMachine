@@ -167,7 +167,7 @@ class CommonTsetlinMachine():
 
 			state = 0
 			for b in range(self.number_of_state_bits):
-				if (message_ta_state[clause, ta // 32, b] & (1 << (ta % 32))) > 0:
+				if (message_ta_state_depth[clause, ta // 32, b] & (1 << (ta % 32))) > 0:
 					state |= (1 << b)
 
 			return state
