@@ -723,7 +723,7 @@ code_evaluate = """
             int index = blockIdx.x * blockDim.x + threadIdx.x;
             int stride = blockDim.x * gridDim.x;
 
-            if (index == 0) {
+            /*if (index == 0) {
                 printf("Example %d %d\\n", number_of_nodes, MESSAGE_CHUNKS);
                 for (int node_message_chunk = 0; node_message_chunk < number_of_nodes * MESSAGE_CHUNKS; node_message_chunk += 1) {
                     int node = node_message_chunk / MESSAGE_CHUNKS;
@@ -745,9 +745,9 @@ code_evaluate = """
                     printf("\\n");
                 }
 
-            }
+            }*/
 
-            /*for (int node_message_chunk = index; node_message_chunk < number_of_nodes * MESSAGE_CHUNKS; node_message_chunk += stride) {
+            for (int node_message_chunk = index; node_message_chunk < number_of_nodes * MESSAGE_CHUNKS; node_message_chunk += stride) {
                 int node = node_message_chunk / MESSAGE_CHUNKS;
                 int message_chunk = node_message_chunk % MESSAGE_CHUNKS;
                 int X_int_base = node*MESSAGE_LITERALS + message_chunk * INT_SIZE;
@@ -760,7 +760,7 @@ code_evaluate = """
                 }
 
                 clause_X[node*MESSAGE_CHUNKS + message_chunk] = message;
-            }*/
+            }
         }
     }
 """
