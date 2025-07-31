@@ -769,9 +769,28 @@ class CommonTsetlinMachine():
 		class_sum = np.zeros(self.number_of_outputs).astype(np.int32)
 		for epoch in range(epochs):
 			for e in range(graphs.number_of_graphs):
-				#graphs.print_graph(e)
+				graphs.print_graph(e)
 				class_sum[:] = 0
 				cuda.memcpy_htod(self.class_sum_gpu, class_sum)
+
+
+				weights = self.get_state()[1].reshape(self.number_of_outputs, -1)
+				for i in range(self.number_of_clauses):
+				        print("Clause #%d W: " % (i), weights[:,i], end=' ')
+				        l = []
+				        for k in range(graphs_train.hypervector_size * 2):
+				            if self.get_ta_action(0, i, k):
+				                if k < self.message_size:
+				                    l.append("x%d(%d)" % (k, self.get_ta_state(0, i, k)))
+				                else:
+				                    l.append("NOT x%d(%d)" % (k - self.hypervector_size, self.get_ta_state(0, i, k)))
+
+				        for d in range(1, args.depth):
+				            for k in range(self.message_size):                
+				                if self.get_ta_action(d, i, k):
+				                    l.append("%d,%d(%d)" % (d, k, self.get_ta_state(d, i, k)))
+
+				        print(" AND ".join(l))
 
 				### Inference 
 
