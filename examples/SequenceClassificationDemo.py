@@ -165,7 +165,7 @@ for i in range(tm.number_of_clauses):
                 if tm.get_ta_action(d, i, k):
                     l.append("%d,%d(%d)" % (d, k, tm.get_ta_state(d, i, k)))
 
-        print(" AND ".join(l), graphs_train.hypervector_size, tm.message_size)
+        print(" AND ".join(l))
 
 print(graphs_test.hypervectors)
 print(tm.hypervectors)
