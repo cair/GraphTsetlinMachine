@@ -126,7 +126,7 @@ class CommonTsetlinMachine():
 		self.hypervectors_gpu = cuda.mem_alloc(self.hypervectors.nbytes)
 		cuda.memcpy_htod(self.hypervectors_gpu, self.hypervectors)
 
-	def ta_action(self, depth, clause, ta):
+	def get_ta_action(self, depth, clause, ta):
 		if depth == 0:
 			self.ta_state = np.empty(self.number_of_clauses*self.number_of_ta_chunks*self.number_of_state_bits, dtype=np.uint32)
 			cuda.memcpy_dtoh(self.ta_state, self.ta_state_gpu)
@@ -144,7 +144,7 @@ class CommonTsetlinMachine():
 
 			return (message_ta_state_depth[clause, ta // 32, self.number_of_state_bits - 1] & (1 << (ta % 32))) > 0
 
-	def ta_state(self, depth, clause, ta):
+	def get_ta_state(self, depth, clause, ta):
 		if depth == 0:
 			self.ta_state = np.empty(self.number_of_clauses*self.number_of_ta_chunks*self.number_of_state_bits, dtype=np.uint32)
 			cuda.memcpy_dtoh(self.ta_state, self.ta_state_gpu)
