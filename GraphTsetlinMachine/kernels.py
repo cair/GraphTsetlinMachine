@@ -741,7 +741,7 @@ code_evaluate = """
                         }
                     }
 
-                    //clause_X[node*MESSAGE_CHUNKS + message_chunk] = message;
+                    clause_X[node*MESSAGE_CHUNKS + message_chunk] = message;
                     printf("\\n");
                 }
 
