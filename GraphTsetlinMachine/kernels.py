@@ -454,7 +454,7 @@ code_evaluate = """
                             }
 
                             if ((ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & X[node*LA_CHUNKS + LA_CHUNKS-1] & FILTER) != (ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & FILTER)) {
-                                printf("*%d\\n", ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1]);
+                                printf("*%d: %d\\n", clause, ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1]);
                                 clause_node_output &= ~(1 << node_pos);
                             }
                         } else {
@@ -463,7 +463,7 @@ code_evaluate = """
                     }
                     
                     if (node_chunk == number_of_node_chunks - 1) {
-                        printf("Clause truth values:");
+                        printf("Clause %d truth values:", clause);
                         for (int node_pos = 0; node_pos < number_of_nodes; ++node_pos) {
                             printf(" %d", (global_clause_node_output[clause*NODE_CHUNKS + node_chunk] & (1 << node_pos)) > 0);
                         }
