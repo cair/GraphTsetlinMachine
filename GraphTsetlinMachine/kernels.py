@@ -431,7 +431,51 @@ code_evaluate = """
 
             unsigned int *X = &global_X[graph_index * LA_CHUNKS];
 
-            for (int clause_node_chunk = index; clause_node_chunk < (CLAUSES)*(NODE_CHUNKS); clause_node_chunk += stride) {
+            if (index == 0) {
+                for (int clause_node_chunk = 0; clause_node_chunk < (CLAUSES)*(NODE_CHUNKS); clause_node_chunk += 1) {
+                    int clause = clause_node_chunk % CLAUSES;
+                    int node_chunk = clause_node_chunk / CLAUSES;
+
+                    unsigned int *ta_state = &global_ta_state[clause*LA_CHUNKS*STATE_BITS];
+
+                    if (node_chunk == 0) {
+                       number_of_include_actions[clause] = count_number_of_include_actions(ta_state);
+                    }
+
+                    clause_node_output = ~0;
+                    for (int node_pos = 0; (node_pos < INT_SIZE) && ((node_chunk * INT_SIZE + node_pos) < number_of_nodes); ++node_pos) {
+                        int node = node_chunk * INT_SIZE + node_pos;
+
+                        if (node_type[graph_index + node] == (clause % number_of_node_types)) {
+                            for (int la_chunk = 0; la_chunk < LA_CHUNKS-1; ++la_chunk) {
+                                if ((ta_state[la_chunk*STATE_BITS + STATE_BITS - 1] & X[node*LA_CHUNKS + la_chunk]) != ta_state[la_chunk*STATE_BITS + STATE_BITS - 1]) {
+                                    clause_node_output &= ~(1 << node_pos);
+                                }
+                            }
+
+                            if ((ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & X[node*LA_CHUNKS + LA_CHUNKS-1] & FILTER) != (ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & FILTER)) {
+                                clause_node_output &= ~(1 << node_pos);
+                            }
+                        } else {
+                            clause_node_output &= ~(1 << node_pos);   
+                        }
+                    }
+                    
+                    if (node_chunk == number_of_node_chunks - 1) {
+                        printf("Clause truth values:");
+                        for (int node_pos = 0; node_pos < number_of_nodes; ++node_pos) {
+                            printf(" %d", (global_clause_node_output[clause*NODE_CHUNKS + node_chunk] & (1 << node_pos)) > 0));
+                        }
+                        printf("\\n");
+
+                        global_clause_node_output[clause*NODE_CHUNKS + node_chunk] = clause_node_output & node_filter;
+                    } else {
+                        global_clause_node_output[clause*NODE_CHUNKS + node_chunk] = clause_node_output;
+                    }
+                }
+            }
+
+            /* for (int clause_node_chunk = index; clause_node_chunk < (CLAUSES)*(NODE_CHUNKS); clause_node_chunk += stride) {
                 int clause = clause_node_chunk % CLAUSES;
                 int node_chunk = clause_node_chunk / CLAUSES;
 
@@ -465,7 +509,7 @@ code_evaluate = """
                 } else {
                     global_clause_node_output[clause*NODE_CHUNKS + node_chunk] = clause_node_output;
                 }
-            }
+            }*/
         }
 
         __global__ void calculate_messages_conditional(
