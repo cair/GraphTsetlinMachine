@@ -386,7 +386,11 @@ code_evaluate = """
                         if (target*sign > 0 && clause_node[clause] != -1 && abs(clause_weights[class_id*CLAUSES + clause]) < INT_MAX) {
                             clause_weights[class_id*CLAUSES + clause] += sign;
                         } else if (target*sign < 0 && clause_node[clause] != -1) {
-                            clause_weights[class_id*CLAUSES + clause] -= sign;
+                            if (clause_weights[class_id*CLAUSES + clause] > 0) {
+                                clause_weights[class_id*CLAUSES + clause] -= sign;
+                            } else if (clause_weights[class_id*CLAUSES + clause] < -1) {
+                                clause_weights[class_id*CLAUSES + clause] -= sign;
+                            }
 
                             #if NEGATIVE_CLAUSES == 0
                                 if (clause_weights[class_id*CLAUSES + clause] < 1) {
@@ -790,7 +794,8 @@ code_prepare = """
             for (unsigned long long clause = index; clause < CLAUSES; clause += stride) {
                 for (unsigned long long class_id = 0; class_id < CLASSES; ++class_id) {
                     #if NEGATIVE_CLAUSES == 1
-                        clause_weights[class_id*CLAUSES + clause] = 1 - 2 * (curand(&localState) % 2); // 1 - 2*(clause % CLASSES != class_id);
+                        //clause_weights[class_id*CLAUSES + clause] = 1 - 2 * (curand(&localState) % 2); // 1 - 2*(clause % CLASSES != class_id);
+                        clause_weights[class_id*CLAUSES + clause] = 1 - 2*(clause % CLASSES != class_id);
                     #else
                         clause_weights[class_id*CLAUSES + clause] = 1;
                     #endif
