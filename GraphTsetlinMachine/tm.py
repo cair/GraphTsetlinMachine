@@ -680,7 +680,7 @@ class CommonTsetlinMachine():
 						edge,
 						clause_X_int
 					)
-
+					cuda.Context.synchronize()
 				else:
 					self.exchange_messages_attention_conditional.prepared_call(
 						self.grid,
@@ -695,6 +695,7 @@ class CommonTsetlinMachine():
 						edge,
 						clause_X_int
 					)
+					cuda.Context.synchronize()
 			else:
 				# Prepare messages
 				self.prepare_messages.prepared_call(
