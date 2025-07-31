@@ -204,8 +204,8 @@ class Graphs():
 			
 				graphstr+= edgestr
 			graphstr+= '\n'
-		print(graphstr)
-		print()
+		print(graphstr, flush=True)
+		print(flush=True)
 
 	def print_graph(self, graph_id):
 		self.print_graph_nodes(graph_id)
