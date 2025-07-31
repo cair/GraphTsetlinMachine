@@ -413,7 +413,8 @@ code_evaluate = """
             int graph_index,
             int *global_clause_node_output,
             int *number_of_include_actions,
-            unsigned int *global_X
+            unsigned int *global_X,
+            int example
         )
         {
             int index = blockIdx.x * blockDim.x + threadIdx.x;
@@ -454,7 +455,7 @@ code_evaluate = """
                             }
 
                             if ((ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & X[node*LA_CHUNKS + LA_CHUNKS-1] & FILTER) != (ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & FILTER)) {
-                                printf("*%d: %d\\n", clause, ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1]);
+                                printf("*%d: %d (%d)\\n", clause, ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1], example);
                                 clause_node_output &= ~(1 << node_pos);
                             }
                         } else {
@@ -467,7 +468,7 @@ code_evaluate = """
                         for (int node_pos = 0; node_pos < number_of_nodes; ++node_pos) {
                             printf(" %d", (global_clause_node_output[clause*NODE_CHUNKS + node_chunk] & (1 << node_pos)) > 0);
                         }
-                        printf("\\n");
+                        printf(" %d\\n", example);
 
                         global_clause_node_output[clause*NODE_CHUNKS + node_chunk] = clause_node_output & node_filter;
                     } else {

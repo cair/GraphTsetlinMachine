@@ -536,7 +536,7 @@ class CommonTsetlinMachine():
 		self.select_clause_updates.prepare("PPPPiPP")
 
 		self.calculate_messages = mod_evaluate.get_function("calculate_messages")
-		self.calculate_messages.prepare("PPiiiPPP")
+		self.calculate_messages.prepare("PPiiiPPPi")
 
 		self.calculate_messages_conditional = mod_evaluate.get_function("calculate_messages_conditional")
 		self.calculate_messages_conditional.prepare("PPiiiPPPP")
@@ -633,7 +633,8 @@ class CommonTsetlinMachine():
 			edge,
 			clause_X_int,
 			clause_X,
-			encoded_X
+			encoded_X,
+			example
 	):
 		class_sum = np.zeros(self.number_of_outputs).astype(np.int32)
 		cuda.memcpy_htod(self.class_sum_gpu, class_sum)
@@ -649,7 +650,8 @@ class CommonTsetlinMachine():
 			np.int32(node_index),
 			current_clause_node_output,
 			self.number_of_include_actions,
-			encoded_X
+			encoded_X,
+			example
 		)
 		cuda.Context.synchronize()
 
@@ -805,7 +807,8 @@ class CommonTsetlinMachine():
 					self.edge_train_gpu,
 					self.clause_X_int_train_gpu,
 					self.clause_X_train_gpu,
-					self.encoded_X_train_gpu
+					self.encoded_X_train_gpu,
+					e
 				)
 
 				### Learning
