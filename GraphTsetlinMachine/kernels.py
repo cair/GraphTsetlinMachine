@@ -935,10 +935,8 @@ code_transform = """
 					break;
 				}
 			}
-			if (clause_output)
-				transformed_X[clause] = 1;
-			else
-				transformed_X[clause] = 0;
+
+            transformed_X[clause] = clause_output;
 		}
 	}
 
