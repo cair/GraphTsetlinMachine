@@ -730,6 +730,7 @@ code_evaluate = """
             */
 
             if (index == 0) {
+                printf("HELLO\\n");
                 for (int clause = 0; clause < CLAUSES; clause += 1) {
                     unsigned int *ta_state = &global_ta_state[clause*LA_CHUNKS*STATE_BITS];
 
