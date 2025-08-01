@@ -669,6 +669,7 @@ class CommonTsetlinMachine():
 				cuda.Context.synchronize()
 
 				if self.depth == 0:
+					print("HALLO", flush=True)
 					self.exchange_messages_attention.prepared_call(
 						self.grid,
 						self.block,
