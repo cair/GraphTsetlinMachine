@@ -592,7 +592,7 @@ code_evaluate = """
             }*/
 
             if (index == 0) {
-                print("Message init: ");
+                printf("Message init: ");
                 for (int node_message_bit = 0; node_message_bit < number_of_nodes * MESSAGE_SIZE; node_message_bit += stride) {
                     int node = node_message_bit / MESSAGE_SIZE;
                     int message_bit = node_message_bit % MESSAGE_SIZE;
