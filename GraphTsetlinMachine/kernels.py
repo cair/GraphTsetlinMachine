@@ -455,7 +455,7 @@ code_evaluate = """
                             }
 
                             if ((ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & X[node*LA_CHUNKS + LA_CHUNKS-1] & FILTER) != (ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & FILTER)) {
-                                printf("*%d: %d (%d)\\n", clause, ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1], example);
+                                printf("%d: %d (%d)A\\n", clause, ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1], example);
                                 clause_node_output &= ~(1 << node_pos);
                             }
                         } else {
