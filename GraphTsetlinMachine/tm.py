@@ -928,7 +928,8 @@ class CommonTsetlinMachine():
 				self.edge_test_gpu,
 				self.clause_X_int_test_gpu,
 				self.clause_X_test_gpu,
-				self.encoded_X_test_gpu
+				self.encoded_X_test_gpu,
+				e
 			)
 
 			cuda.memcpy_dtoh(class_sum[e,:], self.class_sum_gpu)
