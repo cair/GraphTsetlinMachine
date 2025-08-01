@@ -584,11 +584,23 @@ code_evaluate = """
             int index = blockIdx.x * blockDim.x + threadIdx.x;
             int stride = blockDim.x * gridDim.x;
 
-            for (int node_message_bit = index; node_message_bit < number_of_nodes * MESSAGE_SIZE; node_message_bit += stride) {
+            /* for (int node_message_bit = index; node_message_bit < number_of_nodes * MESSAGE_SIZE; node_message_bit += stride) {
                 int node = node_message_bit / MESSAGE_SIZE;
                 int message_bit = node_message_bit % MESSAGE_SIZE;
 
                 clause_X_int[node * MESSAGE_SIZE + message_bit] = 0;
+            }*/
+
+            if (index == 0) {
+                print("Message init: ");
+                for (int node_message_bit = 0; node_message_bit < number_of_nodes * MESSAGE_SIZE; node_message_bit += stride) {
+                    int node = node_message_bit / MESSAGE_SIZE;
+                    int message_bit = node_message_bit % MESSAGE_SIZE;
+
+                    clause_X_int[node * MESSAGE_SIZE + message_bit] = 0;
+                    printf(" %d(%d/%d)", clause_X_int[node * MESSAGE_SIZE + message_bit], node, message_bit);
+                }
+                printf("\\n");
             }
         }
 
