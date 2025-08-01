@@ -746,7 +746,7 @@ code_evaluate = """
                         } 
                     }
 
-/*                    int edge_index = global_edge_index;
+                    int edge_index = global_edge_index;
                     for (int source_node = 0; source_node < number_of_nodes; ++source_node) {
                         unsigned int source_node_chunk = source_node / INT_SIZE;
                         unsigned int source_node_pos = source_node % INT_SIZE;
@@ -764,7 +764,6 @@ code_evaluate = """
                         }
                         edge_index += number_of_graph_node_edges[node_index + source_node];
                     }
-*/
                 }
             }
         }
