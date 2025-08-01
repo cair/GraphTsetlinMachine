@@ -432,7 +432,7 @@ code_evaluate = """
 
             unsigned int *X = &global_X[graph_index * LA_CHUNKS];
 
-            if (index == 0) {
+/*            if (index == 0) {
                 for (int clause_node_chunk = 0; clause_node_chunk < (CLAUSES)*(NODE_CHUNKS); clause_node_chunk += 1) {
                     int clause = clause_node_chunk % CLAUSES;
                     int node_chunk = clause_node_chunk / CLAUSES;
@@ -476,8 +476,9 @@ code_evaluate = """
                     }
                 }
             }
+*/
 
-            /* for (int clause_node_chunk = index; clause_node_chunk < (CLAUSES)*(NODE_CHUNKS); clause_node_chunk += stride) {
+            for (int clause_node_chunk = index; clause_node_chunk < (CLAUSES)*(NODE_CHUNKS); clause_node_chunk += stride) {
                 int clause = clause_node_chunk % CLAUSES;
                 int node_chunk = clause_node_chunk / CLAUSES;
 
@@ -511,7 +512,7 @@ code_evaluate = """
                 } else {
                     global_clause_node_output[clause*NODE_CHUNKS + node_chunk] = clause_node_output;
                 }
-            }*/
+            }
         }
 
         __global__ void calculate_messages_conditional(
@@ -584,13 +585,14 @@ code_evaluate = """
             int index = blockIdx.x * blockDim.x + threadIdx.x;
             int stride = blockDim.x * gridDim.x;
 
-            /* for (int node_message_bit = index; node_message_bit < number_of_nodes * MESSAGE_SIZE; node_message_bit += stride) {
+            for (int node_message_bit = index; node_message_bit < number_of_nodes * MESSAGE_SIZE; node_message_bit += stride) {
                 int node = node_message_bit / MESSAGE_SIZE;
                 int message_bit = node_message_bit % MESSAGE_SIZE;
 
                 clause_X_int[node * MESSAGE_SIZE + message_bit] = 0;
-            }*/
+            }
 
+/*
             if (index == 0) {
                 printf("Message init: ");
                 for (int node_message_bit = 0; node_message_bit < number_of_nodes * MESSAGE_SIZE; node_message_bit += 1) {
@@ -602,6 +604,7 @@ code_evaluate = """
                 }
                 printf("\\n");
             }
+*/
         }
 
         __global__ void prepare_messages(
@@ -692,7 +695,6 @@ code_evaluate = """
 
             int bit[LITERALS];
 
-            /*
             for (int clause = index; clause < CLAUSES; clause += stride) {
                 unsigned int *ta_state = &global_ta_state[clause*LA_CHUNKS*STATE_BITS];
 
@@ -727,8 +729,7 @@ code_evaluate = """
                     edge_index += number_of_graph_node_edges[node_index + source_node];
                 }
             }
-            */
-
+/*
             if (index == 0) {
                 printf("HELLO\\n");
                 for (int clause = 0; clause < CLAUSES; clause += 1) {
@@ -766,6 +767,7 @@ code_evaluate = """
                     }
                 }
             }
+*/
         }
 
         __global__ void exchange_messages(
@@ -821,6 +823,7 @@ code_evaluate = """
             int index = blockIdx.x * blockDim.x + threadIdx.x;
             int stride = blockDim.x * gridDim.x;
 
+/*
             if (index == 0) {
                 printf("Example %d %d\\n", number_of_nodes, MESSAGE_CHUNKS);
                 for (int node_message_chunk = 0; node_message_chunk < number_of_nodes * MESSAGE_CHUNKS; node_message_chunk += 1) {
@@ -844,8 +847,9 @@ code_evaluate = """
                 }
 
             }
+*/
 
-            /*for (int node_message_chunk = index; node_message_chunk < number_of_nodes * MESSAGE_CHUNKS; node_message_chunk += stride) {
+            for (int node_message_chunk = index; node_message_chunk < number_of_nodes * MESSAGE_CHUNKS; node_message_chunk += stride) {
                 int node = node_message_chunk / MESSAGE_CHUNKS;
                 int message_chunk = node_message_chunk % MESSAGE_CHUNKS;
                 int X_int_base = node*MESSAGE_LITERALS + message_chunk * INT_SIZE;
@@ -858,7 +862,7 @@ code_evaluate = """
                 }
 
                 clause_X[node*MESSAGE_CHUNKS + message_chunk] = message;
-            }*/
+            }
         }
     }
 """
