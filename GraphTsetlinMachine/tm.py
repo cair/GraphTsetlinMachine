@@ -877,7 +877,7 @@ class CommonTsetlinMachine():
 
 	def _score_init(self, graphs):
 		if not self.initialized:
-			print("Error: Model not trained.")
+			print("Error: Model not trained. ")
 			sys.exit(-1)
 
 		if not np.array_equal(self.graphs_signature_test, graphs.signature):
