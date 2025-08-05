@@ -775,23 +775,23 @@ class CommonTsetlinMachine():
 				class_sum[:] = 0
 				cuda.memcpy_htod(self.class_sum_gpu, class_sum)
 
-				# weights = self.get_state()[1].reshape(self.number_of_outputs, -1)
-				# for i in range(self.number_of_clauses):
-				#         print("Clause #%d W: " % (i), weights[:,i], end=' ', flush=True)
-				#         l = []
-				#         for k in range(graphs.hypervector_size * 2):
-				#             if self.get_ta_action(0, i, k):
-				#                 if k < self.message_size:
-				#                     l.append("x%d(%d)" % (k, self.get_ta_state(0, i, k)))
-				#                 else:
-				#                     l.append("NOT x%d(%d)" % (k - self.hypervector_size, self.get_ta_state(0, i, k)))
+				weights = self.get_state()[1].reshape(self.number_of_outputs, -1)
+				for i in range(self.number_of_clauses):
+				        print("Clause #%d W: " % (i), weights[:,i], end=' ', flush=True)
+				        l = []
+				        for k in range(graphs.hypervector_size * 2):
+				            if self.get_ta_action(0, i, k):
+				                if k < self.message_size:
+				                    l.append("x%d(%d)" % (k, self.get_ta_state(0, i, k)))
+				                else:
+				                    l.append("NOT x%d(%d)" % (k - self.hypervector_size, self.get_ta_state(0, i, k)))
 
-				#         for d in range(1, self.depth):
-				#             for k in range(self.message_size):                
-				#                 if self.get_ta_action(d, i, k):
-				#                     l.append("%d,%d(%d)" % (d, k, self.get_ta_state(d, i, k)))
+				        for d in range(1, self.depth):
+				            for k in range(self.message_size):                
+				                if self.get_ta_action(d, i, k):
+				                    l.append("%d,%d(%d)" % (d, k, self.get_ta_state(d, i, k)))
 
-				#         print(" AND ".join(l), flush=True)
+				        print(" AND ".join(l), flush=True)
 
 				### Inference 
 
