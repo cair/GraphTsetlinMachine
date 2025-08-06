@@ -567,7 +567,7 @@ code_evaluate = """
                             if ((ta_state[(MESSAGE_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & X[node*MESSAGE_CHUNKS + MESSAGE_CHUNKS-1] & MESSAGE_FILTER) != (ta_state[(MESSAGE_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & MESSAGE_FILTER)) {
                                 clause_node_output &= ~(1 << node_pos);
 
-                                printf("%d: %x (%d)AC\\n", clause, ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1], example);
+                                printf("%d: %x (%d)AC\\n", clause, ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & MESSAGE_FILTER, example);
                             }
                         } else {
                             clause_node_output &= ~(1 << node_pos);
