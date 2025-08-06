@@ -525,7 +525,8 @@ code_evaluate = """
             int *global_clause_node_output_condition,
             int *global_clause_node_output,
             int *number_of_include_actions,
-            unsigned int *X
+            unsigned int *X,
+            int example
         )
         {
             int index = blockIdx.x * blockDim.x + threadIdx.x;

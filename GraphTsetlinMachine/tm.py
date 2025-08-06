@@ -539,7 +539,7 @@ class CommonTsetlinMachine():
 		self.calculate_messages.prepare("PPiiiPPPi")
 
 		self.calculate_messages_conditional = mod_evaluate.get_function("calculate_messages_conditional")
-		self.calculate_messages_conditional.prepare("PPiiiPPPP")
+		self.calculate_messages_conditional.prepare("PPiiiPPPPi")
 
 		self.prepare_messages = mod_evaluate.get_function("prepare_messages")
 		self.prepare_messages.prepare("iP")
@@ -745,7 +745,8 @@ class CommonTsetlinMachine():
 				current_clause_node_output,
 				next_clause_node_output,
 				self.number_of_include_actions,
-				clause_X[depth]
+				clause_X[depth],
+				example
 			)
 			cuda.Context.synchronize()
 
