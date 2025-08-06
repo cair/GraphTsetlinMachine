@@ -541,6 +541,46 @@ code_evaluate = """
                 node_filter = 0xffffffff;
             }
 
+            if (index == 0) {
+                for (int clause_node_chunk = 0; clause_node_chunk < (CLAUSES)*(NODE_CHUNKS); clause_node_chunk += 1) {
+                    int clause = clause_node_chunk / NODE_CHUNKS;
+                    int node_chunk = clause_node_chunk % NODE_CHUNKS;
+
+                    unsigned int *ta_state = &global_ta_state[clause*MESSAGE_CHUNKS*STATE_BITS];
+
+                    if (node_chunk == 0) {
+                       number_of_include_actions[clause] += count_number_of_include_actions_message(ta_state);
+                    }
+
+                    clause_node_output = ~0;
+                    for (int node_pos = 0; (node_pos < INT_SIZE) && ((node_chunk * INT_SIZE + node_pos) < number_of_nodes); ++node_pos) {
+                        int node = node_chunk * INT_SIZE + node_pos;
+
+                        if (node_type[graph_index + node] == (clause % number_of_node_types)) {
+                            for (int la_chunk = 0; la_chunk < MESSAGE_CHUNKS-1; ++la_chunk) {
+                                if ((ta_state[la_chunk*STATE_BITS + STATE_BITS - 1] & X[node*MESSAGE_CHUNKS + la_chunk]) != ta_state[la_chunk*STATE_BITS + STATE_BITS - 1]) {
+                                    clause_node_output &= ~(1 << node_pos);
+                                }
+                            }
+
+                            if ((ta_state[(MESSAGE_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & X[node*MESSAGE_CHUNKS + MESSAGE_CHUNKS-1] & MESSAGE_FILTER) != (ta_state[(MESSAGE_CHUNKS-1)*STATE_BITS + STATE_BITS - 1] & MESSAGE_FILTER)) {
+                                clause_node_output &= ~(1 << node_pos);
+
+                                printf("%d: %d (%d)AC\\n", clause, ta_state[(LA_CHUNKS-1)*STATE_BITS + STATE_BITS - 1], example);
+                            }
+                        } else {
+                            clause_node_output &= ~(1 << node_pos);
+                        }
+                    }
+                    
+                    if (node_chunk == number_of_node_chunks - 1) {
+                        global_clause_node_output[clause*NODE_CHUNKS + node_chunk] = global_clause_node_output_condition[clause*NODE_CHUNKS + node_chunk] & clause_node_output & node_filter;
+                    } else {
+                        global_clause_node_output[clause*NODE_CHUNKS + node_chunk] = global_clause_node_output_condition[clause*NODE_CHUNKS + node_chunk] & clause_node_output;
+                    }
+                }
+            }
+/*
             for (int clause_node_chunk = index; clause_node_chunk < (CLAUSES)*(NODE_CHUNKS); clause_node_chunk += stride) {
                 int clause = clause_node_chunk / NODE_CHUNKS;
                 int node_chunk = clause_node_chunk % NODE_CHUNKS;
@@ -576,6 +616,7 @@ code_evaluate = """
                     global_clause_node_output[clause*NODE_CHUNKS + node_chunk] = global_clause_node_output_condition[clause*NODE_CHUNKS + node_chunk] & clause_node_output;
                 }
             }
+*/
         }
 
         __global__ void prepare_messages_attention(
