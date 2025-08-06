@@ -723,6 +723,7 @@ class CommonTsetlinMachine():
 				cuda.Context.synchronize()
 
 			# Encode messages bitwise
+			print("Encode Depth", depth, flush=True)
 			self.encode_messages.prepared_call(
 				self.grid,
 				self.block,
