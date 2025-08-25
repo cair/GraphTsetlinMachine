@@ -68,7 +68,7 @@ for graph_id in range(args.number_of_examples):
     y = np.random.choice([0, 1])
     if y == 0:
         size = np.random.randint(5) + 1
-        x = np.random.choice(['x1', 'x2', 'x3', 'x4', 'x5'], size = size)
+        x = np.random.choice(['x1', 'x2', 'x3', 'x4', 'x5'], replace=False, size = size)
         print(x)
  
     graphs_train.add_graph_node_property(graph_id, 'Node 1', x1)
