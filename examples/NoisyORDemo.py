@@ -44,8 +44,6 @@ graphs_train = Graphs(
     one_hot_encoding=args.one_hot_encoding
 )
 
-print(args.one_hot_encoding)
-
 for graph_id in range(args.number_of_examples):
     graphs_train.set_number_of_graph_nodes(graph_id, 2)
 
@@ -69,15 +67,11 @@ for graph_id in range(args.number_of_examples):
     if y == 0:
         size = np.random.randint(5) + 1
         x = np.random.choice(['x1', 'x2', 'x3', 'x4', 'x5'], replace=False, size = size)
-        print(x)
- 
-    graphs_train.add_graph_node_property(graph_id, 'Node 1', x1)
-    graphs_train.add_graph_node_property(graph_id, 'Node 2', x2)
-
-    if x1 == x2:
-        Y_train[graph_id] = 0
     else:
-        Y_train[graph_id] = 1
+        x = []
+ 
+    for symbol in x:
+        graphs_train.add_graph_node_property(graph_id, 'Node 1', x)
 
     if np.random.rand() <= args.noise:
         Y_train[graph_id] = 1 - Y_train[graph_id]
@@ -88,7 +82,7 @@ graphs_train.encode()
 
 print("Creating testing data")
 
-graphs_test = Graphs(args.number_of_examples, init_with=graphs_train)
+graphs_test = Graphs(args.number_of_examples, init_with=graphs_test)
 
 for graph_id in range(args.number_of_examples):
     graphs_test.set_number_of_graph_nodes(graph_id, 2)
@@ -109,16 +103,18 @@ for graph_id in range(args.number_of_examples):
 
 Y_test = np.empty(args.number_of_examples, dtype=np.uint32)
 for graph_id in range(args.number_of_examples):
-    x1 = random.choice(['A', 'B'])
-    x2 = random.choice(['A', 'B'])
-
-    graphs_test.add_graph_node_property(graph_id, 'Node 1', x1)
-    graphs_test.add_graph_node_property(graph_id, 'Node 2', x2)
-
-    if x1 == x2:
-        Y_test[graph_id] = 0
+    y = np.random.choice([0, 1])
+    if y == 0:
+        size = np.random.randint(5) + 1
+        x = np.random.choice(['x1', 'x2', 'x3', 'x4', 'x5'], replace=False, size = size)
     else:
-        Y_test[graph_id] = 1
+        x = []
+ 
+    for symbol in x:
+        graphs_test.add_graph_node_property(graph_id, 'Node 1', x)
+
+    if np.random.rand() <= args.noise:
+        Y_test[graph_id] = 1 - Y_test[graph_id]
 
 graphs_test.encode()
 
