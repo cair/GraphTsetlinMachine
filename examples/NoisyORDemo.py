@@ -63,8 +63,8 @@ for graph_id in range(args.number_of_examples):
 
 Y_train = np.empty(args.number_of_examples, dtype=np.uint32)
 for graph_id in range(args.number_of_examples):
-    y = np.random.choice([0, 1])
-    if y == 0:
+    Y_train[graph_id] = np.random.choice([0, 1])
+    if Y_train[graph_id] == 0:
         size = np.random.randint(5) + 1
         x = np.random.choice(['x1', 'x2', 'x3', 'x4', 'x5'], replace=False, size = size)
     else:
@@ -103,8 +103,8 @@ for graph_id in range(args.number_of_examples):
 
 Y_test = np.empty(args.number_of_examples, dtype=np.uint32)
 for graph_id in range(args.number_of_examples):
-    y = np.random.choice([0, 1])
-    if y == 0:
+    Y_test[graph_id] = np.random.choice([0, 1])
+    if Y_test[graph_id] == 0:
         size = np.random.randint(5) + 1
         x = np.random.choice(['x1', 'x2', 'x3', 'x4', 'x5'], replace=False, size = size)
     else:
@@ -112,9 +112,6 @@ for graph_id in range(args.number_of_examples):
  
     for symbol in x:
         graphs_test.add_graph_node_property(graph_id, 'Node 1', symbol)
-
-    if np.random.rand() <= args.noise:
-        Y_test[graph_id] = 1 - Y_test[graph_id]
 
 graphs_test.encode()
 
