@@ -82,7 +82,7 @@ graphs_train.encode()
 
 print("Creating testing data")
 
-graphs_test = Graphs(args.number_of_examples, init_with=graphs_test)
+graphs_test = Graphs(args.number_of_examples, init_with=graphs_train)
 
 for graph_id in range(args.number_of_examples):
     graphs_test.set_number_of_graph_nodes(graph_id, 2)
