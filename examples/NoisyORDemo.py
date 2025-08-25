@@ -71,7 +71,7 @@ for graph_id in range(args.number_of_examples):
         x = []
  
     for symbol in x:
-        graphs_train.add_graph_node_property(graph_id, 'Node 1', x)
+        graphs_train.add_graph_node_property(graph_id, 'Node 1', symbol)
 
     if np.random.rand() <= args.noise:
         Y_train[graph_id] = 1 - Y_train[graph_id]
@@ -111,7 +111,7 @@ for graph_id in range(args.number_of_examples):
         x = []
  
     for symbol in x:
-        graphs_test.add_graph_node_property(graph_id, 'Node 1', x)
+        graphs_test.add_graph_node_property(graph_id, 'Node 1', symbol)
 
     if np.random.rand() <= args.noise:
         Y_test[graph_id] = 1 - Y_test[graph_id]
