@@ -3,6 +3,8 @@ from GraphTsetlinMachine.tm import MultiClassGraphTsetlinMachine
 import argparse
 import numpy as np
 import prepare_dataset
+import os
+import matplotlib.pyplot as plt
 
 
 def main(args):  
@@ -98,22 +100,49 @@ def main(args):
     symbol_dict = dict((v, k) for k, v in graphs_train.symbol_id.items())
 
     threshold = 7
+
+    # create output folder for plots
+    os.makedirs("plots", exist_ok=True)
+    top_n = 15  # number of top symbols to show per class
+
     for target_label_of_Y in np.unique(Y_train):
-        print(f"Target label: {target_label_of_Y}, Number of positive clauses: {np.sum(weights[target_label_of_Y]>0)}")
+        # Aggregate scores per symbol across positive clauses for this class
+        scores = np.zeros(num_symbols, dtype=float)
         for clause in range(tm.number_of_clauses):
-            if weights[target_label_of_Y, clause] > 0:
-                for literal in range(num_symbols):
-                    state = clause_literals[clause, literal]
-                    neg_state = clause_literals[clause, literal + num_symbols]
-                    if np.any(state > threshold) or np.any(neg_state > threshold):
-                        print(f"Clause {clause} [{weights[target_label_of_Y, clause]:>4d}]", end=": ")
-                        if state > threshold:
-                            print(f"{clause_literals[clause, literal]}{symbol_dict[literal]}", end=" ")
+            w = weights[target_label_of_Y, clause]
+            if w <= 0:
+                continue
+            for literal in range(num_symbols):
+                state = clause_literals[clause, literal]
+                neg_state = clause_literals[clause, literal + num_symbols]
+                # handle scalar or array states
+                included_pos = np.any(state > threshold) if hasattr(state, "__iter__") else (state > threshold)
+                included_neg = np.any(neg_state > threshold) if hasattr(neg_state, "__iter__") else (neg_state > threshold)
+                if included_pos:
+                    scores[literal] += w
+                if included_neg:
+                    scores[literal] -= w
 
-                        if neg_state > threshold:
-                            print(f"~{clause_literals[clause, literal + num_symbols]}{symbol_dict[literal]}", end=" ")
+        # select top symbols by absolute aggregate score
+        idx_sorted = np.argsort(-np.abs(scores))
+        top_idx = idx_sorted[:top_n]
+        labels = [symbol_dict[i] for i in top_idx]
+        vals = scores[top_idx]
 
-                        print("")
+        # Plot horizontal bar chart
+        plt.figure(figsize=(8, max(4, top_n * 0.35)))
+        colors = ['tab:green' if v > 0 else 'tab:red' for v in vals]
+        # reverse for descending plotting top->bottom
+        plt.barh(range(len(vals)), vals[::-1], color=[c for c in colors[::-1]])
+        plt.yticks(range(len(vals)), labels[::-1], fontsize=8)
+        plt.xlabel('Aggregate clause weight')
+        plt.title(f'Top {top_n} symbols for class {target_label_of_Y}')
+        plt.tight_layout()
+
+        out_path = f"plots/class_{target_label_of_Y}_top{top_n}.png"
+        plt.savefig(out_path)
+        plt.close()
+        print(f"Saved plot: {out_path}")
 
 def default_args(**kwargs):
     parser = argparse.ArgumentParser()
