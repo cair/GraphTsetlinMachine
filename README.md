@@ -48,7 +48,7 @@ pip3 install graphtsetlinmachine
 or
 ```bash
 python ./setup.py sdist
-pip3 install dist/GraphTsetlinMachine-0.3.1.tar.gz
+pip3 install dist/GraphTsetlinMachine-0.3.4.tar.gz
 ```
 
 ## Tutorial 
@@ -339,7 +339,7 @@ tm = MultiClassGraphTsetlinMachine(
 
 ## Licence
 
-Copyright (c) 2024 Ole-Christoffer Granmo
+Copyright (c) 2025 Ole-Christoffer Granmo and University of Agder
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
