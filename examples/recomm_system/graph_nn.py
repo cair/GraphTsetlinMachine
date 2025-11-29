@@ -7,17 +7,61 @@ import prepare_dataset
 from tmu.tools import BenchmarkTimer
 import os
 import pandas as pd
+from sklearn.preprocessing import OneHotEncoder
+import numpy as np
 
 def main(args):
     results = []
-    data = prepare_dataset.aug_amazon_products(noise_ratio = args.dataset_noise_ratio)
+    data = prepare_dataset.aug_amazon_products(noise_ratio=args.dataset_noise_ratio)
     x, y = prepare_dataset.construct_x_y(data)
-    X_train, X_test, Y_train, Y_test = prepare_dataset.train_test_split(x,y)
-    # Graph Construction
-    num_users = len(data['user_id'].unique())
-    num_items = len(data['product_id'].unique())
-    num_categories = len(data['category'].unique())
+    X_train, X_test, Y_train, Y_test = prepare_dataset.train_test_split(x, y)
+
+    # Extract categorical identifiers for features
+    user_ids = data['user_id'].unique()
+    item_ids = data['product_id'].unique()
+    category_ids = data['category'].unique()
+
+    print("Unique user_ids: ", len(user_ids))
+    print("Unique item_ids: ", len(item_ids))
+    print("Unique category_ids: ", len(category_ids))
+
+    num_users = len(user_ids)
+    num_items = len(item_ids)
+    num_categories = len(category_ids)
     num_nodes = num_users + num_items + num_categories
+
+    # One-hot encoding for node features
+    user_encoder = OneHotEncoder()
+    item_encoder = OneHotEncoder()
+    category_encoder = OneHotEncoder()
+
+    # Fit encoders using unique identifiers
+    user_features = user_encoder.fit_transform(user_ids.reshape(-1, 1)).toarray()  # Convert to dense
+    item_features = item_encoder.fit_transform(item_ids.reshape(-1, 1)).toarray()  # Convert to dense
+    category_features = category_encoder.fit_transform(category_ids.reshape(-1, 1)).toarray()  # Convert to dense
+
+    print("User features shape: ", user_features.shape)
+    print("Item features shape: ", item_features.shape)
+    print("Category features shape: ", category_features.shape)
+
+    # Ensure consistent feature dimensions
+    max_feature_dim = max(user_features.shape[1], item_features.shape[1], category_features.shape[1])
+
+    # Pad features if dimension mismatch
+    if user_features.shape[1] < max_feature_dim:
+        user_features = np.pad(user_features, ((0, 0), (0, max_feature_dim - user_features.shape[1])), 'constant')
+    if item_features.shape[1] < max_feature_dim:
+        item_features = np.pad(item_features, ((0, 0), (0, max_feature_dim - item_features.shape[1])), 'constant')
+    if category_features.shape[1] < max_feature_dim:
+        category_features = np.pad(category_features, ((0, 0), (0, max_feature_dim - category_features.shape[1])), 'constant')
+
+    # Concatenate all node features into a single tensor
+    node_features = torch.cat([
+        torch.tensor(user_features, dtype=torch.float),
+        torch.tensor(item_features, dtype=torch.float),
+        torch.tensor(category_features, dtype=torch.float)
+    ], dim=0)
+
     # Build edge list
     edge_list = []
     # User ↔ Item edges
@@ -30,25 +74,28 @@ def main(args):
         edge_list.append((num_users + num_items + category, num_users + item))  # Category to Item
     # Create edge index for PyTorch Geometric
     edge_index = torch.tensor(edge_list, dtype=torch.long).t()
-    # Node features
-    node_features = torch.rand((num_nodes, 64), dtype=torch.float)
+
     # PyTorch Geometric Data object
     graph_data = Data(x=node_features, edge_index=edge_index)
+
     # Step 2: Define GCN Model
     class GCN(torch.nn.Module):
         def __init__(self, input_dim, hidden_dim, output_dim):
             super(GCN, self).__init__()
             self.conv1 = GCNConv(input_dim, hidden_dim)
             self.conv2 = GCNConv(hidden_dim, output_dim)
+
         def forward(self, x, edge_index):
             x = self.conv1(x, edge_index)
             x = F.relu(x)
             x = self.conv2(x, edge_index)
             return x
+
     # Initialize Model
-    model = GCN(input_dim=64, hidden_dim=128, output_dim=64)
+    model = GCN(input_dim=node_features.shape[1], hidden_dim=128, output_dim=64)
     # Define optimizer
     optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
+
     # Convert train/test data to tensors
     train_edges = torch.tensor(
         [(user, num_users + item) for user, item in zip(X_train[:, 0], X_train[:, 1])],
@@ -60,6 +107,7 @@ def main(args):
         dtype=torch.long
     ).t()
     test_labels = torch.tensor(Y_test, dtype=torch.float)
+
     # Training Loop with Accuracy Logging
     benchmark_total = BenchmarkTimer(logger=None, text="Epochs Time")
     with benchmark_total:
@@ -79,6 +127,7 @@ def main(args):
                 loss.backward()
                 optimizer.step()
             train_time = benchmark1.elapsed()
+
             # Testing Phase
             benchmark2 = BenchmarkTimer(logger=None, text="Testing Time")
             with benchmark2:
@@ -91,7 +140,9 @@ def main(args):
                     # Compute accuracy
                     accuracy = ((test_predicted_ratings.round() == test_labels).float().mean().item()) * 100
             test_time = benchmark2.elapsed()
+
     total_time = benchmark_total.elapsed()
+
     # Append results for each epoch
     results.append({
         "Exp_id": args.exp_id,
