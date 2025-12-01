@@ -80,12 +80,9 @@ def main(args):
         max_included_literals=args.max_included_literals,
         double_hashing = args.double_hashing
     )
-
     for epoch in range(args.epochs):
         tm.fit(graphs_train, Y_train, epochs=1, incremental=True)
     
-    # print_clause_explanations(tm, graphs_train)
-        
     state = tm.get_state()
     clause_weights_flat = state[1]
     number_of_classes = int(state[2])
@@ -99,15 +96,46 @@ def main(args):
     # Create symbol_id to symbol_name dictionary for printing symbol names
     symbol_dict = dict((v, k) for k, v in graphs_train.symbol_id.items())
 
-    threshold = 7
-
     # create output folder for plots
     os.makedirs("plots", exist_ok=True)
     top_n = 15  # number of top symbols to show per class
+    threshold = 7  # threshold for literal inclusion
+    
+    class_labels = np.unique(Y_train)
+    num_classes = len(class_labels)
 
-    for target_label_of_Y in np.unique(Y_train):
-        # Aggregate scores per symbol across positive clauses for this class
-        scores = np.zeros(num_symbols, dtype=float)
+    # --- Determine optimal figure and subplot spacing ---
+    # Calculate dynamic height based on number of classes and top_n to avoid too much whitespace
+    # Adjusted multiplier for height
+    row_height_per_feature = 0.25 # Smaller value to reduce vertical space per feature
+    fig_height = max(3.5 * num_classes, num_classes * top_n * row_height_per_feature + 2) 
+
+    fig, axes = plt.subplots(
+        nrows=num_classes, 
+        ncols=2, 
+        figsize=(10, fig_height), # Slightly reduced width, dynamically calculated height
+        sharey='row',             # Share the Y-axis (symbol labels) only within each row
+        gridspec_kw={
+            'wspace': 0.15, # Reduced horizontal space between subplots
+            'hspace': 0.45, # Reduced vertical space between rows of subplots
+            'left': 0.1,    # Adjust left margin
+            'right': 0.95,  # Adjust right margin
+            'top': 0.93,    # Adjust top margin (for suptitle)
+            'bottom': 0.05  # Adjust bottom margin (for common x-labels)
+        }
+    )
+
+    # Ensure 'axes' is a 2D array even for a single class (num_classes=1)
+    if num_classes == 1:
+        axes = np.array([axes])
+
+    # --- Main Plotting Loop ---
+    for i, target_label_of_Y in enumerate(class_labels):
+        
+        # 1. Aggregate scores for the current class (Aggregation Logic remains the same)
+        state_scores = np.zeros(num_symbols, dtype=float)
+        weight_scores = np.zeros(num_symbols, dtype=float)
+        
         for clause in range(tm.number_of_clauses):
             w = weights[target_label_of_Y, clause]
             if w <= 0:
@@ -115,41 +143,85 @@ def main(args):
             for literal in range(num_symbols):
                 state = clause_literals[clause, literal]
                 neg_state = clause_literals[clause, literal + num_symbols]
-                # handle scalar or array states
-                included_pos = np.any(state > threshold) if hasattr(state, "__iter__") else (state > threshold)
-                included_neg = np.any(neg_state > threshold) if hasattr(neg_state, "__iter__") else (neg_state > threshold)
-                if included_pos:
-                    scores[literal] += w
-                if included_neg:
-                    scores[literal] -= w
+                
+                if state > threshold:
+                    state_scores[literal] += state
+                    weight_scores[literal] += w
+                
+                if neg_state > threshold:
+                    state_scores[literal] -= neg_state
+                    weight_scores[literal] -= w
 
-        # select top symbols by absolute aggregate score
-        idx_sorted = np.argsort(-np.abs(scores))
+        # 2. Select top symbols
+        idx_sorted = np.argsort(-np.abs(state_scores))
         top_idx = idx_sorted[:top_n]
+        
         labels = [symbol_dict[i] for i in top_idx]
-        vals = scores[top_idx]
+        state_vals = state_scores[top_idx]
+        weight_vals = weight_scores[top_idx] 
 
-        # Plot horizontal bar chart
-        plt.figure(figsize=(8, max(4, top_n * 0.35)))
-        colors = ['tab:green' if v > 0 else 'tab:red' for v in vals]
-        # reverse for descending plotting top->bottom
-        plt.barh(range(len(vals)), vals[::-1], color=[c for c in colors[::-1]])
-        plt.yticks(range(len(vals)), labels[::-1], fontsize=8)
-        plt.xlabel('Aggregate clause weight')
-        plt.title(f'Top {top_n} symbols for class {target_label_of_Y}')
-        plt.tight_layout()
+        bar_positions = range(len(state_vals))
+        
+        # 3. Plot State Scores (Left Subplot of the current row)
+        ax1 = axes[i, 0]
+        state_colors = ['tab:green' if v > 0 else '#843d3a' for v in state_vals]
+        ax1.barh(bar_positions, state_vals[::-1], color=[c for c in state_colors[::-1]])
+        
+        # Set Y-axis labels (features)
+        ax1.set_yticks(bar_positions)
+        ax1.set_yticklabels(labels[::-1], fontsize=7) # Smaller font for labels
+        ax1.set_ylabel(f'Class {target_label_of_Y}\n(Features)', rotation=90, labelpad=5, fontsize=9) # Reduced labelpad
+        
+        # Titles
+        if i == 0: # Only top row gets the full title
+            ax1.set_title('Aggregate Clause State', fontsize=10)
+        else:
+            # For other rows, a simpler label on the Y-axis is enough, or no title
+            ax1.set_title('') # Clear title for non-top rows
 
-        out_path = f"plots/class_{target_label_of_Y}_top{top_n}.png"
-        plt.savefig(out_path)
-        plt.close()
-        print(f"Saved plot: {out_path}")
+        ax1.axvline(0, color='gray', linewidth=0.8, linestyle='--') 
+        
+        # 4. Plot Weight Scores (Right Subplot of the current row)
+        ax2 = axes[i, 1]
+        weight_colors = ['tab:blue' if v > 0 else '#41729a' for v in weight_vals] 
+        ax2.barh(bar_positions, weight_vals[::-1], color=[c for c in weight_colors[::-1]])
+        
+        # Remove redundant Y-axis labels and ticks from the right subplot
+        ax2.tick_params(axis='y', left=False, labelleft=False) 
+        
+        # Titles
+        if i == 0: # Only top row gets the full title
+            ax2.set_title('Aggregate Clause Weight ($w$)', fontsize=10)
+        else:
+            ax2.set_title('') # Clear title for non-top rows
+
+        ax2.axvline(0, color='gray', linewidth=0.8, linestyle='--') 
+
+        # Add X-axis labels only to the bottom row for clarity
+        if i == num_classes - 1:
+            ax1.set_xlabel('Score Value', fontsize=9)
+            ax2.set_xlabel('Score Value', fontsize=9)
+        else:
+            # Remove X-axis labels from non-bottom rows
+            ax1.tick_params(axis='x', labelbottom=False)
+            ax2.tick_params(axis='x', labelbottom=False)
+
+    # Add a main title for the entire figure
+    plt.suptitle(f'Top {top_n} Feature Importance Comparison Across All Classes', fontsize=14)
+    # plt.tight_layout() # We are using specific gridspec_kw margins instead
+
+    out_path = f"plots/all_classes_top{top_n}_comparison_compact.png"
+    plt.savefig(out_path)
+    plt.close()
+
+    print(f"Saved combined comparison plot: {out_path}")
 
 def default_args(**kwargs):
     parser = argparse.ArgumentParser()
-    parser.add_argument("--epochs", default=1, type=int)
+    parser.add_argument("--epochs", default=40, type=int)
     parser.add_argument("--number-of-clauses", default=2000, type=int)
     parser.add_argument("--T", default=10000, type=int)
-    parser.add_argument("--s", default=10.0, type=float)
+    parser.add_argument("--s", default=1.0, type=float)
     parser.add_argument("--number-of-state-bits", default=8, type=int)
     parser.add_argument("--depth", default=1, type=int)
     parser.add_argument("--hypervector-size", default=4096, type=int)
@@ -168,8 +240,4 @@ def default_args(**kwargs):
     return args
 
 if __name__ == "__main__":
-    # train
     main(default_args())
-    
-    # run just explanation from saved model
-    # print_clause_explanations()
