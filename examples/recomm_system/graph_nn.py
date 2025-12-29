@@ -1,149 +1,118 @@
 import argparse
 import torch
 import torch.nn.functional as F
-from torch_geometric.data import Data
-from torch_geometric.nn import GCNConv
+from torch_geometric.data import Data, DataLoader
+from torch_geometric.nn import GCNConv, global_mean_pool
 import prepare_dataset
 from tmu.tools import BenchmarkTimer
-import os
 import pandas as pd
-from sklearn.preprocessing import OneHotEncoder
+import os
 import numpy as np
 
+# -------------------------
+# Graph Construction
+# -------------------------
+def build_graph(x_row, y_label, bits=16):
+    u, i, c = map(int, x_row)
+
+    def bin_encode(v):
+        return torch.tensor([(v >> b) & 1 for b in range(bits)], dtype=torch.float)
+
+    x = torch.stack([
+        torch.cat([bin_encode(u), torch.zeros(bits * 2)]),
+        torch.cat([torch.zeros(bits), bin_encode(i), torch.zeros(bits)]),
+        torch.cat([torch.zeros(bits * 2), bin_encode(c)]),
+    ])
+
+    edge_index = torch.tensor([
+        [0, 1, 1, 2],
+        [1, 0, 2, 1],
+    ], dtype=torch.long)
+
+    y = torch.tensor(y_label, dtype=torch.long)
+
+    return Data(x=x, edge_index=edge_index, y=y)
+
+# -------------------------
+# GNN Model (Graph-level)
+# -------------------------
+class GraphClassifier(torch.nn.Module):
+    def __init__(self, in_dim, hidden_dim, num_classes):
+        super().__init__()
+        self.conv1 = GCNConv(in_dim, hidden_dim)
+        self.conv2 = GCNConv(hidden_dim, hidden_dim)
+        self.classifier = torch.nn.Linear(hidden_dim, num_classes)
+
+    def forward(self, x, edge_index, batch):
+        x = self.conv1(x, edge_index)
+        x = F.relu(x)
+        x = self.conv2(x, edge_index)
+        x = global_mean_pool(x, batch)  # graph-level embedding
+        return self.classifier(x)
+
+# -------------------------
+# Main Experiment
+# -------------------------
 def main(args):
     results = []
-    data = prepare_dataset.aug_amazon_products(noise_ratio=args.dataset_noise_ratio)
+
+    data = prepare_dataset.aug_amazon_products(
+        noise_ratio=args.dataset_noise_ratio
+    )
     x, y = prepare_dataset.construct_x_y(data)
     X_train, X_test, Y_train, Y_test = prepare_dataset.train_test_split(x, y)
 
-    # Extract categorical identifiers for features
-    user_ids = data['user_id'].unique()
-    item_ids = data['product_id'].unique()
-    category_ids = data['category'].unique()
+    bits = 16
+    feature_dim = 3 * bits
+    # Build graph datasets
+    train_graphs = [build_graph(X_train[i], Y_train[i], bits=bits) for i in range(len(X_train))]
+    test_graphs = [build_graph(X_test[i], Y_test[i], bits=bits) for i in range(len(X_test))]
 
-    print("Unique user_ids: ", len(user_ids))
-    print("Unique item_ids: ", len(item_ids))
-    print("Unique category_ids: ", len(category_ids))
+    train_loader = DataLoader(train_graphs, batch_size=64, shuffle=True)
+    test_loader = DataLoader(test_graphs, batch_size=64)
 
-    num_users = len(user_ids)
-    num_items = len(item_ids)
-    num_categories = len(category_ids)
-    num_nodes = num_users + num_items + num_categories
+    num_classes = len(np.unique(y))
 
-    # One-hot encoding for node features
-    user_encoder = OneHotEncoder()
-    item_encoder = OneHotEncoder()
-    category_encoder = OneHotEncoder()
+    model = GraphClassifier(
+        in_dim=feature_dim,
+        hidden_dim=64,
+        num_classes=num_classes
+    )
 
-    # Fit encoders using unique identifiers
-    user_features = user_encoder.fit_transform(user_ids.reshape(-1, 1)).toarray()  # Convert to dense
-    item_features = item_encoder.fit_transform(item_ids.reshape(-1, 1)).toarray()  # Convert to dense
-    category_features = category_encoder.fit_transform(category_ids.reshape(-1, 1)).toarray()  # Convert to dense
+    optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+    criterion = torch.nn.CrossEntropyLoss()
 
-    print("User features shape: ", user_features.shape)
-    print("Item features shape: ", item_features.shape)
-    print("Category features shape: ", category_features.shape)
-
-    # Ensure consistent feature dimensions
-    max_feature_dim = max(user_features.shape[1], item_features.shape[1], category_features.shape[1])
-
-    # Pad features if dimension mismatch
-    if user_features.shape[1] < max_feature_dim:
-        user_features = np.pad(user_features, ((0, 0), (0, max_feature_dim - user_features.shape[1])), 'constant')
-    if item_features.shape[1] < max_feature_dim:
-        item_features = np.pad(item_features, ((0, 0), (0, max_feature_dim - item_features.shape[1])), 'constant')
-    if category_features.shape[1] < max_feature_dim:
-        category_features = np.pad(category_features, ((0, 0), (0, max_feature_dim - category_features.shape[1])), 'constant')
-
-    # Concatenate all node features into a single tensor
-    node_features = torch.cat([
-        torch.tensor(user_features, dtype=torch.float),
-        torch.tensor(item_features, dtype=torch.float),
-        torch.tensor(category_features, dtype=torch.float)
-    ], dim=0)
-
-    # Build edge list
-    edge_list = []
-    # User ↔ Item edges
-    for user, item in zip(X_train[:, 0], X_train[:, 1]):
-        edge_list.append((user, num_users + item))  # User to Item
-        edge_list.append((num_users + item, user))  # Item to User
-    # Item ↔ Category edges
-    for item, category in zip(X_train[:, 1], X_train[:, 2]):
-        edge_list.append((num_users + item, num_users + num_items + category))  # Item to Category
-        edge_list.append((num_users + num_items + category, num_users + item))  # Category to Item
-    # Create edge index for PyTorch Geometric
-    edge_index = torch.tensor(edge_list, dtype=torch.long).t()
-
-    # PyTorch Geometric Data object
-    graph_data = Data(x=node_features, edge_index=edge_index)
-
-    # Step 2: Define GCN Model
-    class GCN(torch.nn.Module):
-        def __init__(self, input_dim, hidden_dim, output_dim):
-            super(GCN, self).__init__()
-            self.conv1 = GCNConv(input_dim, hidden_dim)
-            self.conv2 = GCNConv(hidden_dim, output_dim)
-
-        def forward(self, x, edge_index):
-            x = self.conv1(x, edge_index)
-            x = F.relu(x)
-            x = self.conv2(x, edge_index)
-            return x
-
-    # Initialize Model
-    model = GCN(input_dim=node_features.shape[1], hidden_dim=128, output_dim=64)
-    # Define optimizer
-    optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
-
-    # Convert train/test data to tensors
-    train_edges = torch.tensor(
-        [(user, num_users + item) for user, item in zip(X_train[:, 0], X_train[:, 1])],
-        dtype=torch.long
-    ).t()
-    train_labels = torch.tensor(Y_train, dtype=torch.float)
-    test_edges = torch.tensor(
-        [(user, num_users + item) for user, item in zip(X_test[:, 0], X_test[:, 1])],
-        dtype=torch.long
-    ).t()
-    test_labels = torch.tensor(Y_test, dtype=torch.float)
-
-    # Training Loop with Accuracy Logging
-    benchmark_total = BenchmarkTimer(logger=None, text="Epochs Time")
+    benchmark_total = BenchmarkTimer(logger=None, text="Total Time")
     with benchmark_total:
         for epoch in range(args.epochs):
+            # Training
             benchmark1 = BenchmarkTimer(logger=None, text="Training Time")
             with benchmark1:
-                # Training Phase
                 model.train()
-                optimizer.zero_grad()
-                out = model(graph_data.x, graph_data.edge_index)
-                # User-item embeddings
-                user_embeddings = out[train_edges[0]]
-                item_embeddings = out[train_edges[1]]
-                predicted_ratings = (user_embeddings * item_embeddings).sum(dim=1)
-                # Compute loss
-                loss = F.mse_loss(predicted_ratings, train_labels)
-                loss.backward()
-                optimizer.step()
-            train_time = benchmark1.elapsed()
+                for batch in train_loader:
+                    optimizer.zero_grad()
+                    out = model(batch.x, batch.edge_index, batch.batch)
+                    loss = criterion(out, batch.y)
+                    loss.backward()
+                    optimizer.step()
 
-            # Testing Phase
+            # Testing
             benchmark2 = BenchmarkTimer(logger=None, text="Testing Time")
             with benchmark2:
                 model.eval()
+                correct = 0
+                total = 0
                 with torch.no_grad():
-                    out = model(graph_data.x, graph_data.edge_index)
-                    test_user_embeddings = out[test_edges[0]]
-                    test_item_embeddings = out[test_edges[1]]
-                    test_predicted_ratings = (test_user_embeddings * test_item_embeddings).sum(dim=1)
-                    # Compute accuracy
-                    accuracy = ((test_predicted_ratings.round() == test_labels).float().mean().item()) * 100
-            test_time = benchmark2.elapsed()
+                    for batch in test_loader:
+                        out = model(batch.x, batch.edge_index, batch.batch)
+                        pred = out.argmax(dim=1)
+                        correct += (pred == batch.y).sum().item()
+                        total += batch.y.size(0)
+
+                accuracy = 100.0 * correct / total
 
     total_time = benchmark_total.elapsed()
 
-    # Append results for each epoch
     results.append({
         "Exp_id": args.exp_id,
         "Algorithm": "Graph NN",
@@ -157,26 +126,27 @@ def main(args):
         "Accuracy": accuracy,
     })
 
-    # Save results to CSV
     results_df = pd.DataFrame(results)
     results_file = "experiment_results.csv"
     if os.path.exists(results_file):
-        results_df.to_csv(results_file, mode='a', index=False, header=False)
+        results_df.to_csv(results_file, mode="a", index=False, header=False)
     else:
         results_df.to_csv(results_file, index=False)
+
     print(f"Results saved to {results_file}")
 
-
+# -------------------------
+# Arguments
+# -------------------------
 def default_args(**kwargs):
     parser = argparse.ArgumentParser()
-    parser.add_argument("--platform", default="CPU", type=str, choices=["CPU", "CUDA"])
-    parser.add_argument("--epochs", default=2000, type=int)
+    parser.add_argument("--epochs", default=100, type=int)
     parser.add_argument("--dataset_noise_ratio", default=0.01, type=float)
+    parser.add_argument("--platform", default="GPU", type=str)
     parser.add_argument("--exp_id", default="", type=str)
     args = parser.parse_args()
-    for key, value in kwargs.items():
-        if key in args.__dict__:
-            setattr(args, key, value)
+    for k, v in kwargs.items():
+        setattr(args, k, v)
     return args
 
 if __name__ == "__main__":
