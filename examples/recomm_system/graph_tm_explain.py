@@ -5,6 +5,7 @@ import numpy as np
 import prepare_dataset
 import os
 import matplotlib.pyplot as plt
+from sklearn.decomposition import PCA
 
 
 def main(args):  
@@ -103,6 +104,82 @@ def main(args):
     
     class_labels = np.unique(Y_train)
     num_classes = len(class_labels)
+
+    # t-SNE visualization of features by class
+    feature_vectors = []  # vectors for each feature
+    feature_labels = []   # feature names
+    feature_classes = []  # class each feature belongs to
+    
+    for class_label in class_labels:
+        # Get top-15 features for this class
+        scores = np.zeros(num_symbols)
+        for clause in range(int(state[3])):
+            w = weights[class_label, clause]
+            if w > 0:
+                for lit in range(num_symbols):
+                    s = clause_literals[clause, lit]
+                    ns = clause_literals[clause, lit + num_symbols]
+                    if s > threshold:
+                        scores[lit] += s * w
+                    if ns > threshold:
+                        scores[lit] -= ns * w
+        
+        top_idx = np.argsort(-np.abs(scores))[:top_n]
+        
+        # Create vector for each top feature
+        class_vecs = []
+        for feat_idx in top_idx:
+            feat_vec = np.zeros(num_symbols)
+            for clause in range(int(state[3])):
+                w = weights[class_label, clause]
+                if w > 0:
+                    s = clause_literals[clause, feat_idx]
+                    ns = clause_literals[clause, feat_idx + num_symbols]
+                    feat_vec[clause] = s * w - ns * w
+            
+            class_vecs.append(feat_vec)
+        
+        # Normalize vectors within this class
+        class_vecs = np.array(class_vecs)
+        class_max = np.max(np.abs(class_vecs))
+        if class_max > 0:
+            class_vecs = class_vecs / class_max
+        
+        for i, feat_idx in enumerate(top_idx):
+            feature_vectors.append(class_vecs[i])
+            feature_labels.append(symbol_dict[feat_idx])
+            feature_classes.append(class_label)
+    
+    if len(feature_vectors) > 1:
+        feature_vectors = np.array(feature_vectors)
+        feature_classes = np.array(feature_classes)
+        
+        # PCA projection
+        pca = PCA(n_components=2)
+        features_2d = pca.fit_transform(feature_vectors)
+        
+        # Plot
+        fig, ax = plt.subplots(figsize=(12, 8))
+        colors = plt.cm.Set3(np.linspace(0, 1, num_classes))
+        
+        for class_label in class_labels:
+            mask = feature_classes == class_label
+            ax.scatter(features_2d[mask, 0], features_2d[mask, 1], 
+                      c=[colors[class_label]], label=f'Class {class_label}', s=100, alpha=0.7)
+        
+        # Add feature names as labels
+        for i, txt in enumerate(feature_labels):
+            ax.annotate(txt, (features_2d[i, 0], features_2d[i, 1]), 
+                       fontsize=8, ha='center', va='center')
+        
+        ax.set_xlabel('t-SNE 1')
+        ax.set_ylabel('t-SNE 2')
+        ax.set_title('Feature Space (Top-15 features per class)')
+        ax.legend()
+        ax.grid(True, alpha=0.3)
+        plt.tight_layout()
+        plt.savefig('plots/feature_space_tsne.png', dpi=150)
+        plt.close()
 
     # --- Determine optimal figure and subplot spacing ---
     # Calculate dynamic height based on number of classes and top_n to avoid too much whitespace
