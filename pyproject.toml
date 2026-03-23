@@ -1,0 +1,36 @@
+[tool.pixi.workspace]
+channels = ["conda-forge"]
+platforms = ["linux-64"]
+
+[tool.pixi.tasks]
+
+[tool.pixi.system-requirements]
+cuda = "12"
+
+[tool.pixi.dependencies]
+python = ">=3.11,<3.12"
+numpy = ">=2.3.5,<3"
+mamba = ">=2.4.0,<3"
+cuda = ">=12.9.1,<13"
+sympy = ">=1.14.0,<2"
+numba = ">=0.62.1,<0.63"
+scipy = ">=1.16.3,<2"
+
+[tool.pixi.pypi-dependencies]
+graphtsetlinmachine = { path = ".", editable = true }
+pycuda = ">=2025.1.2, <2026"
+
+[tool.basedpyright]
+typeCheckingMode = "standard"
+reportUnusedImport = false
+exclude = [
+    "**/__pycache__*",
+    "**/.*",
+    "**/*.ipynb",
+]
+
+[tool.ruff]
+line-length = 160
+
+[tool.ruff.format]
+indent-style = "tab"

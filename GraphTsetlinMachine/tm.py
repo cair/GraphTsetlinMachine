@@ -30,11 +30,8 @@ import GraphTsetlinMachine.kernels as kernels
 
 import pycuda.curandom as curandom
 import pycuda.driver as cuda
-import pycuda.autoinit
+import pycuda.autoinit  # noqa: F401
 from pycuda.compiler import SourceModule
-from scipy.sparse import csr_matrix
-import sys
-from time import time
 
 g = curandom.XORWOWRandomNumberGenerator() 
 
@@ -314,22 +311,19 @@ class CommonTsetlinMachine():
 
 	def save(self, fname=""):
 		# Copy data from GPU to CPU
-		if np.array_equal(self.ta_state, np.array([])):
-			self.ta_state = np.empty(
-				self.number_of_clauses * self.number_of_ta_chunks * self.number_of_state_bits, dtype=np.uint32
-			)
-			cuda.memcpy_dtoh(self.ta_state, self.ta_state_gpu)
+		self.ta_state = np.empty(
+			self.number_of_clauses * self.number_of_ta_chunks * self.number_of_state_bits, dtype=np.uint32
+		)
+		cuda.memcpy_dtoh(self.ta_state, self.ta_state_gpu)
 
 		for depth in range(self.depth - 1):
-			if np.array_equal(self.message_ta_state[depth], np.array([])):
-				self.message_ta_state[depth] = np.empty(
-					self.number_of_clauses * self.number_of_message_chunks * self.number_of_state_bits, dtype=np.uint32
-				)
-				cuda.memcpy_dtoh(self.message_ta_state[depth], self.message_ta_state_gpu[depth])
+			self.message_ta_state[depth] = np.empty(
+				self.number_of_clauses * self.number_of_message_chunks * self.number_of_state_bits, dtype=np.uint32
+			)
+			cuda.memcpy_dtoh(self.message_ta_state[depth], self.message_ta_state_gpu[depth])
 
-		if np.array_equal(self.clause_weights, np.array([])):
-			self.clause_weights = np.empty(self.number_of_outputs * self.number_of_clauses, dtype=np.int32)
-			cuda.memcpy_dtoh(self.clause_weights, self.clause_weights_gpu)
+		self.clause_weights = np.empty(self.number_of_outputs * self.number_of_clauses, dtype=np.int32)
+		cuda.memcpy_dtoh(self.clause_weights, self.clause_weights_gpu)
 
 		state_dict = {
 			# State arrays
